@@ -11,7 +11,7 @@ Systematically scan the current codebase and recent diffs across the following f
 
 Ensure the workspace configuration, instructions, and dependencies are structurally sound.
 
-* **Maintain Agentic Context:** Verify that repository-level AI instructions (e.g., `AGENT.md`) are present and accurate. Generate or update `AGENT.md` with current UI libraries, state management choices, and strict testing requirements.
+* **Maintain Agentic Context:** Verify that repository-level AI instructions (e.g., `AGENTS.md`) are present and accurate. Generate or update `AGENTS.md` with current UI libraries, state management choices, and strict testing requirements.
 * **Enforce Dependency Hygiene:** Inspect `package.json` and lockfiles. Pin exact dependency versions, remove unused prototype packages, and check for outdated major libraries.
 
 ## 2. Zero-Trust Data Security & Access

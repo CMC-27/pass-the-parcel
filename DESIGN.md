@@ -1,17 +1,17 @@
-# Application Design & Frontend Guidelines 🎨
+# Application Design & Frontend Guidelines
 
-Welcome to the frontend styling and layout system guide. 
+Welcome to the frontend styling and layout system guide.
 
 To ensure absolute visual consistency and match the premium design system of this application, all developers and agents **MUST** read and adhere to the core design system specification.
 
 > [!IMPORTANT]
 > **Direct System Specification:**
 > Before creating or modifying any user interface elements, dashboards, or components, review the master design system document:
-> ➡️ **[design-system.md](wiki/core/06-design-system.md)**
+> ➡️ **[design-system.md](wiki/core/05-design-system.md)**
 
 ---
 
-## 🎨 Creative North Star
+## Creative North Star
 
 Every application should follow a clean, premium, and unified aesthetic guidelines. Key principles include:
 
@@ -21,9 +21,9 @@ Every application should follow a clean, premium, and unified aesthetic guidelin
 
 ---
 
-## ⚙️ Core Design Tokens (Quick Reference Template)
+## Core Design Tokens (Quick Reference Template)
 
-These variables are defined in the global stylesheet (e.g., `src/index.css` or theme configuration file):
+These variables are defined in the global stylesheet:
 
 | Token | CSS Variable | Purpose |
 |---|---|---|
@@ -35,5 +35,4 @@ These variables are defined in the global stylesheet (e.g., `src/index.css` or t
 | **Success** | `--color-success` | Success metrics, indicators, and complete states |
 | **Warning / Error** | `--color-error` | Validation failures, alerts, and critical flags |
 
-*For the full list of variables, badge styling, interactive button specifications, and typography hierarchy, see the complete guide at [design-system.md](wiki/core/06-design-system.md).*
-
+*For the full list of variables, badge styling, interactive button specifications, and typography hierarchy, see the complete guide at [design-system.md](wiki/core/05-design-system.md).*

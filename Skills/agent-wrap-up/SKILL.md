@@ -18,12 +18,12 @@ Activate this skill whenever:
 
 ---
 
-## 🚀 Execution Phases
+## Execution Phases
 
-### Phase 1: The Audit Log (`docs/dev/logs/agent-changelog.md`)
+### Phase 1: The Audit Log (`dev/logs/agent-changelog.md`)
 Documentation of history is the foundation of project health.
 
-1.  **Update the Summary Table**: Add a new row to the top of the table (below the headers) in `docs/dev/logs/agent-changelog.md`.
+1.  **Update the Summary Table**: Add a new row to the top of the table (below the headers) in `dev/logs/agent-changelog.md`.
     - **Date**: YYYY-MM-DD
     - **Task**: Short descriptive name.
     - **Files Modified**: List key directories or files.
@@ -40,37 +40,36 @@ Every new function or significant logic change must be documented.
 1.  **Identify New Assets**: Review your work for:
     - New React Hooks (`src/hooks/`)
     - New UI Components (`src/components/`)
-    - New Utility Functions (`src/utils/` or `src/services/`)
+    - New Utility Functions (`src/utils/`)
     - New API Routes or Database Collections
 2.  **Create/Update Docs**:
-    - If a new feature was added: Create a doc in `docs/features/<feature-name>.md`.
-    - If a component was added: Create/Update `docs/components/<component-name>.md`.
-    - If logic changed: Update the relevant doc in `docs/logic/`.
+    - If a new feature was added: Create a doc in `wiki/features/<feature-name>.md`.
+    - If a component was added: Create/Update `wiki/components/<component-name>.md`.
+    - If logic changed: Update the relevant doc in `wiki/logic/`.
     - **Standard**: Include inputs (props/params), outputs, side effects, and a brief "Why this exists" section.
 
 ### Phase 3: Cross-Reference Synchronization (The "Context Web")
 Ensure the rest of the documentation doesn't become "stale" or misleading.
 
-1.  **Search for References**: Use `grep_search` to find all mentions of the functions, components, or files you modified within the `/docs` directory.
+1.  **Search for References**: Use `grep` to find all mentions of the functions, components, or files you modified within the `wiki/` and `dev/` directories.
 2.  **Validate Accuracy**:
-    - Does the architecture diagram in `docs/wiki/core/00-system-index.md` still hold?
-    - Do the state shapes in `docs/wiki/core/02-state-context.md` need updating?
+    - Does the architecture diagram in `wiki/core/00-system-index.md` still hold?
+    - Do the state shapes in `wiki/core/08-state-context.md` need updating?
     - Are there "Usage Examples" in other docs that now use an old API signature?
 3.  **Update**: Apply surgical edits to ensure every doc reflects the current reality.
 
 ### Phase 4: Plan Finalization
-1.  **Update Implementation Plans**: If you were following a plan in `docs/plans/`, finalize it in this strict order:
+1.  **Update Implementation Plans**: If you were following a plan in `dev/plans/`, finalize it in this strict order:
     - **Step 1 — Mark Complete:** Open the plan file and update its **State Dashboard** to set `Status` to `COMPLETE` and `Last Updated` to the current timestamp. Do this **before** moving the file.
-    - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## ✅ Completion Note` section explaining the actual outcome and any deviations from the original plan.
-    - **Step 3 — Archive:** Move the completed plan file from `docs/dev/plans/[plan-name].md` to `docs/archive-plans/[plan-name].md`. Use `write_to_file` to write the updated content to the archive path, then delete the original from `docs/dev/plans/`.
+    - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
+    - **Step 3 — Archive:** Move the completed plan file from `dev/plans/[plan-name].md` to `dev/archive-plans/[plan-name].md`. Write the updated content to the archive path, then delete the original from `dev/plans/`.
 
-> [!IMPORTANT]
-> **Archival is mandatory, not optional.** A plan that is done but still sitting in `docs/dev/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
+> **Archival is mandatory, not optional.** A plan that is done but still sitting in `dev/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
 
-### Phase 5: Backlog Triage (`docs/dev/todo/backlog/backlog-index.md`)
+### Phase 5: Backlog Triage (`dev/backlog/backlog-index.md`)
 Completed work may resolve one or more open backlog items. Do not skip this phase.
 
-1. **Read the Backlog**: Use `view_file` on `docs/dev/todo/backlog/backlog-index.md` to read all current entries.
+1. **Read the Backlog**: Read `dev/backlog/backlog-index.md` to see all current entries.
 2. **Match Against Completed Work**: Compare each backlog item against what was implemented in this session. An item qualifies for removal if:
    - The feature, fix, or improvement it describes was fully implemented, OR
    - It was explicitly superseded or made irrelevant by the work done.
@@ -80,21 +79,20 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
    - **Unrelated** items are left untouched.
 4. **If no matches found**: State "No backlog items resolved by this session" and move on.
 
-> [!IMPORTANT]
-> Always read the full `backlog.md` before deciding nothing applies. Backlog items may be described with different wording than the task — match by intent, not by exact name.
+> Always read the full `backlog-index.md` before deciding nothing applies. Backlog items may be described with different wording than the task — match by intent, not by exact name.
 
 ### Phase 6: Knowledge Capture
 1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered.
-2. **Update Decision Log**: Use the `@knowledge capture` skill to add these entries to the project's `docs/wiki/core/18-knowledge-capture.md`.
+2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `wiki/core/18-knowledge-capture.md`.
 
 ---
 
-## 🛠️ Mandatory Tools for this Skill
-- `grep_search`: Essential for Phase 3 (finding stale docs).
-- `view_file`: To read existing docs before editing.
-- `replace_file_content` / `multi_replace_file_content`: For precise updates.
+## Mandatory Tools for this Skill
+- `grep`: Essential for Phase 3 (finding stale docs).
+- `read`: To read existing docs before editing.
+- `edit`: For precise updates.
 
-## 🛑 Non-Negotiable Rules
+## Non-Negotiable Rules
 - **No Placeholders**: Do not say "Update this later". Do it now.
 - **Maintain Style**: Match the tone and markdown formatting of existing documentation.
-- **Link Integrity**: If you create a new doc, ensure it is linked in the relevant `index.md` (e.g., `docs/wiki/features/features-index.md`).
+- **Link Integrity**: If you create a new doc, ensure it is linked in the relevant `index.md` (e.g., `wiki/features/features-index.md`).

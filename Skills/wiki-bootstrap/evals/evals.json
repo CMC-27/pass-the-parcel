@@ -1,0 +1,50 @@
+{
+  "test_cases": [
+    {
+      "input": "User wants to initialize a brand new documentation library for their project.",
+      "expected_behavior": "The agent should load wiki-bootstrap and walk the 19 core docs one at a time. For each doc, it copies the scaffold from references/0X-name.md into docs/wiki/core/, opens references/qa-0X-name.md, asks the user the 5-8 questions in that file, fills in the doc from the answers, and checkpoints before moving on. It must NOT bulk-write all 19 docs at once and must NOT assume content without asking.",
+      "assertions": [
+        "Loads references/qa-00-system-index.md before writing 00-system-index.md",
+        "Asks the user 5-8 questions per doc (not 0, not 50+)",
+        "Walks docs in 00 -> 18 order, one at a time",
+        "Checkpoints with the user between docs",
+        "Does not invent or assume content for unanswered questions"
+      ]
+    },
+    {
+      "input": "User wants to fill in just slot 05 (Design System) on an existing wiki.",
+      "expected_behavior": "The agent should scope the work to a single doc: open references/qa-05-design-system.md, ask the 5-8 questions specific to design tokens, fill the existing 05-design-system.md, and checkpoint. It should not run the full 19-doc walk when the user scoped to one slot.",
+      "assertions": [
+        "Opens references/qa-05-design-system.md (the per-doc Q&A, not the SKILL.md workflow)",
+        "Asks design-token-specific questions (color tokens, typography, spacing, form styles, interactive states)",
+        "Does not run the full 19-doc bootstrap loop when the user scoped to one slot"
+      ]
+    },
+    {
+      "input": "User asks where the design tokens and HSL color values belong.",
+      "expected_behavior": "The agent should direct them to 05-design-system.md as the single source of truth, AND remind them that wiki-bootstrap walks that slot via references/qa-05-design-system.md with 5-8 targeted questions on tokens/typography/spacing/states.",
+      "assertions": [
+        "References docs/wiki/core/05-design-system.md as the canonical home for visual/UI standards",
+        "Points to references/qa-05-design-system.md as the Q&A workflow for that slot"
+      ]
+    },
+    {
+      "input": "User asks where the in-app AI prompt templates and model workflows live.",
+      "expected_behavior": "The agent should point to 09-ai-features.md (end-user AI features) and its Q&A file. The agent must NOT confuse this with developer/agent protocols (AGENTS.md).",
+      "assertions": [
+        "References docs/wiki/core/09-ai-features.md for end-user AI features",
+        "Points to references/qa-09-ai-features.md",
+        "Distinguishes from developer/agent protocols in AGENTS.md"
+      ]
+    },
+    {
+      "input": "User says they don't know the answer to a question during bootstrap.",
+      "expected_behavior": "The agent should write a [PLACEHOLDER: <reason>] in the doc and flag the gap explicitly to the user. It must NOT invent a plausible-sounding answer.",
+      "assertions": [
+        "Writes a [PLACEHOLDER: <reason>] marker rather than fabricating content",
+        "Surfaces the gap to the user as part of the checkpoint",
+        "Continues the bootstrap loop without silently filling the placeholder"
+      ]
+    }
+  ]
+}

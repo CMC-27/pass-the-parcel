@@ -2,56 +2,90 @@
 type: "core"
 name: "System Index"
 status: "stable"
-description: "Master entry point for the Wiki (architecture) and DevOps (operational) libraries."
+dependencies: []
+db_relations: []
+description: "Master entry point and developer onboarding hub for the application."
 ---
 
-# 🗺️ System Index
+# System Index — Developer Onboarding Hub
 
-Welcome to the documentation library. This is the master entry point and directory overview.
+This document is the master gateway into the documentation library. Start here to understand product philosophy, structural patterns, and data infrastructure.
 
-## 📐 Architecture Flow
+---
 
-```mermaid
-graph TD
-    UI[User Interface] --> Logic[Business Logic]
-    Logic --> Data[Data Layer]
-```
-
-## 📂 Category Indexes
-
-### 📖 Wiki (Architecture)
-- [Features](../features/features-index.md)
-- [Components](../components/components-index.md)
-- [Database](../database/database-index.md)
-- [Logic](../logic/logic-index.md)
-
-### ⚙️ DevOps (Operational)
-- [Plans](../../dev/plans/template-plan.md)
-- [Backlog](../../dev/backlog/backlog-index.md)
-- [Archive](../../dev/archive-plans/README.md)
-- [Version History](../../dev/logs/version-history.md)
+## 1. Product & Principles
+- [Vision & North Star](./01-vision-north-star.md)
+- [Product Context & Strategy](./02-product-context.md)
+- [Glossary of Terms](./16-glossary-of-terms.md)
+- [UI/UX Design System](./06-design-system.md)
+- [Knowledge Capture & Decisions](./18-knowledge-capture.md)
 - [Agent Changelog](../../dev/logs/agent-changelog.md)
 
-## 🧠 Core Brain Documents
+## 2. Core Architecture & Logic
+- [User Journey & Data Hierarchy](./03-user-journey.md)
+- [Physical Directory Structure](./06-directory-structure.md)
+- [App Shell Structure](./07-app-structure.md)
+- [Core Architecture Concepts](./04-core-architecture.md)
+- [State & Context Data Shapes](./08-state-context.md)
+- [AI Features & Workflows](./09-ai-features.md)
+- [External Integrations](./10-external-integrations.md)
+- [Validation Standards](./11-validation-standards.md)
+- [Utility Standards](./12-utility-standards.md)
+- [Security Standards](./13-security-standards.md)
+- [Performance Standards](./14-performance-standards.md)
+- [Theme & Linguistics](./15-theme-linguistics.md)
 
-| File | Purpose |
-| :--- | :--- |
-| [00-system-index.md](00-system-index.md) | Master router and architecture flow. |
-| [01-vision-north-star.md](01-vision-north-star.md) | Strategic vision, value proposition, and magic moment. |
-| [02-product-context.md](02-product-context.md) | User personas, domain workflows, and product roadmap. |
-| [03-user-journey.md](03-user-journey.md) | The application from the user's perspective (happy path). |
-| [04-directory-structure.md](04-directory-structure.md) | Physical folder structure map and location rules. |
-| [05-app-structure.md](05-app-structure.md) | Application shell, layouts, and global wrapper configs. |
-| [06-design-system.md](06-design-system.md) | Color palettes, typography scale, and styling standards. |
-| [07-state-context.md](07-state-context.md) | Shared stores, global context, and local state rules. |
-| [08-core-architecture.md](08-core-architecture.md) | Critical architectural decisions, calculations, and guardrails. |
-| [09-ai-features.md](09-ai-features.md) | In-app AI pipelines, prompt structure, and models. |
-| [10-external-integrations.md](10-external-integrations.md) | Third-party systems, data sync rules, and field mapping. |
-| [11-validation-standards.md](11-validation-standards.md) | Data validation, tiers (field/entity/cross), error hierarchy. |
-| [12-utility-standards.md](12-utility-standards.md) | Formatter definitions, precision rules, and micro-patterns. |
-| [13-theme-linguistics.md](13-theme-linguistics.md) | Localization keys, white-label configurations, and nomenclature. |
-| [14-performance-standards.md](14-performance-standards.md) | Performance budget, memoization, lazy loading, and build setup. |
-| [15-security.md](15-security.md) | RLS policies, secrets management, and agent governance. |
-| [16-glossary-of-terms.md](16-glossary-of-terms.md) | Canonical dictionary of project terms and domain jargon. |
-| [17-docs-blueprint.md](17-docs-blueprint.md) | References the global Documentation Architecture standard. |
-| [18-knowledge-capture.md](18-knowledge-capture.md) | Decision logs, rationale, and stakeholder preferences. |
+## 3. Component & View Code
+
+**Codebase Navigation**
+- [Physical Directory Structure](./06-directory-structure.md)
+
+**Component Systems** → [Components Index](../components/components-index.md)
+<!-- List key reusable UI components here -->
+
+**Views & Routing** → [Features Index](../features/features-index.md)
+<!-- List primary screens/routes here -->
+
+## 4. Visual Architecture Flow
+
+Add a Mermaid diagram here showing how UI routes map to data layer tables/APIs:
+
+```mermaid
+flowchart TD
+    subgraph UI [Screen / View Layer]
+        V1[HomeView]
+        V2[FeatureView]
+    end
+
+    subgraph Core [Global Components & Context]
+        Auth[AuthContext]
+        State[GlobalState]
+    end
+
+    subgraph DB [Data Layer]
+        T1[primary_table]
+        T2[secondary_table]
+    end
+
+    V1 --> Auth
+    V2 --> State
+    State --> T1
+    State --> T2
+```
+
+## 5. Core Logic & Utilities
+→ [Logic & Utilities Index](../logic/logic-index.md)
+
+**Utility Functions**
+<!-- List key utility files here -->
+
+**Custom Hooks**
+<!-- List key hooks here -->
+
+## 6. Database Schema Signatures
+<!-- List each data table/collection doc here -->
+
+## 7. Strategic & Operational Docs
+- [Backlog Index](../../dev/backlog/backlog-index.md)
+- [Active Plans](../../dev/plans/)
+- [Wiki Architecture Blueprint](./17-docs-blueprint.md)

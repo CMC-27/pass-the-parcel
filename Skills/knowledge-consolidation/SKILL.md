@@ -3,7 +3,6 @@ name: knowledge-consolidation
 description: Periodically reviews, de-duplicates, and restructures the project's Knowledge Capture log to keep it concise, themed, and conflict-free.
 version: "1.0"
 author: "Antigravity Team"
-allowed-tools: ["view_file", "grep_search", "list_dir", "write_to_file", "replace_file_content", "multi_replace_file_content", "ask_question"]
 ---
 
 # Knowledge Consolidation Skill
@@ -18,16 +17,16 @@ Activate this skill whenever:
 
 ---
 
-## 🚀 Execution Phases
+## Execution Phases
 
 ### Phase 1 — Discovery
 1. The canonical knowledge capture file is **always** located at:
    ```
-   docs/core/17-knowledge-capture.md
+   docs/wiki/core/18-knowledge-capture.md
    ```
 2. Resolve the absolute path relative to the active workspace root.
 3. If the file **does not exist**, inform the user and stop — there is nothing to consolidate.
-4. Read the entire file into context using `view_file`.
+4. Read the entire file into context using `read`.
 
 ### Phase 2 — Inventory & Metrics
 Before making any changes, produce a snapshot:
@@ -75,7 +74,7 @@ For items the agent **cannot confidently resolve**, present them to the user:
    - The conflicting or unclear entries (with their dates).
    - A **recommendation**: Keep, Merge, Delete, or Rewrite.
    - A brief rationale for the recommendation.
-3. Use the `ask_question` tool to collect the user's decisions.
+3. Use the `question` tool to collect the user's decisions.
 4. **Do not proceed until the user has responded.**
 
 ### Phase 8 — Rewrite & Restructure
@@ -103,7 +102,7 @@ Rules for the rewrite:
 - The **Decisions by Theme** sections group entries for deeper reading.
 - Within each theme, entries are ordered **newest first**.
 - Preserve all original dates.
-- Maintain backward compatibility — the table format must remain consumable by `@knowledge-capture`, `@code-planning`, `@agent-wrap-up`, and `@estimation-brief-generator`.
+- Maintain backward compatibility — the table format must remain consumable by `@knowledge-capture`, `@agent-wrap-up`, and other skills that read this file.
 
 ### Phase 9 — Validation & Report
 Present a final report to the user:
@@ -121,7 +120,7 @@ Confirm the user is satisfied with the result.
 
 ---
 
-## 🛑 Non-Negotiable Rules
+## Non-Negotiable Rules
 - **Never delete without confirmation.** Auto-merge combines entries; it never removes information. Only user-confirmed deletions are allowed.
 - **Preserve all dates.** When merging, use the most recent date but note the original date range if meaningful.
 - **Maintain table format.** The summary table must remain compatible with all skills that read the knowledge capture file.
@@ -129,7 +128,7 @@ Confirm the user is satisfied with the result.
 - **No scope creep.** This skill consolidates existing knowledge only — it does not add new entries.
 - **Show your work.** Always present the merge/conflict log to the user before finalising.
 
-## 🛠️ Mandatory Tools
-- `view_file`: To read the full contents of `docs/core/17-knowledge-capture.md`.
-- `ask_question`: To collect user decisions on ambiguous items.
-- `replace_file_content` / `multi_replace_file_content`: To rewrite the consolidated file in-place.
+## Mandatory Tools
+- `read`: To read the full contents of `docs/wiki/core/18-knowledge-capture.md`.
+- `question`: To collect user decisions on ambiguous items.
+- `edit`: To rewrite the consolidated file in-place.

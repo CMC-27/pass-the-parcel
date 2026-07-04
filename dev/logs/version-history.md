@@ -1,6 +1,13 @@
+---
+type: "core"
+name: "Version History"
+status: "stable"
+description: "Formal release log and 3-level versioning strategy for the application."
+---
+
 # Version History & Policy
 
-This log records the formal releases, deployments, and the 3-level versioning strategy enforced across the [APP_NAME] environment.
+This log records the formal releases, deployments, and the 3-level versioning strategy enforced across the application.
 
 ## 📌 Versioning Strategy (3-Level System)
 

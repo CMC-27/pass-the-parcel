@@ -12,7 +12,7 @@ Every new project starts with aligning on the product context and establishing a
 graph TD
     A[Start New Project] --> B[Create Vision & North Star]
     B --> C[Run Documentation Bootstrap]
-    C --> D[Standardized /Docs Library Structure]
+    C --> D[Standardized Wiki Library Structure]
 ```
 
 ### Phase A: Vision & North Star
@@ -20,8 +20,8 @@ graph TD
 *   **Purpose:** Synthesizes the codebase and requirements into an actionable, high-level strategic roadmap (`01-vision-north-star.md`). It aligns product objectives with engineering tasks and establishes constraints.
 
 ### Phase B: Documentation Bootstrap
-*   **Skill:** `documentation-architecture-bootstrap`
-*   **Purpose:** Initializes a standardized folder structure under `/docs` or `/Docs` (e.g., core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
+*   **Skill:** `documentation-architecture-bootstrap` or `wiki-bootstrap`
+*   **Purpose:** Initializes a standardized folder structure under `wiki/` (core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
 
 ---
 
@@ -31,22 +31,24 @@ Depending on the task's complexity, team style, or token optimization constraint
 
 ### Method A: Pass the Parcel (Stateless / Planning Mode)
 *   **Skill:** `pass-the-parcel`
-*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`docs/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries, minimizing token bloat, and allowing stateless, independent review cycles.
+*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`dev/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
 
 ### Method B: The Multi-Stage Code Pipeline
 For deeply structured, robust feature implementation, use the sequential pipeline of specialized agent personas:
 
 ```mermaid
 flowchart LR
-    P[code-planning] --> PO[code-product-owner-assessment]
-    PO --> H[code-hygiene-architecture-review]
-    H --> E[code-execution]
+    S[ptp-scoping] --> P[ptp-planning]
+    P --> PO[ptp-product-owner-assessment]
+    PO --> H[ptp-hygiene-architecture-review]
+    H --> E[ptp-execution]
 ```
 
-1.  **`code-planning`**: Translates high-level requests into detailed Implementation Plans (`implementation_plan.md`).
-2.  **`code-product-owner-assessment`**: Audits the plan to ensure business logic is fully honored and edge cases are handled.
-3.  **`code-hygiene-architecture-review`**: Audits the design for DRY principles, security, and scalable architecture.
-4.  **`code-execution`**: Executes the approved plan and writes clean, production-ready code while maintaining the `task.md` TODO list.
+1.  **`ptp-scoping`**: Group A (Phases 1-3) — expands intent, runs Context Inventory (wiki docs + knowledge capture + source), resolves all ambiguity via interactive Phase 3 questioning, halts at Gate A.
+2.  **`ptp-planning`**: Group B (Phase 4) — reads scoped plan at Gate A, produces detailed file-level execution plan via Simplicity Ladder, halts at Gate B.
+3.  **`ptp-product-owner-assessment`**: Phase 5 — audits plan for vision alignment, business logic, edge cases, and functional risk; syncs decisions to knowledge capture.
+4.  **`ptp-hygiene-architecture-review`**: Phase 6 — hardens plan with DRY scan, secret mgmt, RLS, rate limiting, error handling, zero-knowledge instruction density.
+5.  **`ptp-execution`**: Group D (Phases 7-8) — executes hardened plan exactly as written, runs QA verification, halts at Gate D for user sign-off.
 
 ---
 
@@ -55,7 +57,7 @@ flowchart LR
 As implementation concludes, the agent must document what it learned and clean up the workspace logs.
 
 *   **Agent Log (`AGENT.md`)**: A running chronological journal of the agent's work, current objectives, and state.
-*   **`knowledge-consolidation` (Knowledge Capture)**: Periodically structures, de-duplicates, and archives local developer knowledge into indexed snippets under the App Data knowledge base, ensuring long-term context isn't lost.
+*   **`knowledge-consolidation` (Knowledge Capture)**: Periodically structures, de-duplicates, and archives local developer knowledge into indexed snippets.
 *   **`agent-wrap-up`**: Runs final workspace state synchronization. It reviews modified files, writes the walkthrough (`walkthrough.md`), updates logs, and closes the active loop.
 
 ---

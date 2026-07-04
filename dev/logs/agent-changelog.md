@@ -1,4 +1,11 @@
-# 📝 Agent Changelog
+---
+type: "core"
+name: "Agent Changelog"
+status: "stable"
+description: "Chronological record of all AI agent actions, changes, and audits."
+---
+
+# Agent Changelog
 
 All changes made by AI agents are tracked chronologically below.
 

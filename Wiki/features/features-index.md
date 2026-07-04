@@ -1,8 +1,15 @@
-# 🗺️ Features Index
+---
+type: "core"
+name: "Features Index"
+status: "stable"
+description: "Entry point and table of contents for all application feature documentation."
+---
+
+# Features Index
 
 This index acts as the entry point and table of contents for all application feature documentation.
 
-## 🧭 Active Features
+## Active Features
 
 | Feature | Physical Path | Description |
 | :--- | :--- | :--- |
