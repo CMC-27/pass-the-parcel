@@ -19,7 +19,7 @@ This document is the master gateway into the documentation library. Start here t
 - [Glossary of Terms](./16-glossary-of-terms.md)
 - [UI/UX Design System](./05-design-system.md)
 - [Knowledge Capture & Decisions](./18-knowledge-capture.md)
-- [Agent Changelog](../../dev/logs/agent-changelog.md)
+- [Agent Changelog](../../logs/agent-changelog.md)
 
 ## 2. Core Architecture & Logic
 - [User Journey & Data Hierarchy](./03-user-journey.md)
@@ -90,6 +90,6 @@ flowchart TD
 <!-- - [Projects Schema](../database/db-projects.md) -->
 
 ## 7. Strategic & Operational Docs
-- [Backlog Index](../../dev/backlog/backlog-index.md)
-- [Active Plans](../../dev/plans/)
+- [Backlog Index](../../backlog/backlog-index.md)
+- [Active Plans](../../plans/)
 - [Wiki Architecture Blueprint](./17-docs-blueprint.md)

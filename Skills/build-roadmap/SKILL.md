@@ -11,8 +11,8 @@ The project operates on a two-tier planning hierarchy:
 
 | Level | Document | Versioning | Location |
 |---|---|---|---|
-| **L2** | `product-roadmap.md` | Phases (Phase 1, 2, 3…) | `dev/backlog/` |
-| **L3** | `<feature>-backlog.md` | Backlog items per phase | `dev/backlog/` |
+| **L2** | `product-roadmap.md` | Phases (Phase 1, 2, 3…) | `docs/backlog/` |
+| **L3** | `<feature>-backlog.md` | Backlog items per phase | `docs/backlog/` |
 
 A **roadmap phase** is the strategic container. **Backlog items** are the executable deliverables that fulfill a phase. One phase → many backlog items.
 
@@ -20,7 +20,7 @@ A **roadmap phase** is the strategic container. **Backlog items** are the execut
 
 ## 1. Discover Existing Roadmap
 
-Before doing anything else, scan for an existing `product-roadmap.md` in the project's `dev/backlog/` directory. If one exists, read it in full to understand current phase definitions, scope, and version number.
+Before doing anything else, scan for an existing `product-roadmap.md` in the project's `docs/backlog/` directory. If one exists, read it in full to understand current phase definitions, scope, and version number.
 
 ---
 
@@ -64,7 +64,7 @@ Repeat Q1–Q4 for each additional phase the user wants to define.
 
 ## 4. Write or Update the Roadmap
 
-After the interview, write `dev/backlog/product-roadmap.md` using the gathered answers.
+After the interview, write `docs/backlog/product-roadmap.md` using the gathered answers.
 
 ### Phase template:
 ```markdown
@@ -98,10 +98,10 @@ Present each phase as a selectable option. Set `multiple: true`.
 
 For each selected phase, apply the **backlog** skill workflow per Key Feature:
 
-1. Create a `<feature-slug>-backlog.md` (suffixed with `-backlog`) in `dev/backlog/` using the Pass-the-Parcel backlog template.
+1. Create a `<feature-slug>-backlog.md` (suffixed with `-backlog`) in `docs/backlog/` using the Pass-the-Parcel backlog template.
 2. Set State Dashboard: `Status: BACKLOG`, `Active Persona: Planner`.
 3. Populate Phase 1 (Expansion & Scoping) using the roadmap phase as source material.
-4. Add a bullet entry to `dev/backlog/backlog-index.md` linking to the new file.
+4. Add a bullet entry to `docs/backlog/backlog-index.md` linking to the new file.
 5. Include a `Roadmap Phase: Phase N` metadata line in the backlog plan header.
 
 ---

@@ -5,7 +5,7 @@ description: Make sure to use this skill whenever the user mentions "pass the pa
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
 
-Execute highly complex multi-agent engineering workflows with minimal token usage by maintaining the entire system state, goals, reviews, and execution checklists in a self-contained markdown "parcel" file at `dev/plans/[plan-name].md`. Each agent session operates stateless, reading the plan, executing its specific role, editing the plan, and immediately exiting without carrying conversation history.
+Execute highly complex multi-agent engineering workflows with minimal token usage by maintaining the entire system state, goals, reviews, and execution checklists in a self-contained markdown "parcel" file at `docs/plans/[plan-name].md`. Each agent session operates stateless, reading the plan, executing its specific role, editing the plan, and immediately exiting without carrying conversation history.
 
 ---
 
@@ -23,18 +23,18 @@ Every plan file **MUST** have its State Dashboard updated at each transition. Th
 
 | Status | Active Persona | Directory | File Suffix | Gate | Meaning |
 |---|---|---|---|---|---|
-| `BACKLOG` | `Planner` | `dev/backlog/` | `-backlog.md` | — | Early-prepared; not yet picked up for execution. Created by **backlog** skill. |
-| `PHASE_1` | `Scoper` | `dev/plans/` | `-plan.md` | Gate A | Picked up from backlog. Scoping & context gathering in progress. |
-| `PHASE_3` | `Scoper` | `dev/plans/` | `-plan.md` | Gate A | User clarifications complete. Awaiting scope approval. |
-| `PHASE_4` | `Planner` | `dev/plans/` | `-plan.md` | Gate B | Detailed execution plan written. Awaiting review handoff. |
-| `PHASE_6` | `Reviewer` | `dev/plans/` | `-plan.md` | Gate C | Peer reviews complete. Awaiting approval to execute. |
-| `PHASE_8` | `Executor` | `dev/plans/` | `-plan.md` | Gate D | Implementation done, verified. Awaiting user sign-off. |
-| `COMPLETE` | — | `dev/archive-plans/` | `-plan.md` | — | Plan archived. No further action. |
+| `BACKLOG` | `Planner` | `docs/backlog/` | `-backlog.md` | — | Early-prepared; not yet picked up for execution. Created by **backlog** skill. |
+| `PHASE_1` | `Scoper` | `docs/plans/` | `-plan.md` | Gate A | Picked up from backlog. Scoping & context gathering in progress. |
+| `PHASE_3` | `Scoper` | `docs/plans/` | `-plan.md` | Gate A | User clarifications complete. Awaiting scope approval. |
+| `PHASE_4` | `Planner` | `docs/plans/` | `-plan.md` | Gate B | Detailed execution plan written. Awaiting review handoff. |
+| `PHASE_6` | `Reviewer` | `docs/plans/` | `-plan.md` | Gate C | Peer reviews complete. Awaiting approval to execute. |
+| `PHASE_8` | `Executor` | `docs/plans/` | `-plan.md` | Gate D | Implementation done, verified. Awaiting user sign-off. |
+| `COMPLETE` | — | `docs/archive-plans/` | `-plan.md` | — | Plan archived. No further action. |
 
 **Lifecycle flow:** `BACKLOG` → *(pickup)* → `PHASE_1` → `PHASE_3` → `PHASE_4` → `PHASE_6` → `PHASE_8` → `COMPLETE`
 
 **Key rules:**
-- **Backlog → Active:** When a backlog item is picked up, the file is renamed from `<slug>-backlog.md` to `<slug>-plan.md` and moved from `dev/backlog/` to `dev/plans/`. Status changes `BACKLOG` → `PHASE_1`.
+- **Backlog → Active:** When a backlog item is picked up, the file is renamed from `<slug>-backlog.md` to `<slug>-plan.md` and moved from `docs/backlog/` to `docs/plans/`. Status changes `BACKLOG` → `PHASE_1`.
 - **Status must match phase:** The `Status` field always reflects the highest completed phase. E.g., if Phases 1-4 are done, Status is `PHASE_4`, not `PHASE_3` or `PROPOSED`.
 - **Persona changes with phase:** `Scoper` owns Phases 1-3, `Planner` owns Phase 4, `Reviewer` owns Phases 5-6, `Executor` owns Phases 7-8.
 - **DO NOT use `PROPOSED` or `Architect`** — these are legacy defaults from the raw template. Always overwrite them with a valid state from the table above.
@@ -72,19 +72,19 @@ To maximize token-savings during interaction and within the plan updates, agents
 
 ### Backlog Pick-up Flow (Pre-Phase 1)
 If the requested feature exists as a backlog item:
-1. Locate its early-prepared backlog plan file at `dev/backlog/<feature-slug>-backlog.md` (suffixed with `-backlog`, Status `BACKLOG`, Persona `Planner`).
-2. Move (rename) this file to `dev/plans/<feature-slug>-plan.md` (suffixed with `-plan`). **This file rename is the signal that the item is now active — `-backlog` means parked, `-plan` means in flight.**
+1. Locate its early-prepared backlog plan file at `docs/backlog/<feature-slug>-backlog.md` (suffixed with `-backlog`, Status `BACKLOG`, Persona `Planner`).
+2. Move (rename) this file to `docs/plans/<feature-slug>-plan.md` (suffixed with `-plan`). **This file rename is the signal that the item is now active — `-backlog` means parked, `-plan` means in flight.**
 3. Update the State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
    - **Status** → `PHASE_1`
    - **Active Persona** → `Scoper`
    - **Last Updated** → current timestamp.
-4. Remove the item from the active checklist in `dev/backlog/backlog-index.md`.
+4. Remove the item from the active checklist in `docs/backlog/backlog-index.md`.
 5. Proceed to **Group A** (Phases 1-3). The backlog plan contains pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the [Fresh Context Rule](#fresh-context-rule). The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
 
 ### GROUP A: Scoping & Context (Phases 1-3)
 * **Goal:** Understand intent, locate context, resolve ambiguities.
 * **Steps:**
-  * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in `dev/plans/[plan-name].md`.
+  * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in `docs/plans/[plan-name].md`.
   * **Phase 2 (Requirements Gathering):** Search codebase and docs. Link exact files and context.
     * **MANDATORY: Context Inventory** — Before proceeding to Phase 3 questions, complete the following three lookups. Log all findings in the plan's Phase 2 section.
       1. **Wiki Docs:** Identify and read all relevant wiki docs (start with `docs/wiki/core/00-system-index.md`, then drill into feature, component, database, and design-system docs as needed).
@@ -155,7 +155,7 @@ If the requested feature exists as a backlog item:
 * **Goal:** Document all tweaks from Phase 9, capture themed tweaks for knowledge, and close out the plan.
 * **Steps:**
   * **Phase 10 (Document Tweaks & Knowledge Capture):** Log all tweaks made during Phase 9. Flag tweaks with a shared theme for knowledge capture. Sync themed tweaks to the project's knowledge capture log.
-  * **Wrap Up:** Update wiki docs as needed. Archive the plan to `dev/archive-plans/`. Review and update backlog items. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `dev/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan. Set State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `COMPLETE`.
+  * **Wrap Up:** Update wiki docs as needed. Archive the plan to `docs/archive-plans/`. Review and update backlog items. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan. Set State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `COMPLETE`.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---

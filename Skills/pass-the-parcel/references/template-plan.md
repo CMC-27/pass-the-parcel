@@ -21,7 +21,7 @@
 
 ## 2️⃣ Phase 2: Requirements & Context
 * **Knowledge Capture Check:**
-  - `[ ]` Read `wiki/core/18-knowledge-capture.md` for existing decisions
+  - `[ ]` Read `docs/wiki/core/18-knowledge-capture.md` for existing decisions
   - **Relevant Existing Decisions:** [List any decisions that apply to this task]
 * **Relevant Docs Found:** 
   - `[doc.md]` (file:///path/to/doc.md) -> [Why it's relevant]
@@ -118,7 +118,7 @@
   - [Tweak 1] — documented only (no theme)
   - [Tweak 2] — **Theme: [Theme Name]** — flagged for knowledge capture
 * **Knowledge Capture:**
-  - `[ ]` Read `wiki/core/18-knowledge-capture.md` to check for existing related decisions
+  - `[ ]` Read `docs/wiki/core/18-knowledge-capture.md` to check for existing related decisions
   - `[ ]` Themed tweaks synced to knowledge capture doc
   - `[ ]` Wiki docs updated per Phase 9 tweaks
 
@@ -126,6 +126,6 @@
 
 ## ✅ Wrap Up
 * **Wiki Updates:** [List wiki docs updated]
-* **Plan Archiving:** [Plan archived to `dev/archive-plans/[name].md`]
+* **Plan Archiving:** [Plan archived to `docs/archive-plans/[name].md`]
 * **Backlog Review:** [Backlog items reviewed / updated]
 * **Status:** `COMPLETE`

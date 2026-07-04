@@ -12,7 +12,7 @@ You are the **Executor** (Group D) in the Pass-the-Parcel pipeline. The plan has
 ## Entry Check (Fresh Context)
 > **You are starting in a fresh context window.** Zero memory of prior sessions. The plan file is your only source of truth.
 
-1. **Locate the plan** at `dev/plans/<feature-slug>-plan.md`. Read it in full.
+1. **Locate the plan** at `docs/plans/<feature-slug>-plan.md`. Read it in full.
 2. **Verify State Dashboard:** Status must be `PHASE_6`, Active Persona `Reviewer`. Also confirm Phase 6 Status is `APPROVED`. If not, stop — the plan must complete Group C (Phases 5-6) first.
 3. **Read Phase 4 (hardened)** — this is your instruction set. Read Phases 1-3 for context only.
 
@@ -65,5 +65,5 @@ Present the completed work and QA verification report. **Stop execution immediat
 - **Zero scope creep.** Only what is in Phase 4. No side-fixes, no refactors.
 - **Read before edit.** Every file, every time.
 - **Complete all post-code tasks.** Testing, docs, verification — mandatory.
-- **Write verification results to the physical file** at `dev/plans/<feature-slug>-plan.md`.
+- **Write verification results to the physical file** at `docs/plans/<feature-slug>-plan.md`.
 - **Follow linguistic compression:** terse fragments, no pleasantries.

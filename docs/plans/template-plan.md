@@ -117,6 +117,6 @@
 
 ## ✅ Wrap Up
 * **Wiki Updates:** [List wiki docs updated]
-* **Plan Archiving:** [Plan archived to `dev/archive-plans/[name].md`]
+* **Plan Archiving:** [Plan archived to `docs/archive-plans/[name].md`]
 * **Backlog Review:** [Backlog items reviewed / updated]
 * **Status:** `COMPLETE`

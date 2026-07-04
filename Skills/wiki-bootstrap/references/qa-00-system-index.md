@@ -6,13 +6,13 @@ The hub is the first thing an agent reads to orient itself. A stale hub means an
 **Required sections:**
 - Project name + one-line description
 - Mermaid data-flow diagram (UI → Logic → Data)
-- Links to every category index in `wiki/` and `docs/`
+- Links to every category index in `docs/wiki/` and `docs/`
 - Summary table covering all 18 core docs (`01`–`18`) with a one-line description and a "Last Verified" date
 
 ## Questions to ask
 1. What is the project name and a single-sentence description of what it does?
 2. What is the high-level data flow at a glance? (Where does the UI get data from, where does that data go?)
-3. Which category indices currently exist in `wiki/` and `docs/` that should be linked from the hub?
+3. Which category indices currently exist in `docs/wiki/` and `docs/` that should be linked from the hub?
 4. Which 18 core docs (slots `01`–`18`) are present in `docs/wiki/core/` right now? Confirm the list and the one-line description of each.
 5. Is there a Mermaid diagram in the doc today, and does it still match the actual data flow in code?
 6. Are there any "Last Verified" dates stale by more than 30 days that need a refresh?

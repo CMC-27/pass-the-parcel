@@ -21,7 +21,7 @@ graph TD
 
 ### Phase B: Documentation Bootstrap
 *   **Skill:** `documentation-architecture-bootstrap` or `wiki-bootstrap`
-*   **Purpose:** Initializes a standardized folder structure under `wiki/` (core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
+*   **Purpose:** Initializes a standardized folder structure under `docs/wiki/` (core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
 
 ---
 
@@ -31,7 +31,7 @@ Depending on the task's complexity, team style, or token optimization constraint
 
 ### Method A: Pass the Parcel (Stateless / Planning Mode)
 *   **Skill:** `pass-the-parcel`
-*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`dev/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
+*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`docs/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
 
 ### Method B: The Multi-Stage Code Pipeline
 For deeply structured, robust feature implementation, use the sequential pipeline of specialized agent personas:

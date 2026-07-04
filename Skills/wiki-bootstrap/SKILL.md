@@ -34,11 +34,11 @@ The wiki library is organized into two top-level structures:
 
 | Directory | Role | Index File |
 | :--- | :--- | :--- |
-| `wiki/core/` | **The Brain** — 19 numbered docs covering the foundations | `00-system-index.md` |
-| `wiki/features/` | **The Nervous System** — per-feature docs (`feat-*.md`) | `features-index.md` |
-| `wiki/components/` | **The Muscle** — reusable UI atoms/molecules/organisms | `components-index.md` |
-| `wiki/database/` | **The Skeleton** — schema breakdowns | `database-index.md` |
-| `wiki/logic/` | **The Internal Organs** — utilities, hooks, services, engines | `logic-index.md` |
+| `docs/wiki/core/` | **The Brain** — 19 numbered docs covering the foundations | `00-system-index.md` |
+| `docs/wiki/features/` | **The Nervous System** — per-feature docs (`feat-*.md`) | `features-index.md` |
+| `docs/wiki/components/` | **The Muscle** — reusable UI atoms/molecules/organisms | `components-index.md` |
+| `docs/wiki/database/` | **The Skeleton** — schema breakdowns | `database-index.md` |
+| `docs/wiki/logic/` | **The Internal Organs** — utilities, hooks, services, engines | `logic-index.md` |
 
 Operational tooling lives in `docs/`: `docs/{backlog,logs,plans,archive-plans}/`.
 
@@ -50,11 +50,11 @@ Operational tooling lives in `docs/`: `docs/{backlog,logs,plans,archive-plans}/`
 
 | Directory | Prefix Pattern | Examples |
 | :--- | :--- | :--- |
-| `wiki/core/` | `0x-name.md` | `00-system-index.md`, `01-vision-north-star.md` |
-| `wiki/features/` | `feat-feature-name.md` | `feat-dashboard.md` |
-| `wiki/components/` | `ui-component-name.md` | `ui-modal.md` |
-| `wiki/database/` | `db-collection-name.md` | `db-projects.md` |
-| `wiki/logic/` | `util-name.md` or `hook-name.md` | `util-date-parser.md` |
+| `docs/wiki/core/` | `0x-name.md` | `00-system-index.md`, `01-vision-north-star.md` |
+| `docs/wiki/features/` | `feat-feature-name.md` | `feat-dashboard.md` |
+| `docs/wiki/components/` | `ui-component-name.md` | `ui-modal.md` |
+| `docs/wiki/database/` | `db-collection-name.md` | `db-projects.md` |
+| `docs/wiki/logic/` | `util-name.md` or `hook-name.md` | `util-date-parser.md` |
 
 ---
 

@@ -33,15 +33,15 @@ The library is organized into **two top-level libraries** based on functional pu
 | `wiki/database` | **The Skeleton** | `database-index.md` | Schema breakdowns, table relationships, and data-layer logic. |
 | `wiki/logic` | **The Internal Organs**| `logic-index.md` | Utility functions, custom hooks, and complex algorithmic explanations. |
 
-### ⚙️ dev/ — Operational Process Tooling
+### ⚙️ docs/ — Operational Process Tooling
 
-| Directory | Role | Parent/Index File | Description |
+| Directory | Role | Index File | Description |
 | :--- | :--- | :--- | :--- |
-| `dev/logs` | **The Memory** | `agent-changelog.md` | Chronological records of agent actions, audits, and hygiene checks. |
-| `dev/backlog` | **The Queue** | `backlog-index.md` | Project backlog index and individual backlog plan files. |
-| `dev/plans` | **The Vision** | *(User Managed)* | Implementation plans, architectural RFCs, and feature roadmaps. |
-| `dev/archive-plans` | **The Archive** | `README.md` | Completed and closed implementation plans. |
-| `dev/prompts` | **The Voice** | *(User Managed)* | Standardized LLM prompts and persona definitions for consistency. |
+| `docs/logs` | **The Memory** | `agent-changelog.md` | Chronological records of agent actions, audits, and hygiene checks. |
+| `docs/backlog` | **The Queue** | `backlog-index.md` | Project backlog index and individual backlog plan files. |
+| `docs/plans` | **The Vision** | *(User Managed)* | Implementation plans, architectural RFCs, and feature roadmaps. |
+| `docs/archive-plans` | **The Archive** | `README.md` | Completed and closed implementation plans. |
+| `docs/prompts` | **The Voice** | *(User Managed)* | Standardized LLM prompts and persona definitions for consistency. |
 
 ---
 
@@ -54,8 +54,8 @@ To ensure high-speed lookup and clarity, files within subdirectories must follow
 - **Components:** `ui-component-name.md` (e.g., `ui-modal.md`).
 - **Database:** `db-table-name.md` (e.g., `db-projects.md`).
 - **Logic:** `util-logic-name.md` or `hook-name.md`.
-- **Plans:** `dev/plans/name-plan.md`.
-- **Backlog:** `dev/backlog/<feature-slug>-backlog.md`.
+- **Plans:** `docs/plans/name-plan.md`.
+- **Backlog:** `docs/backlog/<feature-slug>-backlog.md`.
 
 ---
 
@@ -92,17 +92,17 @@ Links to related database tables, parent indices, or sibling features.
 
 - **The Hub:** `wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices** in the Wiki, and also cross-links to DevOps operational directories.
 - **The Spokes:** Each Wiki category (`wiki/features/`, `wiki/database/`, `wiki/logic/`, `wiki/components/`) has its own `*-index.md` that lists its children.
-- **DevOps Cross-Links:** The hub also links out to `dev/backlog/`, `dev/plans/`, `dev/logs/`, and `dev/archive-plans/`.
+- **DevOps Cross-Links:** The hub also links out to `docs/backlog/`, `docs/plans/`, `docs/logs/`, and `docs/archive-plans/`.
 - **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies.
 
 ---
 
 ## 6. The Lifecycle of Documentation
 
-1. **Planning:** A plan file is created in `dev/plans/`.
-2. **Execution:** The agent performs the work and logs it in `dev/logs/agent-changelog.md`.
-3. **Sync:** As code is committed, the corresponding `feat-*`, `ui-*`, or `db-*` docs in `wiki/` are updated to reflect the new truth.
-4. **Archiving:** Deprecated features move to a `deprecated/` subfolder or are marked in frontmatter. Completed plans move from `dev/plans/` to `dev/archive-plans/`.
+1. **Planning:** A plan file is created in `docs/plans/`.
+2. **Execution:** The agent performs the work and logs it in `docs/logs/agent-changelog.md`.
+3. **Sync:** As code is committed, the corresponding wiki docs are updated to reflect the new truth.
+4. **Archiving:** Deprecated features move to a `deprecated/` subfolder or are marked in frontmatter. Completed plans move from `docs/plans/` to `docs/archive-plans/`.
 
 ---
 

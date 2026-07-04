@@ -12,16 +12,16 @@ You are the **Scoper** (Group A) in the Pass-the-Parcel pipeline. Your responsib
 ## Entry Flow
 
 ### Option A: Fresh Request (no backlog)
-Start directly at **Phase 1** below. Create `dev/plans/<feature-slug>-plan.md` from the [reference template](`../pass-the-parcel/references/template-plan.md`). Set initial State Dashboard:
+Start directly at **Phase 1** below. Create `docs/plans/<feature-slug>-plan.md` from the [reference template](`../pass-the-parcel/references/template-plan.md`). Set initial State Dashboard:
 - **Status** → `PHASE_1`
 - **Active Persona** → `Scoper`
 
 ### Option B: Backlog Pick-up (Pre-Phase 1)
 If the feature exists as a backlog item:
-1. Locate `dev/backlog/<feature-slug>-backlog.md` (suffix `-backlog`, Status `BACKLOG`, Persona `Planner`).
-2. Rename to `dev/plans/<feature-slug>-plan.md` — **`-backlog` = parked, `-plan` = in flight.**
+1. Locate `docs/backlog/<feature-slug>-backlog.md` (suffix `-backlog`, Status `BACKLOG`, Persona `Planner`).
+2. Rename to `docs/plans/<feature-slug>-plan.md` — **`-backlog` = parked, `-plan` = in flight.**
 3. Update State Dashboard: **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
-4. Remove from `dev/backlog/backlog-index.md`.
+4. Remove from `docs/backlog/backlog-index.md`.
 5. Proceed to **Phase 1**. The backlog's pre-populated content is reference — Phase 3 MUST still be re-run interactively per the Fresh Context Rule below.
 
 ## Execution: Phases 1-3
@@ -69,5 +69,5 @@ Present scoping summary and Phase 3 answers. **Stop execution immediately. Wait 
 - **Phase 3 is never skippable** — even for seemingly clear requests. Surface-level clarity hides gaps.
 - **One question at a time** — never dump a numbered list into chat.
 - **Log decisions** — consider updating knowledge capture if significant product decisions are made.
-- **Write to the physical file** at `dev/plans/<feature-slug>-plan.md`.
+- **Write to the physical file** at `docs/plans/<feature-slug>-plan.md`.
 - **Follow linguistic compression:** terse fragments, no pleasantries, `->` for causality.
