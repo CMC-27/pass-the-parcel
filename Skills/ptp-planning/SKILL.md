@@ -38,9 +38,13 @@ Mark with `// ponytail: [reason]` comment in plan code snippets. If shortcut has
 ### Safety Exceptions
 Never simplify away — input validation at trust boundaries, error handling preventing data loss, security measures, accessibility basics, or anything explicitly requested.
 
+### Wiki Core Compliance (Mandatory)
+Before writing code blueprints, re-read the relevant wiki/core docs identified in Phase 2's context inventory. Every code blueprint **must** explicitly reference the core docs it derives from (e.g., `uses token --color-primary from 05-design-system.md`, `follows validation pattern from 11-validation-standards.md`). If a blueprint touches UI, architecture, data, or security, cite the corresponding doc.
+
 ### Write Phase 4 Content
 Update the plan file's Phase 4 section with:
 - **Architecture & Files to Touch** — exact file paths, what each change is
+- **Wiki Core References** — which core doc(s) each change adheres to
 - **Code Blueprints** — exact function signatures, type definitions, logic flow
 - **To-Do Checklist** — ordered steps for the Executor
 - **Test Verification Plan** — exact commands, test cases to run

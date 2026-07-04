@@ -36,7 +36,7 @@ Write this into the plan's Phase 1 section.
 ### Phase 2 — Requirements & Context
 Systematically discover all relevant information. **MANDATORY: Context Inventory** — complete all three lookups before Phase 3:
 
-1. **Wiki Docs** — Start with `docs/wiki/core/00-system-index.md`, then drill into relevant feature, component, database, and design-system docs.
+1. **Wiki Docs** — Start with `docs/wiki/core/00-system-index.md` to identify relevant core docs (design system, architecture, security, validation, etc.), read those core docs, then drill into feature, component, database, and design-system docs as needed.
 2. **Knowledge Capture** — Read `docs/wiki/core/18-knowledge-capture.md` to surface existing decisions, past rationale, and constraints.
 3. **Source Code** — Identify and read all key source files the task touches (components, contexts, utilities, hooks, types).
 

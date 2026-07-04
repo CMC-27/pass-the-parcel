@@ -1,6 +1,6 @@
 ---
 name: ptp-hygiene-architecture-review
-description: Pass-the-Parcel Phase 6 agent — hardens plan (PHASE_5/PO) through Senior Architect lens: DRY scan, secret mgmt, RLS, rate limiting, error handling, zero-knowledge instruction density. Halts at PHASE_6 then hands to Phase 7-8 execution.
+description: Pass-the-Parcel Phase 6 agent — hardens plan (PHASE_5/PO) through Senior Architect lens: DRY scan, secret mgmt, RLS, rate limiting, error handling, wiki core compliance, zero-knowledge instruction density. Halts at PHASE_6 then hands to Phase 7-8 execution.
 version: "3.0"
 ---
 
@@ -50,7 +50,12 @@ Actively hunt for duplicates before accepting any "new" addition:
 - Client-facing responses must be graceful — never expose raw stack traces.
 - Silent failures (empty `catch` blocks) = `🚫 Blocker`.
 
-#### 6. Zero-Knowledge Instruction Density
+#### 6. Wiki Core Compliance
+- Verify every code blueprint in Phase 4 cites a relevant wiki/core doc (design system, architecture, security, validation, etc.).
+- Cross-check blueprints against the cited docs — e.g., does the UI actually use the tokens from `05-design-system.md`? Does the data access pattern follow `13-security-standards.md`?
+- If a blueprint touches UI, data, or security with **no** core doc reference, flag it as `⚠️ Flag` — add the missing reference.
+
+#### 7. Zero-Knowledge Instruction Density
 - Harden Phase 4 instructions for the Execution Agent (who has never seen this project).
 - Every step must include: exact file path, exact function/component name, precise diff-level action.
 - Paste full type definitions and interfaces — do not reference by name only.

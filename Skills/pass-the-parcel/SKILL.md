@@ -87,7 +87,7 @@ If the requested feature exists as a backlog item:
   * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in `docs/plans/[plan-name].md`.
   * **Phase 2 (Requirements Gathering):** Search codebase and docs. Link exact files and context.
     * **MANDATORY: Context Inventory** — Before proceeding to Phase 3 questions, complete the following three lookups. Log all findings in the plan's Phase 2 section.
-      1. **Wiki Docs:** Identify and read all relevant wiki docs (start with `docs/wiki/core/00-system-index.md`, then drill into feature, component, database, and design-system docs as needed).
+       1. **Wiki Docs:** Start with `docs/wiki/core/00-system-index.md` to identify relevant core docs (design system, architecture, security, validation, etc.), read those core docs, then drill into feature, component, database, and design-system docs as needed.
       2. **Knowledge Capture:** Read `docs/wiki/core/18-knowledge-capture.md` to surface existing decisions, past rationale, and tribal knowledge that may answer questions or constrain the solution.
       3. **Source Code:** Identify and read all key source files — components, contexts, utilities, hooks, and types the task touches.
   * **Phase 3 (User Clarification):**
@@ -102,7 +102,7 @@ If the requested feature exists as a backlog item:
 ### GROUP B: Detailed Planning (Phase 4)
 * **Goal:** Architect solution with exact file-level steps, to-do list, code snippets, and wiki doc notes.
 * **Steps:**
-  * **Phase 4 (Detailed Execution Plan):** Before writing any plan step, every proposed change **MUST** pass through the **Simplicity Ladder**. Then write exact file-level steps, code blueprints, to-do list, test verification plan, and key wiki docs to add/edit.
+  * **Phase 4 (Detailed Execution Plan):** Before writing any plan step, every proposed change **MUST** pass through the **Simplicity Ladder**. Then re-read relevant wiki/core docs (from Phase 2 context inventory) and write exact file-level steps, code blueprints with **wiki core references**, to-do list, test verification plan, and key wiki docs to add/edit.
     * **The Simplicity Ladder** (stop at first rung that holds):
       1. **Does this need to exist at all?** Speculative need = skip it, note "skipped: YAGNI" in plan.
       2. **Already in codebase?** Reuse existing helper/util/type/pattern. Log what was reused.
@@ -131,6 +131,7 @@ If the requested feature exists as a backlog item:
     * **Explicit Data Security:** Ensure Row Level Security (RLS) policies are defined for any new/modified database schemas or tables.
     * **Endpoint Protection & Rate Limiting:** Mandate request throttling and `429 Too Many Requests` handling on all new/modified endpoints.
     * **Robust Error Handling:** Wrap all async operations in error catching, forbid silent failures/empty catch blocks, and plan graceful client-facing fallbacks.
+    * **Wiki Core Compliance:** Verify every code blueprint cites a relevant wiki/core doc and cross-check against it. Flag uncited UI/data/security blueprints.
     * **Zero-Knowledge Instruction Density:** Harden the Phase 4 instructions so they contain absolute file paths, exact function/component names, and precise diff plans.
 * **HALT POINT (Gate C):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_6`, **Active Persona** → `Reviewer`. Present the review findings and required fixes. **Stop execution immediately. Do NOT touch any codebase files or run commands yet. Wait for explicit user approval to execute.**
 
