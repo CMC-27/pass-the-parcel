@@ -16,7 +16,7 @@ When the user requests to add an item to the backlog:
 ## 2. Format the Backlog Entry
 For each backlog item, create:
 1. A brief entry line in `docs/backlog/backlog-index.md` containing a clickable link to the backlog plan.
-2. A full early-prepared backlog plan file at `docs/backlog/<feature-slug>-backlog.md` using the standard Pass-the-Parcel Markdown Template. Per the [Lifecycle table]:
+2. A full early-prepared backlog plan file at `docs/backlog/<feature-slug>-backlog.md` using the canonical Pass-the-Parcel template (full scaffold: Phases 1-10 + Wrap Up). Per the [Lifecycle table]:
    - **Status** → `BACKLOG` (parked, not in flight)
    - **Active Persona** → `Planner` (prepares the scaffold)
    - **File suffix** → `-backlog.md` (signals this is a parked backlog item, not an active plan)

@@ -83,8 +83,9 @@ If the requested feature exists as a backlog item:
 
 ### GROUP A: Scoping & Context (Phases 1-3)
 * **Goal:** Understand intent, locate context, resolve ambiguities.
+* **Pre-Step — Create Plan from Template:** Before any phase work, create `docs/plans/<feature-slug>-plan.md` from the [canonical template](references/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + Wrap Up) from the start — all downstream agents rely on this structure. Set initial State Dashboard: **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
-  * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in `docs/plans/[plan-name].md`.
+  * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in the plan file.
   * **Phase 2 (Requirements Gathering):** Search codebase and docs. Link exact files and context.
     * **MANDATORY: Context Inventory** — Before proceeding to Phase 3 questions, complete the following three lookups. Log all findings in the plan's Phase 2 section.
        1. **Wiki Docs:** Start with `docs/wiki/core/00-system-index.md` to identify relevant core docs (design system, architecture, security, validation, etc.), read those core docs, then drill into feature, component, database, and design-system docs as needed.

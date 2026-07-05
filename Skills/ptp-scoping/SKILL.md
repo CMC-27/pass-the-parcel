@@ -12,7 +12,7 @@ You are the **Scoper** (Group A) in the Pass-the-Parcel pipeline. Your responsib
 ## Entry Flow
 
 ### Option A: Fresh Request (no backlog)
-Start directly at **Phase 1** below. Create `docs/plans/<feature-slug>-plan.md` from the [reference template](`../pass-the-parcel/references/template-plan.md`). Set initial State Dashboard:
+Start directly at **Phase 1** below. Create `docs/plans/<feature-slug>-plan.md` from the [canonical template](../pass-the-parcel/references/template-plan.md) — this includes the **full scaffold** (Phases 1-10 + Wrap Up) so all downstream agents have the structure they expect. Set initial State Dashboard:
 - **Status** → `PHASE_1`
 - **Active Persona** → `Scoper`
 

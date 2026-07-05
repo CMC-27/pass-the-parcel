@@ -37,6 +37,8 @@
 * **Prepared By:** `[Agent Persona]` | **Date:** `[YYYY-MM-DD HH:MM]`
 * **Files to Create/Modify:**
   - `[path]` (file:///path) -> [change description]
+* **Wiki Core References:**
+  - `[doc.md]` -> [which blueprints derive from this doc]
 * **Wiki Docs to Add/Edit:**
   - `[path]` (file:///path) -> [description of new/edited content]
 * **Code Snippets & Instructions:**
