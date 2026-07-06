@@ -19,7 +19,11 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 
 ## Plan State Lifecycle (Canonical Reference)
 
-Every plan file **MUST** have its State Dashboard updated at each transition. The table below defines the only valid states. An AI agent reading the plan determines exactly where it is in the workflow from these two fields.
+Every plan file **MUST** have:
+- The full template scaffold with phases, gates, and checks.
+- Its State Dashboard updated at each transition. 
+
+The table below defines the only valid states. An AI agent reading the plan determines exactly where it is in the workflow from these two fields.
 
 | Status | Active Persona | Directory | File Suffix | Gate | Meaning |
 |---|---|---|---|---|---|
@@ -34,11 +38,35 @@ Every plan file **MUST** have its State Dashboard updated at each transition. Th
 **Lifecycle flow:** `BACKLOG` → *(pickup)* → `PHASE_1` → `PHASE_3` → `PHASE_4` → `PHASE_6` → `PHASE_8` → `COMPLETE`
 
 **Key rules:**
-- **Backlog → Active:** When a backlog item is picked up, the file is renamed from `<slug>-backlog.md` to `<slug>-plan.md` and moved from `docs/backlog/` to `docs/plans/`. Status changes `BACKLOG` → `PHASE_1`.
 - **Status must match phase:** The `Status` field always reflects the highest completed phase. E.g., if Phases 1-4 are done, Status is `PHASE_4`, not `PHASE_3` or `PROPOSED`.
 - **Persona changes with phase:** `Scoper` owns Phases 1-3, `Planner` owns Phase 4, `Reviewer` owns Phases 5-6, `Executor` owns Phases 7-8.
 - **DO NOT use `PROPOSED` or `Architect`** — these are legacy defaults from the raw template. Always overwrite them with a valid state from the table above.
-- **Phase 3 is NEVER skippable:** Every fresh conversation session **MUST** re-run Phase 3 (User Clarification) — even if the plan already has Phase 3 entries pre-populated from a previous session. The previous session's context is lost; the user's current intent must be re-validated. Pre-populated answers from backlog serve as *reference material* only — they are NOT a substitute for asking the questions interactively. See the [Fresh Context Rule](#fresh-context-rule) in Group A.
+- **No amount of urgency allows skipping gates:** Each gate is a hard stop. Agents **MUST** halt and wait for user approval before proceeding to the next phase grouping.
+
+---
+
+## Skill Delegation Map (Persona → Sub-Skill)
+
+Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a specialized sub-skill that owns the detailed directives. The `Active Persona` field in the State Dashboard identifies **who owns the work**; the delegated skill provides **how the work is done**.
+
+| Group | Phase(s) | Active Persona | Delegated Skill | Scope | Gate |
+|---|---|---|---|---|---|
+| A | 1-3 | `Scoper` | `ptp-context-hunter` | ptp sub-skill | A |
+| B | 4 | `Planner` | `ptp-razor-planner` | ptp sub-skill | B |
+| C | 5 | `Reviewer` | `ptp-smooth-operator` | ptp sub-skill | C |
+| C | 6 | `Reviewer` | `ptp-grumpy-architect` | ptp sub-skill | C |
+| D | 7-8 | `Executor` | `ptp-code-surgeon` | ptp sub-skill | D |
+| E | 9 | `Reviewer` | `knowledge-capture` (on demand) | global | — |
+| F | 10 + Wrap Up | `Executor` | `agent-wrap-up` | global | — |
+
+**Naming convention:**
+* **`ptp-*` prefix** = pass-the-parcel sub-skill. Lives in `.opencode/skills/ptp-*/SKILL.md`. The full directive detail lives in these skills — pass-the-parcel only references them.
+* **No prefix** = global skill. Used where the work is not pass-the-parcel-specific (e.g., project-wide wrap-up, knowledge capture).
+
+**Execution rule:** When a Group step says `CRITICAL: Initialize and execute the \`[skill-name]\` skill`, the agent **MUST** load and execute that skill. The persona's directives are not duplicated in pass-the-parcel; they are owned by the sub-skill. Pass-the-parcel handles lifecycle, gates, halt points, and state transitions only.
+
+**Plan trace:** Every phase in the parcel template records the executed skill in its `Skill Executed` field for auditability.
+
 
 ---
 
@@ -53,7 +81,7 @@ To prevent context inflation and ensure complete control over design and executi
 2. **The Mandatory Review Gates:**
    - **Gate A (Scope & Context Review):** Stop after completing **Phases 1-3**. Present the expanded scope and clarification questions, then halt. Do not write a detailed technical plan or touch files.
    - **Gate B (Detailed Plan Review):** Stop after completing **Phase 4**. Present the detailed execution plan with to-do list, code snippets, and wiki doc notes, then halt. Next agent handles reviews in Phases 5-6.
-   - **Gate C (Peer Reviews Complete):** Stop after completing **Phases 5-6** (Product Owner + Senior Dev Hygiene reviews). Present findings and required fixes. Wait for approval before proceeding to execution.
+   - **Gate C (Peer Reviews Complete):** Stop after completing **Phases 5-6** (Product Owner + Grumpy Architect reviews). Present findings and required fixes. Wait for approval before proceeding to execution.
    - **Gate D (Implementation Complete):** Stop after completing **Phases 7-8** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off.
 
 ---
@@ -83,81 +111,59 @@ If the requested feature exists as a backlog item:
 
 ### GROUP A: Scoping & Context (Phases 1-3)
 * **Goal:** Understand intent, locate context, resolve ambiguities.
-* **Pre-Step — Create Plan from Template:** Before any phase work, create `docs/plans/<feature-slug>-plan.md` from the [canonical template](references/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + Wrap Up) from the start — all downstream agents rely on this structure. Set initial State Dashboard: **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
+* **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `docs/plans/<feature-slug>-plan.md` from the [canonical template](references/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + Wrap Up) from the start — all downstream agents rely on this structure. If this item was picked up from the backlog, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial State Dashboard: **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
-  * **Phase 1 (Expansion & Scoping):** Expand request. Define in-scope and out-of-scope in the plan file.
-  * **Phase 2 (Requirements Gathering):** Search codebase and docs. Link exact files and context.
-    * **MANDATORY: Context Inventory** — Before proceeding to Phase 3 questions, complete the following three lookups. Log all findings in the plan's Phase 2 section.
-       1. **Wiki Docs:** Start with `docs/wiki/core/00-system-index.md` to identify relevant core docs (design system, architecture, security, validation, etc.), read those core docs, then drill into feature, component, database, and design-system docs as needed.
-      2. **Knowledge Capture:** Read `docs/wiki/core/18-knowledge-capture.md` to surface existing decisions, past rationale, and tribal knowledge that may answer questions or constrain the solution.
-      3. **Source Code:** Identify and read all key source files — components, contexts, utilities, hooks, and types the task touches.
+  * **Phase 1 (Expansion & Scoping):**
+    * **CRITICAL:** Initialize and execute the **`ptp-context-hunter`** skill to hydrate the plan, expand the request, and lock the In-Scope / Out-of-Scope perimeter.
+  * **Phase 2 (Requirements Gathering):**
+    * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to run the Forensic Context Inventory — wiki core docs, knowledge capture, and source code verification.
   * **Phase 3 (User Clarification):**
-       - **Fresh Context Rule (CRITICAL):** This session operates in a **fresh context window**. You have zero memory of any prior conversations that produced this plan. The pre-populated Phase 3 answers in the plan (if any) came from a different session with a different user state. **You MUST re-ask all Phase 3 questions interactively.** Do not treat pre-populated answers as "already answered."
-       - **What you CAN rely on:** The Phase 1 (Scoping) and Phase 2 (Context) sections serve as your reference. Read these to understand what the previous session established, then formulate your Phase 3 questions based on that context.
-       - **What you CANNOT do:** Skip Phase 3, mark answers as `[x]` without asking, or treat backlog pre-populated content as user-validated in this session.
-       - Formulate concise clarifying questions for any remaining ambiguity. **You MUST use the `question` tool — one question at a time — to collect answers interactively before updating the plan.** For each question, offer 2–4 selectable options with your recommended answer listed first (prefixed `(Recommended)`). Ask **at least 5 questions**, and continue until you have full context. Once all contextual questions have been answered, present a final validation question: `"Is this all the context required?"` with options: `"Yes, all context captured — proceed"` (Recommended) and `"No, something is missing — I'll describe what's needed"`.
-    - If **Yes**, write the resolved Q&A into Phase 3 of the plan as `[x]` checked items (including the validation question).
-    - If **No**, the user will describe what's missing. Analyse their input and determine if further clarification questions are required. If yes, ask them iteratively. Once resolved, re-ask the final validation question. Repeat until answered Yes.
+    * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to interrogate the user interactively, surface architectural conflicts inline, and capture the final gate-A validation before advancing.
 * **HALT POINT (Gate A):** Once the final validation question is answered Yes and Phase 3 is fully populated, update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_3`, **Active Persona** → `Scoper`. Present the scoping summary and Phase 3 answers. **Stop execution immediately and wait for the user to approve the scope before proceeding to Group B.**
 
 ### GROUP B: Detailed Planning (Phase 4)
 * **Goal:** Architect solution with exact file-level steps, to-do list, code snippets, and wiki doc notes.
 * **Steps:**
-  * **Phase 4 (Detailed Execution Plan):** Before writing any plan step, every proposed change **MUST** pass through the **Simplicity Ladder**. Then re-read relevant wiki/core docs (from Phase 2 context inventory) and write exact file-level steps, code blueprints with **wiki core references**, to-do list, test verification plan, and key wiki docs to add/edit.
-    * **The Simplicity Ladder** (stop at first rung that holds):
-      1. **Does this need to exist at all?** Speculative need = skip it, note "skipped: YAGNI" in plan.
-      2. **Already in codebase?** Reuse existing helper/util/type/pattern. Log what was reused.
-      3. **Stdlib does it?** Use it. No custom code.
-      4. **Native platform feature?** Prefer `<input type="date">` over picker lib, CSS over JS, DB constraint over app code.
-      5. **Already-installed dep?** Use it. Never add a new dep for what a few lines can do.
-      6. **Can it be one line?** Make it one line.
-      7. **Only then:** minimum code that works.
-     * **Simplicity Rules:** No unrequested abstractions (interface w/ one impl, factory for one product, config for unchanging value). No scaffolding "for later". Deletion over addition. Boring over clever. Fewest files possible. Shortest working diff wins. **Refactor for brevity:** Before finalizing, review your code and compress — e.g., 200 lines → 50 if the logic allows. If a senior engineer would call it bloated, simplify.
-    * **Deliberate Simplifications:** Mark with `// ponytail: [reason]` comment in plan code snippets. If shortcut has known ceiling (global lock, O(n²), naive heuristic), name ceiling + upgrade path.
-    * **Safety Exceptions:** Never simplify away — input validation at trust boundaries, error handling preventing data loss, security measures, accessibility basics, or anything explicitly requested. User insists on full version → build it.
+  * **Phase 4 (Razor Planner Execution Plan):**
+    * **CRITICAL:** Initialize and execute the **`ptp-razor-planner`** skill to convert the Phase 1-3 scope into a detailed execution plan. Climb the Simplicity Ladder on every proposed change, mark deliberate shortcuts with `ponytail:`, and produce a surgically dense plan with absolute file paths and wiki core citations. Reject on bloat or vagueness.
 * **HALT POINT (Gate B):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_4`, **Active Persona** → `Planner`. Present the detailed execution plan. **Stop execution immediately. Next agent handles Phases 5-6 reviews.**
 
 ### GROUP C: Peer Reviews (Phases 5-6)
-* **Goal:** Peer-review for quality, security, and standards utilising various personas.
+* **Goal:** Peer-review for quality, security, and standards utilizing specialized personas.
 * **Steps:**
-  * **Phase 5 (Product Owner Review):** Audit the proposed changes using the **Senior Product Owner Lens**:
-    * **Vision & Scope Integrity:** Verify the plan solves the *right* problem, respects defined scope boundaries, and lists UX flow details.
-    * **Business Logic & Edge Cases:** Ensure empty states, loading indicators, error boundary strategies, and user-scoped data restrictions are planned.
-    * **Dependency & Functional Risk:** Flag any downstream impacts or modifications to shared systems.
-    * **Mandatory Decision Sync:** If any user clarifications occurred in Phase 3, you **MUST** sync these resolved product decisions to the project's knowledge capture log (`docs/wiki/core/18-knowledge-capture.md`) before completing this phase.
-  * **Phase 6 (Senior Dev Hygiene Review):** Audit and harden the execution plan using the **Senior Full-Stack Architect Lens**:
-    * **Active DRY Scan (Non-Negotiable):** Run `grep` and `ls` to actively hunt for duplicate components, utility hooks, type definitions, constant declarations, or state shapes in the codebase *before* accepting any "new" additions. Rewrite the plan to reuse existing assets where possible.
-    * **Dead Code & Orphan Detection:** Scan for unresolved imports, unused variables, and orphaned functions/styles in the files this plan touches. **DO NOT delete them** — flag each finding with exact file paths and line numbers in the review notes. Reported dead code is handled during Wrap Up (backlog entry), not here.
-    * **Strict Secret Management:** Ensure that environment variable usage is planned for all keys/tokens, and check that `.env` files are in `.gitignore`.
-    * **Explicit Data Security:** Ensure Row Level Security (RLS) policies are defined for any new/modified database schemas or tables.
-    * **Endpoint Protection & Rate Limiting:** Mandate request throttling and `429 Too Many Requests` handling on all new/modified endpoints.
-    * **Robust Error Handling:** Wrap all async operations in error catching, forbid silent failures/empty catch blocks, and plan graceful client-facing fallbacks.
-    * **Wiki Core Compliance:** Verify every code blueprint cites a relevant wiki/core doc and cross-check against it. Flag uncited UI/data/security blueprints.
-    * **Zero-Knowledge Instruction Density:** Harden the Phase 4 instructions so they contain absolute file paths, exact function/component names, and precise diff plans.
+  * **Phase 5 (Smooth Operator Product Review):**
+    * **CRITICAL:** Initialize and execute the **`ptp-smooth-operator`** skill to audit the Phase 4 plan. Ensure strict alignment with user journey, 4 core states, and scope containment. Reject on UX friction.
+  * **Phase 6 (Grumpy Architect Hygiene Review):**
+    * **CRITICAL:** Initialize and execute the **`ptp-grumpy-architect`** skill to forensically audit code quality. Run nuanced DRY/WET scans, security perimeter checks, and rate-limiting audits. Reject on bloat.
 * **HALT POINT (Gate C):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_6`, **Active Persona** → `Reviewer`. Present the review findings and required fixes. **Stop execution immediately. Do NOT touch any codebase files or run commands yet. Wait for explicit user approval to execute.**
 
 ### GROUP D: Execution & Verification (Phases 7-8)
 * **Goal:** Code features strictly to plan, run QA, prove stability.
 * **Steps:**
-  * **Phase 7 (Execute Changes):** In a clean context, read the approved plan and edit codebase files exactly as designed. Mark off items.
-    * **Surgical Execution Rules (Non-Negotiable):**
-      1. **Touch only intended lines:** Edit the exact lines specified in the plan. Leave adjacent code, comments, and formatting intact — even if you spot minor issues nearby.
-      2. **Clean up owned orphans:** Remove any imports, variables, types, or functions that your own changes made unused. Do NOT touch orphans that existed before your changes.
-      3. **Leave pre-existing dead code untouched:** If Phase 6 flagged dead code, do not delete it here. It will be handled via backlog entry during Wrap Up. Your only job is the approved plan.
-  * **Phase 8 (Verify Changes):** Run test suites, verify against plan specifications, and log status.
+  * **Phase 7 (Execute Changes):**
+    * **CRITICAL:** Initialize and execute the **`ptp-code-surgeon`** skill to apply Phase 4 edits. Touch only intended lines, clean up only owned orphans, track execution incrementally, and halt on any unresolvable error.
+  * **Phase 8 (Verify Changes):**
+    * **CRITICAL:** Continue executing the **`ptp-code-surgeon`** skill to run compilation/tests/lint, log proof in the plan, and verify runtime stability before declaring the gate clear.
 * **HALT POINT (Gate D):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_8`, **Active Persona** → `Executor`. Present completed work and QA verification report. **Stop execution immediately and wait for user to test and sign off.**
 
 ### GROUP E: User Review & Tweaks (Phase 9)
-* **Goal:** User performs testing and provides feedback. Iterative back-and-forth with agent for tweaks.
+* **Goal:** User performs testing and provides feedback. Iterative back-and-forth with agent for tweaks, with important lessons captured to improve future outputs.
 * **Steps:**
-  * **Phase 9 (User Review & Tweaks):** User tests the implementation. Agent and user iterate on feedback. Each round of feedback and tweaks is logged. Phase complete when user signs off.
+  * **Phase 9 (User Review & Tweaks):** User tests the implementation. Agent and user iterate on feedback. **All tweaks are logged inline in this plan's Phase 9 `Back-and-Forth Log`** (one entry per round: User Feedback → Tweaks Applied → Result). Phase complete when user signs off.
+  * **Knowledge Capture Hook:** After *every* tweak, evaluate whether it carries a **lesson worth preserving** and, if so, initialize the **`knowledge-capture`** skill (global). The trigger is **not** "shared theme" alone — capture anything that would help the next agent. The qualifying categories are:
+      * **Recurring pattern** — same correction needed twice or more across rounds.
+      * **Tribal-knowledge decision** — non-obvious project rule, convention, or constraint (e.g., "we never mutate X in this codebase").
+      * **Significant one-off** — a single bug, gotcha, clever fix, or surprising requirement that even a fresh agent would benefit from knowing.
+    * **Data flow:** raw tweaks stay in the Phase 9 log. Any tweak that meets the bar above is promoted to `docs/wiki/core/18-knowledge-capture.md` via the `knowledge-capture` skill, then consolidated in Phase 10 by `agent-wrap-up`. **Default to capture; skip only when the tweak is purely cosmetic (typo, formatting) with no underlying lesson.**
 * **COMPLETION:** Phase 9 done when user provides explicit sign-off.
 
 ### GROUP F: Document Tweaks & Wrap Up (Phase 10 + Wrap Up)
-* **Goal:** Document all tweaks from Phase 9, capture themed tweaks for knowledge, and close out the plan.
+* **Goal:** Document all tweaks from Phase 9, promote captured lessons to the knowledge log, and close out the plan.
 * **Steps:**
-  * **Phase 10 (Document Tweaks & Knowledge Capture):** Log all tweaks made during Phase 9. Flag tweaks with a shared theme for knowledge capture. Sync themed tweaks to the project's knowledge capture log.
-  * **Wrap Up:** Update wiki docs as needed. Archive the plan to `docs/archive-plans/`. Review and update backlog items. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan. Set State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `COMPLETE`.
+  * **Phase 10 (Document Tweaks & Knowledge Capture):**
+    * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 9 tweaks, sync captured lessons (per Phase 9 `Capture Flag`) to the project's knowledge capture log, and confirm any open capture items are resolved.
+  * **Wrap Up:**
+    * **CRITICAL:** Continue executing the **`agent-wrap-up`** skill (global) to update wiki docs, archive the plan to `docs/archive-plans/`, review backlog items, and set State Dashboard → `COMPLETE`. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---
