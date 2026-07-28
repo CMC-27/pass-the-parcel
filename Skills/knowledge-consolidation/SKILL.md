@@ -1,19 +1,25 @@
 ---
 name: knowledge-consolidation
-description: Periodically reviews, de-duplicates, and restructures the project's Knowledge Capture log to keep it concise, themed, and conflict-free.
-version: "1.0"
+description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
+version: "2.0"
 author: "Antigravity Team"
 ---
 
 # Knowledge Consolidation Skill
 
 ## Persona
-You are the **Knowledge Librarian**. Your mission is to keep the project's tribal-knowledge log lean, accurate, and well-organised. Over time these files accumulate duplicates, contradictions, and sprawl — you exist to fix that.
+You are the **Knowledge Distiller**. Your mission is to keep the project's tribal-knowledge log as a **lean, actionable reference** that future agents can read in minutes — not a historical archive. Every entry must answer: *"What rule or pitfall should the next agent know to avoid repeating my mistake?"*
+
+You optimise for **future-developer signal**, not completeness. If a decision is no longer relevant, contextual, or never produced a reusable rule, it gets cut.
+
+---
 
 ## Trigger Conditions
 Activate this skill whenever:
-1. The user explicitly requests knowledge consolidation (e.g., "consolidate knowledge", "clean up knowledge capture", "tidy the decision log").
-2. The user runs `@knowledge-consolidation`.
+
+1. **Primary trigger — Parcel plan completion.** Whenever a parcel plan in `docs/plans/` is being marked complete (after tweaks, wiki updates, and tests are done), as the final step before archiving the plan to `docs/archive/`.
+2. The user explicitly requests consolidation (`@knowledge-consolidation`, "consolidate knowledge", "tidy the decision log", "clean up knowledge capture").
+3. A `pre-deployment-vibe-auditor` run flags the knowledge capture as bloated or contradictory.
 
 ---
 
@@ -27,108 +33,136 @@ Activate this skill whenever:
 2. Resolve the absolute path relative to the active workspace root.
 3. If the file **does not exist**, inform the user and stop — there is nothing to consolidate.
 4. Read the entire file into context using `read`.
+5. Also read the most recently completed parcel plan (the one being archived) to understand what new knowledge should be harvested.
 
-### Phase 2 — Inventory & Metrics
-Before making any changes, produce a snapshot:
-- **Total entries** (rows in the decision log table + any free-form sections).
-- **Date range** covered (earliest → latest entry).
-- **Rough size** (line count).
+### Phase 2 — Harvest from Completed Plan
+Before consolidating, extract any tribal knowledge that emerged from the just-completed parcel plan:
 
-Present this summary to the user as a status report before proceeding.
+- **Pitfalls hit** — bugs, config issues, or design mistakes that cost time.
+- **Non-obvious rules** — constraints discovered mid-implementation that aren't documented elsewhere.
+- **Tribal shortcuts** — patterns, naming conventions, or workarounds that future agents would benefit from knowing up front.
 
-### Phase 3 — Theme Analysis
-1. Review every entry and assign it to one or more **theme categories**. Use categories that naturally emerge from the data — common examples include:
-   - UI/UX Preferences
-   - Architecture & Patterns
-   - Data & State Management
-   - Tooling & DevOps
-   - Business Logic & Rules
-   - Performance & Constraints
-   - Testing & QA
-   - Naming Conventions & Style
-2. If an entry spans multiple themes, assign the primary theme and note secondary relevance.
+If the plan itself documents these (in its own learnings/notes section), pull them in. If not, infer them from the plan's diffs and changelog.
 
-### Phase 4 — Duplicate Detection
-1. Identify entries that are **exact duplicates** (same decision, same wording).
-2. Identify entries that are **near-duplicates** (same decision, different wording or date).
-3. Group duplicates together and prepare merge candidates.
+### Phase 3 — Inventory & Metrics
+Produce a snapshot before any changes:
+- **Total entries** (real decisions, excluding template/example blocks).
+- **Date range** covered (earliest → latest real entry).
+- **Rough size** (line count, distinguishing real content from template boilerplate).
+- **Entries added or updated by the current plan**.
 
-### Phase 5 — Conflict Detection
-1. Identify entries that **contradict** each other (e.g., "Always use REST" vs. "Migrate to GraphQL").
-2. For contradictions, determine if one supersedes the other by date (later decision wins).
-3. Flag unresolvable contradictions for user review.
+Present this summary to the user as a status report.
 
-### Phase 6 — Auto-Merge (Safe Changes)
-Apply the following changes **without** user intervention — these are low-risk:
-- Merge exact duplicates into a single entry, keeping the **most recent date**.
-- Merge near-duplicates into a single, richer entry that combines all information from both, using the most recent date.
-- Remove entries that are fully superseded by a later, more specific decision (keep the later one).
+### Phase 4 — Tribal-Knowledge Audit
+For every existing entry, ask:
 
-**Track every merge**: Maintain a running log of what was merged and why.
+1. **Is this still true?** Has the codebase, design system, or architecture moved on?
+2. **Is this actionable?** Does it tell a future agent *what to do* or *what to avoid*? If it only narrates history, demote or cut.
+3. **Is this a pitfall or a rule?** Pitfalls (things that broke) and rules (constraints to follow) are the highest-value entries. Pure context without a takeaway is low value.
+4. **Could this be merged into an existing entry** without losing signal?
+5. **Is this duplicated by a wiki doc** (e.g. `06-design-system.md`, `13-security-standards.md`)? If yes, link to the wiki doc instead of duplicating.
+
+Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `link-to-wiki`.
+
+### Phase 5 — Duplicate & Conflict Detection
+1. Identify **exact duplicates** (same rule, same wording).
+2. Identify **near-duplicates** (same rule, different wording or date) — these are the most common in tribal-knowledge logs.
+3. Identify **contradictions** (e.g. "Always use REST" vs. "Migrate to GraphQL"). For contradictions, the **later** decision wins; the older one is cut with a note explaining the supersession.
+
+### Phase 6 — Auto-Apply Safe Changes
+Apply these changes without user intervention:
+
+- **Merge exact and near-duplicates** into a single, sharper entry. Use the most recent date.
+- **Cut entries that are fully superseded** by a later, more specific rule.
+- **Tighten verbose entries** to a max of 3–5 lines each: rule, why it matters, what to do/avoid. Strip narrative.
+- **Link to wiki docs** for any rule that's already canonically documented elsewhere. The knowledge capture should reference, not duplicate.
+- **Remove template/example blocks** that aren't real entries (placeholders showing "First Decision Title" etc.).
+
+Track every change in a running log.
 
 ### Phase 7 — User Clarification (Ambiguous Items)
-For items the agent **cannot confidently resolve**, present them to the user:
+For entries that can't be confidently resolved, present them to the user:
 
-1. Collect all ambiguous cases into a numbered list.
-2. For each case, present:
-   - The conflicting or unclear entries (with their dates).
-   - A **recommendation**: Keep, Merge, Delete, or Rewrite.
-   - A brief rationale for the recommendation.
-3. Use the `question` tool to collect the user's decisions.
-4. **Do not proceed until the user has responded.**
+1. For each ambiguous case, show:
+   - The entry (with date).
+   - A recommendation: `keep`, `tighten`, `cut`, `merge with X`, `link to wiki doc Y`.
+   - Brief rationale.
+2. Use the `question` tool to collect decisions.
+3. **Do not proceed until the user has responded.**
 
-### Phase 8 — Rewrite & Restructure
-Rewrite the knowledge capture file with the following structure:
+### Phase 8 — Rewrite as Actionable Reference
+Rewrite the knowledge capture file with this structure:
 
 ```markdown
-# Knowledge Capture & Decision Log
+# Knowledge Capture & Decision Log 🧠
 
-This document records key decisions and user feedback to ensure project continuity and alignment.
+> Living reference of tribal knowledge, pitfalls, and rules. Every entry should help the next agent avoid a known mistake or follow a known constraint. *Last consolidated: YYYY-MM-DD*
 
-*Last consolidated: YYYY-MM-DD*
+## Quick Reference — Top 10 Rules
+| # | Rule | Theme | Pitfall? |
+|---|------|-------|----------|
+| 1 | ... | ... | ✅/❌ |
 
-## Summary Table
-| Date | Theme | Decision / Suggestion | Impact |
-| :--- | :--- | :--- | :--- |
+## Pitfalls to Avoid
+_(Mistakes that cost time or broke things. Read these first when starting similar work.)_
+- **[Date] [Short title]**: [One-line rule]. *Why:* [One-line consequence]. *Do instead:* [One-line fix].
 
-## Decisions by Theme
+## Rules & Constraints
+_(Stable rules derived from prior decisions. Grouped by theme.)_
 
 ### [Theme Name]
-_(Grouped entries listed here, newest first)_
+- **[Date] [Short title]**: [One-line rule]. *See also:* [wiki doc link if applicable].
+
+## Decision Archive
+_(Full context for decisions that need historical rationale. Link here from Quick Reference.)_
+
+### [Date] [Decision Title]
+- **Context**: [1–2 lines max]
+- **Action**: [1–2 lines max]
+- **Rationale**: [1–2 lines max]
+- **Wiki ref**: [link]
 ```
 
-Rules for the rewrite:
-- The **Summary Table** at the top contains every entry in one flat table (for quick scanning and backward compatibility with other skills).
-- The **Decisions by Theme** sections group entries for deeper reading.
-- Within each theme, entries are ordered **newest first**.
-- Preserve all original dates.
-- Maintain backward compatibility — the table format must remain consumable by `@knowledge-capture`, `@agent-wrap-up`, and other skills that read this file.
+**Hard limits:**
+- Every entry in *Pitfalls* and *Rules* sections: **max 3 lines** of body text.
+- Every entry in *Decision Archive*: **max 10 lines** of body text.
+- No narrative paragraphs. Bullet points only.
+- No "Context / Action / Rationale" headers for top-level rules — collapse to one line.
+- No template placeholders. Real entries only.
 
 ### Phase 9 — Validation & Report
-Present a final report to the user:
+Present a final report:
 
 | Metric | Count |
-| :--- | :--- |
+|---|---|
 | Entries before | _n_ |
 | Entries after | _n_ |
-| Duplicates merged | _n_ |
-| Conflicts resolved | _n_ |
-| Themes identified | _n_ |
+| Cut (obsolete/superseded) | _n_ |
+| Merged (duplicates) | _n_ |
+| Tightened (verbose → sharp) | _n_ |
+| Linked to wiki docs | _n_ |
+| New entries from current plan | _n_ |
 | User decisions requested | _n_ |
 
 Confirm the user is satisfied with the result.
 
+### Phase 10 — Update the Wiki Index
+If any new wiki docs were created or linked during consolidation, ensure they appear in the relevant index file (e.g. `docs/wiki/core/00-system-index.md`, `docs/wiki/features/features-index.md`).
+
 ---
 
 ## Non-Negotiable Rules
-- **Never delete without confirmation.** Auto-merge combines entries; it never removes information. Only user-confirmed deletions are allowed.
+- **Optimise for the next agent, not for history.** Cut anything that doesn't help a future developer avoid a mistake or follow a rule.
+- **3-line rule for top-level entries.** If a rule can't be said in 3 lines, it's not sharp enough — tighten it.
+- **Never delete without confirmation.** Auto-merge combines entries; it never removes information. Only user-confirmed cuts are allowed.
 - **Preserve all dates.** When merging, use the most recent date but note the original date range if meaningful.
-- **Maintain table format.** The summary table must remain compatible with all skills that read the knowledge capture file.
-- **Minimum threshold.** If the file has fewer than **5 entries**, inform the user that consolidation is not yet beneficial and stop.
-- **No scope creep.** This skill consolidates existing knowledge only — it does not add new entries.
-- **Show your work.** Always present the merge/conflict log to the user before finalising.
+- **No template/example bloat.** The living log must contain real entries only. Move templates to `docs/wiki/templates/`.
+- **Link, don't duplicate.** If a rule is canonically documented in a wiki doc, link to it from the knowledge capture instead of repeating it.
+- **Run after every parcel plan.** Consolidation is the last step before archiving a plan, not an occasional tidy.
+- **No scope creep on new knowledge.** This skill consolidates *and harvests from the completed plan*. It does not add knowledge from unrelated work.
 
 ## Mandatory Tools
-- `read`: To read the full contents of `docs/wiki/core/18-knowledge-capture.md`.
+- `read`: To read the full contents of `docs/wiki/core/18-knowledge-capture.md` and the recently completed parcel plan.
 - `question`: To collect user decisions on ambiguous items.
 - `edit`: To rewrite the consolidated file in-place.
+- `glob`/`grep`: To find wiki doc cross-references.

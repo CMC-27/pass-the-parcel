@@ -1,4 +1,4 @@
-﻿---
+---
 type: "core"
 name: "System Index"
 status: "stable"
@@ -7,7 +7,7 @@ db_relations: []
 description: "Master entry point and developer onboarding hub for [APP_NAME]."
 ---
 
-# System Index — [APP_NAME] Developer Onboarding Hub
+# System Index � [APP_NAME] Developer Onboarding Hub
 
 This document is the master gateway into the documentation library. Start here to understand product philosophy, structural patterns, and data infrastructure.
 
@@ -16,23 +16,23 @@ This document is the master gateway into the documentation library. Start here t
 ## 1. Product & Principles
 - [Vision & North Star](./01-vision-north-star.md)
 - [Product Context & Strategy](./02-product-context.md)
-- [Glossary of Terms](./16-glossary-of-terms.md)
-- [UI/UX Design System](./05-design-system.md)
+- [Glossary of Terms](./03-glossary-of-terms.md)
+- [UI/UX Design System](./09-design-system.md)
 - [Knowledge Capture & Decisions](./18-knowledge-capture.md)
-- [Agent Changelog](../../logs/agent-changelog.md)
+- [Agent Changelog](../../../docs/logs/agent-changelog.md)
 
 ## 2. Core Architecture & Logic
-- [User Journey & Data Hierarchy](./03-user-journey.md)
+- [User Journey & Data Hierarchy](./08-user-journey.md)
 - [Physical Directory Structure](./06-directory-structure.md)
 - [App Shell Structure](./07-app-structure.md)
-- [Core Architecture Concepts](./04-core-architecture.md)
-- [State & Context Data Shapes](./08-state-context.md)
-- [AI Features & Workflows](./09-ai-features.md)
-- [External Integrations](./10-external-integrations.md)
-- [Validation Standards](./11-validation-standards.md)
-- [Utility Standards](./12-utility-standards.md)
-- [Security Standards](./13-security-standards.md)
-- [Performance Standards](./14-performance-standards.md)
+- [Core Architecture Concepts](./05-core-architecture.md)
+- [State & Context Data Shapes](./04-state-context.md)
+- [AI Features & Workflows](./15-ai-features.md)
+- [External Integrations](./16-external-integrations.md)
+- [Validation Standards](./10-validation-standards.md)
+- [Utility Standards](./11-utility-standards.md)
+- [Security Standards](./12-security-standards.md)
+- [Performance Standards](./13-performance-standards.md)
 - [Theme & Linguistics](./15-theme-linguistics.md)
 
 ## 3. Component & View Code
@@ -40,10 +40,10 @@ This document is the master gateway into the documentation library. Start here t
 **Codebase Navigation**
 - [Physical Directory Structure](./06-directory-structure.md)
 
-**Component Systems** → [Components Index](../components/components-index.md)
+**Component Systems** ? [Components Index](../components/components-index.md)
 <!-- List key reusable UI components here -->
 
-**Views & Routing** → [Features Index](../features/features-index.md)
+**Views & Routing** ? [Features Index](../features/features-index.md)
 <!-- List primary screens/routes here -->
 
 ## 4. Visual Architecture Flow
@@ -74,15 +74,15 @@ flowchart TD
 ```
 
 ## 5. Core Logic & Utilities
-→ [Logic & Utilities Index](../logic/logic-index.md)
+? [Logic & Utilities Index](../logic/logic-index.md)
 
 **Utility Functions**
 <!-- List key utility files here, e.g.: -->
-<!-- - [CSV Parser](../logic/util-csv-parser.md) — `src/utils/csvParser.js` -->
+<!-- - [CSV Parser](../logic/util-csv-parser.md) � `src/utils/csvParser.js` -->
 
 **Custom Hooks**
 <!-- List key hooks here, e.g.: -->
-<!-- - [useDataFetch](../logic/hook-data-fetch.md) — `src/hooks/useDataFetch.js` -->
+<!-- - [useDataFetch](../logic/hook-data-fetch.md) � `src/hooks/useDataFetch.js` -->
 
 ## 6. Database Schema Signatures
 <!-- List each data table/collection doc here, e.g.: -->

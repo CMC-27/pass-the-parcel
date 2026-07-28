@@ -19,5 +19,5 @@ Agents use this to understand past decisions and avoid relitigating them. A miss
 ## What to verify against
 - `docs/logs/agent-changelog.md` — chronological action log
 - `docs/plans/` — active plans may surface in-flight decisions
-- `docs/wiki/core/04-core-architecture.md` — technical guardrails
+- `docs/wiki/core/05-core-architecture.md` — technical guardrails
 - `git log` — recent commits reveal unrecorded decisions

@@ -7,7 +7,7 @@ To ensure absolute visual consistency and match the premium design system of thi
 > [!IMPORTANT]
 > **Direct System Specification:**
 > Before creating or modifying any user interface elements, dashboards, or components, review the master design system document:
-> ➡️ **[design-system.md](docs/wiki/core/05-design-system.md)**
+> ➡️ **[design-system.md](docs/wiki/core/09-design-system.md)**
 
 ---
 
@@ -35,4 +35,4 @@ These variables are defined in the global stylesheet:
 | **Success** | `--color-success` | Success metrics, indicators, and complete states |
 | **Warning / Error** | `--color-error` | Validation failures, alerts, and critical flags |
 
-*For the full list of variables, badge styling, interactive button specifications, and typography hierarchy, see the complete guide at [design-system.md](docs/wiki/core/05-design-system.md).*
+*For the full list of variables, badge styling, interactive button specifications, and typography hierarchy, see the complete guide at [design-system.md](docs/wiki/core/09-design-system.md).*

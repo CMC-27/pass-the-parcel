@@ -11,12 +11,12 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
-## [YYYY-MM-DD HH:MM] - [Short Title of Change]
-**Agent:** [Agent Name & Model]
+## 2026-05-21 - Initial Repository Scaffold
+**Agent:** template-generator
 **Files Modified:**
-- `path/to/file.md`
+- (all files — initial scaffold)
 **Database/API Changes:** None
-**Summary:** Brief description of what was changed and why.
+**Summary:** Created the Vibe-App-Wiki repository scaffold with the hub-and-spoke wiki architecture, skill system, opencode integration, pass-the-parcel workflow, and developer conventions. All core docs initialized as templates ready for project-specific content.
 
 ---
 

@@ -1,4 +1,4 @@
-﻿---
+---
 type: "core"
 name: "Wiki Architecture Blueprint"
 status: "stable"
@@ -7,7 +7,7 @@ db_relations: []
 description: "The universal blueprint for the @docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
 ---
 
-# 🗺️ Wiki Architecture Blueprint
+# ??? Wiki Architecture Blueprint
 
 This document defines the **Documentation Standard** for the [APP_NAME] application. It is designed to turn a codebase from a "black box" into a transparent, agent-ready intelligence hub.
 
@@ -23,7 +23,7 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 The library is organized into **two top-level libraries** based on functional purpose:
 
-### 📖 wiki/ — Architecture Knowledge Base
+### ?? wiki/ � Architecture Knowledge Base
 
 | Directory | Role | Parent/Index File | Description |
 | :--- | :--- | :--- | :--- |
@@ -33,14 +33,14 @@ The library is organized into **two top-level libraries** based on functional pu
 | `wiki/database` | **The Skeleton** | `database-index.md` | Schema breakdowns, table relationships, and data-layer logic. |
 | `wiki/logic` | **The Internal Organs**| `logic-index.md` | Utility functions, custom hooks, and complex algorithmic explanations. |
 
-### ⚙️ docs/ — Operational Process Tooling
+### ?? docs/ � Operational Process Tooling
 
 | Directory | Role | Index File | Description |
 | :--- | :--- | :--- | :--- |
 | `docs/logs` | **The Memory** | `agent-changelog.md` | Chronological records of agent actions, audits, and hygiene checks. |
 | `docs/backlog` | **The Queue** | `backlog-index.md` | Project backlog index and individual backlog plan files. |
 | `docs/plans` | **The Vision** | *(User Managed)* | Implementation plans, architectural RFCs, and feature roadmaps. |
-| `docs/archive-plans` | **The Archive** | `README.md` | Completed and closed implementation plans. |
+| `docs/archive` | **The Archive** | `README.md` | Completed and closed implementation plans. |
 | `docs/prompts` | **The Voice** | *(User Managed)* | Standardized LLM prompts and persona definitions for consistency. |
 
 ---
@@ -92,7 +92,7 @@ Links to related database tables, parent indices, or sibling features.
 
 - **The Hub:** `wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices** in the Wiki, and also cross-links to DevOps operational directories.
 - **The Spokes:** Each Wiki category (`wiki/features/`, `wiki/database/`, `wiki/logic/`, `wiki/components/`) has its own `*-index.md` that lists its children.
-- **DevOps Cross-Links:** The hub also links out to `docs/backlog/`, `docs/plans/`, `docs/logs/`, and `docs/archive-plans/`.
+- **DevOps Cross-Links:** The hub also links out to `docs/backlog/`, `docs/plans/`, `docs/logs/`, and `docs/archive/`.
 - **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies.
 
 ---
@@ -102,7 +102,7 @@ Links to related database tables, parent indices, or sibling features.
 1. **Planning:** A plan file is created in `docs/plans/`.
 2. **Execution:** The agent performs the work and logs it in `docs/logs/agent-changelog.md`.
 3. **Sync:** As code is committed, the corresponding wiki docs are updated to reflect the new truth.
-4. **Archiving:** Deprecated features move to a `deprecated/` subfolder or are marked in frontmatter. Completed plans move from `docs/plans/` to `docs/archive-plans/`.
+4. **Archiving:** Deprecated features move to a `deprecated/` subfolder or are marked in frontmatter. Completed plans move from `docs/plans/` to `docs/archive/`.
 
 ---
 
@@ -110,27 +110,27 @@ Links to related database tables, parent indices, or sibling features.
 
 Use this checklist to establish the core knowledge infrastructure. All 19 slots are defined below in their canonical numbered order.
 
-### 🧠 Wiki Core Brain Documents (`wiki/core/`)
+### ?? Wiki Core Brain Documents (`wiki/core/`)
 
 | Slot | Filename | Name | Status |
 |:---|:---|:---|:---|
 | 00 | `00-system-index.md` | System Index (The Hub) | Required |
 | 01 | `01-vision-north-star.md` | Vision & North Star | Required |
 | 02 | `02-product-context.md` | Product Context | Required |
-| 03 | `03-user-journey.md` | User Journey | Required |
-| 04 | `04-core-architecture.md` | Core Architecture | Required |
-| 05 | `05-design-system.md` | Design System | Required |
+| 03 | `08-user-journey.md` | User Journey | Required |
+| 04 | `05-core-architecture.md` | Core Architecture | Required |
+| 05 | `09-design-system.md` | Design System | Required |
 | 06 | `06-directory-structure.md` | Directory Structure | Required |
 | 07 | `07-app-structure.md` | App Shell Structure | Required |
-| 08 | `08-state-context.md` | State & Context | Required |
-| 09 | `09-ai-features.md` | AI Features & Pipelines | If applicable |
-| 10 | `10-external-integrations.md` | External Integrations | If applicable |
-| 11 | `11-validation-standards.md` | Validation Standards | Required |
-| 12 | `12-utility-standards.md` | Utility Standards | Required |
-| 13 | `13-security-standards.md` | Security Standards | Required |
-| 14 | `14-performance-standards.md` | Performance Standards | Required |
+| 08 | `04-state-context.md` | State & Context | Required |
+| 09 | `15-ai-features.md` | AI Features & Pipelines | If applicable |
+| 10 | `16-external-integrations.md` | External Integrations | If applicable |
+| 11 | `10-validation-standards.md` | Validation Standards | Required |
+| 12 | `11-utility-standards.md` | Utility Standards | Required |
+| 13 | `12-security-standards.md` | Security Standards | Required |
+| 14 | `13-performance-standards.md` | Performance Standards | Required |
 | 15 | `15-theme-linguistics.md` | Theme & Linguistics | If applicable |
-| 16 | `16-glossary-of-terms.md` | Glossary of Terms | Required |
+| 16 | `03-glossary-of-terms.md` | Glossary of Terms | Required |
 | 17 | `17-docs-blueprint.md` | Docs Blueprint (This File) | Required |
 | 18 | `18-knowledge-capture.md` | Knowledge Capture | Required |
 

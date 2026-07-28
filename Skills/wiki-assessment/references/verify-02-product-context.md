@@ -20,4 +20,4 @@ Agents use this to align implementation choices with the business domain. Wrong 
 - `docs/wiki/features/` — actual feature docs
 - `src/` — feature flags, route definitions, role-based access
 - `docs/backlog/backlog-index.md` — priority ordering
-- `docs/wiki/core/16-glossary-of-terms.md` — link target
+- `docs/wiki/core/03-glossary-of-terms.md` — link target

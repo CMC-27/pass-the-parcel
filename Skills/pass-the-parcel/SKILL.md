@@ -33,7 +33,7 @@ The table below defines the only valid states. An AI agent reading the plan dete
 | `PHASE_4` | `Planner` | `docs/plans/` | `-plan.md` | Gate B | Detailed execution plan written. Awaiting review handoff. |
 | `PHASE_6` | `Reviewer` | `docs/plans/` | `-plan.md` | Gate C | Peer reviews complete. Awaiting approval to execute. |
 | `PHASE_8` | `Executor` | `docs/plans/` | `-plan.md` | Gate D | Implementation done, verified. Awaiting user sign-off. |
-| `COMPLETE` | — | `docs/archive-plans/` | `-plan.md` | — | Plan archived. No further action. |
+| `COMPLETE` | — | `docs/archive/` | `-plan.md` | — | Plan archived. No further action. |
 
 **Lifecycle flow:** `BACKLOG` → *(pickup)* → `PHASE_1` → `PHASE_3` → `PHASE_4` → `PHASE_6` → `PHASE_8` → `COMPLETE`
 
@@ -163,7 +163,7 @@ If the requested feature exists as a backlog item:
   * **Phase 10 (Document Tweaks & Knowledge Capture):**
     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 9 tweaks, sync captured lessons (per Phase 9 `Capture Flag`) to the project's knowledge capture log, and confirm any open capture items are resolved.
   * **Wrap Up:**
-    * **CRITICAL:** Continue executing the **`agent-wrap-up`** skill (global) to update wiki docs, archive the plan to `docs/archive-plans/`, review backlog items, and set State Dashboard → `COMPLETE`. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
+    * **CRITICAL:** Continue executing the **`agent-wrap-up`** skill (global) to update wiki docs, archive the plan to `docs/archive/`, review backlog items, and set State Dashboard → `COMPLETE`. **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---

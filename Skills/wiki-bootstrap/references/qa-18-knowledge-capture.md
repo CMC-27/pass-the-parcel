@@ -19,5 +19,5 @@ Agents use this to understand past decisions and avoid relitigating them. A miss
 ## Sources of truth
 - `docs/logs/agent-changelog.md` — chronological action log
 - `docs/plans/` — active plans may surface in-flight decisions
-- `docs/wiki/core/04-core-architecture.md` — technical guardrails (some may originate from decisions)
+- `docs/wiki/core/05-core-architecture.md` — technical guardrails (some may originate from decisions)
 - `git log` — recent commits reveal unrecorded decisions

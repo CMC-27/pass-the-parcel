@@ -7,7 +7,7 @@ Agents use this to align implementation choices with the business domain. Wrong 
 - 2–5 primary user personas (with name, role, goals, pain points)
 - Top 3–7 core use cases (linked to feature docs)
 - High-level product roadmap summary (now / next / later)
-- Link to the Glossary (`16-glossary-of-terms.md`) for domain terminology
+- Link to the Glossary (`03-glossary-of-terms.md`) for domain terminology
 
 ## Questions to ask
 1. Who are the 2–5 primary user personas? (Name, role, primary goal, biggest pain.)
@@ -21,4 +21,4 @@ Agents use this to align implementation choices with the business domain. Wrong 
 - `docs/wiki/features/` — actual feature docs
 - `src/` — feature flags, route definitions, role-based access
 - `docs/backlog/backlog-index.md` — confirms priority ordering
-- `docs/wiki/core/16-glossary-of-terms.md` — terminology source
+- `docs/wiki/core/03-glossary-of-terms.md` — terminology source

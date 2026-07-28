@@ -84,20 +84,20 @@ When you reach slot `0X`, open this file to read its verification question set:
 | 00 | System Index (The Hub) | `references/verify-00-system-index.md` |
 | 01 | Vision & North Star | `references/verify-01-vision-north-star.md` |
 | 02 | Product Context | `references/verify-02-product-context.md` |
-| 03 | User Journey | `references/verify-03-user-journey.md` |
-| 04 | Core Architecture | `references/verify-04-core-architecture.md` |
-| 05 | Design System | `references/verify-05-design-system.md` |
+| 03 | Glossary of Terms | `references/verify-03-glossary-of-terms.md` |
+| 04 | State & Context | `references/verify-04-state-context.md` |
+| 05 | Core Architecture | `references/verify-05-core-architecture.md` |
 | 06 | Directory Structure | `references/verify-06-directory-structure.md` |
 | 07 | App Structure | `references/verify-07-app-structure.md` |
-| 08 | State & Context | `references/verify-08-state-context.md` |
-| 09 | AI Features | `references/verify-09-ai-features.md` |
-| 10 | External Integrations | `references/verify-10-external-integrations.md` |
-| 11 | Validation Standards | `references/verify-11-validation-standards.md` |
-| 12 | Utility Standards | `references/verify-12-utility-standards.md` |
-| 13 | Security Standards | `references/verify-13-security-standards.md` |
-| 14 | Performance Standards | `references/verify-14-performance-standards.md` |
-| 15 | Theme & Linguistics | `references/verify-15-theme-linguistics.md` |
-| 16 | Glossary of Terms | `references/verify-16-glossary-of-terms.md` |
+| 08 | User Journey | `references/verify-08-user-journey.md` |
+| 09 | Design System | `references/verify-09-design-system.md` |
+| 10 | Validation Standards | `references/verify-10-validation-standards.md` |
+| 11 | Utility Standards | `references/verify-11-utility-standards.md` |
+| 12 | Security Standards | `references/verify-12-security-standards.md` |
+| 13 | Performance Standards | `references/verify-13-performance-standards.md` |
+| 14 | Testing Standards | `references/verify-14-testing-standards.md` |
+| 15 | AI Features | `references/verify-15-ai-features.md` |
+| 16 | External Integrations | `references/verify-16-external-integrations.md` |
 | 17 | Docs Blueprint | `references/verify-17-docs-blueprint.md` |
 | 18 | Knowledge Capture | `references/verify-18-knowledge-capture.md` |
 

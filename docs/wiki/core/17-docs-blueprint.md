@@ -1,13 +1,13 @@
 ﻿---
 type: "core"
-name: "Wiki Architecture Blueprint"
+name: "Documentation Architecture Blueprint"
 status: "stable"
 dependencies: []
 db_relations: []
-description: "The universal blueprint for the docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
+description: "The universal blueprint for the @docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
 ---
 
-# Wiki Architecture Blueprint
+# Documentation Architecture Blueprint
 
 This document defines the **Documentation Standard** for the application. It is designed to turn a codebase from a "black box" into a transparent, agent-ready intelligence hub.
 
@@ -21,40 +21,56 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 ## 2. Folder Taxonomy (The Library Structure)
 
-The library is organized into **two top-level libraries** based on functional purpose:
+All documentation lives under a **`docs/`** root:
 
-### docs/wiki/ — Architecture Knowledge Base
+```
+docs/
++-- wiki/       <- Architecture Knowledge Base
++-- backlog/    <- Product backlog
++-- plans/      <- Active implementation plans
++-- archive/    <- Completed plans
++-- logs/       <- Development history
+```
+
+### docs/wiki/ - Architecture Knowledge Base
 
 | Directory | Role | Index File | Description |
-| :--- | :--- | :--- | :--- |
-| `docs/wiki/core` | **The Brain** | `00-system-index.md` | Master index, design systems, state context, and global architecture. |
-| `docs/wiki/features` | **The Nervous System** | `features-index.md` | Screen-specific documentation, feature workflows, and view-logic. |
-| `docs/wiki/components` | **The Muscle** | `components-index.md` | Documentation for reusable UI atoms, molecules, and organisms. |
-| `docs/wiki/database` | **The Skeleton** | `database-index.md` | Schema breakdowns, table relationships, and data-layer logic. |
-| `docs/wiki/logic` | **The Internal Organs**| `logic-index.md` | Utility functions, custom hooks, and complex algorithmic explanations. |
+|---|---|---|---|
+| `docs/wiki/core` | The Brain | `00-system-index.md` | Master index, design systems, state context, architecture. |
+| `docs/wiki/features` | The Nervous System | `features-index.md` | Screen-specific docs, feature workflows, view logic. |
+| `docs/wiki/components` | The Muscle | `components-index.md` | Reusable UI atoms, molecules, and organisms. |
+| `docs/wiki/database` | The Skeleton | `database-index.md` | Schema breakdowns, table relationships. |
+| `docs/wiki/logic` | The Internal Organs | `logic-index.md` | Utility functions, custom hooks, algorithmic explanations. |
+| `docs/wiki/conventions` | The Rules | `conventions-index.md` | Naming conventions for all code artifacts. |
+| `docs/wiki/integrations` | The Connections | `integrations-index.md` | External service and API integrations. |
+| `docs/wiki/testing` | The Test Lab | `testing-index.md` | Test patterns, mocking, performance budgets. |
 
-### docs/ — Operational Process Tooling
+### docs/ - Operational Process Tooling
 
 | Directory | Role | Index File | Description |
-| :--- | :--- | :--- | :--- |
-| `docs/logs` | **The Memory** | `agent-changelog.md` | Chronological records of agent actions and audits. |
-| `docs/backlog` | **The Queue** | `backlog-index.md` | Project backlog index and individual backlog plan files. |
-| `docs/plans` | **The Vision** | *(User Managed)* | Implementation plans, architectural RFCs, and feature roadmaps. |
-| `docs/archive-plans` | **The Archive** | `README.md` | Completed and closed implementation plans. |
+|---|---|---|---|
+| `docs/logs` | The Memory | `agent-changelog.md` | Chronological agent actions, audits, hygiene. |
+| `docs/backlog` | The Queue | `backlog-index.md` | Backlog index and individual plan files. |
+| `docs/plans` | The Future | (User Managed) | Active implementation plans. |
+| `docs/archive` | The Archive | (User Managed) | Completed plans moved from `plans/`. |
 
 ---
 
 ## 3. Naming Conventions (The Prefix Pattern)
 
-To ensure high-speed lookup and clarity, files within subdirectories must follow specific prefix patterns:
-
-- **Core:** `0x-name.md` (Numbered sequence for onboarding flow).
-- **Features:** `feat-feature-name.md`.
-- **Components:** `ui-component-name.md`.
-- **Database:** `db-table-name.md`.
-- **Logic:** `util-logic-name.md` or `hook-name.md`.
-- **Plans:** `docs/plans/name-plan.md`.
-- **Backlog:** `docs/backlog/<feature-slug>-backlog.md`.
+| Directory | Prefix Pattern | Examples |
+|---|---|---|
+| `docs/wiki/core/` | `0x-name.md` (numbered) | `00-system-index.md`, `01-vision-north-star.md` |
+| `docs/wiki/features/` | `feat-feature-name.md` | `feat-assembly-builder.md` |
+| `docs/wiki/components/` | `ui-component-name.md` | `ui-button.md` |
+| `docs/wiki/database/` | `db-table-name.md` | `db-projects.md` |
+| `docs/wiki/logic/` | `util-name.md` or `hook-name.md` | `util-csv-parser.md`, `hook-use-auth.md` |
+| `docs/wiki/conventions/` | `conv-category-name.md` | `conv-file-naming.md` |
+| `docs/wiki/testing/` | `topic.md` | `pattern.md`, `mocking.md` |
+| `docs/logs/` | `agent-changelog.md` | (single file, append-only) |
+| `docs/backlog/` | `backlog-index.md` or `<slug>-backlog.md` | `backlog-index.md` |
+| `docs/plans/` | `<slug>-plan.md` | `feat-dashboard-plan.md` |
+| `docs/archive/` | `<slug>-plan.md` | (moved from docs/plans/ when complete) |
 
 ---
 
@@ -89,50 +105,67 @@ Links to related database tables, parent indices, or sibling features.
 
 ## 5. The "Hub & Spoke" Linking Strategy
 
-- **The Hub:** `docs/wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices** and DevOps operational directories.
-- **The Spokes:** Each Wiki category has its own `*-index.md` that lists its children.
-- **DevOps Cross-Links:** The hub also links to `docs/backlog/`, `docs/plans/`, `docs/logs/`, and `docs/archive-plans/`.
-- **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies.
+- **The Hub:** `docs/wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices**.
+- **The Spokes:** Each category has its own `*-index.md` that lists its children.
+- **Operational Cross-Links:** The hub also links to `docs/backlog/`, `docs/plans/`, `docs/archive/`, and `docs/logs/`.
+- **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies using relative paths.
 
 ---
 
 ## 6. The Lifecycle of Documentation
 
-1. **Planning:** A plan file is created in `docs/plans/`.
+1. **Planning:** A `<slug>-plan.md` is created in `docs/plans/`.
 2. **Execution:** The agent performs the work and logs it in `docs/logs/agent-changelog.md`.
-3. **Sync:** As code is committed, the corresponding wiki docs are updated to reflect the new truth.
-4. **Archiving:** Deprecated features are marked in frontmatter. Completed plans move from `docs/plans/` to `docs/archive-plans/`.
+3. **Sync:** As code is committed, corresponding wiki docs are updated to reflect the new truth.
+4. **Archiving:** Completed plans are moved from `docs/plans/` to `docs/archive/`. Deprecated features are marked with `status: "deprecated"` in frontmatter.
 
 ---
 
 ## 7. Foundation Documents Checklist
 
-Use this checklist to establish the core knowledge infrastructure. All 19 slots are defined below:
+### Core Brain Documents (`docs/wiki/core/`)
 
-### Wiki Core Brain Documents (`docs/wiki/core/`)
+| Slot | Doc | Theme | Status |
+|---|---|---|---|
+| 00 | System Index | Hub | Required |
+| 01 | Vision & North Star | Strategy | Required |
+| 02 | Product Context | Strategy | Required |
+| 03 | Glossary of Terms | Strategy | Required |
+| 04 | State & Context | Architecture | Required |
+| 05 | Core Architecture | Architecture | Required |
+| 06 | Directory Structure | Architecture | Required |
+| 07 | App Structure | Architecture | Required |
+| 08 | User Journey | Workflow | Required |
+| 09 | Design System | Design | Required |
+| 10 | Validation Standards | Standards | Required |
+| 11 | Utility Standards | Standards | Required |
+| 12 | Security Standards | Standards | Required |
+| 13 | Performance Standards | Standards | Required |
+| 14 | Testing Standards | Standards | Required |
+| 15 | AI Features | Features | If applicable |
+| 16 | External Integrations | Features | If applicable |
+| 17 | Docs Blueprint | Meta | Required |
+| 18 | Knowledge Capture | Meta | Required |
 
-| Slot | Filename | Name | Status |
-|:---|:---|:---|:---|
-| 00 | `00-system-index.md` | System Index (The Hub) | Required |
-| 01 | `01-vision-north-star.md` | Vision & North Star | Required |
-| 02 | `02-product-context.md` | Product Context | Required |
-| 03 | `03-user-journey.md` | User Journey | Required |
-| 04 | `04-core-architecture.md` | Core Architecture | Required |
-| 05 | `05-app-structure.md` | App Shell Structure | Required |
-| 06 | `06-directory-structure.md` | Directory Structure | Required |
-| 07 | `07-app-structure.md` | App Shell Structure | Required |
-| 08 | `08-state-context.md` | State & Context | Required |
-| 09 | `09-ai-features.md` | AI Features & Pipelines | If applicable |
-| 10 | `10-external-integrations.md` | External Integrations | If applicable |
-| 11 | `11-validation-standards.md` | Validation Standards | Required |
-| 12 | `12-utility-standards.md` | Utility Standards | Required |
-| 13 | `13-security-standards.md` | Security Standards | Required |
-| 14 | `14-performance-standards.md` | Performance Standards | Required |
-| 15 | `15-theme-linguistics.md` | Theme & Linguistics | If applicable |
-| 16 | `16-glossary-of-terms.md` | Glossary of Terms | Required |
-| 17 | `17-docs-blueprint.md` | Docs Blueprint (This File) | Required |
-| 18 | `18-knowledge-capture.md` | Knowledge Capture | Required |
+### Test Lab Documents (`docs/wiki/testing/`)
+
+- `testing-index.md` - Hub for testing docs
+- `pattern.md` - Test taxonomy, naming, what-to-test
+- `mocking.md` - Shared mock conventions
+- `performance.md` - Test performance budgets
+- `checklist.md` - PR review checklist
+
+### Subfolder Parent Indices
+
+- `features-index.md` - Group features by business module
+- `components-index.md` - List physical path for every reusable component
+- `database-index.md` - Include "When to Read Which Doc" table
+- `logic-index.md` - Summarize the "truth" held by each utility
+- `conventions-index.md` - Catalog naming conventions
+- `testing-index.md` - Gateway to testing standards
 
 ---
 
-> **The Golden Rule:** If a feature's behavior changes in code, the documentation MUST be updated in the same PR/Conversation. Outdated documentation is technical debt.
+## See Also
+- [00-system-index.md](./00-system-index.md) - Master system index
+- [18-knowledge-capture.md](./18-knowledge-capture.md) - Knowledge capture and decisions

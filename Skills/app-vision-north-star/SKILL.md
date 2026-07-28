@@ -22,10 +22,10 @@ You manage exactly these four artifacts. They have non-overlapping purposes:
 | :- | :--- | :--- | :--- |
 | 1 | **App Vision & North Star** | `docs/wiki/core/01-vision-north-star.md` | Why does this app exist? What is success? What will we never do? |
 | 2 | **Product Context** | `docs/wiki/core/02-product-context.md` | What is the core workflow? What is the master entity? What hangs off it? |
-| 3 | **User Journey** | `docs/wiki/core/03-user-journey.md` | Who is the user, what do they click, what do they see, step by step? |
-| 4 | **Core Architecture & Data Architecture** | `docs/wiki/core/04-core-architecture.md` | What are the integrity rules, migration, versioning, dual-writes, persistence layers? |
+| 3 | **User Journey** | `docs/wiki/core/08-user-journey.md` | Who is the user, what do they click, what do they see, step by step? |
+| 4 | **Core Architecture & Data Architecture** | `docs/wiki/core/05-core-architecture.md` | What are the integrity rules, migration, versioning, dual-writes, persistence layers? |
 
-> **Override rule:** If the project uses different file paths, ask the user once at the start of every action and remember the answer for the session. The defaults assume GRID Submit's slot layout.
+> **Override rule:** If the project uses different file paths, ask the user once at the start of every action and remember the answer for the session. The defaults below assume the standard wiki slot layout; adjust per project.
 
 **Why four, not one:** Vision alone is too abstract. User Journey alone is too detailed. Product Context captures the *process* and *product shape* in the middle. Core Architecture captures the *technical data rules* in the middle. Future agents resolve ambiguity by checking the right artifact for the right question.
 
@@ -168,10 +168,10 @@ Produce a single delta report in this format. Do **not** write to any of the 4 a
 - [ ] **[Vision vs Journey]:** Vision says "no CRM"; Journey Phase 7 is a CRM. Resolution: [delete CRM | rewrite anti-goal].
 
 ## Stale Claims (vs. current code)
-- [ ] **[04-core-architecture §Dual-Writes]:** Doc says "Supabase gated by flag X". Code: flag is no longer referenced. Action: [remove | reflag].
+- [ ] **[05-core-architecture §Dual-Writes]:** Doc says "Supabase gated by flag X". Code: flag is no longer referenced. Action: [remove | reflag].
 
 ## Missing Entities
-- [ ] **[04-core-architecture]:** System holds `customerGroup` but no entity is documented. Action: [add | prove it's transient].
+- [ ] **[05-core-architecture]:** System holds `customerGroup` but no entity is documented. Action: [add | prove it's transient].
 
 ## Trade-off Violations
 - [ ] **Trade-off #2 ("X over Y"):** Decision [date/decision-id] violated Y. Verdict: [rewrite trade-off | revert decision].
@@ -391,10 +391,10 @@ description: "Core workflow, product shape, master/sub-entity relationships, and
 ---
 
 > [!IMPORTANT]
-> This document defines the **shape** of the product. For the **rules** that govern the data, see [04-core-architecture.md](04-core-architecture.md). For the **flow** the user experiences, see [03-user-journey.md](03-user-journey.md). For the **why**, see [01-vision-north-star.md](01-vision-north-star.md).
+> This document defines the **shape** of the product. For the **rules** that govern the data, see [05-core-architecture.md](05-core-architecture.md). For the **flow** the user experiences, see [08-user-journey.md](08-user-journey.md). For the **why**, see [01-vision-north-star.md](01-vision-north-star.md).
 ```
 
-### Template 3: `03-user-journey.md`
+### Template 3: `08-user-journey.md`
 
 ```markdown
 ---
@@ -444,7 +444,7 @@ description: "End-to-end user journey across all personas, screens, and key inte
 - [Specific failure paths the user can hit.]
 ```
 
-### Template 4: `04-core-architecture.md` (Core Architecture & Data Architecture)
+### Template 4: `05-core-architecture.md` (Core Architecture & Data Architecture)
 
 ```markdown
 ---
@@ -583,7 +583,7 @@ The system operates on a dual-track taxonomy to balance [goal A] with [goal B]:
 ---
 
 > [!IMPORTANT]
-> This document defines the **rules** that govern the data and the **architecture** that supports it. For the **shape** of the product, see [02-product-context.md](02-product-context.md). For the **flow** the user experiences, see [03-user-journey.md](03-user-journey.md). For the **why**, see [01-vision-north-star.md](01-vision-north-star.md).
+> This document defines the **rules** that govern the data and the **architecture** that supports it. For the **shape** of the product, see [02-product-context.md](02-product-context.md). For the **flow** the user experiences, see [08-user-journey.md](08-user-journey.md). For the **why**, see [01-vision-north-star.md](01-vision-north-star.md).
 ```
 
 ---

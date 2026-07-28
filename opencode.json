@@ -1,0 +1,206 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "skills": {
+    "paths": ["skills"]
+  },
+  "default_agent": "build",
+  "agent": {
+    "plan": {
+      "description": "Planning mode. Consults wiki first before any codebase search.",
+      "mode": "primary",
+      "model": "opencode-go/deepseek-v4-flash",
+      "permission": {
+        "edit": "deny",
+        "bash": "ask",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "skill": "allow",
+        "task": "allow",
+        "question": "allow"
+      },
+      "prompt": "You are in planning mode. Before searching the codebase or spawning any subagent, you MUST follow the AGENTS.md directive: STOP and read the localized intelligence hub (docs/wiki/) first. All research must start at docs/wiki/core/00-system-index.md. Consult the wiki to understand architecture, features, and relevant files before performing any codebase search. Only search the codebase if the wiki does not contain the answer. When using subagents, explicitly instruct them to follow the same wiki-first workflow."
+    },
+    "parcel-orchestrator": {
+      "description": "Parcel plan orchestrator. Walks the user through the 10-phase pass-the-parcel workflow by delegating to specialized parcel-* sub-agents and holding all user-facing communication.",
+      "mode": "primary",
+      "model": "opencode-go/deepseek-v4-flash",
+      "permission": {
+        "question": "allow",
+        "skill": "allow",
+        "task": {
+          "*": "deny",
+          "parcel-*": "allow"
+        },
+        "read": "allow",
+        "edit": {
+          "docs/**": "allow",
+          ".opencode/plans/**": "allow",
+          "*": "ask"
+        },
+        "bash": {
+          "git *": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "rg *": "allow",
+          "grep *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "Get-Date *": "allow",
+          "Get-Date -Format *": "allow",
+          "npm run build": "allow",
+          "npm run test": "allow",
+          "New-Item -ItemType Directory -Path \".opencode/plans/*\"": "allow",
+          "*": "ask"
+        },
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "todowrite": "deny"
+      }
+    },
+    "parcel-context-hunter": {
+      "description": "Parcel Scoper sub-agent. Executes Phases 1-3 of a parcel plan by loading the ptp-context-hunter skill, hydrating the plan with scope perimeter, running the forensic context inventory, and drafting Phase 3 user clarifications.",
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": {
+          "docs/plans/**": "allow",
+          "docs/wiki/**": "allow",
+          "docs/backlog/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-razor-planner": {
+      "description": "Parcel Planner sub-agent. Executes Phase 4 of a parcel plan by loading the ptp-razor-planner skill and producing a detailed, file-level execution plan with the Simplicity Ladder, ponytail markers, and wiki citations.",
+      "mode": "subagent",
+      "model": "opencode-go/minimax-m3",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": {
+          "docs/plans/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-smooth-operator": {
+      "description": "Parcel Product Reviewer sub-agent. Executes Phase 5 of a parcel plan by loading the ptp-smooth-operator skill and auditing the Phase 4 plan for UX friction, scope containment, and user-journey alignment.",
+      "mode": "subagent",
+      "model": "opencode-go/minimax-m3",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-grumpy-architect": {
+      "description": "Parcel Hygiene Reviewer sub-agent. Executes Phase 6 of a parcel plan by loading the ptp-grumpy-architect skill and auditing the Phase 4 plan for code quality, security perimeter, DRY/WET, and rate-limiting.",
+      "mode": "subagent",
+      "model": "opencode-go/hy3",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": "deny",
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-code-surgeon": {
+      "description": "Parcel Executor sub-agent. Executes Phases 7-8 of a parcel plan by loading the ptp-code-surgeon skill, applying Phase 4 edits with surgical precision, and running build/lint/test verification.",
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": "allow",
+        "bash": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-compactor": {
+      "description": "Parcel Compactor sub-agent. Executes Phase 6.5 of a parcel plan by loading the parcel-compactor skill, stripping intermediate debate from v1.1_merged.md, and outputting a clean v2.0_approved.md execution specification.",
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": {
+          ".opencode/plans/run-*/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    },
+    "parcel-phase3-answerer": {
+      "description": "Parcel Phase 3 Answerer sub-agent (AUTO mode only). Executes Phase 3.5 of a parcel plan by loading the ptp-phase3-answerer skill and auto-resolving Phase 3 questions using wiki docs and codebase analysis.",
+      "mode": "subagent",
+      "model": "opencode-go/minimax-m3",
+      "hidden": true,
+      "permission": {
+        "question": "deny",
+        "todowrite": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": {
+          "docs/plans/**": "allow",
+          "docs/wiki/**": "allow",
+          "*": "deny"
+        },
+        "bash": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "deny"
+      }
+    }
+  }
+}

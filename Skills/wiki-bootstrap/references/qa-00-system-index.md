@@ -20,5 +20,5 @@ The hub is the first thing an agent reads to orient itself. A stale hub means an
 ## Sources of truth
 - `docs/wiki/core/` — actual list of core docs
 - `docs/wiki/features/`, `docs/wiki/components/`, `docs/wiki/database/`, `docs/wiki/logic/` — category indices
-- `docs/{backlog,logs,plans,archive-plans}/` — operational tooling dirs to cross-link
+- `docs/{backlog,logs,plans,archive}/` — operational tooling dirs to cross-link
 - `src/` — confirms the data-flow diagram still matches the codebase

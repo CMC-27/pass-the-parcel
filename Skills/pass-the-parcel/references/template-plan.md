@@ -158,7 +158,7 @@
 ## ✅ Wrap Up
 * **Skill Executed:** `agent-wrap-up` (global)
 * **Wiki Updates:** [List wiki docs updated]
-* **Plan Archiving:** [Plan archived to `docs/archive-plans/[name].md`]
+* **Plan Archiving:** [Plan archived to `docs/archive/[name].md`]
 * **Backlog Review:** [Backlog items reviewed / updated]
 * **Dead-Code Backlog Entries (from Phase 6):**
   - `[ ]` `[slug]-backlog.md` created at `docs/backlog/` per flagged `file_path:line_number`
