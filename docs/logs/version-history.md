@@ -23,4 +23,5 @@ All versioning follows the semantic hierarchy configured within the `/Test-and-D
 
 | Version | Date | Level | Deployer | Key Release Highlights / Milestones |
 |---|---|---|---|---|
+| **v0.1.0** | 2026-08-18 | Patch | deepseek-v4-flash | Parcel orchestration overhaul: High-Visionary Phase 4 (no code snippets), Grumpy Architect → Spec & Logic Audit (Phase 5), Smooth Operator Phase 6, Code Surgeon single-pass direct-to-disk (Phases 7-8), deterministic `PHASE_4_REVISION` rejection loop at Gate C, canonical model registry (mimo-2.5 / v4-flash-max / deepseek-v4-flash), PREFIX-LOCKED cache enforcement (.gitattributes + check scripts + pre-commit hook). |
 | **v1.0.0** | YYYY-MM-DD | Major | [Deployer Name] | Initial stable release of the unified ecosystem. |

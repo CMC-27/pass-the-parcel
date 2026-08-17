@@ -20,4 +20,78 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-08-17 - Parcel Orchestration Overhaul (Model Assignments + Phase Reshuffle)
+
+**Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)
+
+**Files Modified:**
+- `opencode.json` — re-mapped parcel-* agent models; renamed `parcel-razor-planner` → `parcel-high-visionary`; updated descriptions
+- `.opencode/agents/parcel-orchestrator.md` — model → mimo-2.5; delegation map Phase 5/6 swapped; Phase 4 → `parcel-high-visionary`
+- `.opencode/agents/parcel-context-hunter.md` — model → mimo-2.5
+- `.opencode/agents/parcel-high-visionary.md` — **renamed** from `parcel-razor-planner.md`; model → mimo-2.5; High-Visionary persona (standard impl plan, no code snippets unless necessary)
+- `.opencode/agents/parcel-grumpy-architect.md` — model → deepseek-v4-flash-max; Senior Architect persona (hygiene → senior review; +edge cases, performance, anti-patterns); Phase 6 → Phase 5
+- `.opencode/agents/parcel-smooth-operator.md` — Phase 5 → Phase 6; cross-feature check inverted to cross-reference Phase 5 arch review
+- `.opencode/agents/parcel-code-surgeon.md` — added ponytail coding directives; description updated
+- `.opencode/agents/parcel-phase3-answerer.md` — model → mimo-2.5
+- `.opencode/plans/base-context.md` — agent list updated with models + renamed agent
+- `skills/pass-the-parcel/SKILL.md` — delegation map with model assignments; Phase 4 → High-Visionary; Phase 5/6 swap; persona ownership table
+- `skills/pass-the-parcel/references/template-plan.md` — skill refs + Phase 5/6 swap + new grumpy findings rows
+- `skills/ptp-razor-planner/` → **renamed** to `skills/ptp-high-visionary/` — High-Visionary persona, no code snippets, mimo-2.5
+- `skills/ptp-grumpy-architect/SKILL.md` — Senior Architect Review persona; directives 6-8 added (edge cases, performance, anti-patterns)
+- `skills/ptp-smooth-operator/SKILL.md` — Phase 6; handoff logic inverted
+- `skills/ptp-code-surgeon/SKILL.md` — ponytail coding directive (7)
+- `skills/ptp-context-hunter/SKILL.md` — model → mimo-2.5
+- `skills/agent-wrap-up/SKILL.md` — model → mimo-2.5
+- `docs/plans/template-plan.md` — skill refs, persona refs, Phase 5/6 swap, no-code-snippet instructions
+- `HOW-TO.md` — flow diagram + pipeline ordering updated
+
+**Database/API Changes:** None
+
+**Summary:** Overhauled the pass-the-parcel orchestration to a new model assignment matrix: mimo-2.5 (orchestrator) now carries Phases 1-3, 4 (High-Visionary), 6 (Smooth Operator), and wrap-up; v4 flash max (deepseek-v4-flash-max) owns Phase 5 (Grumpy Architect, reframed as a Senior Architect review covering edge cases, performance bottlenecks, and architectural anti-patterns); deepseek v4 flash owns Phase 7 (Code Surgeon, now with ponytail coding); v4 flash owns Phase 8 (QA tweaks). Phase 4 was trimmed to a standard implementation plan with no code snippets unless absolutely necessary. Phase order swapped so Grumpy Architect (Phase 5) precedes Smooth Operator (Phase 6). All skill files, agent definitions (both `opencode.json` and `.opencode/agents/*.md`), template plans, and HOW-TO docs were synchronized.
+
+---
+
+## 2026-08-18 - Parcel Cache Quick Wins (PREFIX-LOCKED Enforcement)
+
+**Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)
+
+**Files Modified:**
+- `.gitattributes` — NEW: pins `eol=lf` for all text + PREFIX-LOCKED files; prevents CRLF/LF drift
+- `scripts/check-parcel-prefix.ps1` — NEW: verifies every `parcel-*.md` body is byte-identical to `base-context.md`; `-Sync` re-inlines
+- `scripts/check-utf8-agents.ps1` — NEW: byte-level mojibake detector
+- `.opencode/plans/base-context.md` — consolidated PTP Delegation Map + Model Registry + revision loop into canonical header
+- `.opencode/agents/parcel-*.md` (all 8) — re-inlined byte-identical prefix via `-Sync`; repaired UTF-8 mojibake
+- `AGENTS.md` — added rule 9 (PREFIX-LOCKED Integrity + check workflow)
+- `skills/pass-the-parcel/SKILL.md` — canonical-copy pointer to `base-context.md`
+- `.git/hooks/pre-commit` — NEW: runs both checks as a commit gate
+
+**Database/API Changes:** None
+
+**Summary:** Applied the cache/context quick wins from the workflow review: (1) `.gitattributes` normalizes all files to LF so byte-for-byte KV-cache matching is never silently broken by CRLF conversion; (2) `check-parcel-prefix.ps1` machine-enforces the PREFIX-LOCKED contract (verify + `-Sync` repair) and `check-utf8-agents.ps1` detects encoding corruption — both wired into a pre-commit hook; (3) moved the delegation map + model registry into the canonical `base-context.md` header so every agent shares a larger cached prefix. All 8 agent files verified byte-identical.
+
+---
+
+## 2026-08-17 - Parcel Pipeline Adjustments (Spec Audit + Revision Loop + Direct-to-Disk)
+
+**Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)
+
+**Files Modified:**
+- `skills/pass-the-parcel/SKILL.md` — added `PHASE_4_REVISION` lifecycle state + deterministic Gate C rejection loop; Phase 5 → Spec & Logic Audit; Phase 7 → single-pass direct-to-disk + execution isolation; canonical Model Registry (mimo-2.5 / v4-flash-max / deepseek-v4-flash)
+- `skills/ptp-grumpy-architect/SKILL.md` — reframed as Spec & Logic Audit (no code-level scans); added file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, cross-view parity
+- `skills/ptp-code-surgeon/SKILL.md` — Directive 1: Single-Pass Direct-to-Disk Execution; execution isolation note
+- `skills/ptp-high-visionary/SKILL.md` — Directive 0: Revision Loop Protocol (`PHASE_4_REVISION` fix rounds)
+- `.opencode/agents/parcel-orchestrator.md`, `parcel-grumpy-architect.md`, `parcel-code-surgeon.md`, `parcel-high-visionary.md`, `parcel-smooth-operator.md` — Spec & Logic Audit + revision loop + direct-to-disk directives
+- `.opencode/plans/base-context.md` — revision loop added to lifecycle
+- `docs/plans/template-plan.md`, `skills/pass-the-parcel/references/template-plan.md` — Phase 5 spec-audit findings rows, Gate C PASS/FAIL, Phase 7 direct-to-disk constraints
+- `HOW-TO.md` — Spec & Logic Audit + deterministic rejection loop + execution isolation documented
+- `opencode.json` — descriptions updated (Spec & Logic Audit, direct-to-disk, PHASE_4_REVISION)
+- `AGENTS.md` — cross-view §9 → §11 pointer
+- `docs/wiki/core/18-knowledge-capture.md` — updated decision record with new directives + canonical model identifiers
+
+**Database/API Changes:** None
+
+**Summary:** Hardened the parcel pipeline: Phase 5 (Grumpy Architect) is now strictly a Spec & Logic Audit of the text-based Phase 4 architecture — no code-level scans since the plan contains no code. Added a deterministic rejection loop at Gate C (`PHASE_4_REVISION` → return to Group B → re-review) so unapproved plans never cascade to execution. Phase 7 (Code Surgeon) now enforces single-pass direct-to-disk execution — no intermediate Markdown code blocks — and triggers only after explicit user sign-off. Standardized the model registry to canonical identifiers (mimo-2.5, v4-flash-max, deepseek-v4-flash).
+
+---
+
 <!-- New entries go above this line, most recent first -->

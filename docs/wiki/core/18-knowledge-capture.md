@@ -31,6 +31,29 @@ Each entry should follow this format:
 
 ---
 
+## 🚀 Tooling & DevOps
+
+### Parcel Orchestration Model Assignment Matrix
+* **Decision Date:** 2026-08-17
+* **Context:** The pass-the-parcel pipeline needed a clearer model-to-phase mapping to match model strengths to task difficulty and reduce token spend on heavy models for lighter roles.
+* **Action:** Adopted a fixed model assignment for the parcel pipeline (canonical identifiers: `mimo-2.5`, `v4-flash-max`, `deepseek-v4-flash` — no aliases):
+    * **mimo-2.5** — orchestrator + Phases 1-3 (Scoper), Phase 4 (High-Visionary), Phase 6 (Smooth Operator), Phase 10 + Wrap Up.
+    * **v4-flash-max** — Phase 5 (Grumpy Architect / Spec & Logic Audit).
+    * **deepseek-v4-flash** — Phases 7-8 (Code Surgeon, ponytail coding + single-pass direct-to-disk execution).
+    * Phase 4 was trimmed to a standard implementation plan — **no code snippets unless absolutely necessary** — and the persona renamed from "Razor Planner" to **High-Visionary**.
+    * Phase order swapped: **Grumpy Architect (Phase 5)** now runs before **Smooth Operator (Phase 6)**.
+    * **Phase 5 is a Spec & Logic Audit, not a code review** — the plan contains no code, so it evaluates system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, and architectural anti-patterns.
+    * **Deterministic rejection loop at Gate C** — a failing Phase 5/6 review sets `PHASE_4_REVISION` and returns the plan to Group B for fixes; an unapproved plan never advances to execution.
+    * **Execution isolation** — Phase 7 (Code Surgeon) triggers only after Gate C is cleared by explicit user input and writes directly to disk, bypassing intermediate Markdown code blocks.
+* **Rationale:**
+    * **Capability-fit routing**: the heavy review model (`v4-flash-max`) is reserved for the senior architectural audit; the orchestrator model (mimo-2.5) handles the majority of planning/communication/UX work where balanced capability suffices.
+    * **Token efficiency**: trimming Phase 4 to standard implementation instructions (no code snippets) shrinks plan size and review surface; code specifics are deferred to the Code Surgeon via ponytail markers.
+    * **Review ordering**: architectural hardening (Grumpy, Phase 5) must land before product smoothing (Smooth Operator, Phase 6) so the Smooth Operator cross-checks the already-hardened plan instead of handing off structural concerns forward.
+    * **Safety**: the `PHASE_4_REVISION` loop + execution isolation prevent unapproved plans from cascading into code changes.
+    * **Consistency**: both `opencode.json` and `.opencode/agents/*.md` must stay in lockstep — they are the same agent definitions in two formats; model identifiers are canonicalized to avoid parser ambiguity.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]

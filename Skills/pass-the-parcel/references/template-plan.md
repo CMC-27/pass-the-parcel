@@ -7,7 +7,7 @@
 | :--- | :--- |
 | **Status** | `BACKLOG` |
 | **Version** | `v1.0.0` |
-| **Active Persona** | `Planner` |
+| **Active Persona** | `High-Visionary` |
 | **Last Updated** | YYYY-MM-DD HH:MM |
 
 ---
@@ -42,8 +42,8 @@
 
 ---
 
-## 4️⃣ Phase 4: Detailed Execution Plan
-* **Skill Executed:** `ptp-razor-planner`
+## 4️⃣ Phase 4: High-Visionary Standard Implementation Plan
+* **Skill Executed:** `ptp-high-visionary`
 * **Prepared By:** `[Agent Persona]` | **Date:** `[YYYY-MM-DD HH:MM]`
 * **Simplicity Gate:**
   - `[ ]` All proposed changes climbed the Simplicity Ladder (7 rungs)
@@ -59,24 +59,46 @@
   - `[doc.md]` -> [which blueprints derive from this doc]
 * **Wiki Docs to Add/Edit:**
   - `[path]` (file:///path) -> [description of new/edited content]
-* **Code Snippets & Instructions:**
-  - [Exact code / detailed instructions]
+* **Implementation Instructions (no code snippets unless absolutely necessary):**
+  - [High-level instructions / exact code only where description is impossible without it]
 * **To-Do List:**
   - `[ ]` [Task 1]
   - `[ ]` [Task 2]
 * **Test Verification Plan:**
   - `[command]`
   - `[ ]` [Test case 1]
-* **🛑 HALT POINT (Gate B):** Phase 4 complete. Present plan. Next agent handles Phases 5-6 reviews.
+* **Revision Log (PHASE_4_REVISION rounds):**
+  - **Round 1:** [date] — [reviewer] flagged: [issues] — [fixes applied]
+* **🛑 HALT POINT (Gate B):** Phase 4 complete. Present plan. Next agent handles Phases 5-6 reviews. If the plan arrives in `PHASE_4_REVISION`, apply all `REJECTED`/`BLOCK` fixes and set Status → `PHASE_4` for re-review.
 
 ---
 
-## 5️⃣ Phase 5: Smooth Operator Product Review
+## 5️⃣ Phase 5: Grumpy Architect Spec & Logic Audit
+* **Skill Executed:** `ptp-grumpy-architect`
+* **Prepared By:** `[Agent Persona]` | **Date:** `[YYYY-MM-DD HH:MM]`
+* **Status:** `PENDING`
+* **Verdict:** `PASS` / `REJECTED`
+* **Findings (spec-level audit — the plan contains no code, so no code-level scans):**
+  - [✅/⚠️/🚫] **System Contracts Explicit** — function/component names, file paths, interface boundaries stated; no hand-wavy directives
+  - [✅/⚠️/🚫] **File Boundary & Scope Collisions** — proposed paths checked against existing code; no overlapping ownership
+  - [✅/⚠️/🚫] **Dependency Gaps** — all referenced utils/hooks/schemas/services accounted for; no missing prerequisites
+  - [✅/⚠️/🚫] **YAGNI Bloat** — no speculative modules, placeholder files, empty scaffolding, single-implementation interfaces
+  - [✅/⚠️/🚫] **Paranoid Security (Contract Level)** — secrets via env + `.gitignore`; input typed with `unknown`/Zod; RLS mandated for DB changes; client never trusted
+  - [✅/⚠️/🚫] **Survivability (Error Handling)** — async/timeout/network covered for every flow; no silent/empty catches; Error Boundaries on volatile components
+  - [✅/⚠️/🚫] **Edge Cases** — empty/null inputs, boundary/limit conditions, concurrency/race conditions, state transitions all explicit
+  - [✅/⚠️/🚫] **Performance Trade-offs** — N+1, unbounded rendering, missing indexes, scaling ceiling + upgrade path named
+  - [✅/⚠️/🚫] **Architectural Anti-Patterns** — god modules, spaghetti coupling, duplicate sources of truth, dead-end abstractions, feature bleed flagged
+  - [✅/⚠️/🚫] **Endpoint Protection & Rate Limiting** — throttling + `429` handling + payload size restricted
+  - [✅/⚠️/🚫] **Wiki Core Compliance & Instruction Density** — every blueprint cites a `docs/wiki/core/*` doc; surgical file paths + exact names + behavior contracts
+* **Required Fixes:**
+  - `[ ]` [Fix 1 — or mark "None"]
+
+## 6️⃣ Phase 6: Smooth Operator Product Review
 * **Skill Executed:** `ptp-smooth-operator`
 * **Prepared By:** `[Agent Persona]` | **Date:** `[YYYY-MM-DD HH:MM]`
 * **Status:** `PENDING`
 * **Findings:**
-  - [✅/⚠️/🚫] **Vision & Journey Integrity** — Vision Test + Journey Continuity + Cross-Feature/Downstream Impact handoff to Phase 6
+  - [✅/⚠️/🚫] **Vision & Journey Integrity** — Vision Test + Journey Continuity + Cross-Feature/Downstream Impact (cross-check Phase 5 spec audit)
   - [✅/⚠️/🚫] **Scope Containment (No Gold Plating)** — items cross-referenced vs. Phase 1; unrequested scope cut
   - [✅/⚠️/🚫] **4 Core User States** — Loading / Empty / Error / Success all explicit in plan
   - [✅/⚠️/🚫] **Guardrails & Permissions** — role/tenant/tier restricted-state UI planned
@@ -84,31 +106,20 @@
   - [✅/⚠️/🚫] **Mandatory Decision Sync** — Phase 3 resolutions synced to `docs/wiki/core/18-knowledge-capture.md`
 * **Required Fixes:**
   - `[ ]` [Fix 1 — or mark "None"]
-
-## 6️⃣ Phase 6: Grumpy Architect Hygiene Review
-* **Skill Executed:** `ptp-grumpy-architect`
-* **Prepared By:** `[Agent Persona]` | **Date:** `[YYYY-MM-DD HH:MM]`
-* **Status:** `PENDING`
-* **Findings:**
-  - [✅/⚠️/🚫] **No Vibes-Based Engineering** — types/signatures/contracts explicit; no untested side effects
-  - [✅/⚠️/🚫] **Nuanced DRY/WET Scan** — Primitive Rule (DRY) + Domain Rule (WET, Rule of Three) applied
-  - [✅/⚠️/🚫] **Bloat & Dead Code** — deps blocked if native/stdlib covers; ghost state hunted; orphans flagged `file_path:line_number`
-  - [✅/⚠️/🚫] **Paranoid Security** — secrets via env + `.gitignore`; input typed with `unknown`/Zod; RLS mandated for DB changes; client never trusted
-  - [✅/⚠️/🚫] **Survivability (Error Handling)** — async/timeout/network covered; no silent/empty catches; Error Boundaries on volatile components
-  - [✅/⚠️/🚫] **Endpoint Protection & Rate Limiting** — throttling + `429` handling + payload size restricted
-  - [✅/⚠️/🚫] **Wiki Core Compliance & Instruction Density** — every blueprint cites a `docs/wiki/core/*` doc; surgical file paths + exact names + diffs
-* **Required Fixes:**
-  - `[ ]` [Fix 1 — or mark "None"]
-* **🛑 HALT POINT (Gate C):** Reviews complete. Present findings & required fixes. Wait for approval before execution.
+* **🛑 HALT POINT (Gate C):** Reviews complete.
+  - **PASS:** Phase 5 log clean -> set `PHASE_6` -> present findings & required fixes. Wait for user approval before execution.
+  - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set `PHASE_4_REVISION` -> return to Group B (High-Visionary) for fixes -> re-run Phases 5-6. **Never advance an unapproved plan to execution.**
 
 ---
 
 ## 7️⃣ Phase 7: Implementation Checklist (Execution)
 * **Skill Executed:** `ptp-code-surgeon`
-* **Surgical Constraints (Non-Negotiable):**
+* **Execution Isolation:** Phase 7 triggers ONLY after Gate C cleared by explicit user input.
+* **Single-Pass Direct-to-Disk (Non-Negotiable):**
+  - `[ ]` Implementation written DIRECTLY to source files — no intermediate Markdown code blocks, no drafting files
   - `[ ]` Touched only intended lines — no adjacent refactors
   - `[ ]` Cleaned up only owned orphans (imports/types/vars made unused by this change)
-  - `[ ]` Pre-existing dead code left untouched (Phase 6 backlog route only)
+  - `[ ]` Pre-existing dead code left untouched (Phase 5 backlog route only)
 * **Execution Trace:**
   - `[ ]` [Execution Step 1 from Phase 4]
   - `[ ]` [Execution Step 2 from Phase 4]
@@ -160,6 +171,6 @@
 * **Wiki Updates:** [List wiki docs updated]
 * **Plan Archiving:** [Plan archived to `docs/archive/[name].md`]
 * **Backlog Review:** [Backlog items reviewed / updated]
-* **Dead-Code Backlog Entries (from Phase 6):**
+* **Dead-Code Backlog Entries (from Phase 5):**
   - `[ ]` `[slug]-backlog.md` created at `docs/backlog/` per flagged `file_path:line_number`
 * **Status:** `COMPLETE`

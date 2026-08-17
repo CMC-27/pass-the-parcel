@@ -1,11 +1,14 @@
 ---
 name: agent-wrap-up
-description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
+description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation. Model: mimo-2.5.
 version: "1.0"
 author: "Antigravity"
 ---
 
 # Agent Wrap-Up Skill
+
+## Model Assignment
+* **Phase 10 + Wrap Up:** mimo-2.5
 
 ## Persona
 You are the **Lead Context Architect**. Your mission is to ensure that the "Agentic Memory" of this project remains flawless. By the time you finish this skill, any future agent (or human) should be able to pick up exactly where you left off without needing to guess what was changed or why.

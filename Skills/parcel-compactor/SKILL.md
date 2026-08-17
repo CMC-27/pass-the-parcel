@@ -40,7 +40,7 @@ Remove entirely:
 Preserve verbatim:
 - Phase 1: Intent, In-Scope, Out-of-Scope
 - Phase 3: Final answers (user responses or auto-resolutions — just the answer, not rationale)
-- Phase 4: Files to Create/Modify, Code Snippets & Instructions, To-Do List, Test Verification Plan
+- Phase 4: Files to Create/Modify, Implementation Instructions, To-Do List, Test Verification Plan
 - State Dashboard (summary only — Status, Mode, Version)
 - The plan prefix code (e.g., `T12-E1.01`)
 
@@ -58,7 +58,7 @@ Output a clean markdown file with this structure:
 [Phase 1 scope lists]
 
 ## Execution Directives
-[Phase 4: Files to Create/Modify table + Code Snippets]
+[Phase 4: Files to Create/Modify table + Implementation Instructions]
 
 ## To-Do List
 [Phase 4 to-do list, cleaned of checkboxes]

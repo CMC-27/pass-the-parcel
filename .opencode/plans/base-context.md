@@ -1,6 +1,4 @@
-# PTP Canonical Context Header
-
-> **PREFIX-LOCKED:** This file is the canonical prefix for all parcel-* sub-agents. Byte-for-byte identical across every agent invocation.
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel-* agents. This block is inlined byte-for-byte into every `.opencode/agents/parcel-*.md` immediately after the frontmatter. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -27,18 +25,26 @@
 | Asking question about codebase | `@wiki-query` skill | Cites from `docs/wiki/` |
 | Recording knowledge-capture | `@knowledge-capture` skill | `docs/wiki/core/18-knowledge-capture.md` |
 
-## PTP Parcel Agents
-- `parcel-orchestrator` -- Primary coordinator (user-facing)
-- `parcel-context-hunter` -- Phases 1-3: scoping + context + clarification
-- `parcel-phase3-answerer` -- Phase 3.5: AUTO mode question resolution
-- `parcel-razor-planner` -- Phase 4: detailed execution plan
-- `parcel-smooth-operator` -- Phase 5: UX/product review
-- `parcel-grumpy-architect` -- Phase 6: code quality/security review
-- `parcel-compactor` -- Phase 6.5: strip debate, produce clean execution spec
-- `parcel-code-surgeon` -- Phases 7-8: surgical execution + verification
+## PTP Delegation Map (canonical)
+| Phase(s) | Sub-agent | Model |
+|---|---|---|
+| 1-3 | `parcel-context-hunter` | mimo-2.5 |
+| 3.5 (AUTO) | `parcel-phase3-answerer` | mimo-2.5 |
+| 4 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
+| 5 | `parcel-grumpy-architect` | v4-flash-max |
+| 6 | `parcel-smooth-operator` | mimo-2.5 |
+| 6.5 | `parcel-compactor` | deepseek-v4-flash |
+| 7-8 | `parcel-code-surgeon` | deepseek-v4-flash |
 
-## PTP Lifecycle States
+## Model Registry (canonical identifiers — no aliases)
+- `mimo-2.5` — orchestrator + Phases 1-3, 4, 6, 10 + Wrap Up
+- `v4-flash-max` — Phase 5 (Grumpy Architect Spec & Logic Audit)
+- `deepseek-v4-flash` — Phases 7-8 (Code Surgeon, single-pass direct-to-disk + QA)
+
+## PTP Lifecycle
 `BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_4` -> `PHASE_6` -> `PHASE_8` -> `COMPLETE`
+
+**Revision loop:** `PHASE_6` -> (Phase 5/6 fail) -> `PHASE_4_REVISION` -> `PHASE_4` -> `PHASE_6`
 
 **Gates:** A (Scope) -> B (Plan) -> C (Review) -> D (Implementation)
 

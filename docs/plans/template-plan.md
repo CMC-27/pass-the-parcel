@@ -13,7 +13,7 @@
 |---|---|
 | **Status** | `BACKLOG` |
 | **Version** | `v0.1.0` |
-| **Active Persona** | `Planner` |
+| **Active Persona** | `High-Visionary` |
 | **Last Updated** | YYYY-MM-DD |
 | **Depends On** | none |
 | **Blocks** | none |
@@ -69,8 +69,8 @@
 
 ---
 
-## 4 Phase 4: Detailed Execution Plan
-**Skill Executed:** `ptp-razor-planner`
+## 4 Phase 4: High-Visionary Standard Implementation Plan
+**Skill Executed:** `ptp-high-visionary`
 
 **Simplicity Gate:**
 > [ ] Climbed the Simplicity Ladder (7 rungs)
@@ -97,7 +97,7 @@
 ### File-Level Steps
 1.
 
-### Code Snippets / Blueprints
+### Implementation Instructions (no code snippets unless absolutely necessary)
 
 ### Wiki Core References
 - `docs/wiki/core/[doc].md` -> [which blueprints derive from this doc]
@@ -106,11 +106,41 @@
 
 ---
 
-> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update Status -> `PHASE_4`, Active Persona -> `Planner`.
+> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update Status -> `PHASE_4`, Active Persona -> `High-Visionary`.
 
 ---
 
-## 5 Phase 5: Smooth Operator Product Review
+## 5 Phase 5: Grumpy Architect Spec & Logic Audit
+**Skill Executed:** `ptp-grumpy-architect`
+
+**Verdict:** `PASS` / `REJECTED`
+
+> **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite via `PHASE_4_REVISION`.
+>
+> **Spec-level audit — the plan contains no code, so no code-level scans (DRY/WET, line checks).**
+
+- **System Contracts Explicit:** (function/component names, file paths, interface boundaries)
+- **File Boundary & Scope Collisions:** (proposed paths checked against existing code)
+- **Dependency Gaps:** (all referenced utils/hooks/schemas/services accounted for)
+- **YAGNI Bloat:** (no speculative modules, placeholder files, empty scaffolding)
+- **Paranoid Security (Contract Level):** (secrets via env + .gitignore; input typed with Zod/unknown; RLS for DB)
+- **Survivability:** (async/timeout/network covered for every flow; Error Boundaries)
+- **Edge Cases:** (empty/null inputs; boundary/limit conditions; concurrency/races; state transitions)
+- **Performance Trade-offs:** (N+1, unbounded rendering, missing indexes; scaling ceiling + upgrade path)
+- **Architectural Anti-Patterns:** (god modules, spaghetti coupling, duplicate sources of truth, dead-end abstractions, feature bleed)
+- **Endpoint Protection & Rate Limiting:**
+- **Wiki Core Compliance:** (every blueprint cites a docs/wiki/core/ doc)
+
+**Dead-Code / Orphan Flags (for Wrap Up backlog entry):**
+| plan section / file_path:line_number | Reason |
+|---|---|
+
+**Required Fixes:**
+> [ ] [Fix 1 - or mark "None"]
+
+---
+
+## 6 Phase 6: Smooth Operator Product Review
 **Skill Executed:** `ptp-smooth-operator`
 
 > **Rejection Rule:** If plan introduces unnecessary complexity or scope expansion, do not check boxes. Reject and force rewrite.
@@ -126,36 +156,19 @@
 
 ---
 
-## 6 Phase 6: Grumpy Architect Hygiene Review
-**Skill Executed:** `ptp-grumpy-architect`
-
-> **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite.
-
-- **No Vibes-Based Engineering:** (types/signatures explicit)
-- **Nuanced DRY/WET Scan:** (Primitive: strict DRY + Domain: WET with Rule of Three)
-- **Bloat & Dead Code:** (deps blocked if native covers; ghost state hunted)
-- **Paranoid Security:** (secrets via env + .gitignore; input typed with Zod/unknown; RLS for DB)
-- **Survivability:** (async/timeout/network covered; Error Boundaries)
-- **Endpoint Protection & Rate Limiting:**
-- **Wiki Core Compliance:** (every blueprint cites a docs/wiki/core/ doc)
-
-**Dead-Code Flags (for Wrap Up backlog entry):**
-| file_path:line_number | Reason |
-|---|---|
-
-**Required Fixes:**
-> [ ] [Fix 1 - or mark "None"]
-
----
-
-> **HALT POINT (Gate C):** Reviews complete. Present findings and required fixes. Do not proceed to execution until user approves. Update Status -> `PHASE_6`, Active Persona -> `Reviewer`.
+> **HALT POINT (Gate C):** Reviews complete. Present findings and required fixes.
+> - **PASS:** Phase 5 log clean -> set Status `PHASE_6`, Active Persona `Reviewer`. Do not proceed to execution until user approves.
+> - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set Status `PHASE_4_REVISION`, Active Persona `High-Visionary`. Return to Group B for plan adjustments, then re-run Phases 5-6. **Never advance an unapproved plan to execution.**
 
 ---
 
 ## 7 Phase 7: Execute Changes
 **Skill Executed:** `ptp-code-surgeon`
 
-**Surgical Constraints:**
+**Execution Isolation:** Phase 7 triggers ONLY after Gate C cleared by explicit user input.
+
+**Single-Pass Direct-to-Disk:**
+> [ ] Implementation written DIRECTLY to source files - no intermediate Markdown code blocks, no drafting files
 > [ ] Touched only intended lines - no adjacent refactors
 > [ ] Cleaned up only owned orphans
 > [ ] Pre-existing dead code left untouched
@@ -223,7 +236,7 @@
 ## Completion Note
 **Skill Executed:** `agent-wrap-up`
 
-**Dead-Code Backlog Entries (from Phase 6):**
+**Dead-Code Backlog Entries (from Phase 5):**
 
 **Wiki Updates:** [List wiki docs updated]
 

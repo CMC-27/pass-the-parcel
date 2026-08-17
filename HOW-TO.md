@@ -38,17 +38,19 @@ For deeply structured, robust feature implementation, use the sequential pipelin
 
 ```mermaid
 flowchart LR
-    S[ptp-context-hunter] --> P[ptp-razor-planner]
-    P --> PO[ptp-smooth-operator]
-    PO --> H[ptp-grumpy-architect]
-    H --> E[ptp-code-surgeon]
+    S[ptp-context-hunter] --> P[ptp-high-visionary]
+    P --> H[ptp-grumpy-architect]
+    H --> PO[ptp-smooth-operator]
+    PO --> E[ptp-code-surgeon]
 ```
 
 1.  **`ptp-context-hunter`**: Group A (Phases 1-3) — expands intent, runs Context Inventory (wiki docs + knowledge capture + source), resolves all ambiguity via interactive Phase 3 questioning, halts at Gate A.
-2.  **`ptp-razor-planner`**: Group B (Phase 4) — reads scoped plan at Gate A, produces detailed file-level execution plan via Simplicity Ladder, halts at Gate B.
-3.  **`ptp-smooth-operator`**: Phase 5 — audits plan for vision alignment, business logic, edge cases, and functional risk; syncs decisions to knowledge capture.
-4.  **`ptp-grumpy-architect`**: Phase 6 — hardens plan with DRY scan, secret mgmt, RLS, rate limiting, error handling, zero-knowledge instruction density.
-5.  **`ptp-code-surgeon`**: Group D (Phases 7-8) — executes hardened plan exactly as written, runs QA verification, halts at Gate D for user sign-off.
+2.  **`ptp-high-visionary`**: Group B (Phase 4) — reads scoped plan at Gate A, produces standard implementation plan via Simplicity Ladder (no code snippets unless necessary), halts at Gate B. Handles `PHASE_4_REVISION` fix rounds when a review fails.
+3.  **`ptp-grumpy-architect`**: Phase 5 — **Spec & Logic Audit** of the text-based architecture (the plan contains no code). Evaluates logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Rejection sets `PHASE_4_REVISION`.
+4.  **`ptp-smooth-operator`**: Phase 6 — audits plan for vision alignment, business logic, edge cases, and functional risk; syncs decisions to knowledge capture.
+5.  **`ptp-code-surgeon`**: Group D (Phases 7-8) — **triggers only after Gate C is cleared by explicit user input**. Executes the approved spec with single-pass direct-to-disk writing (no intermediate Markdown code blocks), runs QA verification, halts at Gate D for user sign-off.
+
+**Deterministic Rejection Loop (Gate C):** If Phase 5 or 6 fails review, the plan's status is set to `PHASE_4_REVISION` and returned to Group B (High-Visionary) for fixes before re-evaluating Gate C. **An unapproved plan never advances to execution.**
 
 ### Mode Selection
 Plans support two operational modes:
