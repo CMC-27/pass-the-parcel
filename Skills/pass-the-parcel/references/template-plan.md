@@ -1,14 +1,8 @@
 # 📦 Parcel Plan: [Plan Name]
 
 > **State Lifecycle Reference:** See `pass-the-parcel` skill's [Plan State Lifecycle table] for valid Status/Persona transitions. Update these fields at every gate — do not leave them at template defaults.
-
-## 📊 State Dashboard
-| Metric | Value |
-| :--- | :--- |
-| **Status** | `BACKLOG` |
-| **Version** | `v1.0.0` |
-| **Active Persona** | `High-Visionary` |
-| **Last Updated** | YYYY-MM-DD HH:MM |
+>
+> **🔒 CACHE-ANCHORED:** State Dashboard + Gate Log live in the **last section** of this file (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
 
 ---
 
@@ -69,7 +63,7 @@
   - `[ ]` [Test case 1]
 * **Revision Log (PHASE_4_REVISION rounds):**
   - **Round 1:** [date] — [reviewer] flagged: [issues] — [fixes applied]
-* **🛑 HALT POINT (Gate B):** Phase 4 complete. Present plan. Next agent handles Phases 5-6 reviews. If the plan arrives in `PHASE_4_REVISION`, apply all `REJECTED`/`BLOCK` fixes and set Status → `PHASE_4` for re-review.
+* **🛑 HALT POINT (Gate B):** Phase 4 complete. Present plan. Next agent handles Phases 5-6 reviews. Update the **State & Gates** section at the bottom: Status → `PHASE_4`, Gate B → `APPROVED` + timestamp. If the plan arrives in `PHASE_4_REVISION`, apply all `REJECTED`/`BLOCK` fixes and set bottom Status → `PHASE_4` for re-review.
 
 ---
 
@@ -106,9 +100,9 @@
   - [✅/⚠️/🚫] **Mandatory Decision Sync** — Phase 3 resolutions synced to `docs/wiki/core/18-knowledge-capture.md`
 * **Required Fixes:**
   - `[ ]` [Fix 1 — or mark "None"]
-* **🛑 HALT POINT (Gate C):** Reviews complete.
-  - **PASS:** Phase 5 log clean -> set `PHASE_6` -> present findings & required fixes. Wait for user approval before execution.
-  - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set `PHASE_4_REVISION` -> return to Group B (High-Visionary) for fixes -> re-run Phases 5-6. **Never advance an unapproved plan to execution.**
+* **🛑 HALT POINT (Gate C):** Reviews complete. Update the **State & Gates** section at the bottom:
+  - **PASS:** Phase 5 log clean -> set bottom Status `PHASE_6`, Gate C → `APPROVED` -> present findings & required fixes. Wait for user approval before execution.
+  - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set bottom Status `PHASE_4_REVISION`, Gate C → `REJECTED` -> return to Group B (High-Visionary) for fixes -> re-run Phases 5-6. **Never advance an unapproved plan to execution.**
 
 ---
 
@@ -136,7 +130,7 @@
   - `[ ]` Code matches exact plan specifications
   - `[ ]` No functional gaps identified
   - `[ ]` Terminal output captured in plan appendix
-* **🛑 HALT POINT (Gate D):** Implementation & verification complete. Present results for user testing.
+* **🛑 HALT POINT (Gate D):** Implementation & verification complete. Update the **State & Gates** section at the bottom: Status → `PHASE_8`, Gate D → `APPROVED` + timestamp. Present results for user testing.
 
 ---
 
@@ -173,4 +167,32 @@
 * **Backlog Review:** [Backlog items reviewed / updated]
 * **Dead-Code Backlog Entries (from Phase 5):**
   - `[ ]` `[slug]-backlog.md` created at `docs/backlog/` per flagged `file_path:line_number`
-* **Status:** `COMPLETE`
+
+---
+
+## 📍 State & Gates (CACHE-ANCHORED — update ONLY this section at gate transitions)
+
+> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above stays byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
+
+| Metric | Value |
+| :--- | :--- |
+| **Status** | `BACKLOG` |
+| **Version** | `v1.0.0` |
+| **Mode** | `USER-MANAGED` / `AUTO` |
+| **Active Persona** | `High-Visionary` |
+| **Last Updated** | YYYY-MM-DD HH:MM |
+| **Depends On** | none |
+| **Blocks** | none |
+
+> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_4`, `PHASE_4_REVISION`, `PHASE_6`, `PHASE_8`, `COMPLETE`.
+
+| Gate | Requirement | Status | Timestamp |
+| :--- | :--- | :--- | :--- |
+| A | Scope approved (Phases 1-3) | `OPEN` | — |
+| B | Plan approved (Phase 4) | `OPEN` | — |
+| C | Reviews passed (Phases 5-6) | `OPEN` | — |
+| D | Implementation verified (Phases 7-8) | `OPEN` | — |
+
+> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_4_REVISION` for Gate C) and stamp Timestamp. Never edit rows above this section for gate bookkeeping.
+
+> **This section is the LAST section in the file. All gate bookkeeping happens here.**

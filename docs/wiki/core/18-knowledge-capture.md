@@ -33,6 +33,19 @@ Each entry should follow this format:
 
 ## 🚀 Tooling & DevOps
 
+### Parcel Cache-Anchored Template Convention (State & Gates at Bottom)
+* **Decision Date:** 2026-08-19
+* **Context:** Every parcel plan file's State Dashboard sat at the top. LLM prefix-caching is byte-precise — editing the top rows (`Status` / `Active Persona` / `Last Updated`) at every gate invalidated the entire file's cache, so each stateless downstream agent that re-read the plan paid a full cache miss on the whole document.
+* **Action:** Restructured both parcel templates (`docs/plans/template-plan.md` + `skills/pass-the-parcel/references/template-plan.md`) so the State Dashboard + Gate Log live in the **LAST section** (`## 📍 State & Gates`). A static `🔒 CACHE-ANCHORED` banner sits at the top and is never edited. Gate transitions mutate ONLY the bottom rows (`Status` + `Gate A-D` + `Last Updated`); phase content above stays byte-stable. All agent/skill/command references now say "State & Gates (bottom)". Added `Mode` row; trailing `Status: COMPLETE` folded into the bottom section.
+* **Rationale:**
+    * **Prefix-cache hits**: unchanged prefix bytes are served from the provider cache on re-reads; only the small mutated tail re-processes.
+    * **Byte-stability discipline**: agents are instructed not to edit content above the bottom section once written — the only cache-invalidation risk left is mid-file one-time mutations (e.g., execution checklists in Phases 7-8), which is accepted since they happen once per phase, not at every gate handoff.
+    * **Single source of truth**: one bottom section owns Status/Version/Mode/Persona/Last Updated + Gate Log; no duplicate `Status: COMPLETE` rows scattered in Completion Note / Wrap Up.
+
+---
+
+## 🚀 Tooling & DevOps
+
 ### Parcel Orchestration Model Assignment Matrix
 * **Decision Date:** 2026-08-17
 * **Context:** The pass-the-parcel pipeline needed a clearer model-to-phase mapping to match model strengths to task difficulty and reduce token spend on heavy models for lighter roles.

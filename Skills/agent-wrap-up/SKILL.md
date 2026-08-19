@@ -63,7 +63,7 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
 
 ### Phase 4: Plan Finalization
 1.  **Update Implementation Plans**: If you were following a plan in `docs/plans/`, finalize it in this strict order:
-    - **Step 1 — Mark Complete:** Open the plan file and update its **State Dashboard** to set `Status` to `COMPLETE` and `Last Updated` to the current timestamp. Do this **before** moving the file.
+    - **Step 1 — Mark Complete:** Open the plan file and update its **State & Gates** section (bottom of the plan) to set `Status` to `COMPLETE`, `Gate D` to `COMPLETE`, and `Last Updated` to the current timestamp. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
     - **Step 3 — Archive:** Move the completed plan file from `docs/plans/[plan-name].md` to `docs/archive/[plan-name].md`. Write the updated content to the archive path, then delete the original from `docs/plans/`.
 

@@ -11,6 +11,31 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-08-19 - Parcel Cache-Anchored Templates (State & Gates at Bottom)
+
+**Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)
+
+**Files Modified:**
+- `docs/plans/template-plan.md` — removed top State Dashboard; added static `🔒 CACHE-ANCHORED` banner; added bottom `## 📍 State & Gates` (State table + Mode row + Gate Log A-D); halt points point to bottom section; folded trailing `Status: COMPLETE` into bottom
+- `skills/pass-the-parcel/references/template-plan.md` — mirror restructure (skill-bundled canonical copy)
+- `skills/pass-the-parcel/SKILL.md` — cache-anchor rule in Plan State Lifecycle; all halt points/backlog pickup/wrap-up now reference the bottom State & Gates section
+- `.opencode/command/parcel.md` — Mode written to bottom section; Gate A init `OPEN` + advance via bottom section (USER-MANAGED + AUTO)
+- `.opencode/agents/parcel-context-hunter.md` — init + hard rule point to State & Gates (bottom)
+- `.opencode/agents/parcel-high-visionary.md` — revision loop + Step 6 set bottom Status/Gate B
+- `.opencode/agents/parcel-code-surgeon.md` — Step 6 sets bottom Status/Gate D
+- `.opencode/agents/parcel-phase3-answerer.md` — Step 5 bottom phrasing
+- `skills/parcel-compactor/SKILL.md` — Keep Rules: State & Gates summary (bottom)
+- `skills/agent-wrap-up/SKILL.md` — Mark Complete via bottom section (Status + Gate D)
+- `skills/build-roadmap/SKILL.md` — backlog scaffold sets bottom section
+- `skills/spaghetti-monster/SKILL.md` — backlog packaging + exit criteria reference bottom section
+- `skills/ptp-context-hunter/SKILL.md` — template init + final validation gate reference bottom section
+
+**Database/API Changes:** None
+
+**Summary:** Moved the hot, frequently-mutated state (Status, Active Persona, Gate Log) from the top of every parcel plan template to the LAST section of the file. LLM prefix-caching is byte-precise — a change near the top invalidates the entire file's cache for downstream stateless agents that re-read the plan at each gate. Bottom-anchoring means gate transitions mutate only the final ~15 lines; the long stable phase content stays byte-identical and hits prefix cache on every re-read. Added a static (never-edited) CACHE-ANCHORED banner at the top, consolidated Status + Gate Log into `## 📍 State & Gates`, added the Mode row (already written by `/parcel`), and folded the trailing `Status: COMPLETE` into the bottom section. All 11 downstream references (skills + agents + /parcel command) updated to point to the bottom section. Verified: `check-parcel-prefix.ps1` + `check-utf8-agents.ps1` PASS; template parity check OK (only per-template version defaults differ); smoke test shows a gate transition touches only 3 of 264 lines.
+
+---
+
 ## 2026-05-21 - Initial Repository Scaffold
 **Agent:** template-generator
 **Files Modified:**

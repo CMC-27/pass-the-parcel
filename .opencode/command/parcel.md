@@ -12,8 +12,8 @@ Start a new parcel plan: $ARGUMENTS
 3. **Mode Selection (mandatory, before plan instantiation).** Call the `question` tool with two options:
    - `USER-MANAGED` *(Recommended)* -- halt at every gate for explicit user approval.
    - `AUTO` -- auto-advance through gates; sub-skills auto-answer questions. Destructive actions still halt.
-   Record the choice. It will be written into the plan's State Dashboard as `**Mode**`.
-4. If creating fresh, copy the template from `docs/plans/template-plan.md` to `docs/plans/[slug]-plan.md`. Initialize State Dashboard: `Status: PHASE_1`, `Mode: <chosen mode>`, `Active Persona: Scoper`, `Last Updated: <now>`.
+   Record the choice. It will be written into the plan's **State & Gates** section (bottom of the file) as `**Mode**`.
+4. If creating fresh, copy the template from `docs/plans/template-plan.md` to `docs/plans/[slug]-plan.md`. Initialize the **State & Gates** section at the bottom: `Status: PHASE_1`, `Mode: <chosen mode>`, `Active Persona: Scoper`, `Last Updated: <now>`, `Gate A: OPEN`.
 5. Confirm the slug + plan path + mode with the user before proceeding.
 
 ## Execution
@@ -21,5 +21,5 @@ Start a new parcel plan: $ARGUMENTS
 6. Begin Group A by delegating Phases 1-3 to the `parcel-context-hunter` sub-agent via the Task tool. Pass: the plan file path, the current `Status`, the current `Mode`, and the user's original description.
 7. **Phase 3.5 (AUTO only):** If `Mode: AUTO`, delegate Phase 3.5 to the `parcel-phase3-answerer` sub-agent via the Task tool. Pass: the plan file path. On return, read the plan and check for `Unresolvable:` entries -- if any exist, treat as a hard halt and surface to the user.
 8. **Mode-aware handling at Gate A:**
-   - `USER-MANAGED` -- read the plan, surface the drafted Phase 3 questions to the user via the `question` tool, write the answers into the plan, advance State Dashboard to `PHASE_3`, and present Gate A for approval.
-   - `AUTO` -- verify `Auto-Resolution:` rows are populated, advance State Dashboard to `PHASE_3` with a `Gate A: auto-cleared at <timestamp>` note, and proceed to Group B without halting.
+   - `USER-MANAGED` -- read the plan, surface the drafted Phase 3 questions to the user via the `question` tool, write the answers into the plan, advance the **State & Gates** section (bottom) to `PHASE_3` (`Gate A: APPROVED` + timestamp), and present Gate A for approval.
+   - `AUTO` -- verify `Auto-Resolution:` rows are populated, advance the **State & Gates** section (bottom) to `PHASE_3` with a `Gate A: auto-cleared at <timestamp>` note, and proceed to Group B without halting.

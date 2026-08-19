@@ -127,7 +127,7 @@ For each target the user accepts at Gate A:
     * The user must explicitly override to choose differently — reducing the cognitive load of blank questions.
     * Example format:
       > [★] Q1: Should X be extracted to Y or stay in Z? <recommendation: Y — already has precedent in csvParser.js >
- 6. **State Dashboard:** Status `BACKLOG`, Active Persona `Planner`.
+ 6. **State & Gates (bottom):** Status `BACKLOG`, Active Persona `Planner`, Gate A `OPEN`.
  7. **Append to `docs/backlog/backlog-index.md`** under the appropriate theme/epic, with a one-line Goal statement.
  8. **Append a changelog entry** to `docs/logs/agent-changelog.md` describing the scan: scope, kill list size, number of plans created.
 
@@ -176,7 +176,7 @@ The monster is done when every item is checked:
 * [ ] Gate A (kill list review) completed with user sign-off on which targets become plans
  * [ ] One backlog parcel plan created per accepted target, with Phases 1 and 2 fully pre-populated
  * [ ] Every Phase 3 question uses the Default-And-Justify format (`[★] recommended answer` + rationale)
- * [ ] State Dashboard on every plan set to `BACKLOG` with `Planner` persona
+  * [ ] State & Gates (bottom) on every plan set to `BACKLOG` with `Planner` persona, Gate A `OPEN`
 * [ ] `docs/backlog/backlog-index.md` updated with one row per new plan
 * [ ] Changelog entry written to `docs/logs/agent-changelog.md`
 * [ ] User briefed on the next-step workflow ("open a plan in a new conversation, review Phases 1-2, proceed to Phase 3")

@@ -21,7 +21,7 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 
 Every plan file **MUST** have:
 - The full template scaffold with phases, gates, and checks.
-- Its State Dashboard updated at each transition. 
+- Its **State & Gates** section (bottom of the file) updated at each transition. 
 
 The table below defines the only valid states. An AI agent reading the plan determines exactly where it is in the workflow from these two fields.
 
@@ -46,11 +46,13 @@ The table below defines the only valid states. An AI agent reading the plan dete
 - **DO NOT use `PROPOSED` or `Architect`** — these are legacy defaults from the raw template. Always overwrite them with a valid state from the table above.
 - **No amount of urgency allows skipping gates:** Each gate is a hard stop. Agents **MUST** halt and wait for user approval before proceeding to the next phase grouping.
 
+> **🔒 Cache-anchor rule:** The State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; phase content above stays byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
+
 ---
 
 ## Skill Delegation Map (Persona → Sub-Skill)
 
-Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a specialized sub-skill that owns the detailed directives. The `Active Persona` field in the State Dashboard identifies **who owns the work**; the delegated skill provides **how the work is done**.
+Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a specialized sub-skill that owns the detailed directives. The `Active Persona` field in the **State & Gates** section (bottom of the plan) identifies **who owns the work**; the delegated skill provides **how the work is done**.
 
 | Group | Phase(s) | Active Persona | Delegated Skill | Model Assignment | Scope | Gate |
 |---|---|---|---|---|---|---|
@@ -117,17 +119,18 @@ To maximize token-savings during interaction and within the plan updates, agents
 If the requested feature exists as a backlog item:
 1. Locate its early-prepared backlog plan file at `docs/backlog/<feature-slug>-backlog.md` (suffixed with `-backlog`, Status `BACKLOG`, Persona `Planner`).
 2. Move (rename) this file to `docs/plans/<feature-slug>-plan.md` (suffixed with `-plan`). **This file rename is the signal that the item is now active — `-backlog` means parked, `-plan` means in flight.**
-3. Update the State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
+3. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
    - **Status** → `PHASE_1`
    - **Active Persona** → `Scoper`
    - **Last Updated** → current timestamp.
+   - **Gate A** → `OPEN`.
 4. Remove the item from the active checklist in `docs/backlog/backlog-index.md`.
 5. Proceed to **Group A** (Phases 1-3). The backlog plan contains pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the [Fresh Context Rule](#fresh-context-rule). The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
 
 ### GROUP A: Scoping & Context (Phases 1-3)
 * **Model:** mimo-2.5
 * **Goal:** Understand intent, locate context, resolve ambiguities.
-* **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `docs/plans/<feature-slug>-plan.md` from the [canonical template](references/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + Wrap Up) from the start — all downstream agents rely on this structure. If this item was picked up from the backlog, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial State Dashboard: **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
+* **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `docs/plans/<feature-slug>-plan.md` from the [canonical template](references/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + State & Gates at bottom) from the start — all downstream agents rely on this structure. If this item was picked up from the backlog, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial **State & Gates** section (bottom): **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
   * **Phase 1 (Expansion & Scoping):**
     * **CRITICAL:** Initialize and execute the **`ptp-context-hunter`** skill to hydrate the plan, expand the request, and lock the In-Scope / Out-of-Scope perimeter.
@@ -135,7 +138,7 @@ If the requested feature exists as a backlog item:
     * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to run the Forensic Context Inventory — wiki core docs, knowledge capture, and source code verification.
   * **Phase 3 (User Clarification):**
     * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to interrogate the user interactively, surface architectural conflicts inline, and capture the final gate-A validation before advancing.
-* **HALT POINT (Gate A):** Once the final validation question is answered Yes and Phase 3 is fully populated, update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_3`, **Active Persona** → `Scoper`. Present the scoping summary and Phase 3 answers. **Stop execution immediately and wait for the user to approve the scope before proceeding to Group B.**
+* **HALT POINT (Gate A):** Once the final validation question is answered Yes and Phase 3 is fully populated, update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_3`, **Active Persona** → `Scoper`, **Gate A** → `APPROVED` + timestamp. Present the scoping summary and Phase 3 answers. **Stop execution immediately and wait for the user to approve the scope before proceeding to Group B.**
 
 ### GROUP B: High-Visionary Planning (Phase 4)
 * **Model:** mimo-2.5
@@ -145,7 +148,7 @@ If the requested feature exists as a backlog item:
     * **CRITICAL:** Initialize and execute the **`ptp-high-visionary`** skill to convert the Phase 1-3 scope into a standard implementation plan. Focus on **what needs to happen** rather than exact code. Include file paths, component names, and architectural decisions, but **no code snippets** unless the task is impossible to describe without them (e.g., complex type definitions, API contracts). Reject on bloat or vagueness.
   * **Phase 4 Revision (PHASE_4_REVISION):**
     * When a plan returns in state `PHASE_4_REVISION` (Phase 5 or 6 review failed), the High-Visionary re-executes on the SAME plan file to apply the flagged fixes. Address every `BLOCK`/`REJECTED` item from the review, update the plan, and set Status → `PHASE_4` for re-review. Do not treat the review comments as optional.
-* **HALT POINT (Gate B):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_4`, **Active Persona** → `High-Visionary`. Present the standard implementation plan. **Stop execution immediately. Next agent handles Phases 5-6 reviews.**
+* **HALT POINT (Gate B):** Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_4`, **Active Persona** → `High-Visionary`, **Gate B** → `APPROVED` + timestamp. Present the standard implementation plan. **Stop execution immediately. Next agent handles Phases 5-6 reviews.**
 
 ### GROUP C: Peer Reviews (Phases 5-6)
 * **Goal:** Peer-review the text-based architecture for logical completeness, edge cases, and UX alignment. **Phase 5 audits the SPEC — the plan contains no code, so no code-level scans (DRY/WET, line checks) are performed.**
@@ -159,7 +162,7 @@ If the requested feature exists as a backlog item:
 * **Deterministic Rejection State (Gate C):**
   * **Pass:** Phase 5 log clean → proceed to Phase 6 (PO Intent Check) → set `PHASE_6` → halt at Gate C for user sign-off.
   * **Fail:** Phase 5 or 6 logs blocking architectural flaws → set `PHASE_4_REVISION` → return to Group B (High-Visionary) for plan adjustments → re-run Phase 5/6 → re-evaluate Gate C. **Never advance an unapproved plan toward execution.**
-* **HALT POINT (Gate C):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_6` (pass) or `PHASE_4_REVISION` (fail), **Active Persona** → `Reviewer` (pass) or `High-Visionary` (fail). Present the review findings and required fixes. **Stop execution immediately. Do NOT touch any codebase files or run commands yet. Wait for explicit user approval to execute.**
+* **HALT POINT (Gate C):** Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_6` (pass) or `PHASE_4_REVISION` (fail), **Active Persona** → `Reviewer` (pass) or `High-Visionary` (fail), **Gate C** → `APPROVED` (pass) or `REJECTED` (fail) + timestamp. Present the review findings and required fixes. **Stop execution immediately. Do NOT touch any codebase files or run commands yet. Wait for explicit user approval to execute.**
 
 ### GROUP D: Execution & Verification (Phases 7-8)
 * **Goal:** Code features strictly to plan, run QA, prove stability.
@@ -171,7 +174,7 @@ If the requested feature exists as a backlog item:
   * **Phase 8 (Verify Changes):**
     * **Model:** deepseek-v4-flash
     * **CRITICAL:** Continue executing the **`ptp-code-surgeon`** skill to run compilation/tests/lint, log proof in the plan, and verify runtime stability before declaring the gate clear. Apply any necessary tweaks identified during QA.
-* **HALT POINT (Gate D):** Update State Dashboard per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_8`, **Active Persona** → `Executor`. Present completed work and QA verification report. **Stop execution immediately and wait for user to test and sign off.**
+* **HALT POINT (Gate D):** Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_8`, **Active Persona** → `Executor`, **Gate D** → `APPROVED` + timestamp. Present completed work and QA verification report. **Stop execution immediately and wait for user to test and sign off.**
 
 ### GROUP E: User Review & Tweaks (Phase 9)
 * **Goal:** User performs testing and provides feedback. Iterative back-and-forth with agent for tweaks, with important lessons captured to improve future outputs.
@@ -191,7 +194,7 @@ If the requested feature exists as a backlog item:
   * **Phase 10 (Document Tweaks & Knowledge Capture):**
     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 9 tweaks, sync captured lessons (per Phase 9 `Capture Flag`) to the project's knowledge capture log, and confirm any open capture items are resolved.
   * **Wrap Up:**
-    * **CRITICAL:** Continue executing the **`agent-wrap-up`** skill (global) to update wiki docs, archive the plan to `docs/archive/`, review backlog items, and set State Dashboard → `COMPLETE`. **If Phase 5 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
+     * **CRITICAL:** Continue executing the **`agent-wrap-up`** skill (global) to update wiki docs, archive the plan to `docs/archive/`, review backlog items, and set the **State & Gates** section (bottom) → `COMPLETE` (all gates `APPROVED`). **If Phase 5 flagged any dead code or orphans, create a backlog entry** at `docs/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---

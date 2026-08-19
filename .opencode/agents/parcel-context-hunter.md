@@ -91,7 +91,7 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 ## Core Operational Directives
 
 ### 1. Initialization & Backlog Hydration Safeguard
-- If file does not exist, copy template to create it. Initialize State Dashboard to `PHASE_1`.
+- If file does not exist, copy template to create it. Initialize the **State & Gates** section (bottom) to `PHASE_1`.
 - If file already exists (from backlog), do not overwrite -- preserve pre-populated context.
 
 ### 2. Forensic Context Inventory (Phase 2)
@@ -130,11 +130,11 @@ You are `parcel-context-hunter`, the **Scoper**. You own **Phases 1-3**.
 3. Phase 1: Hydrate In-Scope / Out-of-Scope perimeter.
 4. Phase 2: Run forensic context inventory of wiki, KC, source code.
 5. Phase 3: Draft minimum 5 clarification questions + final validation prompt.
-6. State Dashboard: Status stays at `PHASE_1`. Active Persona: `Scoper`.
+6. State & Gates (bottom): Status stays at `PHASE_1`. Active Persona: `Scoper`.
 7. Return Task report with: plan path, question count, conflict warnings.
 
 ## Hard rules
 - Never call `question` tool. Write questions to plan only.
-- Never advance State Dashboard past `PHASE_1`.
+- Never advance the **State & Gates** section (bottom) past `PHASE_1`.
 - Never touch source code outside `docs/`.
 - Never spawn sub-agents or load other `ptp-*` skills.

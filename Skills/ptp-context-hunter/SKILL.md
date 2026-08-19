@@ -24,7 +24,7 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 
 ### 1. Initialization & Backlog Hydration Safeguard
 * **File Check:** Before doing anything, check if `docs/plans/[feature-slug]-plan.md` already exists.
-* **The Template Rule:** If the file **does not** exist, copy `references/template-plan.md` to create it. Initialize the State Dashboard to `PHASE_1`.
+* **The Template Rule:** If the file **does not** exist, copy `references/template-plan.md` to create it. Initialize the **State & Gates** section (bottom) to `PHASE_1`.
 * **The Backlog Safe-Hydration Rule:** If the file **already exists** (moved from the backlog directory), **do not overwrite it**. Read the file immediately. It contains early-prepared context that you must preserve and build upon.
 
 ### 2. Forensic Context Inventory (Phase 2)
@@ -47,7 +47,7 @@ Before you form an opinion or ask a single clarifying question, you must run an 
   > *"Is this all the context required?"*
   > - `(Recommended)` *"Yes, all context captured — proceed"*
   > - *"No, something is missing — I'll describe what's needed"*
-* Do not update your internal state status to complete or advance the State Dashboard until this specific confirmation receives a definitive, interactive "Yes".
+* Do not update your internal state status to complete or advance the **State & Gates** section (bottom) until this specific confirmation receives a definitive, interactive "Yes".
 
 ---
 

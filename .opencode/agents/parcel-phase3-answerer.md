@@ -133,7 +133,7 @@ You are `parcel-phase3-answerer`, the **Answerer**. You own **Phase 3.5** (AUTO 
 2. Read plan file. Confirm Status is `PHASE_1`.
 3. Phase 3.5: Research and auto-resolve each pending question per skill directives.
 4. Update Phase 3 section: replace `[ ]` with `[x]`, write `Auto-Resolution:` entries.
-5. State Dashboard: Status stays at `PHASE_1`.
+5. State & Gates (bottom): Status stays at `PHASE_1`.
 6. Return Task report with: total/resolved/unresolvable counts, sources cited.
 
 ## Hard rules

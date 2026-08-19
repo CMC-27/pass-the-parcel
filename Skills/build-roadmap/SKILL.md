@@ -99,7 +99,7 @@ Present each phase as a selectable option. Set `multiple: true`.
 For each selected phase, apply the **backlog** skill workflow per Key Feature:
 
 1. Create a `<feature-slug>-backlog.md` (suffixed with `-backlog`) in `docs/backlog/` using the Pass-the-Parcel backlog template.
-2. Set State Dashboard: `Status: BACKLOG`, `Active Persona: Planner`.
+2. Set the **State & Gates** section (bottom of the doc): `Status: BACKLOG`, `Active Persona: Planner`, `Gate A: OPEN`.
 3. Populate Phase 1 (Expansion & Scoping) using the roadmap phase as source material.
 4. Add a bullet entry to `docs/backlog/backlog-index.md` linking to the new file.
 5. Include a `Roadmap Phase: Phase N` metadata line in the backlog plan header.

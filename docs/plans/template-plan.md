@@ -7,18 +7,8 @@
 > - Full skeleton required - ALL 10 phases + Wrap Up MUST be present.
 > - Halt points are HARD STOPS - each gate blocks all subsequent phases.
 > - Persona matches Status - use the State Lifecycle table in pass-the-parcel skill.
-
-## State Dashboard
-| Metric | Value |
-|---|---|
-| **Status** | `BACKLOG` |
-| **Version** | `v0.1.0` |
-| **Active Persona** | `High-Visionary` |
-| **Last Updated** | YYYY-MM-DD |
-| **Depends On** | none |
-| **Blocks** | none |
-
-> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_4`, `PHASE_6`, `PHASE_8`, `COMPLETE`.
+>
+> **🔒 CACHE-ANCHORED:** State Dashboard + Gate Log live in the **last section** of this file (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
 
 ---
 
@@ -65,7 +55,7 @@
 
 ---
 
-> **HALT POINT (Gate A):** Phase 3 complete. Present scoping summary to user. Do not proceed to Phase 4 until user approves. Update Status -> `PHASE_3`, Active Persona -> `Scoper`.
+> **HALT POINT (Gate A):** Phase 3 complete. Present scoping summary to user. Do not proceed to Phase 4 until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_3`, Active Persona -> `Scoper`, Gate A -> `APPROVED` + timestamp.
 
 ---
 
@@ -106,7 +96,7 @@
 
 ---
 
-> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update Status -> `PHASE_4`, Active Persona -> `High-Visionary`.
+> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_4`, Active Persona -> `High-Visionary`, Gate B -> `APPROVED` + timestamp.
 
 ---
 
@@ -156,9 +146,9 @@
 
 ---
 
-> **HALT POINT (Gate C):** Reviews complete. Present findings and required fixes.
-> - **PASS:** Phase 5 log clean -> set Status `PHASE_6`, Active Persona `Reviewer`. Do not proceed to execution until user approves.
-> - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set Status `PHASE_4_REVISION`, Active Persona `High-Visionary`. Return to Group B for plan adjustments, then re-run Phases 5-6. **Never advance an unapproved plan to execution.**
+> **HALT POINT (Gate C):** Reviews complete. Present findings and required fixes. Update the **State & Gates** section at the bottom of this file:
+> - **PASS:** Phase 5 log clean -> set Status `PHASE_6`, Active Persona `Reviewer`, Gate C -> `APPROVED`. Do not proceed to execution until user approves.
+> - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set Status `PHASE_4_REVISION`, Active Persona `High-Visionary`, Gate C -> `REJECTED`. Return to Group B for plan adjustments, then re-run Phases 5-6. **Never advance an unapproved plan to execution.**
 
 ---
 
@@ -195,7 +185,7 @@
 
 ---
 
-> **HALT POINT (Gate D):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update Status -> `PHASE_8`, Active Persona -> `Executor`.
+> **HALT POINT (Gate D):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_8`, Active Persona -> `Executor`, Gate D -> `APPROVED` + timestamp.
 
 ---
 
@@ -244,4 +234,31 @@
 
 **Backlog Review:** [Backlog items reviewed / updated]
 
-**Status:** `COMPLETE`
+---
+
+## 📍 State & Gates (CACHE-ANCHORED — update ONLY this section at gate transitions)
+
+> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above stays byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
+
+| Metric | Value |
+|---|---|
+| **Status** | `BACKLOG` |
+| **Version** | `v0.1.0` |
+| **Mode** | `USER-MANAGED` / `AUTO` |
+| **Active Persona** | `High-Visionary` |
+| **Last Updated** | YYYY-MM-DD |
+| **Depends On** | none |
+| **Blocks** | none |
+
+> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_4`, `PHASE_4_REVISION`, `PHASE_6`, `PHASE_8`, `COMPLETE`.
+
+| Gate | Requirement | Status | Timestamp |
+|---|---|---|---|
+| A | Scope approved (Phases 1-3) | `OPEN` | — |
+| B | Plan approved (Phase 4) | `OPEN` | — |
+| C | Reviews passed (Phases 5-6) | `OPEN` | — |
+| D | Implementation verified (Phases 7-8) | `OPEN` | — |
+
+> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_4_REVISION` for Gate C) and stamp Timestamp. Never edit rows above this section for gate bookkeeping.
+
+> **This section is the LAST section in the file. All gate bookkeeping happens here.**

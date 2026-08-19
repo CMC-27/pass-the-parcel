@@ -41,7 +41,7 @@ Preserve verbatim:
 - Phase 1: Intent, In-Scope, Out-of-Scope
 - Phase 3: Final answers (user responses or auto-resolutions — just the answer, not rationale)
 - Phase 4: Files to Create/Modify, Implementation Instructions, To-Do List, Test Verification Plan
-- State Dashboard (summary only — Status, Mode, Version)
+- State & Gates summary (bottom of plan — Status, Mode, Version only)
 - The plan prefix code (e.g., `T12-E1.01`)
 
 ### 4. Output Format
