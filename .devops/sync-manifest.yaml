@@ -1,0 +1,41 @@
+# Sync Manifest — the transportable architecture surface.
+#
+# Lists which parts of this repo are portable machinery (synced to satellites) vs
+# repo-specific content (kept local). Edit this file, not the sync script, to change
+# what transports.
+#
+# Format:
+#   portable_dirs:   directories copied recursively into the target (overwrite).
+#   portable_skills: skill slugs copied from .devops/skills/ into the target's
+#                    .devops/skills/ (overwrite that skill only, never the whole folder).
+#   portable_files:  standalone files copied verbatim into the target.
+#   verify_commands: commands run in the target after sync to prove integrity.
+
+portable_dirs:
+  - .wikirules
+  - .languagerules
+  - .devrules
+  - .devops/agents
+
+portable_skills:
+  - pass-the-parcel
+  - ptp-context-hunter
+  - ptp-phase3-answerer
+  - ptp-high-visionary
+  - ptp-grumpy-architect
+  - ptp-smooth-operator
+  - parcel-compactor
+  - agent-wrap-up
+  - knowledge-capture
+  - knowledge-consolidation
+  - true-or-false
+
+portable_files:
+  - scripts/check-parcel-prefix.ps1
+  - scripts/check-utf8-agents.ps1
+  - scripts/sync-architecture.ps1
+
+verify_commands:
+  - powershell -NoProfile -File scripts/check-parcel-prefix.ps1
+  - powershell -NoProfile -File scripts/check-utf8-agents.ps1
+  - python .wikirules/wiki_lint.py --quiet

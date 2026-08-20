@@ -3,7 +3,7 @@
 # vs. the mojibake sequence C3 A2 E2 82 AC C5 93 (double-encoded "—").
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$agentsDir = Join-Path $root '.opencode\agents'
+$agentsDir = Join-Path $root '.devops\agents'
 
 $bad = @()
 foreach ($file in Get-ChildItem -Path $agentsDir -Filter 'parcel-*.md') {

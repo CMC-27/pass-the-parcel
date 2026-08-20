@@ -8,12 +8,12 @@ Start a new parcel plan: $ARGUMENTS
 ## Setup
 
 1. Load the `pass-the-parcel` skill for the canonical workflow, phase table, gate semantics, and template reference.
-2. Derive a kebab-case slug from the description. If a parcel with this slug already exists at `docs/plans/[slug]-plan.md`, pick it up instead of creating.
+2. Derive a kebab-case slug from the description. If a parcel with this slug already exists at `.devops/plans/[slug]-plan.md`, pick it up instead of creating.
 3. **Mode Selection (mandatory, before plan instantiation).** Call the `question` tool with two options:
    - `USER-MANAGED` *(Recommended)* -- halt at every gate for explicit user approval.
    - `AUTO` -- auto-advance through gates; sub-skills auto-answer questions. Destructive actions still halt.
    Record the choice. It will be written into the plan's **State & Gates** section (bottom of the file) as `**Mode**`.
-4. If creating fresh, copy the template from `docs/plans/template-plan.md` to `docs/plans/[slug]-plan.md`. Initialize the **State & Gates** section at the bottom: `Status: PHASE_1`, `Mode: <chosen mode>`, `Active Persona: Scoper`, `Last Updated: <now>`, `Gate A: OPEN`.
+4. If creating fresh, copy the template from `.devops/plans/template-plan.md` to `.devops/plans/[slug]-plan.md`. Initialize the **State & Gates** section at the bottom: `Status: PHASE_1`, `Mode: <chosen mode>`, `Active Persona: Scoper`, `Last Updated: <now>`, `Gate A: OPEN`.
 5. Confirm the slug + plan path + mode with the user before proceeding.
 
 ## Execution

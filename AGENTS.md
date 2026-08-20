@@ -5,10 +5,15 @@ This repository is configured with a structured documentation library in **`docs
 
 ### Documentation Structure
 - **`docs/wiki/`** — Architecture knowledge, design system, features, and technical specs
-- **`docs/plans/`** — Active implementation plans (parcel format)
-- **`docs/archive/`** — Completed plans
-- **`docs/backlog/`** — Product roadmap and backlog items
-- **`docs/logs/`** — Agent changelog, version history, knowledge changelog
+- **`.devops/plans/`** — Active implementation plans (parcel format)
+- **`.devops/archive/`** — Completed plans
+- **`.devops/backlog/`** — Product roadmap and backlog items
+- **`.devops/logs/`** — Agent changelog, version history, knowledge changelog
+- **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
+- **`.devops/agents/`** — All parcel-* agent runbooks (PREFIX-LOCKED, pure body), loaded via `prompt: {file: ...}` in `opencode.json`
+- **`.wikirules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
+- **`.languagerules/`** — Language governance layer — voice & tone, AI rules, publication rules
+- **`.devrules/`** — Dev governance layer — agents & skills, plan lifecycle
 
 Instead of searching the entire codebase to understand context, **STOP** and read the localized intelligence hub first.
 
@@ -32,20 +37,20 @@ Everything you need is mapped in `docs/wiki/`. Start at **`docs/wiki/core/00-sys
 | Parsing or generating a CSV/XLSX import/export | `docs/wiki/logic/logic-index.md` | CSV Parser / xlsx utility |
 | Extending a utility or custom hook | `docs/wiki/logic/logic-index.md` | Specific util/hook doc |
 | Touching AI / agentic workflows | `docs/wiki/core/15-ai-features.md` | AI client utility |
-| Checking backlog/roadmap or parked items | `docs/backlog/backlog-index.md` | Specific backlog plan doc |
-| Viewing archived implementation plans | `docs/archive/README.md` | Specific archived plan |
+| Checking backlog/roadmap or parked items | `.devops/backlog/backlog-index.md` | Specific backlog plan doc |
+| Viewing archived implementation plans | `.devops/archive/README.md` | Specific archived plan |
 | Adding or editing form fields | `docs/wiki/core/09-design-system.md` §5c | `docs/wiki/core/10-validation-standards.md` |
-| Checking wiki health / link integrity | `@wiki-lint` skill | `docs/logs/knowledge-changelog.md` (soft-report) |
+| Checking wiki health / link integrity | `@wiki-lint` skill | `.devops/logs/knowledge-changelog.md` (soft-report) |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `docs/wiki/` + `ref/` |
 | Recording a knowledge-capture decision | `@knowledge-capture` skill | `docs/wiki/core/18-knowledge-capture.md` |
-| Adding to the backlog | `@backlog` skill | `docs/backlog/backlog-index.md` |
+| Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |
 | Auditing UI compliance | `@design-audit` skill | `docs/wiki/core/09-design-system.md` |
 | Checking cross-view pattern consistency | `docs/wiki/core/18-knowledge-capture.md` (Domain Index) | `ptp-context-hunter` skill §2 + `ptp-grumpy-architect` skill §11 |
-| Closing out a task | `@agent-wrap-up` skill | `docs/logs/agent-changelog.md` |
+| Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |
 | Multi-step planning | `@pass-the-parcel` skill | Parcel template in skill refs |
-| Pre-push validation (lint/test/build/push) | `@test-and-deploy` skill | `docs/logs/version-history.md` |
+| Pre-push validation (lint/test/build/push) | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Writing or editing code | `@karpathy-guidelines` skill | `docs/wiki/core/09-design-system.md` (if UI) |
-| Reviewing agent operations history | `docs/logs/agent-changelog.md` | (distinct from `knowledge-changelog.md`) |
+| Reviewing agent operations history | `.devops/logs/agent-changelog.md` | (distinct from `knowledge-changelog.md`) |
 
 ---
 
@@ -54,11 +59,20 @@ Everything you need is mapped in `docs/wiki/`. Start at **`docs/wiki/core/00-sys
 2. **Never Hardcode Text Colors:** All text colors must use theme tokens (`text-primary-on` on `bg-primary`, `text-on_surface` for titles, `text-secondary` for labels). No `text-white`, `text-slate-*`, `text-gray-*`, or `text-black` in className strings. See `docs/wiki/core/09-design-system.md` §2, §5.
 3. **Respect the Architecture:** Follow the project's data flow and domain constraints as documented in the wiki — do not bypass established patterns.
 4. **Destructive Actions:** Use `<ConfirmModal>` for deletions. Ensure linked rows in dependent tables are properly managed.
-5. **Context Review:** Before writing any code, review the last 3 entries in `docs/logs/agent-changelog.md` to establish current project state.
+5. **Context Review:** Before writing any code, review the last 3 entries in `.devops/logs/agent-changelog.md` to establish current project state.
 6. **Subagent Wiki-First Mandate:** Any agent spawning a subagent (via `task`) MUST explicitly instruct that subagent to follow the wiki-first directive — STOP and read `docs/wiki/` before searching the codebase. Subagents spawned without this instruction will default to raw codebase search and waste context. This applies to all subagents regardless of role (planner, reviewer, surgeon, etc.).
 7. **Planning Protocol:** Multi-step tasks MUST use the `@pass-the-parcel` skill.
 8. **Form Field Hygiene (id + name + autoComplete + htmlFor):** Every `<input>`, `<select>`, and `<textarea>` MUST have an `id` attribute, and its corresponding `<label>` MUST have `htmlFor` matching that `id`. Auth forms (login/registration) additionally require `name` + `autoComplete` attributes for password manager support. For fields inside `.map()` loops, use globally unique dynamic IDs (e.g., `id={`field-${parentKey}-${index}`}`) — never a bare local index. See `docs/wiki/core/09-design-system.md` §5c for the full standard and common pitfalls.
-9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel-* agents. NEVER edit the inline prefix inside `.opencode/agents/parcel-*.md` directly — edit `base-context.md`, then run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts\check-parcel-prefix.ps1` (and `scripts\check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`.
+9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel-* agents. NEVER edit the inline prefix inside `.devops/agents/parcel-*.md` directly — edit `base-context.md`, then run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts\check-parcel-prefix.ps1` (and `scripts\check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`.
+
+---
+
+## Governance Layers
+
+- [`.wikirules/`](.wikirules/README.md) — how the wiki is structured, named, linked (`python .wikirules/wiki_lint.py` enforces it deterministically)
+- [`.languagerules/`](.languagerules/README.md) — how we write — voice, tone, evidence, audience
+- [`.devrules/`](.devrules/README.md) — how agents, skills, plans and operational state are governed
+- [`.devops/`](.devops/README.md) — operational state + the transportable machinery layer (skills, agents, plans, logs)
 
 ---
 

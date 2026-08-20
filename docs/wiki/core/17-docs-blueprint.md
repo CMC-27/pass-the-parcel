@@ -1,4 +1,4 @@
-﻿---
+---
 type: "core"
 name: "Documentation Architecture Blueprint"
 status: "stable"
@@ -49,10 +49,10 @@ docs/
 
 | Directory | Role | Index File | Description |
 |---|---|---|---|
-| `docs/logs` | The Memory | `agent-changelog.md` | Chronological agent actions, audits, hygiene. |
-| `docs/backlog` | The Queue | `backlog-index.md` | Backlog index and individual plan files. |
-| `docs/plans` | The Future | (User Managed) | Active implementation plans. |
-| `docs/archive` | The Archive | (User Managed) | Completed plans moved from `plans/`. |
+| `.devops/logs` | The Memory | `agent-changelog.md` | Chronological agent actions, audits, hygiene. |
+| `.devops/backlog` | The Queue | `backlog-index.md` | Backlog index and individual plan files. |
+| `.devops/plans` | The Future | (User Managed) | Active implementation plans. |
+| `.devops/archive` | The Archive | (User Managed) | Completed plans moved from `plans/`. |
 
 ---
 
@@ -67,10 +67,10 @@ docs/
 | `docs/wiki/logic/` | `util-name.md` or `hook-name.md` | `util-csv-parser.md`, `hook-use-auth.md` |
 | `docs/wiki/conventions/` | `conv-category-name.md` | `conv-file-naming.md` |
 | `docs/wiki/testing/` | `topic.md` | `pattern.md`, `mocking.md` |
-| `docs/logs/` | `agent-changelog.md` | (single file, append-only) |
-| `docs/backlog/` | `backlog-index.md` or `<slug>-backlog.md` | `backlog-index.md` |
-| `docs/plans/` | `<slug>-plan.md` | `feat-dashboard-plan.md` |
-| `docs/archive/` | `<slug>-plan.md` | (moved from docs/plans/ when complete) |
+| `.devops/logs/` | `agent-changelog.md` | (single file, append-only) |
+| `.devops/backlog/` | `backlog-index.md` or `<slug>-backlog.md` | `backlog-index.md` |
+| `.devops/plans/` | `<slug>-plan.md` | `feat-dashboard-plan.md` |
+| `.devops/archive/` | `<slug>-plan.md` | (moved from .devops/plans/ when complete) |
 
 ---
 
@@ -107,17 +107,17 @@ Links to related database tables, parent indices, or sibling features.
 
 - **The Hub:** `docs/wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices**.
 - **The Spokes:** Each category has its own `*-index.md` that lists its children.
-- **Operational Cross-Links:** The hub also links to `docs/backlog/`, `docs/plans/`, `docs/archive/`, and `docs/logs/`.
+- **Operational Cross-Links:** The hub also links to `.devops/backlog/`, `.devops/plans/`, `.devops/archive/`, and `.devops/logs/`.
 - **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies using relative paths.
 
 ---
 
 ## 6. The Lifecycle of Documentation
 
-1. **Planning:** A `<slug>-plan.md` is created in `docs/plans/`.
-2. **Execution:** The agent performs the work and logs it in `docs/logs/agent-changelog.md`.
+1. **Planning:** A `<slug>-plan.md` is created in `.devops/plans/`.
+2. **Execution:** The agent performs the work and logs it in `.devops/logs/agent-changelog.md`.
 3. **Sync:** As code is committed, corresponding wiki docs are updated to reflect the new truth.
-4. **Archiving:** Completed plans are moved from `docs/plans/` to `docs/archive/`. Deprecated features are marked with `status: "deprecated"` in frontmatter.
+4. **Archiving:** Completed plans are moved from `.devops/plans/` to `.devops/archive/`. Deprecated features are marked with `status: "deprecated"` in frontmatter.
 
 ---
 

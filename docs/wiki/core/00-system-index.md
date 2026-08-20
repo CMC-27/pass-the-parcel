@@ -1,4 +1,4 @@
----
+﻿---
 type: "core"
 name: "System Index"
 status: "stable"
@@ -68,9 +68,9 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 - [Knowledge Capture & Decisions](./18-knowledge-capture.md) - Architectural decisions, tribal knowledge
 
 ## 8. External References
-- [Agent Changelog](../../logs/agent-changelog.md)
-- [Version History](../../logs/version-history.md)
-- [Knowledge Changelog](../../logs/knowledge-changelog.md)
+- [Agent Changelog](../../../.devops/logs/agent-changelog.md)
+- [Version History](../../../.devops/logs/version-history.md)
+- [Knowledge Changelog](../../../.devops/logs/knowledge-changelog.md)
 - [Naming Conventions Index](../conventions/conventions-index.md) - Hub for all naming conventions
 - [Testing Index](../testing/testing-index.md) - Test architecture docs
 
@@ -128,9 +128,9 @@ flowchart TD
 - [Database Index](../database/database-index.md) - Catalog of all schema docs with relationship map
 
 ## 13. Operational Docs
-- [Implementation Plans Index](../../plans/)
-- [Agent Changelog](../../logs/agent-changelog.md)
-- [Version History](../../logs/version-history.md)
+- [Implementation Plans Index](../../../.devops/plans/)
+- [Agent Changelog](../../../.devops/logs/agent-changelog.md)
+- [Version History](../../../.devops/logs/version-history.md)
 
 ## 14. Hub & Spoke Pattern
 

@@ -12,7 +12,7 @@ Below is an overview of the core entry points and directories in this workspace:
 *   **[`HOW-TO.md`](HOW-TO.md)**: A guide detailing the agentic development lifecycle, covering setup/bootstrapping, planning methodologies, and pre-deployment validation.
 *   **[`DESIGN.md`](DESIGN.md)**: Standard frontend design rules and CSS token references to ensure consistent, premium UI development.
 *   **`.opencode/`**: Agent configuration and parcel pipeline agent definitions (requires opencode AI tool).
-*   **`skills/`**: Reusable agent skills (SKILL.md files) for the opencode ecosystem.
+*   **`.devops/skills/`**: Reusable agent skills (SKILL.md files) for the opencode ecosystem.
 *   **`/docs/wiki`**: The application architecture knowledge base — stable, long-lived reference documentation:
     *   `core/`: Core architecture, vision, design systems, and state context.
     *   `features/`: Feature-specific logic, layouts, and components.

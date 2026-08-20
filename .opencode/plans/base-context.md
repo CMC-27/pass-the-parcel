@@ -1,4 +1,4 @@
-> **PREFIX-LOCKED:** Canonical shared prefix for all parcel-* agents. This block is inlined byte-for-byte into every `.opencode/agents/parcel-*.md` immediately after the frontmatter. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel-* agents. This block is inlined byte-for-byte at the start of every `.devops/agents/parcel-*.md` runbook (pure body — frontmatter lives in opencode.json). Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -6,7 +6,7 @@
 2. **Never Hardcode Text Colors:** Use theme tokens only. No `text-white`, `text-slate-*`, `text-gray-*`, `text-black`.
 3. **Respect the Architecture:** Follow documented data flow and domain constraints.
 4. **Destructive Actions:** Use `<ConfirmModal>` for deletions.
-5. **Context Review:** Read last 3 entries in `docs/logs/agent-changelog.md`.
+5. **Context Review:** Read last 3 entries in `.devops/logs/agent-changelog.md`.
 6. **Subagent Wiki-First Mandate:** Subagent prompts MUST include wiki-first directive.
 7. **Planning Protocol:** Multi-step tasks use `@pass-the-parcel`.
 8. **Form Field Hygiene:** Every input/select/textarea has `id` + matching `<label htmlFor>`.
@@ -51,8 +51,10 @@
 **Modes:** `BLIND`/`SINGLE` (agent delegation) x `USER-MANAGED`/`AUTO` (gate behavior)
 
 ## Workspace Layout
-- Active plans: `docs/plans/[slug]-plan.md`
+- Active plans: `.devops/plans/[slug]-plan.md`
+- Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/`
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
 - Versions: `run-[slug]/versions/v1.0_draft.md`, `run-[slug]/versions/v1.1_merged.md`, `run-[slug]/versions/v2.0_approved.md`
 - Audit log: `run-[slug]/decision_log.md`
+- Archived plans: `.devops/archive/`

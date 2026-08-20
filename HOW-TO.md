@@ -31,7 +31,7 @@ Depending on the task's complexity, team style, or token optimization constraint
 
 ### Method A: Pass the Parcel (Stateless / Planning Mode)
 *   **Skill:** `@pass-the-parcel`
-*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`docs/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
+*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`.devops/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
 
 ### Method B: The Multi-Stage Code Pipeline
 For deeply structured, robust feature implementation, use the sequential pipeline of specialized agent personas:
@@ -63,8 +63,8 @@ Plans support two operational modes:
 
 As implementation concludes, the agent must document what it learned and clean up the workspace logs.
 
-*   **Agent Changelog** (`docs/logs/agent-changelog.md`): A running chronological journal of agent actions, changes, and state.
-*   **Knowledge Changelog** (`docs/logs/knowledge-changelog.md`): Tracks wiki health scan results and link integrity reports.
+*   **Agent Changelog** (`.devops/logs/agent-changelog.md`): A running chronological journal of agent actions, changes, and state.
+*   **Knowledge Changelog** (`.devops/logs/knowledge-changelog.md`): Tracks wiki health scan results and link integrity reports.
 *   **`@knowledge-consolidation`**: Periodically structures, de-duplicates, and archives local developer knowledge into indexed snippets.
 *   **`@agent-wrap-up`**: Runs final workspace state synchronization. It reviews modified files, updates logs, archives the plan, and closes the active loop.
 *   **`@spaghetti-monster`**: Scans for high-complexity code regions and packages them into backlog parcel plans for later refactoring.

@@ -1,0 +1,52 @@
+{
+  "test_cases": [
+    {
+      "input": "User wants to know what documentation is missing or outdated in their repository.",
+      "expected_behavior": "The agent should load wiki-assessment and walk the 19 core docs one at a time. For each doc, it reads docs/wiki/core/0X-name.md, opens references/verify-0X-name.md, cross-checks the doc against code/config/state, asks the user the 5-8 verification questions, and records a verdict (✅/⚠/❌). At the end, it compiles a single Gap Report. It must NOT silently edit the docs and must NOT mark a doc as accurate without actually checking.",
+      "assertions": [
+        "Walks docs in 00 -> 18 order, one at a time",
+        "Opens references/verify-0X-name.md for each slot (per-doc, not bulk)",
+        "Cross-checks the doc against code/config/state before recording a verdict",
+        "Asks the user 5-8 verification questions per doc",
+        "Records a verdict (✅ accurate / ⚠ drift / ❌ missing/wrong) per slot",
+        "Compiles a final Gap Report aggregating all 19 verdicts"
+      ]
+    },
+    {
+      "input": "The agent finds a documented RLS rule in 13-security-standards.md that doesn't match firestore.rules.",
+      "expected_behavior": "The agent should record an ❌ verdict for slot 13 with specific evidence (the documented rule, the actual rule, file path). It should NOT silently edit 13-security-standards.md to match — the user decides remediation. The Gap Report should list this as Critical.",
+      "assertions": [
+        "Records verdict for slot 13 with specific evidence (both rules, file paths)",
+        "Does NOT silently fix the doc",
+        "Lists the finding as Critical in the prioritized remediation section of the Gap Report"
+      ]
+    },
+    {
+      "input": "User asks the agent to update a database schema and document the changes.",
+      "expected_behavior": "The agent should update the schema, update the related db-*.md file and database-index.md, and write a chronological entry in .devops/logs/agent-changelog.md using the mandatory YYYY-MM-DD HH:MM header and bulleted files format. The agent may use wiki-assessment afterward to verify the doc still matches.",
+      "assertions": [
+        "Maintains synchronous updates between code and documentation",
+        "Appends a log entry to .devops/logs/agent-changelog.md with the exact YYYY-MM-DD HH:MM header and bulleted files format"
+      ]
+    },
+    {
+      "input": "User asks to audit the external integrations of the app.",
+      "expected_behavior": "The agent should scope the audit to slot 10 specifically: open references/verify-10-external-integrations.md, read 10-external-integrations.md, cross-check each integration's field-mapping table against the actual integration code, ask the 5-8 verification questions, and record a verdict. The user may then ask for the full 19-doc walk or focus on the finding.",
+      "assertions": [
+        "Identifies slot 10 for external integrations",
+        "Opens references/verify-10-external-integrations.md (the per-doc verification set)",
+        "Cross-checks field-mapping tables against actual integration handlers in code",
+        "Records a verdict for slot 10"
+      ]
+    },
+    {
+      "input": "User asks the agent to mark a doc as accurate without checking.",
+      "expected_behavior": "The agent should refuse to mark the doc ✅ without verification. It should re-read the verification set, perform the cross-check, and only then record a verdict. The skill explicitly forbids 'looks fine' as a verdict basis.",
+      "assertions": [
+        "Refuses to mark the doc accurate without actually cross-checking",
+        "Performs the cross-check (read code/config/state) before recording a verdict",
+        "Does not shortcut the verification loop"
+      ]
+    }
+  ]
+}

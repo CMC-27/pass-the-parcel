@@ -1,15 +1,15 @@
 # Normalize all text files to LF for byte-for-byte stability.
 # Prevents CRLF/LF drift from silently breaking PREFIX-LOCKED KV-cache matching
-# in .opencode/agents/*.md (which must stay byte-identical to .opencode/plans/base-context.md).
+# in .devops/agents/*.md (which must stay byte-identical to .opencode/plans/base-context.md).
 * text=auto eol=lf
 
 # Explicitly pin the canonical header + agent files (PREFIX-LOCKED contract).
 .opencode/plans/base-context.md text eol=lf
-.opencode/agents/*.md text eol=lf
-skills/ptp-*/SKILL.md text eol=lf
-skills/pass-the-parcel/** text eol=lf
-skills/agent-wrap-up/SKILL.md text eol=lf
-skills/parcel-compactor/SKILL.md text eol=lf
+.devops/agents/*.md text eol=lf
+.devops/skills/ptp-*/SKILL.md text eol=lf
+.devops/skills/pass-the-parcel/** text eol=lf
+.devops/skills/agent-wrap-up/SKILL.md text eol=lf
+.devops/skills/parcel-compactor/SKILL.md text eol=lf
 
 # Binary files must never be touched.
 *.png binary
