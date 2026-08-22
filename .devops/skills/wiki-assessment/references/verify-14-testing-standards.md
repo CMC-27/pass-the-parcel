@@ -14,4 +14,4 @@ Ensures the testing architecture documentation is current and matches actual cod
 
 ## Cross-references
 
-- `docs/wiki/core/17-docs-blueprint.md` — documentation standards
+- `.wiki/core/17-docs-blueprint.md` — documentation standards

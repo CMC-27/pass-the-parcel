@@ -14,16 +14,16 @@
 ## Task Lookup
 | Task | Read first | Then drill into |
 |---|---|---|
-| Building/editing UI component | `docs/wiki/components/components-index.md` | Specific component doc |
-| Building/editing screen/view | `docs/wiki/features/features-index.md` | Specific feature doc |
-| Writing database query | `docs/wiki/database/database-index.md` | Specific schema doc |
-| Editing layout/workspace shell | `docs/wiki/core/07-app-structure.md` | Layout component docs |
-| Understanding state/context | `docs/wiki/core/04-state-context.md` | State management docs |
-| Extending utility/hook | `docs/wiki/logic/logic-index.md` | Specific util/hook doc |
-| Touching AI/agentic workflows | `docs/wiki/core/15-ai-features.md` | AI client utility |
-| Adding/editing form fields | `docs/wiki/core/09-design-system.md` S5c | `docs/wiki/core/10-validation-standards.md` |
-| Asking question about codebase | `@wiki-query` skill | Cites from `docs/wiki/` |
-| Recording knowledge-capture | `@knowledge-capture` skill | `docs/wiki/core/18-knowledge-capture.md` |
+| Building/editing UI component | `.wiki/components/components-index.md` | Specific component doc |
+| Building/editing screen/view | `.wiki/features/features-index.md` | Specific feature doc |
+| Writing database query | `.wiki/database/database-index.md` | Specific schema doc |
+| Editing layout/workspace shell | `.wiki/core/07-app-structure.md` | Layout component docs |
+| Understanding state/context | `.wiki/core/04-state-context.md` | State management docs |
+| Extending utility/hook | `.wiki/logic/logic-index.md` | Specific util/hook doc |
+| Touching AI/agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
+| Adding/editing form fields | `.wiki/core/09-design-system.md` S5c | `.wiki/core/10-validation-standards.md` |
+| Asking question about codebase | `@wiki-query` skill | Cites from `.wiki/` |
+| Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Delegation Map (canonical)
 | Phase(s) | Sub-agent | Model |
@@ -33,7 +33,6 @@
 | 4 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
 | 5 | `parcel-grumpy-architect` | v4-flash-max |
 | 6 | `parcel-smooth-operator` | mimo-2.5 |
-| 6.5 | `parcel-compactor` | deepseek-v4-flash |
 | 7-8 | `parcel-code-surgeon` | deepseek-v4-flash |
 
 ## Model Registry (canonical identifiers — no aliases)
@@ -55,7 +54,6 @@
 - Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/`
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
-- Versions: `run-[slug]/versions/v1.0_draft.md`, `run-[slug]/versions/v1.1_merged.md`, `run-[slug]/versions/v2.0_approved.md`
 - Audit log: `run-[slug]/decision_log.md`
 - Archived plans: `.devops/archive/`
 
@@ -77,8 +75,8 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 
 ### 2. Forensic Context Inventory (Phase 2)
 Run an exhaustive codebase audit:
-- **Core Documentation:** Read `docs/wiki/core/00-system-index.md` to map governing standards.
-- **Tribal Knowledge:** Read `docs/wiki/core/18-knowledge-capture.md` for past decisions.
+- **Core Documentation:** Read `.wiki/core/00-system-index.md` to map governing standards.
+- **Tribal Knowledge:** Read `.wiki/core/18-knowledge-capture.md` for past decisions.
 - **Source Code Verification:** Locate and read every relevant component/utility/hook/type in blast radius.
 
 ### 3. Interactive Fresh Context Rule & Conflict Warnings (Phase 3)

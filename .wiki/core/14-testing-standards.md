@@ -15,7 +15,7 @@ This document is the gateway to the testing documentation subtree. It defines th
 
 ## Testing Documentation
 
-The testing subtree lives at `docs/wiki/testing/` and contains:
+The testing subtree lives at `.wiki/testing/` and contains:
 
 | Doc | Purpose |
 |---|---|

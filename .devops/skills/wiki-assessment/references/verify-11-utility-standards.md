@@ -21,4 +21,4 @@ Agents use this for consistent precision, formatting, and IDs. Inconsistent roun
 - `src/utils/format.ts` (or equivalent) — formatters
 - `src/utils/id.ts` (or equivalent) — ID generator
 - `src/utils/round.ts` (or equivalent) — rounding helpers
-- `docs/wiki/core/09-design-system.md` — referenced (not duplicated)
+- `.wiki/core/09-design-system.md` — referenced (not duplicated)

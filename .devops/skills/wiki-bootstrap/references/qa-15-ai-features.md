@@ -22,4 +22,4 @@ Agents use this to wire up new AI features correctly. A wrong prompt template = 
 - The Cloud Function in `functions/` (or equivalent) — actual prompt assembly and response parsing
 - `src/` — UI surfaces that call the AI
 - `package.json` — model SDK dependencies
-- `docs/wiki/core/12-security-standards.md` — secret handling for the proxy
+- `.wiki/core/12-security-standards.md` — secret handling for the proxy

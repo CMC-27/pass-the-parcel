@@ -34,15 +34,15 @@ The wiki library is organized into two top-level structures:
 
 | Directory | Role | Index File |
 | :--- | :--- | :--- |
-| `docs/wiki/core/` | **The Brain** � 19 numbered docs covering the foundations | `00-system-index.md` |
-| `docs/wiki/features/` | **The Nervous System** � per-feature docs (`feat-*.md`) | `features-index.md` |
-| `docs/wiki/components/` | **The Muscle** � reusable UI atoms/molecules/organisms | `components-index.md` |
-| `docs/wiki/database/` | **The Skeleton** � schema breakdowns | `database-index.md` |
-| `docs/wiki/logic/` | **The Internal Organs** � utilities, hooks, services, engines | `logic-index.md` |
+| `.wiki/core/` | **The Brain** � 19 numbered docs covering the foundations | `00-system-index.md` |
+| `.wiki/features/` | **The Nervous System** � per-feature docs (`feat-*.md`) | `features-index.md` |
+| `.wiki/components/` | **The Muscle** � reusable UI atoms/molecules/organisms | `components-index.md` |
+| `.wiki/database/` | **The Skeleton** � schema breakdowns | `database-index.md` |
+| `.wiki/logic/` | **The Internal Organs** � utilities, hooks, services, engines | `logic-index.md` |
 
 Operational tooling lives in `docs/`: `docs/{backlog,logs,plans,archive}/`.
 
-> **Note:** Your project may nest these under `docs/` (e.g., `docs/wiki/`). The internal structure stays consistent.
+> **Note:** Your project may nest these under `docs/` (e.g., `.wiki/`). The internal structure stays consistent.
 
 ---
 
@@ -50,11 +50,11 @@ Operational tooling lives in `docs/`: `docs/{backlog,logs,plans,archive}/`.
 
 | Directory | Prefix Pattern | Examples |
 | :--- | :--- | :--- |
-| `docs/wiki/core/` | `0x-name.md` | `00-system-index.md`, `01-vision-north-star.md` |
-| `docs/wiki/features/` | `feat-feature-name.md` | `feat-dashboard.md` |
-| `docs/wiki/components/` | `ui-component-name.md` | `ui-modal.md` |
-| `docs/wiki/database/` | `db-collection-name.md` | `db-projects.md` |
-| `docs/wiki/logic/` | `util-name.md` or `hook-name.md` | `util-date-parser.md` |
+| `.wiki/core/` | `0x-name.md` | `00-system-index.md`, `01-vision-north-star.md` |
+| `.wiki/features/` | `feat-feature-name.md` | `feat-dashboard.md` |
+| `.wiki/components/` | `ui-component-name.md` | `ui-modal.md` |
+| `.wiki/database/` | `db-collection-name.md` | `db-projects.md` |
+| `.wiki/logic/` | `util-name.md` or `hook-name.md` | `util-date-parser.md` |
 
 ---
 
@@ -102,7 +102,7 @@ flowchart TD
 ### For each of the 19 core docs (`00` ? `18`):
 
 1. **Open the question set** at `references/qa-0X-name.md` for the current slot.
-2. **Copy the scaffold** from `references/0X-name.md` into `docs/wiki/core/0X-name.md` as a starting point.
+2. **Copy the scaffold** from `references/0X-name.md` into `.wiki/core/0X-name.md` as a starting point.
 3. **Ask the user** the 5�8 questions from the Q&A file. Use the `question` tool to batch them, OR ask one-by-one if the user prefers. Each question is designed to surface a specific kind of correctness risk.
 4. **Fill in the scaffold** using the user's answers. Where an answer is "I don't know" or unclear, write a `[PLACEHOLDER: <reason>]` and flag it to the user � never invent content.
 5. **Checkpoint with the user** before moving to the next doc. Show the drafted content, confirm accuracy, and only then proceed.
@@ -153,7 +153,7 @@ Each Q&A file follows this shape:
 
 ## 7. Scaffold Templates (Reference)
 
-The 19 scaffold files at `references/0X-name.md` (one per slot) contain the correct YAML frontmatter, section headings, structural patterns, and inline `[PLACEHOLDER]` markers. **Always copy the relevant scaffold into `docs/wiki/core/0X-name.md` first** � do not write the doc from scratch. The scaffold ensures every doc has the same anatomy, so agents know where to look for what.
+The 19 scaffold files at `references/0X-name.md` (one per slot) contain the correct YAML frontmatter, section headings, structural patterns, and inline `[PLACEHOLDER]` markers. **Always copy the relevant scaffold into `.wiki/core/0X-name.md` first** � do not write the doc from scratch. The scaffold ensures every doc has the same anatomy, so agents know where to look for what.
 
 ---
 

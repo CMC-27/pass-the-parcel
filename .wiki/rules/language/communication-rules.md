@@ -19,7 +19,7 @@ related-to: [./README.md, ./voice-and-tone.md]
 
 ## External (client-facing, published, public)
 
-- Professional and plain (`.languagerules/voice-and-tone.md`).
+- Professional and plain (`.wiki/rules/language/voice-and-tone.md`).
 - Never expose internal commercial or operational detail.
 - Every claim is sourced or marked unknown.
 - Drafts are returned for human approval — agents never send external communication unapproved.
@@ -30,7 +30,7 @@ related-to: [./README.md, ./voice-and-tone.md]
 |---|---|
 | Commit message | Imperative, one line, e.g. `fix: repoint check scripts to .devops/agents` |
 | Changelog entry | `- <path>: <past-tense change summary>` |
-| Wiki doc | Front-loaded structure with links (`.wikirules/document-structure.md`) |
+| Wiki doc | Front-loaded structure with links (`.wiki/rules/document-structure.md`) |
 | Skill directive | Terse, imperative, explicit paths and commands |
 | Agent runbook | Third-person description + imperative steps |
 

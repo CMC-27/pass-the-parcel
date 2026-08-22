@@ -24,4 +24,4 @@ Agents use this to know what's safe to do and what requires elevation. A wrong R
 - `functions/src/index.ts` — Cloud Function security / rate limiting
 - `.env.example` — env-var names (no values)
 - `package.json` + lockfile — dependency state
-- `docs/wiki/core/16-external-integrations.md` — referenced for third-party auth
+- `.wiki/core/16-external-integrations.md` — referenced for third-party auth

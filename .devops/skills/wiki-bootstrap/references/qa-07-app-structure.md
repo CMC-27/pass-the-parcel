@@ -22,4 +22,4 @@ Agents use this to understand the app's outermost structural layer before adding
 - `src/main.tsx`, `src/App.tsx` — entry points
 - Router config (e.g., `src/routes/`, `src/router.tsx`)
 - Layout components (e.g., `src/components/layout/`)
-- `docs/wiki/features/` — page-level docs that hang off the shell
+- `.wiki/features/` — page-level docs that hang off the shell

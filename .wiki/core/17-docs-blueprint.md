@@ -32,18 +32,18 @@ docs/
 +-- logs/       <- Development history
 ```
 
-### docs/wiki/ - Architecture Knowledge Base
+### .wiki/ - Architecture Knowledge Base
 
 | Directory | Role | Index File | Description |
 |---|---|---|---|
-| `docs/wiki/core` | The Brain | `00-system-index.md` | Master index, design systems, state context, architecture. |
-| `docs/wiki/features` | The Nervous System | `features-index.md` | Screen-specific docs, feature workflows, view logic. |
-| `docs/wiki/components` | The Muscle | `components-index.md` | Reusable UI atoms, molecules, and organisms. |
-| `docs/wiki/database` | The Skeleton | `database-index.md` | Schema breakdowns, table relationships. |
-| `docs/wiki/logic` | The Internal Organs | `logic-index.md` | Utility functions, custom hooks, algorithmic explanations. |
-| `docs/wiki/conventions` | The Rules | `conventions-index.md` | Naming conventions for all code artifacts. |
-| `docs/wiki/integrations` | The Connections | `integrations-index.md` | External service and API integrations. |
-| `docs/wiki/testing` | The Test Lab | `testing-index.md` | Test patterns, mocking, performance budgets. |
+| `.wiki/core` | The Brain | `00-system-index.md` | Master index, design systems, state context, architecture. |
+| `.wiki/features` | The Nervous System | `features-index.md` | Screen-specific docs, feature workflows, view logic. |
+| `.wiki/components` | The Muscle | `components-index.md` | Reusable UI atoms, molecules, and organisms. |
+| `.wiki/database` | The Skeleton | `database-index.md` | Schema breakdowns, table relationships. |
+| `.wiki/logic` | The Internal Organs | `logic-index.md` | Utility functions, custom hooks, algorithmic explanations. |
+| `.wiki/conventions` | The Rules | `conventions-index.md` | Naming conventions for all code artifacts. |
+| `.wiki/integrations` | The Connections | `integrations-index.md` | External service and API integrations. |
+| `.wiki/testing` | The Test Lab | `testing-index.md` | Test patterns, mocking, performance budgets. |
 
 ### docs/ - Operational Process Tooling
 
@@ -60,13 +60,13 @@ docs/
 
 | Directory | Prefix Pattern | Examples |
 |---|---|---|
-| `docs/wiki/core/` | `0x-name.md` (numbered) | `00-system-index.md`, `01-vision-north-star.md` |
-| `docs/wiki/features/` | `feat-feature-name.md` | `feat-assembly-builder.md` |
-| `docs/wiki/components/` | `ui-component-name.md` | `ui-button.md` |
-| `docs/wiki/database/` | `db-table-name.md` | `db-projects.md` |
-| `docs/wiki/logic/` | `util-name.md` or `hook-name.md` | `util-csv-parser.md`, `hook-use-auth.md` |
-| `docs/wiki/conventions/` | `conv-category-name.md` | `conv-file-naming.md` |
-| `docs/wiki/testing/` | `topic.md` | `pattern.md`, `mocking.md` |
+| `.wiki/core/` | `0x-name.md` (numbered) | `00-system-index.md`, `01-vision-north-star.md` |
+| `.wiki/features/` | `feat-feature-name.md` | `feat-assembly-builder.md` |
+| `.wiki/components/` | `ui-component-name.md` | `ui-button.md` |
+| `.wiki/database/` | `db-table-name.md` | `db-projects.md` |
+| `.wiki/logic/` | `util-name.md` or `hook-name.md` | `util-csv-parser.md`, `hook-use-auth.md` |
+| `.wiki/conventions/` | `conv-category-name.md` | `conv-file-naming.md` |
+| `.wiki/testing/` | `topic.md` | `pattern.md`, `mocking.md` |
 | `.devops/logs/` | `agent-changelog.md` | (single file, append-only) |
 | `.devops/backlog/` | `backlog-index.md` or `<slug>-backlog.md` | `backlog-index.md` |
 | `.devops/plans/` | `<slug>-plan.md` | `feat-dashboard-plan.md` |
@@ -105,7 +105,7 @@ Links to related database tables, parent indices, or sibling features.
 
 ## 5. The "Hub & Spoke" Linking Strategy
 
-- **The Hub:** `docs/wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices**.
+- **The Hub:** `.wiki/core/00-system-index.md` acts as the master router. It links to all **Category Indices**.
 - **The Spokes:** Each category has its own `*-index.md` that lists its children.
 - **Operational Cross-Links:** The hub also links to `.devops/backlog/`, `.devops/plans/`, `.devops/archive/`, and `.devops/logs/`.
 - **Cross-Links:** Individual docs link directly to their database schemas or utility dependencies using relative paths.
@@ -123,7 +123,7 @@ Links to related database tables, parent indices, or sibling features.
 
 ## 7. Foundation Documents Checklist
 
-### Core Brain Documents (`docs/wiki/core/`)
+### Core Brain Documents (`.wiki/core/`)
 
 | Slot | Doc | Theme | Status |
 |---|---|---|---|
@@ -147,7 +147,7 @@ Links to related database tables, parent indices, or sibling features.
 | 17 | Docs Blueprint | Meta | Required |
 | 18 | Knowledge Capture | Meta | Required |
 
-### Test Lab Documents (`docs/wiki/testing/`)
+### Test Lab Documents (`.wiki/testing/`)
 
 - `testing-index.md` - Hub for testing docs
 - `pattern.md` - Test taxonomy, naming, what-to-test

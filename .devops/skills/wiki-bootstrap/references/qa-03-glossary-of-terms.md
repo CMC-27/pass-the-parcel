@@ -19,6 +19,6 @@ Agents use this to interpret domain-specific language. A wrong definition = an a
 
 ## Sources of truth
 - `src/` — variable names, file names, comments
-- `docs/wiki/core/09-design-system.md` — design token semantics
-- `docs/wiki/core/02-product-context.md` — domain context
-- `docs/wiki/core/01-vision-north-star.md` — product language
+- `.wiki/core/09-design-system.md` — design token semantics
+- `.wiki/core/02-product-context.md` — domain context
+- `.wiki/core/01-vision-north-star.md` — product language

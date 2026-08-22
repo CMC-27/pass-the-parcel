@@ -27,11 +27,10 @@ Activate this skill whenever:
 Documentation of history is the foundation of project health.
 
 1.  **Update the Summary Table**: Add a new row to the top of the table (below the headers) in `.devops/logs/agent-changelog.md`.
-    - **Date**: YYYY-MM-DD
     - **Task**: Short descriptive name.
     - **Files Modified**: List key directories or files.
     - **Description**: 1-sentence outcome.
-2.  **Add Detailed Entry**: Create a new `## [YYYY-MM-DD HH:MM] - [Task Name]` section.
+2.  **Add Detailed Entry**: Create a new `## [Task Name]` section.
     - **Agent**: `Antigravity (Model Name)`
     - **Files Modified**: Full bulleted list of all files created, modified, or deleted.
     - **Database Changes**: Describe any schema, index, or rule changes. If none, state "None".
@@ -46,24 +45,24 @@ Every new function or significant logic change must be documented.
     - New Utility Functions (`src/utils/`)
     - New API Routes or Database Collections
 2.  **Create/Update Docs**:
-    - If a new feature was added: Create a doc in `docs/wiki/features/<feature-name>.md`.
-    - If a component was added: Create/Update `docs/wiki/components/<component-name>.md`.
-    - If logic changed: Update the relevant doc in `docs/wiki/logic/`.
+    - If a new feature was added: Create a doc in `.wiki/features/<feature-name>.md`.
+    - If a component was added: Create/Update `.wiki/components/<component-name>.md`.
+    - If logic changed: Update the relevant doc in `.wiki/logic/`.
     - **Standard**: Include inputs (props/params), outputs, side effects, and a brief "Why this exists" section.
 
 ### Phase 3: Cross-Reference Synchronization (The "Context Web")
 Ensure the rest of the documentation doesn't become "stale" or misleading.
 
-1.  **Search for References**: Use `grep` to find all mentions of the functions, components, or files you modified within the `docs/wiki/` and `docs/` directories.
+1.  **Search for References**: Use `grep` to find all mentions of the functions, components, or files you modified within the `.wiki/` and `docs/` directories.
 2.  **Validate Accuracy**:
-    - Does the architecture diagram in `docs/wiki/core/00-system-index.md` still hold?
-    - Do the state shapes in `docs/wiki/core/08-state-context.md` need updating?
+    - Does the architecture diagram in `.wiki/core/00-system-index.md` still hold?
+    - Do the state shapes in `.wiki/core/08-state-context.md` need updating?
     - Are there "Usage Examples" in other docs that now use an old API signature?
 3.  **Update**: Apply surgical edits to ensure every doc reflects the current reality.
 
 ### Phase 4: Plan Finalization
 1.  **Update Implementation Plans**: If you were following a plan in `.devops/plans/`, finalize it in this strict order:
-    - **Step 1 — Mark Complete:** Open the plan file and update its **State & Gates** section (bottom of the plan) to set `Status` to `COMPLETE`, `Gate D` to `COMPLETE`, and `Last Updated` to the current timestamp. Do this **before** moving the file.
+    - **Step 1 — Mark Complete:** Open the plan file and update its **State & Gates** section (bottom of the plan) to set `Status` to `COMPLETE` and `Gate D` to `COMPLETE`. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
     - **Step 3 — Archive:** Move the completed plan file from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md`. Write the updated content to the archive path, then delete the original from `.devops/plans/`.
 
@@ -86,7 +85,7 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 
 ### Phase 6: Knowledge Capture
 1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered.
-2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `docs/wiki/core/18-knowledge-capture.md`.
+2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
 
 ---
 
@@ -98,4 +97,4 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 ## Non-Negotiable Rules
 - **No Placeholders**: Do not say "Update this later". Do it now.
 - **Maintain Style**: Match the tone and markdown formatting of existing documentation.
-- **Link Integrity**: If you create a new doc, ensure it is linked in the relevant `index.md` (e.g., `docs/wiki/features/features-index.md`).
+- **Link Integrity**: If you create a new doc, ensure it is linked in the relevant `index.md` (e.g., `.wiki/features/features-index.md`).

@@ -21,4 +21,4 @@ Agents use this to decide what to build, what NOT to build, and how to prioritiz
 ## Sources of truth
 - `.devops/backlog/backlog-index.md` — confirms what's being prioritized
 - `.devops/plans/` — active plans reveal current strategic direction
-- `docs/wiki/core/02-product-context.md` — personas and use cases
+- `.wiki/core/02-product-context.md` — personas and use cases

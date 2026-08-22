@@ -26,7 +26,7 @@ This skill owns **Group D: Execution & Verification (Phases 7-8)** of the `pass-
 ### 1. Single-Pass Direct-to-Disk Execution
 * **Ingest, then write:** Read the text spec, translate it directly into source files via the workspace's edit/write tools. **No intermediate Markdown code blocks, no drafting files, no staging snippets inside the plan** — implementation code exists only in the destination source files.
 * **One pass, no re-drafting:** Write each change once. If a file needs adjustment, edit it in place — do not regenerate the whole implementation in a scratch file first.
-* **Execution isolation:** You are the ONLY writer of implementation code. You never stage code in the parcel, in `versions/`, or in review files.
+* **Execution isolation:** You are the ONLY writer of implementation code. You never stage code in the parcel, in `reviews/`, or in decision logs.
 
 ### 2. The Surgical Line Constraint
 * **Touch only intended lines:** Edit the exact lines, variables, hooks, and configuration blocks mapped out in the plan spec.

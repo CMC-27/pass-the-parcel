@@ -21,7 +21,7 @@ graph TD
 
 ### Phase B: Documentation Bootstrap
 *   **Skill:** `@wiki-bootstrap`
-*   **Purpose:** Initializes a standardized folder structure under `docs/wiki/` (core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
+*   **Purpose:** Initializes a standardized folder structure under `.wiki/` (core contexts, architectural logs, and indices) to serve as the single source of truth for the agent.
 
 ---
 

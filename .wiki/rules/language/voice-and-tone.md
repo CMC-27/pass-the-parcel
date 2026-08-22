@@ -23,7 +23,7 @@ related-to: [./README.md, ./ai-rules.md]
 
 | Write | Instead of |
 |---|---|
-| "Run `python .wikirules/wiki_lint.py`" | "It is recommended that you run the linter script" |
+| "Run `python scripts/wiki_lint.py`" | "It is recommended that you run the linter script" |
 | "The linter hard-fails on broken links" | "Broken links are a serious issue that should be addressed" |
 | "Edit base-context.md, then re-sync" | "If you wish to make changes to the configuration, you may consider editing the file" |
 

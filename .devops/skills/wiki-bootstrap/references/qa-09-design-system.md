@@ -23,4 +23,4 @@ Agents use this to pick the correct class names, tokens, and components. A wrong
 - `tailwind.config.js`, `postcss.config.js` — Tailwind v4 / PostCSS config
 - `src/index.css`, `src/styles/` — global styles, CSS variables
 - `src/components/ui/` — base UI components embody the design tokens
-- `docs/wiki/core/11-utility-standards.md` — micro-patterns (referenced, not duplicated)
+- `.wiki/core/11-utility-standards.md` — micro-patterns (referenced, not duplicated)

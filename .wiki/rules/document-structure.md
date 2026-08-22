@@ -45,7 +45,7 @@ This section is the **human-facing abstract** — the finished outcome at a glan
 
 - Write the first three sections first; they are the contract a reader and an agent use to decide whether to read on.
 - Keep sections 2 and 3 tight and skimmable — full detail belongs in section 4+.
-- Run `python .wikirules/wiki_lint.py` to validate frontmatter and links after creating a document.
+- Run `python scripts/wiki_lint.py` to validate frontmatter and links after creating a document.
 
 ---
 

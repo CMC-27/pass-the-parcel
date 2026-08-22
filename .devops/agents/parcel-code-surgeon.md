@@ -14,16 +14,16 @@
 ## Task Lookup
 | Task | Read first | Then drill into |
 |---|---|---|
-| Building/editing UI component | `docs/wiki/components/components-index.md` | Specific component doc |
-| Building/editing screen/view | `docs/wiki/features/features-index.md` | Specific feature doc |
-| Writing database query | `docs/wiki/database/database-index.md` | Specific schema doc |
-| Editing layout/workspace shell | `docs/wiki/core/07-app-structure.md` | Layout component docs |
-| Understanding state/context | `docs/wiki/core/04-state-context.md` | State management docs |
-| Extending utility/hook | `docs/wiki/logic/logic-index.md` | Specific util/hook doc |
-| Touching AI/agentic workflows | `docs/wiki/core/15-ai-features.md` | AI client utility |
-| Adding/editing form fields | `docs/wiki/core/09-design-system.md` S5c | `docs/wiki/core/10-validation-standards.md` |
-| Asking question about codebase | `@wiki-query` skill | Cites from `docs/wiki/` |
-| Recording knowledge-capture | `@knowledge-capture` skill | `docs/wiki/core/18-knowledge-capture.md` |
+| Building/editing UI component | `.wiki/components/components-index.md` | Specific component doc |
+| Building/editing screen/view | `.wiki/features/features-index.md` | Specific feature doc |
+| Writing database query | `.wiki/database/database-index.md` | Specific schema doc |
+| Editing layout/workspace shell | `.wiki/core/07-app-structure.md` | Layout component docs |
+| Understanding state/context | `.wiki/core/04-state-context.md` | State management docs |
+| Extending utility/hook | `.wiki/logic/logic-index.md` | Specific util/hook doc |
+| Touching AI/agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
+| Adding/editing form fields | `.wiki/core/09-design-system.md` S5c | `.wiki/core/10-validation-standards.md` |
+| Asking question about codebase | `@wiki-query` skill | Cites from `.wiki/` |
+| Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Delegation Map (canonical)
 | Phase(s) | Sub-agent | Model |
@@ -33,7 +33,6 @@
 | 4 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
 | 5 | `parcel-grumpy-architect` | v4-flash-max |
 | 6 | `parcel-smooth-operator` | mimo-2.5 |
-| 6.5 | `parcel-compactor` | deepseek-v4-flash |
 | 7-8 | `parcel-code-surgeon` | deepseek-v4-flash |
 
 ## Model Registry (canonical identifiers — no aliases)
@@ -55,7 +54,6 @@
 - Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/`
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
-- Versions: `run-[slug]/versions/v1.0_draft.md`, `run-[slug]/versions/v1.1_merged.md`, `run-[slug]/versions/v2.0_approved.md`
 - Audit log: `run-[slug]/decision_log.md`
 - Archived plans: `.devops/archive/`
 
@@ -116,11 +114,11 @@ You are `parcel-code-surgeon`, the **Executor**. You own **Phases 7-8**.
 ## Steps
 
 1. Read delegated skill directives above.
-2. Read `[workspace]/versions/v2.0_approved.md` (or plan file if not available).
+2. Read the plan file at `.devops/plans/[plan-name].md` — Phase 4 (Standard Implementation Plan) for directives + State & Gates (bottom) for status.
 3. Phase 7: Execute every to-do in Phase 4, one at a time, writing DIRECTLY to disk. Touch only intended lines.
 4. Destructive-Action Pre-Scan before every to-do.
 5. Phase 8: Run build, lint, targeted tests. Log exact outputs.
-6. State & Gates (bottom): Status -> `PHASE_8`, Gate D -> `APPROVED` + timestamp. Active Persona -> `Executor`.
+6. State & Gates (bottom): Status -> `PHASE_8`, Gate D -> `APPROVED`. Active Persona -> `Executor`.
 7. Return Task report with: files changed, build/lint/test status, rollback count, blockers.
 
 ## Hard rules

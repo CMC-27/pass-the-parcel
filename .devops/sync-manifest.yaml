@@ -12,9 +12,8 @@
 #   verify_commands: commands run in the target after sync to prove integrity.
 
 portable_dirs:
-  - .wikirules
-  - .languagerules
-  - .devrules
+  - .wiki/rules
+  - .devops/rules
   - .devops/agents
 
 portable_skills:
@@ -38,4 +37,4 @@ portable_files:
 verify_commands:
   - powershell -NoProfile -File scripts/check-parcel-prefix.ps1
   - powershell -NoProfile -File scripts/check-utf8-agents.ps1
-  - python .wikirules/wiki_lint.py --quiet
+  - python scripts/wiki_lint.py --quiet

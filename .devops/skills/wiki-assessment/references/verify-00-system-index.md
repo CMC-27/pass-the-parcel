@@ -12,11 +12,11 @@ The hub is the first thing an agent reads to orient itself. Stale links or a mis
 ## Questions to ask
 1. Does the hub's link list reflect the **current** set of category indices in `wiki/` and `docs/`? (Run `ls` on each.)
 2. Is the Mermaid data-flow diagram still accurate to the codebase, or has the data path changed?
-3. Does the summary table for slots `01`–`18` match the actual files in `docs/wiki/core/`? (Compare filenames row-by-row.)
+3. Does the summary table for slots `01`–`18` match the actual files in `.wiki/core/`? (Compare filenames row-by-row.)
 4. Are there any "Last Verified" dates stale by more than 30 days?
 5. Are there any orphan or dead links in the hub? (Click each one — do they resolve?)
 
 ## What to verify against
-- `docs/wiki/core/` — actual file list
-- `docs/wiki/features/`, `docs/wiki/components/`, `docs/wiki/database/`, `docs/wiki/logic/` — category indices
+- `.wiki/core/` — actual file list
+- `.wiki/features/`, `.wiki/components/`, `.wiki/database/`, `.wiki/logic/` — category indices
 - `src/` — confirms the data-flow diagram still matches the codebase

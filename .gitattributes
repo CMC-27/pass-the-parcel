@@ -9,7 +9,9 @@
 .devops/skills/ptp-*/SKILL.md text eol=lf
 .devops/skills/pass-the-parcel/** text eol=lf
 .devops/skills/agent-wrap-up/SKILL.md text eol=lf
-.devops/skills/parcel-compactor/SKILL.md text eol=lf
+.wiki/rules/** text eol=lf
+.devops/rules/** text eol=lf
+scripts/wiki_lint.py text eol=lf
 
 # Binary files must never be touched.
 *.png binary

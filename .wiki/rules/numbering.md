@@ -15,14 +15,14 @@ related-to: [./structure.md, ./naming.md]
 
 | Prefix | Area | Lifecycle role |
 |---|---|---|
-| `docs/wiki/core/` | FOUNDATION | Cross-cutting standards — read before acting |
-| `docs/wiki/components/` | UI | Reusable UI components and variants |
-| `docs/wiki/features/` | FEATURES | User-facing screens and views |
-| `docs/wiki/database/` | DATA | Schema, queries, data flow |
-| `docs/wiki/logic/` | LOGIC | Utilities, hooks, business logic |
-| `docs/wiki/integrations/` | CONNECTIONS | External systems and APIs |
+| `.wiki/core/` | FOUNDATION | Cross-cutting standards — read before acting |
+| `.wiki/components/` | UI | Reusable UI components and variants |
+| `.wiki/features/` | FEATURES | User-facing screens and views |
+| `.wiki/database/` | DATA | Schema, queries, data flow |
+| `.wiki/logic/` | LOGIC | Utilities, hooks, business logic |
+| `.wiki/integrations/` | CONNECTIONS | External systems and APIs |
 
-> **Numbered folders are wiki-only.** Operational and development state — completed plans, archived briefs and changelogs (`.devops/archive/`, `.devops/logs/`), and planned work and active change plans (`.devops/backlog/`, `.devops/plans/`) — lives in the unnumbered [`.devops/`](../.devops/README.md) layer, never in a numbered area.
+> **Numbered folders are wiki-only.** Operational and development state — completed plans, archived briefs and changelogs (`.devops/archive/`, `.devops/logs/`), and planned work and active change plans (`.devops/backlog/`, `.devops/plans/`) — lives in the unnumbered [`.devops/`](../../.devops/README.md) layer, never in a numbered area.
 
 > **Rule:** A new top-level area is added at the end of the sequence, unless it genuinely belongs earlier in the lifecycle. Renumbering existing areas requires human sign-off.
 
@@ -34,7 +34,7 @@ Each numbered area's sub-folders are numbered **by their own internal lifecycle*
 
 | Area | Sub-area numbering |
 |---|---|
-| `docs/wiki/core/` | 00 system index → 01 vision → 02 product context → 03 glossary → 04 state → 05 architecture → 06 directory → 07 app structure → 08 user journey → 09 design system → 10 validation → 11 utilities → 12 security → 13 performance → 14 testing → 15 AI features → 16 integrations → 17 docs blueprint → 18 knowledge capture |
+| `.wiki/core/` | 00 system index → 01 vision → 02 product context → 03 glossary → 04 state → 05 architecture → 06 directory → 07 app structure → 08 user journey → 09 design system → 10 validation → 11 utilities → 12 security → 13 performance → 14 testing → 15 AI features → 16 integrations → 17 docs blueprint → 18 knowledge capture |
 
 ## Unnumbered Directories (Meta / Tooling)
 
@@ -42,9 +42,9 @@ These sit **above** the numbered areas and are never numbered:
 
 | Directory | Role |
 |---|---|
-| `.wikirules/` | Wiki governance layer — rules + the deterministic `wiki_lint.py` enforcer |
-| `.languagerules/` | Language & writing governance |
-| `.devrules/` | Dev governance layer — agents, skills, plan lifecycle |
+| `.wiki/rules/` | Wiki governance layer — rules + the deterministic `wiki_lint.py` enforcer |
+| `.wiki/rules/language/` | Language & writing governance |
+| `.devops/rules/` | Dev governance layer — agents, skills, plan lifecycle |
 | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
 | `.opencode/` | opencode configuration |
 | `scripts/` | Deterministic check/sync scripts |

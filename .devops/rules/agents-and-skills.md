@@ -40,7 +40,7 @@ related-to: [./README.md, ../.opencode/plans/base-context.md, ../scripts/check-p
 
 ## Sync Protocol
 
-The machinery layer (`.wikirules/`, `.languagerules/`, `.devrules/`, `.devops/skills/`, `.devops/agents/`, `scripts/`) is the **transportable surface** of the repo. When the template updates, `scripts/sync-architecture.ps1` materialises it into satellite repos (see `.devrules/plan-lifecycle.md`).
+The machinery layer (`.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, `.devops/skills/`, `.devops/agents/`, `scripts/`) is the **transportable surface** of the repo. When the template updates, `scripts/sync-architecture.ps1` materialises it into satellite repos (see `.devops/rules/plan-lifecycle.md`).
 
 ---
 

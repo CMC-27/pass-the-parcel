@@ -11,6 +11,29 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## Parcel Version Pipeline Collapse + Single Canonical Template
+
+**Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)
+
+**Files Modified:**
+- `.opencode/plans/base-context.md` — removed `6.5 | parcel-compactor` delegation row + `run-[slug]/versions/*` workspace layout line; re-inlined PREFIX-LOCKED prefix via `check-parcel-prefix.ps1 -Sync`
+- `opencode.json` — removed `parcel-compactor` agent definition
+- `.devops/agents/parcel-compactor.md` — DELETED (agent retired)
+- `.devops/skills/parcel-compactor/SKILL.md` — DELETED (skill retired)
+- `.devops/agents/parcel-orchestrator.md` — workspace init creates `reviews/` + `decision_log.md` only; Phase 4 writes directly to plan; compaction step (6.5) removed; code-surgeon reads plan file; delegation map updated
+- `.devops/agents/parcel-high-visionary.md` — dropped `v1.0_draft.md` snapshot step; Phase 4 written into plan file directly
+- `.devops/agents/parcel-code-surgeon.md` — execution source is Phase 4 + State & Gates in the plan file (replaced `v2.0_approved.md` read)
+- `.devops/skills/ptp-code-surgeon/SKILL.md` — `versions/` staging reference removed
+- `.devops/skills/pass-the-parcel/references/template-plan.md` — DELETED (single canonical template)
+- `.devops/skills/pass-the-parcel/SKILL.md` — template reference re-pointed to `.devops/plans/template-plan.md` (2 locations)
+- `AGENTS.md` — template reference re-pointed
+- `.gitattributes` — removed `parcel-compactor` pin
+- Also earlier this session: removed `Get-Date` tool + all date/time recording from parcel machinery; nested rule dirs (`.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, `scripts/wiki_lint.py`); moved wiki to `.wiki/`
+
+**Database/API Changes:** None
+
+**Summary:** Retired the historical `v1.0_draft → v1.1_merged → v2.0_approved` version pipeline (predated the cache-anchored State & Gates refactor). Phase 4 now lives only in the cache-anchored plan file; the code-surgeon reads Phase 4 + State & Gates from the plan as its single execution source; the compactor agent/skill and the duplicate skill-bundled template copy were deleted. Isolated `reviews/` outputs retained. Result: 7 PREFIX-LOCKED agents, one canonical template at `.devops/plans/template-plan.md`, byte-stable plan tops with bottom-only State & Gates mutation. Verified: prefix-lock OK, UTF-8 clean, wiki_lint exit 0, 0 stale version-pipeline refs.
+
 ## 2026-08-19 - Parcel Cache-Anchored Templates (State & Gates at Bottom)
 
 **Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)

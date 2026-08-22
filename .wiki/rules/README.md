@@ -4,7 +4,7 @@ tags: [wiki, rules, governance, index]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../AGENTS.md, ../.devrules/README.md, ./wiki_lint.py]
+related-to: [../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_lint.py]
 ---
 
 # Wiki Rules & Patterns
@@ -22,8 +22,8 @@ related-to: [../AGENTS.md, ../.devrules/README.md, ./wiki_lint.py]
 | Linking documents, moving content | [link-hygiene.md](link-hygiene.md) |
 | Declaring an immutable anchor / numbered folder | [structure.md](structure.md) — the structure manifest, enforced by the linter |
 | Deciding what belongs in wiki content vs operational state | [company-scoping.md](company-scoping.md) — the content-vs-state split |
-| Agents, skills, plan lifecycle, dev/ops state | [.devrules/](../.devrules/README.md) — the dev governance layer |
-| Any structural change | [AGENTS.md](../AGENTS.md) — the operating rules |
+| Agents, skills, plan lifecycle, dev/ops state | [.devops/rules/](../../.devops/rules/README.md) — the dev governance layer |
+| Any structural change | [AGENTS.md](../../AGENTS.md) — the operating rules |
 
 ## Rule Files
 
@@ -36,16 +36,16 @@ related-to: [../AGENTS.md, ../.devrules/README.md, ./wiki_lint.py]
 | [link-hygiene.md](link-hygiene.md) | Cross-referencing, no-duplication and link maintenance |
 | [structure.md](structure.md) | Structure manifest — machine-readable registry of every immutable anchor path (numbered areas, sub-areas, canonical files); a missing anchor is a hard lint failure |
 | [company-scoping.md](company-scoping.md) | Content-vs-state principle — what lives in wiki content vs the unnumbered operational layer |
-| [wiki_lint.py](wiki_lint.py) | Deterministic linter that enforces the rules above — structure drift, broken links, index drift, frontmatter, orphans. Run `python .wikirules/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
+| [wiki_lint.py](../../scripts/wiki_lint.py) | Deterministic linter that enforces the rules above — structure drift, broken links, index drift, frontmatter, orphans. Run `python scripts/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
 
 ---
 
 ## Core Principles
 
 1. **One ordering principle** — every numbered folder reflects its position in the consumer journey (see [numbering.md](numbering.md)).
-2. **Rules live here, not scattered** — if a convention is worth following, document it in `.wikirules/` and reference it; never duplicate the rule into content.
+2. **Rules live here, not scattered** — if a convention is worth following, document it in `.wiki/rules/` and reference it; never duplicate the rule into content.
 3. **Numbering is lifecycle + relevance** — order by when the content is consumed, not by creation date or alphabetical order.
-4. **Meta sits above content** — `.wikirules/`, `.languagerules/`, `.devrules/`, `.devops/`, `.opencode/` and `scripts/` are unnumbered governance/tooling directories that govern the numbered content under `docs/wiki/`. Wiki content is numbered; operational/dev state is not.
+4. **Meta sits above content** — `.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, `.devops/`, `.opencode/` and `scripts/` are unnumbered governance/tooling directories that govern the numbered content under `.wiki/`. Wiki content is numbered; operational/dev state is not.
 5. **Portable by default** — all knowledge and machinery is tool-agnostic and transferable between repos except where explicitly scoped to the local workspace (see [company-scoping.md](company-scoping.md)).
 
 ---

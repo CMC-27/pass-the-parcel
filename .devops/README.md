@@ -4,12 +4,12 @@ tags: [devops, operations, index]
 status: active
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../AGENTS.md, ../.devrules/README.md, ../.wikirules/README.md]
+related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 ---
 
 # Dev Ops
 
-> Operational state + the transportable machinery layer. Everything here is either **live state** (plans, backlog, archive, logs) or **reusable machinery** (skills, agents) — never reference knowledge. Reference knowledge lives in `docs/wiki/`; rules live in `.wikirules/`, `.languagerules/` and `.devrules/`.
+> Operational state + the transportable machinery layer. Everything here is either **live state** (plans, backlog, archive, logs) or **reusable machinery** (skills, agents) — never reference knowledge. Reference knowledge lives in `.wiki/`; rules live in `.wiki/rules/`, `.wiki/rules/language/` and `.devops/rules/`.
 
 ## What Lives Here
 
@@ -24,9 +24,9 @@ related-to: [../AGENTS.md, ../.devrules/README.md, ../.wikirules/README.md]
 
 ## Governance
 
-- **Wiki content rules:** [.wikirules/](../.wikirules/README.md)
-- **Language rules:** [.languagerules/](../.languagerules/README.md)
-- **Dev rules:** [.devrules/](../.devrules/README.md)
+- **Wiki content rules:** [.wiki/rules/](../.wiki/rules/README.md)
+- **Language rules:** [.wiki/rules/language/](../.wiki/rules/language/README.md)
+- **Dev rules:** [.devops/rules/](../.devops/rules/README.md)
 
 ## Transportability
 

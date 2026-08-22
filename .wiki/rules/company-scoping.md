@@ -9,7 +9,7 @@ related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
 
 # Content-vs-State Principle
 
-> The wiki is **portable**. Everything under `docs/wiki/` is reference knowledge that could be lifted and shifted to another repo or team. Operational and development state — plans, backlog, archives, changelogs — lives in the unnumbered `.devops/` layer. Skills and agents live in `.devops/` too, so the whole machinery layer can be synced between repos without dragging local state.
+> The wiki is **portable**. Everything under `.wiki/` is reference knowledge that could be lifted and shifted to another repo or team. Operational and development state — plans, backlog, archives, changelogs — lives in the unnumbered `.devops/` layer. Skills and agents live in `.devops/` too, so the whole machinery layer can be synced between repos without dragging local state.
 
 ## The Principle
 
@@ -21,7 +21,7 @@ related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
 
 | Content | Location |
 |---|---|
-| Architecture, design system, features, schema, logic, integrations | `docs/wiki/` — reference knowledge |
+| Architecture, design system, features, schema, logic, integrations | `.wiki/` — reference knowledge |
 | Skills (SKILL.md per folder) | `.devops/skills/` — machinery |
 | Agent runbooks (parcel-*.md) | `.devops/agents/` — machinery |
 | Active parcel plans + template | `.devops/plans/` — state |
@@ -31,10 +31,10 @@ related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
 
 ## Rules
 
-1. **State never enters numbered wiki content.** No live status, plan progress or changelog inside `docs/wiki/`.
+1. **State never enters numbered wiki content.** No live status, plan progress or changelog inside `.wiki/`.
 2. **Machinery never embeds local state.** Skills and agents reference paths and rules relative to the repo layout; they never hardcode a session, a date range or a person.
 3. **Link, don't duplicate.** Wiki content links to `.devops/` where a process is described; it never copies the live state.
-4. **When in doubt, ask.** If a fact is operational, it belongs in `.devops/`. If it is how the product works, it belongs in `docs/wiki/`.
+4. **When in doubt, ask.** If a fact is operational, it belongs in `.devops/`. If it is how the product works, it belongs in `.wiki/`.
 
 ## Applying to New Content
 

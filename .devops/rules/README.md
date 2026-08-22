@@ -4,20 +4,20 @@ tags: [dev, rules, governance, index]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../.wikirules/README.md, ../.languagerules/README.md, ../AGENTS.md]
+related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, ../AGENTS.md]
 ---
 
 # Dev Rules
 
-> The dev governance layer — how agents, skills, plans and operational state are created, changed and retired in this repository. Sits alongside `.wikirules/` (wiki content) and `.languagerules/` (writing) and governs the `.devops/` machinery layer.
+> The dev governance layer — how agents, skills, plans and operational state are created, changed and retired in this repository. Sits alongside `.wiki/rules/` (wiki content) and `.wiki/rules/language/` (writing) and governs the `.devops/` machinery layer.
 
 ## What This Layer Governs
 
 | Layer | Governs | Applies when |
 |---|---|---|
-| [.wikirules/](../.wikirules/README.md) | Wiki content structure, naming, links | Creating/moving/editing wiki content |
-| [.languagerules/](../.languagerules/README.md) | How we write | Drafting any document or prompt |
-| [.devrules/](README.md) | Agents, skills, plans, operational state | Creating/changing any machinery or dev process |
+| [.wiki/rules/](../../.wiki/rules/README.md) | Wiki content structure, naming, links | Creating/moving/editing wiki content |
+| [.wiki/rules/language/](../../.wiki/rules/language/README.md) | How we write | Drafting any document or prompt |
+| [.devops/rules/](README.md) | Agents, skills, plans, operational state | Creating/changing any machinery or dev process |
 
 ## Rule Files
 
@@ -28,10 +28,10 @@ related-to: [../.wikirules/README.md, ../.languagerules/README.md, ../AGENTS.md]
 
 ## Core Principles
 
-1. **Machinery is transportable.** Skills, agents and scripts are the reusable surface of this repo. They stay repo-agnostic and syncable (see `.wikirules/company-scoping.md`).
-2. **Rules live here, not scattered.** If a dev convention is worth following, document it in `.devrules/` and reference it — never duplicate the rule into content.
-3. **Deterministic checks beat conventions.** If a rule can be enforced by a script, it is (`scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `.wikirules/wiki_lint.py`). Conventions are for what a script cannot check.
-4. **No bypassing the layer.** Creating, moving or renaming machinery goes through `.devrules/` — never around it.
+1. **Machinery is transportable.** Skills, agents and scripts are the reusable surface of this repo. They stay repo-agnostic and syncable (see `.wiki/rules/company-scoping.md`).
+2. **Rules live here, not scattered.** If a dev convention is worth following, document it in `.devops/rules/` and reference it — never duplicate the rule into content.
+3. **Deterministic checks beat conventions.** If a rule can be enforced by a script, it is (`scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `.wiki/rules/wiki_lint.py`). Conventions are for what a script cannot check.
+4. **No bypassing the layer.** Creating, moving or renaming machinery goes through `.devops/rules/` — never around it.
 
 ---
 

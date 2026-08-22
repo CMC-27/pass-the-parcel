@@ -20,10 +20,10 @@ You manage exactly these four artifacts. They have non-overlapping purposes:
 
 | # | Artifact | File (default) | Question It Answers |
 | :- | :--- | :--- | :--- |
-| 1 | **App Vision & North Star** | `docs/wiki/core/01-vision-north-star.md` | Why does this app exist? What is success? What will we never do? |
-| 2 | **Product Context** | `docs/wiki/core/02-product-context.md` | What is the core workflow? What is the master entity? What hangs off it? |
-| 3 | **User Journey** | `docs/wiki/core/08-user-journey.md` | Who is the user, what do they click, what do they see, step by step? |
-| 4 | **Core Architecture & Data Architecture** | `docs/wiki/core/05-core-architecture.md` | What are the integrity rules, migration, versioning, dual-writes, persistence layers? |
+| 1 | **App Vision & North Star** | `.wiki/core/01-vision-north-star.md` | Why does this app exist? What is success? What will we never do? |
+| 2 | **Product Context** | `.wiki/core/02-product-context.md` | What is the core workflow? What is the master entity? What hangs off it? |
+| 3 | **User Journey** | `.wiki/core/08-user-journey.md` | Who is the user, what do they click, what do they see, step by step? |
+| 4 | **Core Architecture & Data Architecture** | `.wiki/core/05-core-architecture.md` | What are the integrity rules, migration, versioning, dual-writes, persistence layers? |
 
 > **Override rule:** If the project uses different file paths, ask the user once at the start of every action and remember the answer for the session. The defaults below assume the standard wiki slot layout; adjust per project.
 
@@ -51,8 +51,8 @@ If the user wants only one artifact touched, ask which one and which action.
 ### Pre-flight
 1. Confirm output paths for the 4 artifacts (use defaults unless user overrides).
 2. If templates exist at the target paths, read them to learn the project's house style.
-3. Read `docs/wiki/core/00-system-index.md` (if it exists) for doc conventions.
-4. Read `docs/wiki/templates/wiki-article-template.md` (if it exists) for the frontmatter + section style.
+3. Read `.wiki/core/00-system-index.md` (if it exists) for doc conventions.
+4. Read `.wiki/templates/wiki-article-template.md` (if it exists) for the frontmatter + section style.
 
 ### The Question Sequence
 Ask questions **in order, one round at a time**. Do not advance until the current round is answered with sufficient specificity. If an answer is vague, push back once and re-ask before moving on.
@@ -103,11 +103,11 @@ After all 6 rounds are answered with sufficient specificity, write the 4 artifac
 
 ### Pre-flight (non-negotiable)
 1. Read all 4 target artifacts in full.
-2. Read `docs/wiki/core/00-system-index.md` for doc relationships.
-3. Read `docs/wiki/core/18-knowledge-capture.md` (most recent 90 days of decisions) for tribal knowledge.
+2. Read `.wiki/core/00-system-index.md` for doc relationships.
+3. Read `.wiki/core/18-knowledge-capture.md` (most recent 90 days of decisions) for tribal knowledge.
 4. Read `.devops/logs/agent-changelog.md` (last 10 entries) for recent shipped work.
-5. Read `docs/wiki/database/` to ground entity claims in actual schemas.
-6. Read `docs/wiki/features/` to ground journey claims in actual views.
+5. Read `.wiki/database/` to ground entity claims in actual schemas.
+6. Read `.wiki/features/` to ground journey claims in actual views.
 7. Build a **delta list** before asking any question: what's accurate, what's stale, what's vague, what's missing.
 
 ### The Question Sequence
@@ -136,7 +136,7 @@ For each line in `01-vision-north-star.md`:
 - **Q4.3** Are there **any journeys in the doc** that no user can actually complete end-to-end today? (Y/N — if Y, mark the journey as "blocked" and identify the missing step.)
 
 #### Round 5 — Pressure Test the Core Architecture (Data Architecture)
-- **Q5.1** For each entity, ask: "Is this entity still in the active schema? (Check `docs/wiki/database/`.)" (Y/N — if N, delete it from the architecture doc.)
+- **Q5.1** For each entity, ask: "Is this entity still in the active schema? (Check `.wiki/database/`.)" (Y/N — if N, delete it from the architecture doc.)
 - **Q5.2** For each dual-write point, ask: "Is the gating flag still present and the dual-write still live? (Check the codebase.)" (Y/N — if N, mark it as a regression or remove it.)
 - **Q5.3** For each integrity rule, ask: "Is this rule still enforced in code? Where? (File + line.)" (Y/N — if N, decide: enforce it or delete the rule.)
 - **Q5.4** Has the **schema versioning approach** changed? (Y/N — if Y, document the new approach.)
@@ -604,7 +604,7 @@ When the skill discovers a tribal decision during EVALUATE or UPDATE, it drafts 
 
 **Proposal format:**
 
-> **Proposed Knowledge Capture Entry** (for `docs/wiki/core/18-knowledge-capture.md`)
+> **Proposed Knowledge Capture Entry** (for `.wiki/core/18-knowledge-capture.md`)
 > - **Decision Date:** [today]
 > - **Context:** [What was discovered.]
 > - **Action:** [What was changed in the artifacts.]
@@ -632,5 +632,5 @@ Only write on explicit user approval.
 ---
 
 > [!IMPORTANT]
-> These 4 artifacts are the single source of truth for product direction. If a future agent, plan, or PR disagrees with them, the artifacts win — and the agent must flag the disagreement in `docs/wiki/core/18-knowledge-capture.md` and propose an update to the artifact.
+> These 4 artifacts are the single source of truth for product direction. If a future agent, plan, or PR disagrees with them, the artifacts win — and the agent must flag the disagreement in `.wiki/core/18-knowledge-capture.md` and propose an update to the artifact.
 ```

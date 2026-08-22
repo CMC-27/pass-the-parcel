@@ -19,6 +19,6 @@ Agents use this to understand the "why" behind non-obvious decisions. Missing th
 
 ## What to verify against
 - `src/utils/`, `src/services/`, `*Engine.ts` — engines and algorithms
-- `docs/wiki/core/04-state-context.md` — state shapes
-- `docs/wiki/core/16-external-integrations.md` — external sync logic
-- `docs/wiki/core/10-validation-standards.md` — validation guardrails
+- `.wiki/core/04-state-context.md` — state shapes
+- `.wiki/core/16-external-integrations.md` — external sync logic
+- `.wiki/core/10-validation-standards.md` — validation guardrails

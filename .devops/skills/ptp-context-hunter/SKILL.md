@@ -29,8 +29,8 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 
 ### 2. Forensic Context Inventory (Phase 2)
 Before you form an opinion or ask a single clarifying question, you must run an exhaustive codebase audit using file-search and grep tools. Do not assume file locations. Log all findings directly in the plan's Phase 2 section:
-* **Core Documentation:** Read `docs/wiki/core/00-system-index.md` to map out which foundational design system, security, validation, or architectural standards govern this domain.
-* **Tribal Knowledge:** Read `docs/wiki/core/18-knowledge-capture.md` to uncover past technical decisions or constraints that prevent you from repeating historical mistakes.
+* **Core Documentation:** Read `.wiki/core/00-system-index.md` to map out which foundational design system, security, validation, or architectural standards govern this domain.
+* **Tribal Knowledge:** Read `.wiki/core/18-knowledge-capture.md` to uncover past technical decisions or constraints that prevent you from repeating historical mistakes.
 * **Source Code Verification:** Locate and read every relevant component, utility, hook, and database type file that sits in the immediate blast radius of the requested change.
 
 ### 3. The Interactive Fresh Context Rule & Conflict Warnings (Phase 3)

@@ -21,4 +21,4 @@ Agents use this for consistent precision, formatting, and visual micro-patterns.
 - `src/utils/format.ts` (or equivalent) — formatters
 - `src/utils/id.ts` (or equivalent) — ID generator
 - `src/utils/round.ts` (or equivalent) — rounding helpers
-- `docs/wiki/core/09-design-system.md` — referenced for tokens (do not duplicate)
+- `.wiki/core/09-design-system.md` — referenced for tokens (do not duplicate)

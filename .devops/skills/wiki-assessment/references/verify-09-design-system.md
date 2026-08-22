@@ -22,4 +22,4 @@ Agents use this to pick the correct class names and tokens. A wrong token = a st
 - `tailwind.config.js`, `postcss.config.js` — Tailwind v4 / PostCSS config
 - `src/index.css`, `src/styles/` — global styles, CSS variables
 - `src/components/ui/` — base UI components
-- `docs/wiki/core/11-utility-standards.md` — referenced (not duplicated)
+- `.wiki/core/11-utility-standards.md` — referenced (not duplicated)

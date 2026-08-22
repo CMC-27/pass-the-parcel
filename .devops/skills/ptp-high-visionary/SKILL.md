@@ -70,7 +70,7 @@ If the user insists on the full version, build the full version. Push back via t
 ### 5. Produce a High-Visionary Output Contract
 The plan file is read by a stateless Executor. Vagueness is a defect. The output must include, at minimum:
 * **Files to Create/Modify** — absolute paths with exact change descriptions.
-* **Wiki Core References** — every blueprint cites a `docs/wiki/core/*` doc (or feature/component/database doc).
+* **Wiki Core References** — every blueprint cites a `.wiki/core/*` doc (or feature/component/database doc).
 * **Wiki Docs to Add/Edit** — new or updated docs the plan introduces.
 * **Standard Implementation Instructions** — describe what needs to happen in each file (e.g., "Add a new validation rule to the registration form that checks for minimum password length"). **No code snippets** unless the task is impossible to describe without them (e.g., complex type definitions, API contracts, or intricate algorithmic logic).
 * **To-Do List** — atomic, ordered, independently executable steps.

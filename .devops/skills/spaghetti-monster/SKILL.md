@@ -116,7 +116,7 @@ For each target the user accepts at Gate A:
    * Perimeter Notes: key observations (e.g., "shared import set with 3 other modals")
 4. **Pre-populate Phase 2 (Requirements & Context):**
    * Forensic Context Inventory checklist (all items to be marked done by the monster since the context is already gathered)
-   * Relevant Existing Decisions pulled from `docs/wiki/core/18-knowledge-capture.md`
+   * Relevant Existing Decisions pulled from `.wiki/core/18-knowledge-capture.md`
    * Relevant Docs Found (which wiki docs apply, with paths)
    * Relevant Code Found table (file, lines, peak M, what it does)
    * Common pattern (if duplication: show the shared structure)

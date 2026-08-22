@@ -35,7 +35,7 @@ This is the **only** way this skill operates. Do not skim. Do not batch.
 ```mermaid
 flowchart TD
     Start[Load skill] --> Hub[Doc 00: System Index]
-    Hub --> Read1[Read docs/wiki/core/00-system-index.md]
+    Hub --> Read1[Read .wiki/core/00-system-index.md]
     Read1 --> V1[Open references/verify-00-system-index.md]
     V1 --> Check1[Cross-check doc vs code/state]
     Check1 --> Ask1[Ask user the 5-8 verification questions]
@@ -56,7 +56,7 @@ flowchart TD
 
 ### For each of the 19 core docs (`00` → `18`):
 
-1. **Read the doc** at `docs/wiki/core/0X-name.md`.
+1. **Read the doc** at `.wiki/core/0X-name.md`.
 2. **Open the verification set** at `references/verify-0X-name.md` for the current slot.
 3. **Cross-check the doc against reality** — code, configs, state, recent commits. Use `grep`, `ls`, and `read` to verify.
 4. **Ask the user** the 5–8 verification questions. These are "does it match" questions, not "what is" questions. The agent is the one gathering evidence; the user confirms interpretation.
@@ -156,10 +156,10 @@ Every created or modified file must update its YAML frontmatter. Mark superseded
 ### B. Table of Contents Syncing
 When adding or deleting files, update the corresponding category index:
 
-- `docs/wiki/features/features-index.md`
-- `docs/wiki/components/components-index.md`
-- `docs/wiki/database/database-index.md`
-- `docs/wiki/logic/logic-index.md`
+- `.wiki/features/features-index.md`
+- `.wiki/components/components-index.md`
+- `.wiki/database/database-index.md`
+- `.wiki/logic/logic-index.md`
 - `.devops/backlog/backlog-index.md` (operational)
 
 ### C. Project Audit Logging (The Wrap-Up Protocol)
@@ -170,7 +170,7 @@ Whenever an audit is complete or a finding is remediated, append a chronological
 **Agent:** <Agent Name>
 **Files Modified:**
 - `src/...`
-- `docs/wiki/...`
+- `.wiki/...`
 **Database Changes:** None (or list migrations)
 **Summary:** <One-sentence summary>
 ```

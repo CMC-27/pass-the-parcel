@@ -43,7 +43,7 @@ dependencies: [path/to/dependency.md]
 
 1. Frontmatter is the **first thing** in the file, delimited by `---` lines.
 2. `dependencies` paths are relative and must resolve (see [link-hygiene.md](link-hygiene.md)).
-3. Run `python .wikirules/wiki_lint.py` to validate frontmatter across the wiki.
+3. Run `python scripts/wiki_lint.py` to validate frontmatter across the wiki.
 4. When a document's `status` changes, update `last-reviewed` if the field is present.
 
 ## Convention Exemptions

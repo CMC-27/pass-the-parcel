@@ -21,4 +21,4 @@ Agents use this to know which validations block the user and which are soft warn
 ## Sources of truth
 - Zod / Yup / equivalent schema files in `src/`
 - `src/components/forms/` — form-level error UI
-- `docs/wiki/core/08-user-journey.md` — error-recovery flows
+- `.wiki/core/08-user-journey.md` — error-recovery flows

@@ -2,16 +2,16 @@
 """
 wiki_lint.py — Deterministic linter for the Vibe-App-Wiki knowledge base.
 
-Enforces the rules in .wikirules/:
+Enforces the rules in .wiki/rules/:
   - Structure manifest anchors exist (hard failure if a declared anchor is missing)
   - Internal links resolve (hard failure if a link target is missing)
   - Frontmatter required fields present (name, title, type, status)
   - Orphans detected (report only)
 
 Usage:
-    python .wikirules/wiki_lint.py            # report findings
-    python .wikirules/wiki_lint.py --fix      # auto-repair deterministic issues
-    python .wikirules/wiki_lint.py --quiet    # suppress output on clean run
+    python scripts/wiki_lint.py            # report findings
+    python scripts/wiki_lint.py --fix      # auto-repair deterministic issues
+    python scripts/wiki_lint.py --quiet    # suppress output on clean run
 
 Exits 1 on hard failures (broken links, missing anchors, missing frontmatter).
 """
@@ -22,8 +22,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-WIKI = ROOT / "docs" / "wiki"
-MANIFEST = ROOT / ".wikirules" / "structure.md"
+WIKI = ROOT / ".wiki"
+MANIFEST = ROOT / ".wiki" / "rules" / "structure.md"
 LOGS = ROOT / ".devops" / "logs" / "knowledge-changelog.md"
 
 VALID_STATUS = {"stable", "in-progress", "deprecated", "template", "approved"}
@@ -38,6 +38,8 @@ FM_EXEMPT_PREFIXES = (
     str(ROOT / ".devops" / "skills" / "ptp-"),
     str(ROOT / ".devops" / "skills" / "pass-the-parcel"),
     str(ROOT / ".devops" / "skills" / "parcel-compactor"),
+    str(ROOT / ".devops" / "rules"),
+    str(ROOT / ".wiki" / "rules"),
     str(ROOT / ".opencode"),
 )
 

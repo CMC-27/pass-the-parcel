@@ -15,19 +15,18 @@ Capture and persist key architectural or procedural decisions in a centralized l
 ### 1. Discovery & Initialization
 *   The canonical knowledge capture file is **always** located at:
     ```
-    docs/wiki/core/18-knowledge-capture.md
+    .wiki/core/18-knowledge-capture.md
     ```
     Resolve the absolute path relative to the active workspace root. **Do not search for alternative filenames or locations.**
 *   If the file **does not exist**, create it using the Initial Content Template below.
 *   **Entry Format (Hybrid Attribution):**
-    Each entry MUST follow the structure in `docs/wiki/templates/knowledge-capture-template.md`:
+    Each entry MUST follow the structure in `.wiki/templates/knowledge-capture-template.md`:
     - Category header (e.g. `## [Emoji] [Category]`)
     - `### [Decision Title]`
     - Optional `> **Sources:**` / `> **Raw:**` blockquote (only for any future local file refs)
-    - `* **Decision Date:** YYYY-MM-DD`
     - `* **PR(s):** [list]` and `* **External Refs:** [list]` (inline link lists)
     - `* **Context:**` / `* **Action:**` / `* **Rationale:**` with sub-bullets
-*   See `docs/wiki/examples/knowledge-capture-example.md` for a worked example.
+*   See `.wiki/examples/knowledge-capture-example.md` for a worked example.
 
 ### 2. Entry Capture
 *   Accept a "Decision" or "Suggestion" from the user.

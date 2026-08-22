@@ -15,7 +15,7 @@ If the Research Map is absent, halt and report — the orchestrator should not h
 
 ### 2. Read Foundation Docs (Once, Up-Front)
 
-Read `docs/wiki/core/18-knowledge-capture.md` before answering any question. This is mandatory for every plan — it carries tribal knowledge and past decisions that may govern answers regardless of domain.
+Read `.wiki/core/18-knowledge-capture.md` before answering any question. This is mandatory for every plan — it carries tribal knowledge and past decisions that may govern answers regardless of domain.
 
 Do not re-read `00-system-index.md` or scan the wiki index. The Research Map already tells you which core docs are needed per question.
 

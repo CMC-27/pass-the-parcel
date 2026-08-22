@@ -9,17 +9,17 @@ related-to: [./README.md, ./voice-and-tone.md, ./prohibited-language.md]
 
 # Human Rules
 
-> Practical writing and editing checklist for people. The AI rules (`.languagerules/ai-rules.md`) extend these; they never replace them.
+> Practical writing and editing checklist for people. The AI rules (`.wiki/rules/language/ai-rules.md`) extend these; they never replace them.
 
 ## Writing Checklist
 
-1. **Read the voice first.** Apply `.languagerules/voice-and-tone.md` before drafting anything.
-2. **Front-load.** Purpose & context, then summary, then detail (`.wikirules/document-structure.md`).
+1. **Read the voice first.** Apply `.wiki/rules/language/voice-and-tone.md` before drafting anything.
+2. **Front-load.** Purpose & context, then summary, then detail (`.wiki/rules/document-structure.md`).
 3. **One idea per paragraph.** Short paragraphs, short sentences, active voice.
 4. **Link everything you reference.** Every claim, doc and path you mention gets a relative link.
 5. **Cut filler.** Re-read once purely to delete words that add nothing.
-6. **Check prohibited language.** Scan against `.languagerules/prohibited-language.md`.
-7. **Verify with the linter.** Run `python .wikirules/wiki_lint.py` after creating or moving wiki content.
+6. **Check prohibited language.** Scan against `.wiki/rules/language/prohibited-language.md`.
+7. **Verify with the linter.** Run `python scripts/wiki_lint.py` after creating or moving wiki content.
 
 ## Editing Checklist
 

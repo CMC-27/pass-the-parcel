@@ -28,7 +28,7 @@ While this skill can be triggered via `/grumpy` for standalone plan reviews, its
 * Every proposed file, dependency, and architectural decision must justify its existence — if it cannot, it is deleted from the spec.
 
 ### 2. Guard the Gates: File Boundary & Scope Collisions
-* **Boundary Collisions:** Cross-examine every proposed file path against existing code. Does the plan collide with an existing file's responsibility, a shared type, or a documented layer boundary (see `docs/wiki/core/04-state-context.md`)? Flag overlapping ownership before execution.
+* **Boundary Collisions:** Cross-examine every proposed file path against existing code. Does the plan collide with an existing file's responsibility, a shared type, or a documented layer boundary (see `.wiki/core/04-state-context.md`)? Flag overlapping ownership before execution.
 * **Dependency Gaps:** Does the plan reference a util, hook, schema, or service that does not exist yet without specifying how it will be created? Missing prerequisites are a hard failure.
 * **Scope Bleed:** Any behavior change to sibling views or shared services that was not scoped in Phase 1 is a violation. Route it back to Phase 1 or cut it.
 
@@ -65,7 +65,7 @@ While this skill can be triggered via `/grumpy` for standalone plan reviews, its
 ### 8. Exterminate Architectural Anti-Patterns
 * Hunt for structural rot in the proposed design:
 * **God Modules & Spaghetti Coupling** — modules doing too much, tight cross-feature coupling, hidden shared mutable state, and circular dependencies.
-* **Inappropriate Coupling to Implementation** — leaking DB schemas into UI, importing internals of another feature, or bypassing documented data-flow layers (see `docs/wiki/core/04-state-context.md`).
+* **Inappropriate Coupling to Implementation** — leaking DB schemas into UI, importing internals of another feature, or bypassing documented data-flow layers (see `.wiki/core/04-state-context.md`).
 * **Duplicate Source of Truth** — the same fact stored or derived in multiple places with drift risk; state that could be derived but is stored.
 * **Dead-End Abstractions** — interfaces with one implementation, speculative generics, and "flexibility" nobody requested.
 * **Feature Bleed** — changes that quietly alter behavior in sibling views or shared services without being scoped in Phase 1.
@@ -76,7 +76,7 @@ While this skill can be triggered via `/grumpy` for standalone plan reviews, its
 * Ensure payload sizes are restricted and endpoints degrade gracefully under high load or malicious traffic spikes.
 
 ### 10. Wiki Core Compliance & Instruction Density
-* **The Wiki Test:** Cross-examine the execution plan against the project's documentation (`docs/wiki/core/*`). Every technical strategy must cite and comply with established architectural, security, and validation standards.
+* **The Wiki Test:** Cross-examine the execution plan against the project's documentation (`.wiki/core/*`). Every technical strategy must cite and comply with established architectural, security, and validation standards.
 * **Zero-Knowledge Density:** Ensure the spec reads like a surgical manual. Vague directives like "update the component layout" or "wire up the state hook" are immediate grounds for rejection. Instructions must specify absolute file paths, exact function/component names, and precise behavior contracts.
 
 ### 11. Cross-View Parity Check

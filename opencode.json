@@ -21,7 +21,7 @@
         "task": "allow",
         "question": "allow"
       },
-      "prompt": "You are in planning mode. Before searching the codebase or spawning any subagent, you MUST follow the AGENTS.md directive: STOP and read the localized intelligence hub (docs/wiki/) first. All research must start at docs/wiki/core/00-system-index.md. Consult the wiki to understand architecture, features, and relevant files before performing any codebase search. Only search the codebase if the wiki does not contain the answer. When using subagents, explicitly instruct them to follow the same wiki-first workflow."
+      "prompt": "You are in planning mode. Before searching the codebase or spawning any subagent, you MUST follow the AGENTS.md directive: STOP and read the localized intelligence hub (.wiki/) first. All research must start at .wiki/core/00-system-index.md. Consult the wiki to understand architecture, features, and relevant files before performing any codebase search. Only search the codebase if the wiki does not contain the answer. When using subagents, explicitly instruct them to follow the same wiki-first workflow."
     },
     "parcel-orchestrator": {
       "description": "Parcel plan orchestrator. Walks the user through the 10-phase pass-the-parcel workflow by delegating to specialized parcel-* sub-agents and holding all user-facing communication.",
@@ -42,11 +42,11 @@
           ".devops/archive/**": "allow",
           ".devops/logs/**": "allow",
           ".devops/skills/**": "allow",
-          "docs/wiki/**": "allow",
+          ".wiki/**": "allow",
           ".opencode/plans/**": "allow",
-          ".wikirules/**": "allow",
-          ".languagerules/**": "allow",
-          ".devrules/**": "allow",
+          ".wiki/rules/**": "allow",
+          ".wiki/rules/language/**": "allow",
+          ".devops/rules/**": "allow",
           "*": "ask"
         },
         "bash": {
@@ -57,8 +57,6 @@
           "grep *": "allow",
           "head *": "allow",
           "tail *": "allow",
-          "Get-Date *": "allow",
-          "Get-Date -Format *": "allow",
           "npm run build": "allow",
           "npm run test": "allow",
           "New-Item -ItemType Directory -Path \".opencode/plans/*\"": "allow",
@@ -84,7 +82,7 @@
         "read": "allow",
         "edit": {
           ".devops/plans/**": "allow",
-          "docs/wiki/**": "allow",
+          ".wiki/**": "allow",
           ".devops/backlog/**": "allow",
           ".devops/skills/**": "allow",
           "*": "deny"
@@ -109,7 +107,7 @@
         "read": "allow",
         "edit": {
           ".devops/plans/**": "allow",
-          "docs/wiki/**": "allow",
+          ".wiki/**": "allow",
           "*": "deny"
         },
         "bash": "deny",
@@ -175,28 +173,6 @@
         "webfetch": "deny"
       }
     },
-    "parcel-compactor": {
-      "description": "Parcel Compactor sub-agent. Executes Phase 6.5 of a parcel plan by loading the parcel-compactor skill, stripping intermediate debate from v1.1_merged.md, and outputting a clean v2.0_approved.md execution specification.",
-      "mode": "subagent",
-      "model": "opencode-go/deepseek-v4-flash",
-      "hidden": true,
-      "prompt": "{file:.devops/agents/parcel-compactor.md}",
-      "permission": {
-        "question": "deny",
-        "todowrite": "deny",
-        "task": "deny",
-        "skill": "allow",
-        "read": "allow",
-        "edit": {
-          ".opencode/plans/run-*/**": "allow",
-          "*": "deny"
-        },
-        "bash": "deny",
-        "glob": "allow",
-        "grep": "allow",
-        "webfetch": "deny"
-      }
-    },
     "parcel-phase3-answerer": {
       "description": "Parcel Phase 3 Answerer sub-agent (AUTO mode only). Executes Phase 3.5 of a parcel plan by loading the ptp-phase3-answerer skill and auto-resolving Phase 3 questions using wiki docs and codebase analysis.",
       "mode": "subagent",
@@ -211,7 +187,7 @@
         "read": "allow",
         "edit": {
           ".devops/plans/**": "allow",
-          "docs/wiki/**": "allow",
+          ".wiki/**": "allow",
           "*": "deny"
         },
         "bash": "deny",

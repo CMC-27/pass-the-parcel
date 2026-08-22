@@ -2,7 +2,7 @@
   "test_cases": [
     {
       "input": "User wants to know what documentation is missing or outdated in their repository.",
-      "expected_behavior": "The agent should load wiki-assessment and walk the 19 core docs one at a time. For each doc, it reads docs/wiki/core/0X-name.md, opens references/verify-0X-name.md, cross-checks the doc against code/config/state, asks the user the 5-8 verification questions, and records a verdict (✅/⚠/❌). At the end, it compiles a single Gap Report. It must NOT silently edit the docs and must NOT mark a doc as accurate without actually checking.",
+      "expected_behavior": "The agent should load wiki-assessment and walk the 19 core docs one at a time. For each doc, it reads .wiki/core/0X-name.md, opens references/verify-0X-name.md, cross-checks the doc against code/config/state, asks the user the 5-8 verification questions, and records a verdict (✅/⚠/❌). At the end, it compiles a single Gap Report. It must NOT silently edit the docs and must NOT mark a doc as accurate without actually checking.",
       "assertions": [
         "Walks docs in 00 -> 18 order, one at a time",
         "Opens references/verify-0X-name.md for each slot (per-doc, not bulk)",

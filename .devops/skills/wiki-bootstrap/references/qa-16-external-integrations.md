@@ -21,5 +21,5 @@ Agents use this to map internal data to external systems. A wrong field mapping 
 
 ## Sources of truth
 - `src/services/integrations/`, `src/api/`, `functions/` — actual integration code
-- `.env.example`, `docs/wiki/core/12-security-standards.md` — env-var names (never secrets)
+- `.env.example`, `.wiki/core/12-security-standards.md` — env-var names (never secrets)
 - The third-party's official API docs — confirm field names and types

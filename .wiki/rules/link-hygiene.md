@@ -43,7 +43,7 @@ When adding, renaming, moving or deleting a document:
 1. **Register the move** in the redirect log — one row per old path (never a physical stub).
 2. **If the path is an anchor** (numbered area, numbered sub-area or canonical file), update its row in the [Structure Manifest](structure.md) — a missing anchor is a hard lint failure.
 3. Update the area index (add/remove the entry).
-4. Run `python .wikirules/wiki_lint.py --fix` to catch broken links, structure drift, orphans and frontmatter violations.
+4. Run `python scripts/wiki_lint.py --fix` to catch broken links, structure drift, orphans and frontmatter violations.
 5. Fix every `dependencies` and inline link that points at the old path; re-verify with the linter until broken links = 0 and structure drift = 0.
 
 ## Maintenance Rules

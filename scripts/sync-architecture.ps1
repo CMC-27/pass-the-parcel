@@ -148,8 +148,8 @@ try {
     & powershell -NoProfile -File "$tgtRoot\scripts\check-utf8-agents.ps1"
     if ($LASTEXITCODE -ne 0) { Write-Output "VERIFY FAILED: check-utf8-agents"; Pop-Location; exit 1 }
     Write-Output "UTF-8: OK"
-    if (Test-Path "$tgtRoot\.wikirules\wiki_lint.py") {
-        & python "$tgtRoot\.wikirules\wiki_lint.py" --quiet
+    if (Test-Path "$tgtRoot\scripts\wiki_lint.py") {
+        & python "$tgtRoot\scripts\wiki_lint.py" --quiet
         if ($LASTEXITCODE -ne 0) { Write-Output "VERIFY FAILED: wiki_lint"; Pop-Location; exit 1 }
         Write-Output "WIKI LINT: OK"
     }

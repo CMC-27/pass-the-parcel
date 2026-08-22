@@ -29,8 +29,8 @@
 **Skill Executed:** `ptp-context-hunter`
 
 **Forensic Context Inventory:**
-> [ ] Wiki core docs read (`docs/wiki/core/00-system-index.md` + drilled into relevant docs)
-> [ ] Knowledge capture read (`docs/wiki/core/18-knowledge-capture.md`)
+> [ ] Wiki core docs read (`.wiki/core/00-system-index.md` + drilled into relevant docs)
+> [ ] Knowledge capture read (`.wiki/core/18-knowledge-capture.md`)
 > [ ] Source code verified (components / utilities / hooks / types in blast radius)
 
 **Relevant Existing Decisions (from knowledge capture):**
@@ -55,7 +55,7 @@
 
 ---
 
-> **HALT POINT (Gate A):** Phase 3 complete. Present scoping summary to user. Do not proceed to Phase 4 until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_3`, Active Persona -> `Scoper`, Gate A -> `APPROVED` + timestamp.
+> **HALT POINT (Gate A):** Phase 3 complete. Present scoping summary to user. Do not proceed to Phase 4 until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_3`, Active Persona -> `Scoper`, Gate A -> `APPROVED`.
 
 ---
 
@@ -90,13 +90,13 @@
 ### Implementation Instructions (no code snippets unless absolutely necessary)
 
 ### Wiki Core References
-- `docs/wiki/core/[doc].md` -> [which blueprints derive from this doc]
+- `.wiki/core/[doc].md` -> [which blueprints derive from this doc]
 
 ### Wiki Docs to Add/Edit
 
 ---
 
-> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_4`, Active Persona -> `High-Visionary`, Gate B -> `APPROVED` + timestamp.
+> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_4`, Active Persona -> `High-Visionary`, Gate B -> `APPROVED`.
 
 ---
 
@@ -119,7 +119,7 @@
 - **Performance Trade-offs:** (N+1, unbounded rendering, missing indexes; scaling ceiling + upgrade path)
 - **Architectural Anti-Patterns:** (god modules, spaghetti coupling, duplicate sources of truth, dead-end abstractions, feature bleed)
 - **Endpoint Protection & Rate Limiting:**
-- **Wiki Core Compliance:** (every blueprint cites a docs/wiki/core/ doc)
+- **Wiki Core Compliance:** (every blueprint cites a .wiki/core/ doc)
 
 **Dead-Code / Orphan Flags (for Wrap Up backlog entry):**
 | plan section / file_path:line_number | Reason |
@@ -185,7 +185,7 @@
 
 ---
 
-> **HALT POINT (Gate D):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_8`, Active Persona -> `Executor`, Gate D -> `APPROVED` + timestamp.
+> **HALT POINT (Gate D):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_8`, Active Persona -> `Executor`, Gate D -> `APPROVED`.
 
 ---
 
@@ -213,7 +213,7 @@
 ## 10 Phase 10: Document Tweaks & Knowledge Capture
 **Skill Executed:** `agent-wrap-up`
 
-> [ ] Read `docs/wiki/core/18-knowledge-capture.md` for existing related decisions
+> [ ] Read `.wiki/core/18-knowledge-capture.md` for existing related decisions
 > [ ] Themed tweaks synced to knowledge capture doc
 > [ ] Wiki docs updated per Phase 9 tweaks
 
@@ -246,19 +246,18 @@
 | **Version** | `v0.1.0` |
 | **Mode** | `USER-MANAGED` / `AUTO` |
 | **Active Persona** | `High-Visionary` |
-| **Last Updated** | YYYY-MM-DD |
 | **Depends On** | none |
 | **Blocks** | none |
 
 > Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_4`, `PHASE_4_REVISION`, `PHASE_6`, `PHASE_8`, `COMPLETE`.
 
-| Gate | Requirement | Status | Timestamp |
-|---|---|---|---|
-| A | Scope approved (Phases 1-3) | `OPEN` | — |
-| B | Plan approved (Phase 4) | `OPEN` | — |
-| C | Reviews passed (Phases 5-6) | `OPEN` | — |
-| D | Implementation verified (Phases 7-8) | `OPEN` | — |
+| Gate | Requirement | Status |
+|---|---|---|
+| A | Scope approved (Phases 1-3) | `OPEN` |
+| B | Plan approved (Phase 4) | `OPEN` |
+| C | Reviews passed (Phases 5-6) | `OPEN` |
+| D | Implementation verified (Phases 7-8) | `OPEN` |
 
-> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_4_REVISION` for Gate C) and stamp Timestamp. Never edit rows above this section for gate bookkeeping.
+> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_4_REVISION` for Gate C). Never edit rows above this section for gate bookkeeping.
 
 > **This section is the LAST section in the file. All gate bookkeeping happens here.**

@@ -13,8 +13,8 @@ related-to: [./numbering.md, ./frontmatter.md]
 
 ## Folder Names
 
-- Numbered areas: `NN-name` per [numbering.md](numbering.md), e.g. `docs/wiki/core/`, `docs/wiki/components/`.
-- Unnumbered meta directories use lowercase dot-prefix or plain lowercase: `.devops/`, `.opencode/`, `.wikirules/`, `scripts/`.
+- Numbered areas: `NN-name` per [numbering.md](numbering.md), e.g. `.wiki/core/`, `.wiki/components/`.
+- Unnumbered meta directories use lowercase dot-prefix or plain lowercase: `.devops/`, `.opencode/`, `.wiki/rules/`, `scripts/`.
 
 ## File Names (documents)
 

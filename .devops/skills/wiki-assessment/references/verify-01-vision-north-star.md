@@ -20,5 +20,5 @@ Agents use this to decide what to build, what NOT to build, and how to prioritiz
 ## What to verify against
 - `.devops/backlog/backlog-index.md` — current priorities
 - `.devops/plans/` — active plans reveal current strategic direction
-- `docs/wiki/features/` — actual shipped features vs. vision
+- `.wiki/features/` — actual shipped features vs. vision
 - Recent `git log` on product-defining files

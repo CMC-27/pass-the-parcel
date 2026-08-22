@@ -16,7 +16,7 @@ Project-specific implementations of the three Extension Hooks. Loaded during Sta
 
 List the canonical domain glossary and any supplementary docs:
 
-* `docs/wiki/core/03-glossary-of-terms.md`
+* `.wiki/core/03-glossary-of-terms.md`
 * *(add supplementary docs here)*
 
 ### Domain-touching indicators

@@ -7,13 +7,13 @@ version: "1.0"
 # Wiki Query Skill
 
 ## Goal
-Answer questions by synthesising the contents of `docs/wiki/` (including `ref/`). Cite every claim with `[Title](path)` so the user can verify. Never write to disk. If the answer should be persisted, point the user to the `knowledge-capture` skill.
+Answer questions by synthesising the contents of `.wiki/` (including `ref/`). Cite every claim with `[Title](path)` so the user can verify. Never write to disk. If the answer should be persisted, point the user to the `knowledge-capture` skill.
 
 ## Workflow
 
 ### 1. Build the Index Map
-- Read `docs/wiki/core/00-system-index.md` to enumerate all wiki docs with summaries.
-- Read `docs/wiki/ref/ref-index.md` to enumerate all reference docs with topics.
+- Read `.wiki/core/00-system-index.md` to enumerate all wiki docs with summaries.
+- Read `.wiki/ref/ref-index.md` to enumerate all reference docs with topics.
 - Together these form the candidate pool for the question.
 
 ### 2. Match Question to Candidates
@@ -30,8 +30,8 @@ Answer questions by synthesising the contents of `docs/wiki/` (including `ref/`)
 
 ### 4. Cite Format
 In-conversation citations use project-root-relative paths:
-- `[Article Title](docs/wiki/core/18-knowledge-capture.md)`
-- `[Tag Schedule](docs/wiki/ref/REF-Tag-Schedule.md)`
+- `[Article Title](.wiki/core/18-knowledge-capture.md)`
+- `[Tag Schedule](.wiki/ref/REF-Tag-Schedule.md)`
 
 Within a citation list at the bottom of the answer, prefer the same project-root-relative form.
 

@@ -46,7 +46,14 @@ Each entry should follow this format:
 
 ## 🚀 Tooling & DevOps
 
-### Parcel Orchestration Model Assignment Matrix
+### Parcel Version Pipeline Retired — Single Cache-Anchored Plan
+* **Context:** The `v1.0_draft → v1.1_merged → v2.0_approved` version pipeline (a pre-cache-anchored design) duplicated Phase 4 content that already lived in the plan file, emitted a separate `v2.0_approved.md` with no State & Gates section, and gave the code-surgeon an ambiguous execution source (both the plan and `v2.0_approved.md`). A duplicate skill-bundled template copy also drifted from the canonical template.
+* **Action:** Deleted the `parcel-compactor` agent + skill (removed from `opencode.json`, base-context delegation map, `.gitattributes`). High-visionary writes Phase 4 into the plan file only (no `v1.0_draft.md` snapshot). Orchestrator creates `run-[slug]/` with `reviews/` + `decision_log.md` only; no compaction step. Code-surgeon reads Phase 4 + State & Gates from `.devops/plans/[slug]-plan.md` as the single execution source. Deleted the skill-bundled template copy; `pass-the-parcel` skill + AGENTS.md point to the single canonical `.devops/plans/template-plan.md`.
+* **Rationale:** Removes duplicate cache surfaces and ambiguous execution sources. The cache-anchored plan (byte-stable top, State & Gates at bottom) is now the sole artifact mutated across the lifecycle. Isolated `reviews/` outputs retained — they prevent confirmation bias.
+
+---
+
+## 🚀 Tooling & DevOps
 * **Decision Date:** 2026-08-17
 * **Context:** The pass-the-parcel pipeline needed a clearer model-to-phase mapping to match model strengths to task difficulty and reduce token spend on heavy models for lighter roles.
 * **Action:** Adopted a fixed model assignment for the parcel pipeline (canonical identifiers: `mimo-2.5`, `v4-flash-max`, `deepseek-v4-flash` — no aliases):

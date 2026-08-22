@@ -17,6 +17,6 @@ Agents use this to predict what a user expects next. Wrong step ordering = a bro
 5. Does the onboarding path still apply, or has the auth/signup flow changed?
 
 ## What to verify against
-- `docs/wiki/features/` — feature docs
+- `.wiki/features/` — feature docs
 - `src/views/`, `src/routes/` — actual screens and routes
 - `src/components/` — UI components that embody each step
