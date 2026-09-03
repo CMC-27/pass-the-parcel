@@ -109,7 +109,7 @@ graph TD
 ## 6. Syncing Machinery into a Satellite Workspace
 
 This repo is the **template**; any other workspace is a **satellite** that consumes the portable
-surface (`.devops/skills/`, `.devops/agents/`, rule layers, `.devops/templates/`, sync scripts).
+surface (`.devops/skills/`, `.devops/agents/`, rule layers, `.devops/templates/`, `.vscode/`, sync scripts).
 
 **One-time bootstrap (push).** A satellite has no pull script yet, so first contact goes through
 the template's push engine:

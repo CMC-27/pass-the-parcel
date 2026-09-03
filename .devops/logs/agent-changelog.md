@@ -11,6 +11,30 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-04 - Sync Discoverability + .vscode Portability (machinery-version 4)
+
+**Agent:** GitHub Copilot (Copilot SDK)
+
+**Files Modified:**
+- `AGENTS.md` — TASK LOOKUP gains "Syncing machinery / pulling template updates" row → `@sync-architecture` skill
+- `.devops/templates/AGENTS.template.md` — same row added to seed template (portable path: SATELLITE-BOOTSTRAP.md); version 1→2
+- `.devops/sync-manifest.yaml` — `.vscode` added to `portable_dirs`; machinery-version 2→4
+- `.vscode/settings.json` — NEW (tracked): VS Code Copilot agent/skill locations for `.devops/agents` + `.devops/skills`; machine-specific `git.path` + PATH override stripped
+- `.vscode/tasks.json` — NEW (tracked): "Launch Everything" task; folder-open auto-launch removed (manual only)
+- `.gitignore` — `.vscode/` un-ignored
+- `.devops/README.md` — Transportability section lists `.vscode/`
+- `.devops/skills/sync-architecture/SKILL.md` — machinery list includes `.vscode`; version 1→2
+- `.devops/templates/SATELLITE-BOOTSTRAP.md` — portable surface includes `.vscode`; version 1→2
+- `HOW-TO.md` — §6 portable surface includes `.vscode/`
+- `.wiki/core/18-knowledge-capture.md` — new decision: `.vscode` portability policy
+- `.devops/logs/version-history.md` — v0.3.1 release row
+
+**Database/API Changes:** None
+
+**Summary:** Made the sync machinery discoverable and added `.vscode` to the portable surface. A lookup-table-driven agent previously couldn't find sync directly (AGENTS.md had no sync row) — added one in both AGENTS.md and the seed template. `.vscode` (settings.json + tasks.json) was gitignored and machine-specific; it is now tracked, sanitized (git.path + PATH override removed; folder-open auto-launch removed so satellites without the referenced terminal profiles don't fail on open), and synced to satellites via `portable_dirs`. machinery-version bumped 2→4 so satellites see UPGRADE. Phase-gating: docs/machinery-only diff → Phases 2–4 skipped; backlog read → no matching items; known limitation (tasks.json references user-defined terminal profiles "Run Dev Server"/"OpenCode" — manual task only) noted. Verified: `sync-architecture.ps1 -SelfTest` (5 dirs), `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py --quiet` all exit 0. **Wrap-up ref:** `TBD`
+
+---
+
 ## 2026-09-03 - Skill Streamlining: agent-wrap-up + test-and-deploy Token Economy
 
 **Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)

@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-04
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -11,7 +11,7 @@ satellite of the template repo. After step 4, ongoing updates are pulls, not boo
 
 You are in a NEW (satellite) workspace that wants the parcel machinery. The template repo is
 the single source of truth for `.devops/skills`, `.devops/agents`, `.wiki/rules`,
-`.devops/rules`, `.devops/templates`, and the sync scripts.
+`.devops/rules`, `.devops/templates`, `.vscode`, and the sync scripts.
 
 ## 1. One-time bootstrap (push — the pull script doesn't exist here yet)
 

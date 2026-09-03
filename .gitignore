@@ -10,7 +10,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
-.vscode/
 .idea/
 .opencode/plans/run-*/
 .ptp-source

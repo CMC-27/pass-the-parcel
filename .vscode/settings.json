@@ -1,0 +1,15 @@
+﻿{
+    "terminal.integrated.defaultLocation": "editor",
+
+    "chat.agentFilesLocations": {
+        ".github/agents": true,
+        "~/.copilot/agents": true,
+        ".devops/agents": true
+    },
+    "chat.agentSkillsLocations": {
+        ".github/skills": true,
+        "~/.copilot/skills": true,
+        ".devops/skills": true
+    }
+
+}

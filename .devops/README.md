@@ -30,7 +30,7 @@ related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 
 ## Transportability
 
-This layer is the **transportable surface** of the repo. `.devops/skills/`, `.devops/agents/`, `.devops/templates/`, the rule layers and `scripts/` can be synced into any satellite repo — the machinery is repo-agnostic and never embeds local state.
+This layer is the **transportable surface** of the repo. `.devops/skills/`, `.devops/agents/`, `.devops/templates/`, the rule layers, `scripts/` and `.vscode/` can be synced into any satellite repo — the machinery is repo-agnostic and never embeds local state.
 
 - **Bootstrap:** one-time push via `scripts/sync-architecture.ps1 -Target <satellite>` (the pull script doesn't exist in the satellite yet).
 - **Ongoing:** `scripts/pull-architecture.ps1` (or the `@sync-architecture` skill) pulls from the source remembered in `.ptp-source`; `-Check` prints a per-item drift table without writing.

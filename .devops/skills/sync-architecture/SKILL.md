@@ -1,14 +1,14 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-04
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
 
 Refresh this satellite workspace's transportable machinery (skills, agents, rules, templates,
-scripts) from the template repo recorded in `.ptp-source`. Thin wrapper over
+scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapper over
 `scripts/pull-architecture.ps1`, which delegates to the template's `sync-architecture.ps1`.
 
 ## Workflow

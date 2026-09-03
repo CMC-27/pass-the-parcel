@@ -150,6 +150,17 @@ Each entry should follow this format:
 
 ---
 
+### `.vscode` Is Portable Machinery — Machine-Specific Settings Must Be Stripped
+* **Decision Date:** 2026-09-04
+* **Context:** `.vscode/` was gitignored and machine-specific (a `git.path` pointing at `D:\Program Files\Git\cmd\git.exe` plus a `terminal.integrated.env.windows` PATH override), so the VS Code Copilot agent/skill wiring for `.devops/agents` + `.devops/skills` never reached satellites. The repo philosophy treats tool-specific configs as repo-specific, but the user chose to track and sync `.vscode` anyway.
+* **Action:** `.vscode` added to `sync-manifest.yaml` `portable_dirs` (machinery-version 2→4). Committed `settings.json` keeps only portable keys (`terminal.integrated.defaultLocation`, `chat.agentFilesLocations`, `chat.agentSkillsLocations`); `git.path` and PATH overrides are stripped — machine-specific values belong in user-level VS Code settings (`%APPDATA%\Code\User\settings.json`). `tasks.json`'s `runOn: "folderOpen"` auto-launch was removed because it references user-defined terminal profiles ("Run Dev Server"/"OpenCode") that satellites won't have — the task is manual-only.
+* **Rationale:**
+    * **Portable means no absolute paths**: a committed `git.path` or PATH override silently breaks every other machine that opens the repo.
+    * **Folder-open side effects are a satellite footgun**: an auto-launch task referencing a missing terminal profile fails on every folder open; manual-only keeps the task useful without the failure mode.
+    * **Same trap as model binding**: anything machine-specific in portable machinery guarantees drift; keep the portable surface clean and let per-workspace config (VS Code user settings, terminal profiles) carry the local state.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]

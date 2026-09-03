@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-04
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -53,6 +53,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |
 | Multi-step planning | `@pass-the-parcel` skill | Template at `.devops/plans/template-plan.md` |
 | Pre-push validation | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
+| Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/templates/SATELLITE-BOOTSTRAP.md` |
 | Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |
 
 ---
