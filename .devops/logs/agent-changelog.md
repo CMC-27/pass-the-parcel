@@ -11,6 +11,33 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-03 - Agnostic Template: Pull-Based Sync + Machinery Versioning (W1-W9)
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:**
+- `scripts/pull-architecture.ps1` — ADDED (satellite-side pull wrapper: `-Source` param > `.ptp-source` resolution, git-URL caching under `%USERPROFILE%\.ptp\template`, passthrough `-Check`/`-DryRun`/`-NoVerify`, exit-code propagation)
+- `scripts/sync-architecture.ps1` — MODIFIED: `-Check` drift report (per-item SHA256 + version verdicts CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT, IN SYNC/OUT OF SYNC summary, exit 0/1); portable skills now DERIVED (all `.devops/skills/` minus manifest `excluded_skills:`); scalar manifest parsing (`machinery-version`); bump-report line after real sync; **fixed pre-existing Copy-Item nesting bug** (dir/skill copies into existing targets nested `$t\$dirname\...` — now ensures dest and copies contents); **CRLF-normalized hashing** in `-Check` (git smudge filters materialize LF blobs as CRLF on Windows → false DRIFT without normalization)
+- `.devops/skills/*/SKILL.md` — 29 skills stamped `version: 1` + `updated: 2026-09-03`; quoted `"1.x"` versions normalized to integers; `author:` frontmatter removed (`agent-wrap-up`, `app-vision-north-star`, `knowledge-capture`, `knowledge-consolidation`)
+- `.devops/skills/sync-architecture/` — ADDED (the `@sync-architecture` skill: workspace-root guard, switch selection, verdict interpretation, DRIFT = ask-the-user rule, first-time-satellite guidance)
+- `.devops/skills/update-global-skills/`, `.devops/skills/update-workspace-skills/` — DELETED (legacy `.gemini` sync against a directory that no longer exists; zero dangling refs verified)
+- `.devops/sync-manifest.yaml` — `machinery-version: 1` added; dead `verify_commands:` key removed; explicit `portable_skills:` list replaced by derived surface + `excluded_skills: []`; `.devops/templates` added to `portable_dirs`; `pull-architecture.ps1` + `wiki_lint.py` added to `portable_files`
+- `.devops/templates/` — ADDED: `AGENTS.template.md`, `opencode.template.json`, `base-context.template.md`, `SATELLITE-BOOTSTRAP.md` (seeds for the three repo-specific files a satellite authors itself + the one-time bootstrap checklist)
+- `scripts/wiki_lint.py` — docstring genericized ("pass-the-parcel" → "parcel blueprint") for portability
+- `.gitignore` — `.ptp-source` courtesy line added
+- `HOW-TO.md` — new section 6 "Syncing Machinery into a Satellite Workspace" (bootstrap push vs ongoing pull, verdict table, versioning scheme); utility-skills table row for `@sync-architecture`
+- `README.md` — step 4 under "How to Use This Template" linking HOW-TO §6 + SATELLITE-BOOTSTRAP
+- `.devops/README.md` — Transportability section rewritten (pull flow, versioning, derived portable list, seeds)
+- `.devops/rules/agents-and-skills.md` — Sync Protocol section documents derived portable list, `machinery-version`, per-skill `version`/`updated` requirement, wrap-up bump step
+- `.devops/skills/agent-wrap-up/SKILL.md` — Phase 8 gains step 4: machinery version bump discipline (skills/templates → `version:`; scripts/agents/rules → `machinery-version:`)
+- `.devops/plans/agnostic-template-sync-plan.md` → `.devops/archive/agnostic-template-sync-plan.md` — plan executed and archived with Completion Note (3 logged deviations)
+
+**Database/API Changes:** None
+
+**Summary:** Delivered the pull-based sync architecture for the agnostic template: satellites record their source once in `.ptp-source` and thereafter refresh via `scripts/pull-architecture.ps1` (or `@sync-architecture`), with a read-only `-Check` drift table distinguishing upstream upgrades from local customization. Versioning is integer counters — per-skill `version`/`updated` frontmatter plus one `machinery-version` covering agents/rules/scripts/templates as a coordinated set. The portable skill surface is now derived rather than declared, permanently killing the "added a skill, forgot the manifest" drift class. Two latent bugs surfaced during verification and were fixed: the Copy-Item nesting defect in the original push engine, and CRLF smudge-filter false positives in hash comparison. All six plan verification steps pass; prefix/UTF-8/wiki-lint gates exit 0. Not pushed (human's `@test-and-deploy` owns that). Wrap-Up ref: `701455b`.
+
+---
+
 ## 2026-09-03 - Template Sync: Import Latest Parcel Architecture from GRID-Deploy
 
 **Agent:** GitHub Copilot (opencode-go/glm) (Coordinated by user)

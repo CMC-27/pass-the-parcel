@@ -96,6 +96,28 @@ Each entry should follow this format:
 
 ---
 
+### Pull-Based Sync + Integer Machinery Versioning
+* **Decision Date:** 2026-09-03
+* **Context:** The template repo's only transport mechanism was push (`sync-architecture.ps1 -Target`), which requires running from the template and knowing its path. Satellites had no way to ask "am I out of date?", no version metadata to compare, and the manifest's explicit `portable_skills:` list drifted silently whenever a skill was added without a manifest edit.
+* **Action:** Satellites now pull: `scripts/pull-architecture.ps1` resolves source from `-Source` > `.ptp-source` (git URLs cached under `%USERPROFILE%\.ptp\template`) and wraps the push engine. `sync-architecture.ps1 -Check` prints a per-item verdict table (CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT) with exit 0/1 for CI consumption. Versioning = integer counters: per-skill `version:` + `updated:` frontmatter, one `machinery-version:` in the manifest for agents/rules/scripts/templates as a set. Portable skills are DERIVED (all skills minus `excluded_skills:`). Deferred deliberately: semver, `portable:` frontmatter tripwire, `local-override:` blessing protocol.
+* **Rationale:**
+    * **Derivation kills drift**: a declared portable list is always one skill behind reality; subtraction from the filesystem can't be forgotten.
+    * **Integers over semver**: machinery has no public API contract — the only question a satellite asks is "is upstream newer than me?", which one counter answers. Semver would invite relitigating major/minor meaning.
+    * **DRIFT vs UPGRADE separation**: same-version-different-bytes means local customization — overwriting it silently destroys satellite work; the verdict forces an ask-the-user stop.
+
+---
+
+### Git Smudge Filters Break Byte-Hash Comparisons on Windows
+* **Decision Date:** 2026-09-03
+* **Context:** The new `-Check` drift report compared SHA256 hashes of working-tree files. After a satellite ran `git checkout`, eight items reported DRIFT despite being byte-identical in git: `core.autocrlf=true` plus `eol=lf` in `.gitattributes` materialize LF blobs as CRLF in the Windows working tree, so raw file hashes never match between a freshly cloned repo and a synced one.
+* **Action:** `-Check` normalizes CRLF→LF before hashing both sides (read bytes, decode UTF-8, replace, re-hash). Committed blobs were verified already-LF (`git ls-files --eol` shows `i/lf w/crlf` — the renormalization commit was a no-op); the noise lived entirely in the smudge layer, so fixing the comparison — not the storage — was correct.
+* **Rationale:**
+    * **Compare semantics, not encoding artifacts**: line endings are transport noise; content drift is what the checker exists to find.
+    * **Don't fight autocrlf globally**: forcing `core.autocrlf=false` or mass re-checkouts would churn every developer's working tree for a checker-only concern.
+    * **General rule**: any tool that hashes across git boundaries on Windows must normalize EOL first — same trap awaits future diff/verify scripts.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]
