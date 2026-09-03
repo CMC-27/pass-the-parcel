@@ -1,7 +1,8 @@
 ---
+title: "Test File Naming Conventions"
 type: "convention"
 name: "Test Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Test file and test case naming conventions."
 ---

@@ -24,7 +24,7 @@ Given the element type, reason about:
 Generate grep patterns accordingly — typically 2–3 patterns covering: shared component usage, raw HTML elements, and CSS class indicators.
 
 ### Phase 2: Discover the Design System
-1. Read `.wiki/core/05-design-system.md` to understand the project's design tokens and component conventions.
+1. Read `.wiki/core/09-design-system.md` to understand the project's design tokens and component conventions.
 2. Read any relevant component files in `src/components/ui/` to understand the shared component's API (props, variants, sizes).
 
 ### Phase 3: Infer Extraction Criteria

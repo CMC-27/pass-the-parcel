@@ -1,7 +1,7 @@
 ---
 title: Numbering Scheme
 tags: [wiki, rules, numbering, lifecycle]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./structure.md, ./naming.md]

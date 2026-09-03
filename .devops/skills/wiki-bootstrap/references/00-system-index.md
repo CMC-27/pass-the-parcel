@@ -19,7 +19,7 @@ This document is the master gateway into the documentation library. Start here t
 - [Glossary of Terms](./03-glossary-of-terms.md)
 - [UI/UX Design System](./09-design-system.md)
 - [Knowledge Capture & Decisions](./18-knowledge-capture.md)
-- [Agent Changelog](../../../.devops/logs/agent-changelog.md)
+- [Agent Changelog](../../logs/agent-changelog.md)
 
 ## 2. Core Architecture & Logic
 - [User Journey & Data Hierarchy](./08-user-journey.md)
@@ -40,10 +40,10 @@ This document is the master gateway into the documentation library. Start here t
 **Codebase Navigation**
 - [Physical Directory Structure](./06-directory-structure.md)
 
-**Component Systems** ? [Components Index](../components/components-index.md)
+**Component Systems** → [Components Index](../components/components-index.md)
 <!-- List key reusable UI components here -->
 
-**Views & Routing** ? [Features Index](../features/features-index.md)
+**Views & Routing** → [Features Index](../features/features-index.md)
 <!-- List primary screens/routes here -->
 
 ## 4. Visual Architecture Flow
@@ -74,7 +74,7 @@ flowchart TD
 ```
 
 ## 5. Core Logic & Utilities
-? [Logic & Utilities Index](../logic/logic-index.md)
+→ [Logic & Utilities Index](../logic/logic-index.md)
 
 **Utility Functions**
 <!-- List key utility files here, e.g.: -->

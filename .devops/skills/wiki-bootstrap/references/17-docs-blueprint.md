@@ -7,7 +7,7 @@ db_relations: []
 description: "The universal blueprint for the @docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
 ---
 
-# ??? Wiki Architecture Blueprint
+# 🗺 Wiki Architecture Blueprint
 
 This document defines the **Documentation Standard** for the [APP_NAME] application. It is designed to turn a codebase from a "black box" into a transparent, agent-ready intelligence hub.
 
@@ -23,7 +23,7 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 The library is organized into **two top-level libraries** based on functional purpose:
 
-### ?? wiki/ � Architecture Knowledge Base
+### 📖 wiki/ � Architecture Knowledge Base
 
 | Directory | Role | Parent/Index File | Description |
 | :--- | :--- | :--- | :--- |
@@ -33,7 +33,7 @@ The library is organized into **two top-level libraries** based on functional pu
 | `wiki/database` | **The Skeleton** | `database-index.md` | Schema breakdowns, table relationships, and data-layer logic. |
 | `wiki/logic` | **The Internal Organs**| `logic-index.md` | Utility functions, custom hooks, and complex algorithmic explanations. |
 
-### ?? docs/ � Operational Process Tooling
+### ⚙️ docs/ � Operational Process Tooling
 
 | Directory | Role | Index File | Description |
 | :--- | :--- | :--- | :--- |
@@ -54,8 +54,7 @@ To ensure high-speed lookup and clarity, files within subdirectories must follow
 - **Components:** `ui-component-name.md` (e.g., `ui-modal.md`).
 - **Database:** `db-table-name.md` (e.g., `db-projects.md`).
 - **Logic:** `util-logic-name.md` or `hook-name.md`.
-- **Plans:** `.devops/plans/name-plan.md`.
-- **Backlog:** `.devops/backlog/<feature-slug>-backlog.md`.
+- **Plans:** `.devops/plans/{code}-{slug}-plan.md` (prefix convention: `T{n}-E{n}.{impl}`).
 
 ---
 
@@ -110,7 +109,7 @@ Links to related database tables, parent indices, or sibling features.
 
 Use this checklist to establish the core knowledge infrastructure. All 19 slots are defined below in their canonical numbered order.
 
-### ?? Wiki Core Brain Documents (`wiki/core/`)
+### 📖 Wiki Core Brain Documents (`wiki/core/`)
 
 | Slot | Filename | Name | Status |
 |:---|:---|:---|:---|

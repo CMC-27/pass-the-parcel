@@ -1,10 +1,10 @@
 ---
 title: Language & Style Rules
 tags: [language, style, writing, governance, index]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../README.md, ../AGENTS.md, ../README.md]
+related-to: [../README.md, ../../../AGENTS.md]
 ---
 
 # Language & Style Rules

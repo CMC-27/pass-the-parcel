@@ -25,7 +25,7 @@ Before invoking the skill, both human and agent MUST verify their respective ite
 * [ ] I understand the monster does NOT execute refactors — execution happens later, one plan at a time.
 
 **Agent verifies:**
-* [ ] The project's `references/[project]-overrides.md` has been checked. If missing, warn and run hooks in default form (see §Hook D).
+* [ ] The project's `references/[project]-overrides.md` exists and has been loaded. If missing, halt and create it from `references/template-overrides.md` first (see Hook D).
 * [ ] `git` is available (required for the idempotency check on Stage 1 step 5).
 * [ ] A real complexity analyzer is available (`eslint --rule complexity`, `complexity-report`, `ast-grep`, `lizard`, or `pmd`). If only the LLM fallback heuristic is available, halt and ask the user to confirm.
 * [ ] The parcel-plan template is available at `.devops/plans/template-plan.md` for Stage 2.
@@ -127,7 +127,7 @@ For each target the user accepts at Gate A:
     * The user must explicitly override to choose differently — reducing the cognitive load of blank questions.
     * Example format:
       > [★] Q1: Should X be extracted to Y or stay in Z? <recommendation: Y — already has precedent in csvParser.js >
- 6. **State & Gates (bottom):** Status `BACKLOG`, Active Persona `Planner`, Gate A `OPEN`.
+ 6. **State Dashboard:** Status `BACKLOG`, Active Persona `Planner`.
  7. **Append to `.devops/backlog/backlog-index.md`** under the appropriate theme/epic, with a one-line Goal statement.
  8. **Append a changelog entry** to `.devops/logs/agent-changelog.md` describing the scan: scope, kill list size, number of plans created.
 
@@ -176,7 +176,7 @@ The monster is done when every item is checked:
 * [ ] Gate A (kill list review) completed with user sign-off on which targets become plans
  * [ ] One backlog parcel plan created per accepted target, with Phases 1 and 2 fully pre-populated
  * [ ] Every Phase 3 question uses the Default-And-Justify format (`[★] recommended answer` + rationale)
-  * [ ] State & Gates (bottom) on every plan set to `BACKLOG` with `Planner` persona, Gate A `OPEN`
+ * [ ] State Dashboard on every plan set to `BACKLOG` with `Planner` persona
 * [ ] `.devops/backlog/backlog-index.md` updated with one row per new plan
 * [ ] Changelog entry written to `.devops/logs/agent-changelog.md`
 * [ ] User briefed on the next-step workflow ("open a plan in a new conversation, review Phases 1-2, proceed to Phase 3")
@@ -233,7 +233,7 @@ You are responsible for:
 You MUST:
 
 1. **Verify the Pre-Run Checklist** at the start of every run. Halt if any item is unchecked.
-2. **Load `references/[project]-overrides.md`** before Stage 1. If it doesn't exist, warn the user and run hooks in their default form.
+2. **Load `references/[project]-overrides.md`** before Stage 1. If it doesn't exist, halt and create it from `references/template-overrides.md` first.
 3. **Use a real complexity analyzer** as the primary score. The LLM heuristic is a sanity check only.
 4. **Halt at Gate A** after the kill list. Do not create plans without user sign-off.
 5. **One plan per accepted target, no batching.** No plan that covers two unrelated targets.
@@ -274,4 +274,4 @@ The Extension Hooks ship in their **general form** above. To make them project-s
 * **Hook C — External services:** rate-limited / cost-incurring / contract-bound services and their call-pattern constraints.
 * **Hook D — Idempotency window:** the "too recent to refactor" threshold (default 90 days).
 
-If the override file does not exist, the hooks run in their default form. See `references/template-overrides.md` for a fill-in template.
+If the override file does not exist, the hooks run in their default form — but the Pre-Run Checklist halts until one is created. See `references/template-overrides.md` for the fill-in template.

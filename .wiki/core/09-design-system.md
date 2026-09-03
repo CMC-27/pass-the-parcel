@@ -1,4 +1,5 @@
 ---
+title: "Design System: Architectural Precision & Technical Blueprint Clarity"
 type: "core"
 name: "Design System"
 status: "stable"

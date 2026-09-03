@@ -1,4 +1,5 @@
 ---
+title: "Validation Standards"
 type: "core"
 name: "Validation Standards"
 status: "in-progress"

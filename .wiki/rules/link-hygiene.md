@@ -1,7 +1,7 @@
 ---
 title: Link Hygiene
 tags: [wiki, rules, links, cross-referencing]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../AGENTS.md]
@@ -51,6 +51,7 @@ When adding, renaming, moving or deleting a document:
 1. **Orphans are allowed only for templates and READMEs** — every content doc should have at least one inbound link.
 2. **No dead links** — a link to a missing target is a bug, not a TODO. If the target moved, register it; if it was deleted, remove the link.
 3. **Archive is historical** — never rewrite archived content after the fact; leave the record intact.
+4. **Every document is catalogued** — a new or moved doc must appear in its category index (`features-index.md`, `logic-index.md`, etc.), and every index entry must point at an existing file. The linter reports gaps as `[UNINDEXED]` / `[MISSING]` warnings; run `python scripts/wiki_lint.py --fix` to add or remove index rows automatically. An unlisted doc is invisible to agents routing from the hub.
 
 ---
 

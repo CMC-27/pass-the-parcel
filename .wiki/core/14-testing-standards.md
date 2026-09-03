@@ -1,7 +1,8 @@
 ---
+title: "Testing Standards"
 type: "core"
 name: "Testing Standards"
-status: "template"
+status: "in-progress"
 dependencies: []
 db_relations: []
 description: "Gateway to the testing documentation subtree. Defines test patterns, mocking standards, performance budgets, and PR checklist."

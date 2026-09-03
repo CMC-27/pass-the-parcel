@@ -1,7 +1,7 @@
 ---
 title: Frontmatter Standard
 tags: [wiki, rules, frontmatter, metadata]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./naming.md, ./document-structure.md]

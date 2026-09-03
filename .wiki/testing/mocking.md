@@ -1,7 +1,8 @@
 ---
+title: "Mocking Standards"
 type: "testing"
 name: "Mocking Standards"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Shared mock conventions and setup for tests."
 ---

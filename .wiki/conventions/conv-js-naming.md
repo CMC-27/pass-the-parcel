@@ -1,7 +1,8 @@
 ---
+title: "JavaScript Naming Conventions"
 type: "convention"
 name: "JavaScript/TypeScript Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Naming conventions for JavaScript and TypeScript code."
 ---

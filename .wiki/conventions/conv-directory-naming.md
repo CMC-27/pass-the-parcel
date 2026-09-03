@@ -1,7 +1,8 @@
 ---
+title: "Directory Naming Conventions"
 type: "convention"
 name: "Directory Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Folder and directory naming standards."
 ---

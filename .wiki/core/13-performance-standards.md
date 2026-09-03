@@ -1,4 +1,5 @@
 ---
+title: "⚡ Performance Standards"
 type: "core"
 name: "Performance Standards"
 status: "stable"

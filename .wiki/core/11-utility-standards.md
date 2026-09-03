@@ -1,4 +1,5 @@
 ---
+title: "🧮 Utility Standards"
 type: "core"
 name: "Utility Standards"
 status: "stable"

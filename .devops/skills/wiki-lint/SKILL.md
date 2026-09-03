@@ -1,68 +1,58 @@
 ---
 name: wiki-lint
-description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing ref/ discoverability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
-version: "1.0"
+description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing index drift and hub reachability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
+version: "1.2"
 ---
 
 # Wiki Lint Skill
 
 ## Goal
-Detect structural decay in `.wiki/` — broken links, index drift, frontmatter violations, orphan pages, missing `See Also`, ref discoverability gaps. Soft report: appends findings to `.devops/logs/knowledge-changelog.md`. Never fails a build, never deletes content.
+Detect structural decay in `.wiki/` by running the deterministic linter, `scripts/wiki_lint.py`, and reporting its findings. The script is the canonical implementation of every check below; this skill owns the invocation, the changelog entry, and the judgement calls the script cannot make.
+
+## What The Linter Checks
+
+Severity contract: **exit 1 only on HARD**. WARN and INFO never block a commit or deploy.
+
+| # | Check | Severity | Finding format |
+|---|---|---|---|
+| 1 | Structure manifest anchors exist (`.wiki/rules/structure.md`) | HARD | `missing anchor` |
+| 2 | Internal markdown links resolve | HARD | `broken link` |
+| 3 | Frontmatter required fields (`name`, `title`, `type`, `status`) | HARD | `missing frontmatter field` |
+| 4 | Status ∈ `stable / in-progress / deprecated` | HARD | `invalid status` |
+| 5 | `dependencies` entries ending `.md` resolve | HARD | `unresolvable dependency` |
+| 6 | Hub links to all six category indexes | HARD | `[HUB MISSING SPOKE]` |
+| 7 | Category index catalogues every sibling doc | WARN | `[UNINDEXED]` |
+| 8 | Index rows point at existing files | WARN | `[MISSING]` |
+| 9 | Every content doc reachable from `00-system-index.md` (BFS) | WARN | `unreachable from hub` |
+| 10 | Index size budget (>400 lines) | WARN | `index is N lines` |
+| 11 | Blueprint spoke-list sync (`17-docs-blueprint.md`) | INFO | `spoke list drift` |
+| 12 | Docs >2 hops from the hub | INFO | `N hops from hub` |
+| 13 | Orphan pages (no inbound links anywhere) | INFO | `orphan` |
+
+Exemptions baked into the script: `.wiki/rules/**` and `.devops/**` skip frontmatter-field checks; `README.md`, index files, `ref/`, `templates/`, `examples/` skip orphan/reachability reporting; non-`.md` dependency tokens (npm packages, component names, table names) are informational only.
 
 ## Workflow
 
-### 1. Scope
-Lint every `.md` file under `.wiki/`, including:
-- `.wiki/core/`
-- `.wiki/components/`, `.wiki/features/`, `.wiki/database/`, `.wiki/logic/`
-- `.wiki/hooks/`, `.wiki/integrations/`
-- `.wiki/ref/` (special handling)
-- `.wiki/templates/`, `.wiki/examples/` (linter target only, not orphans)
-
-### 2. Deterministic Operations
-
-**2.1 Index consistency** — every file in `.wiki/**/*.md` (excluding `index.md`, `ref-index.md`, `*-template.md`, `*-example.md`, and anything in `templates/` or `examples/`) must appear in `.wiki/core/00-system-index.md`. For every entry in `00-system-index.md`, verify the file exists. Missing files marked `[MISSING]`.
-
-**2.2 Internal links** — every `[label](relative-path)` in any wiki file must resolve. Auto-fix on `--fix` if exactly one match elsewhere in the wiki; otherwise report with file:line. Self-referential links (`[foo](foo.md)` resolving to the same file) are ignored, not bugs.
-
-**2.3 Frontmatter** — every wiki doc must have YAML frontmatter with `type`, `name`, `status`. `status` must be one of `stable|in-progress|deprecated`. `dependencies` paths must exist.
-
-**2.4 Orphan pages** — wiki files with zero inbound links from any other wiki file. Exclude `00-system-index.md`, `knowledge-changelog.md`, `ref/`, `templates/`, `examples/`. Report only — never auto-delete.
-
-**2.5 `See Also` health** — warn on wiki files >100 lines without `## See Also`. Validate any `See Also` link resolves.
-
-**2.6 ref/ coverage** — every file in `.wiki/ref/` must appear in `.wiki/ref/ref-index.md`.
-
-### 3. Error Handling
-
-Every operation must handle these gracefully:
-
-- **Empty wiki** — no `.wiki/**/*.md` files exist → report 0 issues, exit cleanly.
-- **Missing index** — `00-system-index.md` doesn't exist → create with empty TOC, log to changelog as informational.
-- **Locked file** — file exists but is read-only → skip, log to changelog with file path.
-- **Permission denied** — read fails → skip, log warning, continue with other files.
-- **Self-referential link** — `[foo](foo.md)` resolves to the same file → ignore (not a bug).
-- **Always exit cleanly** — never throw, never leave the changelog in a partial state. Use single `append` per lint run.
-
-### 4. Output
-
-Append exactly one entry to `.devops/logs/knowledge-changelog.md` per invocation:
-
-```markdown
-## [YYYY-MM-DD HH:MM] — lint | <N> issues found
-* **Skill:** wiki-lint
-* **Findings:** N1 (broken links, index drift) | N2 (orphan pages, missing See Also) | N3 (passes)
-* **Files affected:** [list with file:line]
-* **Notes:** <optional summary>
+### 1. Run
+```
+python scripts/wiki_lint.py            # report
+python scripts/wiki_lint.py --fix      # also repair index rows (see 3)
+python scripts/wiki_lint.py --quiet    # silent unless HARD failures
+python scripts/wiki_lint.py --changelog  # also append one entry to knowledge-changelog.md (see 2)
 ```
 
-### 5. Optional Flags
+### 2. Report
+Pass `--changelog` to append exactly one entry to `.devops/logs/knowledge-changelog.md` per invocation — the script writes it deterministically (timestamp, HARD/WARN/INFO counts, affected files derived from findings). This is the ONLY supported way to log a run; do not hand-write entries.
 
-- `--fix` — auto-fix deterministic issues (index entries, broken links with exactly one match). Still soft-report; never delete content.
-- `--quiet` — no changelog entry on clean run (0 issues). Default is to log a baseline entry on every invocation.
-- `--scope <path>` — limit lint to a subdirectory (e.g. `--scope .wiki/ref/`).
+### 3. Fix
+- `--fix` performs two deterministic edits, collected from a full scan before any write: appends a row to the owning index's last table for each `[UNINDEXED]` doc, and deletes index rows whose only link target is missing (`[MISSING]`). It prints every edit as `FIX`. If no reliable table exists it skips and leaves the warning.
+- Everything else needs a human or this skill: prose fixes, moved paths (register in the redirect log first, per `link-hygiene.md`), and promoting docs closer to the hub.
+
+### 4. Error handling
+The script never throws mid-run: unreadable files are skipped with an INFO line, an empty wiki exits 0, `--fix` writes only after the whole scan succeeds, and a locked/unwritable changelog is reported on stdout and skipped (never a crash).
 
 ## Usage Guidelines
-- **Proactive**: Run at end of any work that touched wiki docs (per `agent-wrap-up` protocol).
-- **First-thing**: Run `@wiki-lint` on a fresh wiki to establish a baseline.
-- **Drift detection**: Run weekly to catch gradual decay (e.g. renamed files leaving dead links).
+- **Proactive**: run with `--changelog` at the end of any work that touched wiki docs (per `agent-wrap-up`); `wiki-writer` Step 8 requires it after every substantive edit.
+- **First-thing**: run on a fresh wiki to establish a baseline.
+- **Drift detection**: run weekly to catch gradual decay (renamed files leaving dead links, new docs never indexed).
+- **Deferred checks** (not implemented, add here if built): `See Also` section coverage; `ref/` index coverage (no `ref/` directory exists yet).

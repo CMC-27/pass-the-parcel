@@ -1,7 +1,7 @@
 ---
 title: Content-vs-State Principle
 tags: [wiki, rules, scope, governance]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]

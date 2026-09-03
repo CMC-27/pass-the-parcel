@@ -23,10 +23,10 @@
     },
     {
       "input": "User asks the agent to update a database schema and document the changes.",
-      "expected_behavior": "The agent should update the schema, update the related db-*.md file and database-index.md, and write a chronological entry in .devops/logs/agent-changelog.md using the mandatory YYYY-MM-DD HH:MM header and bulleted files format. The agent may use wiki-assessment afterward to verify the doc still matches.",
+      "expected_behavior": "The agent should update the schema, update the related db-*.md file and database-index.md, and write a chronological entry in docs/logs/agent-changelog.md using the mandatory YYYY-MM-DD HH:MM header and bulleted files format. The agent may use wiki-assessment afterward to verify the doc still matches.",
       "assertions": [
         "Maintains synchronous updates between code and documentation",
-        "Appends a log entry to .devops/logs/agent-changelog.md with the exact YYYY-MM-DD HH:MM header and bulleted files format"
+        "Appends a log entry to docs/logs/agent-changelog.md with the exact YYYY-MM-DD HH:MM header and bulleted files format"
       ]
     },
     {

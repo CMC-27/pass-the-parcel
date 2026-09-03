@@ -129,7 +129,7 @@ When the journey is complete (or manually halted by the user), output a final co
 | **Total Misaligned (False)** | [Count Y] |
 
 ### Dynamic Backlog Tasks
-For every non-True path encountered during the session, delegate the following to the `backlog` skill, which will create a full `-backlog.md` plan file in `.devops/backlog/` and an entry in `.devops/backlog/backlog-index.md`:
+For every non-True path encountered during the session, delegate the following to the `backlog` skill, which will create a full `-plan.md` file in `.devops/plans/` and an entry in `.devops/backlog/backlog-index.md`:
 
 ```
 #### Backlog Item [ID] - Misalignment in [Feature/Component Name]

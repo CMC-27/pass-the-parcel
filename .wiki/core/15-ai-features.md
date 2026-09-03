@@ -1,4 +1,5 @@
 ---
+title: "AI Integration & Agentic Workflows"
 type: "core"
 name: "AI Features & Pipelines"
 status: "stable"

@@ -1,7 +1,8 @@
 ---
+title: "Component Naming Conventions"
 type: "convention"
 name: "Component Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "React component naming patterns and conventions."
 ---

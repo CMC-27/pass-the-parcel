@@ -1,7 +1,8 @@
 ---
+title: "Test Performance Budget"
 type: "testing"
 name: "Test Performance Budgets"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Per-file test performance budgets and hard limits."
 ---

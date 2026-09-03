@@ -1,7 +1,7 @@
 ---
 title: Voice & Tone
 tags: [language, voice, tone, writing]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./ai-rules.md]

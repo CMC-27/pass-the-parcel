@@ -1,4 +1,5 @@
 ---
+title: "🌟 Vision & North Star: GRID Deploy"
 type: "core"
 name: "Vision & North Star"
 status: "stable"

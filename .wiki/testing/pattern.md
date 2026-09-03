@@ -1,7 +1,8 @@
 ---
+title: "Testing Pattern"
 type: "testing"
 name: "Test Pattern"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Canonical test patterns for the project."
 ---

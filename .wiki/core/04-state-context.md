@@ -1,4 +1,5 @@
 ---
+title: "State & Context Data Shapes"
 type: "core"
 name: "State & Context"
 status: "stable"

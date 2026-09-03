@@ -1,9 +1,9 @@
 ---
 title: Structure Manifest
 tags: [wiki, rules, structure, anchors, governance]
-status: approved
+status: stable
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-08-22
 related-to: [./naming.md, ./numbering.md, ./link-hygiene.md, ../../scripts/wiki_lint.py]
 ---
 
@@ -49,28 +49,29 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 | 4 | Database | area | `.wiki/database/` | Schema, queries, data flow |
 | 5 | Logic | area | `.wiki/logic/` | Utilities, hooks, business logic |
 | 6 | Integrations | area | `.wiki/integrations/` | External systems and APIs |
+| 7 | Conventions | area | `.wiki/conventions/` | Naming and style conventions |
+| 8 | Testing | area | `.wiki/testing/` | Test patterns and standards |
 
 ### Unnumbered Meta / Tooling Directories (type: `area`)
 
 | # | Anchor | Type | Path | Note |
 |---|---|---|---|---|
-| 7 | Wiki Rules | area | `.wiki/rules/` | Governance layer, sits above all content |
-| 8 | Language Rules | area | `.wiki/rules/language/` | Language and writing governance |
-| 9 | Dev Rules | area | `.devops/rules/` | Dev governance layer — agents, skills, plans |
-| 10 | Dev Ops State | area | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
-| 11 | Opencode Config | area | `.opencode/` | opencode configuration |
+| 9 | Wiki Rules | area | `.wiki/rules/` | Governance layer, sits above all content |
+| 10 | Language Rules | area | `.wiki/rules/language/` | Language and writing governance |
+| 11 | Dev Rules | area | `.devops/rules/` | Dev governance layer — agents, skills, plans |
+| 12 | Dev Ops State | area | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
+| 13 | Opencode Config | area | `.opencode/` | opencode configuration |
 
 ### Canonical Authority Files (type: `file`)
 
 | # | Anchor | Type | Path | Note |
 |---|---|---|---|---|
-| 12 | Repository README | file | `README.md` | Human entry point |
-| 13 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
-| 14 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
-| 15 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
-| 16 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
-| 17 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
-| 18 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
+| 14 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
+| 15 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
+| 16 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
+| 17 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
+| 18 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
+| 19 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
 
 ## See Also
 
@@ -80,4 +81,4 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-08-22. Changes to these rules require human sign-off.*

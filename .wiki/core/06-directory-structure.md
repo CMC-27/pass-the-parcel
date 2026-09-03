@@ -1,4 +1,5 @@
 ---
+title: "Physical Directory Structure"
 type: "core"
 name: "Directory Structure"
 status: "stable"

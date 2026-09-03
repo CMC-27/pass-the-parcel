@@ -1,7 +1,8 @@
 ---
+title: "Wording & Grammar Naming Conventions"
 type: "convention"
 name: "Wording and Terminology Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Standards for UI labels, error messages, and domain terminology."
 ---

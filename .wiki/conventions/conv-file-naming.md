@@ -1,7 +1,8 @@
 ---
+title: "File Naming Conventions"
 type: "convention"
 name: "File Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "File naming conventions across the codebase."
 ---

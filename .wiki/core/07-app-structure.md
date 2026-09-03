@@ -1,4 +1,5 @@
 ---
+title: "Application Shell Architecture"
 type: "core"
 name: "App Structure Shell"
 status: "stable"

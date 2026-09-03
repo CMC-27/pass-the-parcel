@@ -1,7 +1,7 @@
 ---
 title: Prohibited Language
 tags: [language, prohibited, writing]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./voice-and-tone.md]

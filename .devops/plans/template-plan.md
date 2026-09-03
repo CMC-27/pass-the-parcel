@@ -55,11 +55,39 @@
 
 ---
 
-> **HALT POINT (Gate A):** Phase 3 complete. Present scoping summary to user. Do not proceed to Phase 4 until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_3`, Active Persona -> `Scoper`, Gate A -> `APPROVED`.
+> **NO HALT after Phase 3:** Phase 3 complete -> set Status -> `PHASE_3` and proceed directly to Phase 4. The human reviews the formalized requirements at Gate A (after Phase 4), not the raw scope.
 
 ---
 
-## 4 Phase 4: High-Visionary Standard Implementation Plan
+## 4 Phase 4: Wiki Requirements & Acceptance Criteria
+**Skill Executed:** `ptp-high-visionary` (spec-first directives) + `@wiki-writer`
+
+> **Spec-First Rule:** The wiki is written BEFORE the code. Docs written here describe target behavior and are marked `status: in-progress` — a pre-code doc is a claim, not truth. Promotion to `stable` happens only at Wrap Up, after the executor verifies code matches spec.
+>
+> **Conditional Skip:** If the task changes no user-visible behavior or logic contract (bug-fix internals, copy tweaks, refactors), skip this phase and record: `No wiki delta — rationale: <why>`.
+
+**Wiki Docs to Write/Update (as `in-progress`):**
+| Doc | Change |
+|---|---|
+| | |
+
+**Acceptance Criteria:**
+| # | Criterion (behavior) | Test Target |
+|---|---|---|
+| 1 | | |
+
+**Spec Notes:**
+- Data flow / state changes:
+- Edge cases the spec must cover:
+- Docs consumed by this feature (read-first list):
+
+---
+
+> **NO HALT after Phase 4:** the spec is reviewed together with the implementation plan at Gate A (after Phase 5) — one decision, what it will do and what it will cost.
+
+---
+
+## 5 Phase 5: High-Visionary Standard Implementation Plan
 **Skill Executed:** `ptp-high-visionary`
 
 **Simplicity Gate:**
@@ -96,16 +124,16 @@
 
 ---
 
-> **HALT POINT (Gate B):** Phase 4 complete. Present execution plan to user. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_4`, Active Persona -> `High-Visionary`, Gate B -> `APPROVED`.
+> **HALT POINT (Gate A — Spec & Plan Review):** Phases 4-5 complete. Present the wiki requirements spec (with acceptance criteria) AND the execution plan together as one decision. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_5`, Active Persona -> `High-Visionary`, Gate A -> `APPROVED`.
 
 ---
 
-## 5 Phase 5: Grumpy Architect Spec & Logic Audit
+## 6 Phase 6: Grumpy Architect Spec & Logic Audit
 **Skill Executed:** `ptp-grumpy-architect`
 
 **Verdict:** `PASS` / `REJECTED`
 
-> **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite via `PHASE_4_REVISION`.
+> **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite via `PHASE_5_REVISION`.
 >
 > **Spec-level audit — the plan contains no code, so no code-level scans (DRY/WET, line checks).**
 
@@ -130,7 +158,7 @@
 
 ---
 
-## 6 Phase 6: Smooth Operator Product Review
+## 7 Phase 7: Smooth Operator Product Review
 **Skill Executed:** `ptp-smooth-operator`
 
 > **Rejection Rule:** If plan introduces unnecessary complexity or scope expansion, do not check boxes. Reject and force rewrite.
@@ -146,16 +174,16 @@
 
 ---
 
-> **HALT POINT (Gate C):** Reviews complete. Present findings and required fixes. Update the **State & Gates** section at the bottom of this file:
-> - **PASS:** Phase 5 log clean -> set Status `PHASE_6`, Active Persona `Reviewer`, Gate C -> `APPROVED`. Do not proceed to execution until user approves.
-> - **FAIL:** Phase 5 or 6 flagged blocking flaws -> set Status `PHASE_4_REVISION`, Active Persona `High-Visionary`, Gate C -> `REJECTED`. Return to Group B for plan adjustments, then re-run Phases 5-6. **Never advance an unapproved plan to execution.**
+> **HALT POINT (Gate B):** Reviews complete. Present findings and required fixes. Update the **State & Gates** section at the bottom of this file:
+> - **PASS:** Phase 6 log clean -> set Status `PHASE_7`, Active Persona `Reviewer`, Gate B -> `APPROVED`. Do not proceed to execution until user approves.
+> - **FAIL:** Phase 6 or 7 flagged blocking flaws -> set Status `PHASE_5_REVISION`, Active Persona `High-Visionary`, Gate B -> `REJECTED`. Return to Group B for plan adjustments, then re-run Phases 6-7. **Never advance an unapproved plan to execution.**
 
 ---
 
-## 7 Phase 7: Execute Changes
+## 8 Phase 8: Execute Changes
 **Skill Executed:** `ptp-code-surgeon`
 
-**Execution Isolation:** Phase 7 triggers ONLY after Gate C cleared by explicit user input.
+**Execution Isolation:** Phase 8 triggers ONLY after Gate B cleared by explicit user input.
 
 **Single-Pass Direct-to-Disk:**
 > [ ] Implementation written DIRECTLY to source files - no intermediate Markdown code blocks, no drafting files
@@ -168,7 +196,7 @@
 
 ---
 
-## 8 Phase 8: Verify Changes
+## 9 Phase 9: Verify Changes
 **Skill Executed:** `ptp-code-surgeon`
 
 **Build & Lint:**
@@ -185,11 +213,11 @@
 
 ---
 
-> **HALT POINT (Gate D):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_8`, Active Persona -> `Executor`, Gate D -> `APPROVED`.
+> **HALT POINT (Gate B):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_9`, Active Persona -> `Executor`, Gate B -> `APPROVED`.
 
 ---
 
-## 9 Phase 9: User Review & Tweaks
+## 10 Phase 10: User Review & Tweaks
 **Skill Executed:** `knowledge-capture`
 
 **Tweak Discipline:**
@@ -210,23 +238,24 @@
 
 ---
 
-## 10 Phase 10: Document Tweaks & Knowledge Capture
+## Completion Note (Wrap Up)
 **Skill Executed:** `agent-wrap-up`
 
 > [ ] Read `.wiki/core/18-knowledge-capture.md` for existing related decisions
 > [ ] Themed tweaks synced to knowledge capture doc
-> [ ] Wiki docs updated per Phase 9 tweaks
+> [ ] Wiki docs updated per Phase 10 tweaks
+> [ ] Code reconciled against Phase 4 spec — deviations logged
+> [ ] `status: in-progress` wiki docs promoted to `stable` (or deviation logged)
 
 **Themed Tweaks:**
 
 **Knowledge Capture Entries:**
 
----
+**Spec Reconciliation:** [code-vs-spec deviations, or "None — implementation matches Phase 4 spec"]
 
-## Completion Note
-**Skill Executed:** `agent-wrap-up`
+**In-Progress Promotions:** [docs promoted to `stable`, or "None"]
 
-**Dead-Code Backlog Entries (from Phase 5):**
+**Dead-Code Backlog Entries (from Phase 6):**
 
 **Wiki Updates:** [List wiki docs updated]
 
@@ -249,15 +278,14 @@
 | **Depends On** | none |
 | **Blocks** | none |
 
-> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_4`, `PHASE_4_REVISION`, `PHASE_6`, `PHASE_8`, `COMPLETE`.
+> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_9`, `COMPLETE`.
 
 | Gate | Requirement | Status |
 |---|---|---|
-| A | Scope approved (Phases 1-3) | `OPEN` |
-| B | Plan approved (Phase 4) | `OPEN` |
-| C | Reviews passed (Phases 5-6) | `OPEN` |
-| D | Implementation verified (Phases 7-8) | `OPEN` |
+| A | Spec & plan approved (Phases 4-5) | `OPEN` |
+| B | Reviews passed (Phases 6-7) | `OPEN` |
+| C | Implementation verified (Phases 8-9) | `OPEN` |
 
-> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_4_REVISION` for Gate C). Never edit rows above this section for gate bookkeeping.
+> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_5_REVISION` for Gate B). Never edit rows above this section for gate bookkeeping.
 
 > **This section is the LAST section in the file. All gate bookkeeping happens here.**

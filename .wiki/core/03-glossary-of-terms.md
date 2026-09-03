@@ -1,4 +1,5 @@
 ---
+title: "📖 Glossary of Terms: GRID Deploy"
 type: "core"
 name: "Glossary of Terms"
 status: "stable"

@@ -16,13 +16,14 @@
 |---|---|---|
 | Building/editing UI component | `.wiki/components/components-index.md` | Specific component doc |
 | Building/editing screen/view | `.wiki/features/features-index.md` | Specific feature doc |
-| Writing database query | `.wiki/database/database-index.md` | Specific schema doc |
-| Editing layout/workspace shell | `.wiki/core/07-app-structure.md` | Layout component docs |
+| Writing a database query | `.wiki/database/database-index.md` | Specific schema doc |
+| Editing overall layout/workspace shell | `.wiki/core/07-app-structure.md` | Layout component docs |
 | Understanding state/context | `.wiki/core/04-state-context.md` | State management docs |
-| Extending utility/hook | `.wiki/logic/logic-index.md` | Specific util/hook doc |
+| Parsing CSV/XLSX import/export | `.wiki/logic/logic-index.md` | CSV Parser / xlsx utility |
+| Extending utility/custom hook | `.wiki/logic/logic-index.md` | Specific util/hook doc |
 | Touching AI/agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
 | Adding/editing form fields | `.wiki/core/09-design-system.md` S5c | `.wiki/core/10-validation-standards.md` |
-| Asking question about codebase | `@wiki-query` skill | Cites from `.wiki/` |
+| Asking question about codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` |
 | Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Delegation Map (canonical)
@@ -30,22 +31,22 @@
 |---|---|---|
 | 1-3 | `parcel-context-hunter` | mimo-2.5 |
 | 3.5 (AUTO) | `parcel-phase3-answerer` | mimo-2.5 |
-| 4 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
-| 5 | `parcel-grumpy-architect` | v4-flash-max |
-| 6 | `parcel-smooth-operator` | mimo-2.5 |
-| 7-8 | `parcel-code-surgeon` | deepseek-v4-flash |
+| 4-5 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
+| 6 | `parcel-grumpy-architect` | v4-flash-max |
+| 7 | `parcel-smooth-operator` | mimo-2.5 |
+| 8-9 | `parcel-code-surgeon` | deepseek-v4-flash |
 
 ## Model Registry (canonical identifiers — no aliases)
-- `mimo-2.5` — orchestrator + Phases 1-3, 4, 6, 10 + Wrap Up
-- `v4-flash-max` — Phase 5 (Grumpy Architect Spec & Logic Audit)
-- `deepseek-v4-flash` — Phases 7-8 (Code Surgeon, single-pass direct-to-disk + QA)
+- `mimo-2.5` — orchestrator + Phases 1-3, 4-5, 7 + Wrap Up
+- `v4-flash-max` — Phase 6 (Grumpy Architect Spec & Logic Audit)
+- `deepseek-v4-flash` — Phases 8-9 (Code Surgeon, single-pass direct-to-disk + QA)
 
 ## PTP Lifecycle
-`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_4` -> `PHASE_6` -> `PHASE_8` -> `COMPLETE`
+`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_4` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
-**Revision loop:** `PHASE_6` -> (Phase 5/6 fail) -> `PHASE_4_REVISION` -> `PHASE_4` -> `PHASE_6`
+**Revision loop:** `PHASE_7` -> (Phase 6/7 fail) -> `PHASE_5_REVISION` -> `PHASE_5` -> `PHASE_7`
 
-**Gates:** A (Scope) -> B (Plan) -> C (Review) -> D (Implementation)
+**Gates:** A (Spec & Plan) -> B (Review) -> C (Implementation)
 
 **Modes:** `BLIND`/`SINGLE` (agent delegation) x `USER-MANAGED`/`AUTO` (gate behavior)
 
@@ -66,19 +67,19 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 ## Workflow
 
 1. **Load the `pass-the-parcel` skill** for the canonical phase table, lifecycle states, gate semantics, and template reference.
-2. **Mode Selection (mandatory, before any plan work).** Call the `question` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in plan's State Dashboard.
+2. **Mode Selection (mandatory, before any plan work).** Call the `question` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **State & Gates** section (bottom).
 3. **Workspace Initialization (mandatory, once per plan).** Create `.opencode/plans/run-[slug]/` with a `reviews/` subdirectory. Initialize `decision_log.md`.
 4. **Pick up the plan** at `.devops/plans/[slug]-plan.md`. Hydrate **State & Gates** (bottom) to `PHASE_1`.
 5. **Group A -- Phases 1-3:** Spawn `parcel-context-hunter`.
 6. **Phase 3.5 (AUTO only):** Spawn `parcel-phase3-answerer`. Check for `Unresolvable:` entries.
-7. **Group B -- Phase 4:** Spawn `parcel-high-visionary`. Writes Phase 4 into the plan file directly (cache-anchored top stays byte-stable).
-8. **Group C -- Phases 5-6:** Spawn `parcel-grumpy-architect` (Phase 5, Spec & Logic Audit) and `parcel-smooth-operator` (Phase 6). Each writes to its isolated `reviews/` file.
-9. **Gate C Deterministic Rejection:**
-   - **Pass:** Phase 5 log clean -> Phase 6 done -> set `PHASE_6` -> halt at Gate C for user sign-off.
-   - **Fail:** Phase 5 or 6 logs blocking flaws -> set `PHASE_4_REVISION` -> return to Group B for plan adjustments -> re-run Phases 5-6 -> re-evaluate Gate C. **Never advance an unapproved plan to execution.**
-10. **Group D -- Phases 7-8:** **ONLY after Gate C cleared by explicit user input.** Spawn `parcel-code-surgeon`. Reads Phase 4 + State & Gates from the plan file. Single-pass direct-to-disk execution.
+7. **Group B -- Phases 4-5:** Spawn `parcel-high-visionary`. Writes Phase 4 (wiki requirements spec + acceptance criteria, docs marked `in-progress`; conditional — skip with recorded rationale when no behavior/logic change) and Phase 5 (implementation plan) into the plan file directly (cache-anchored top stays byte-stable). **Gate A (Spec & Plan Review) halts after Phase 5** — the user approves spec + plan together as one decision.
+8. **Group C -- Phases 6-7:** Spawn `parcel-grumpy-architect` (Phase 6, Spec & Logic Audit) and `parcel-smooth-operator` (Phase 7). Each writes to its isolated `reviews/` file.
+9. **Gate B Deterministic Rejection:**
+   - **Pass:** Phase 6 log clean -> Phase 7 done -> set `PHASE_7` -> halt at Gate B for user sign-off.
+   - **Fail:** Phase 6 or 7 logs blocking flaws -> set `PHASE_5_REVISION` -> return to Group B for plan adjustments -> re-run Phases 6-7 -> re-evaluate Gate B. **Never advance an unapproved plan to execution.**
+10. **Group D -- Phases 8-9:** **ONLY after Gate B cleared by explicit user input.** Spawn `parcel-code-surgeon`. Reads Phase 4 (spec + acceptance criteria) + Phase 5 + State & Gates from the plan file. Single-pass direct-to-disk execution.
 11. **Gate behavior:** `USER-MANAGED` halts at every gate for user. `AUTO` auto-advances but hard-halts on destructive actions, build failures, unresolvable blockers.
-12. **Phase 9 (User Review):** user-driven. Apply Tweak Discipline.
+12. **Phase 10 (User Review):** user-driven. Apply Tweak Discipline.
 13. **Phase 10 + Wrap Up:** Load `agent-wrap-up` skill. Archive plan. Status -> `COMPLETE`.
 
 ## Sub-agent delegation map
@@ -87,7 +88,7 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 |---|---|---|
 | 1-3 | `parcel-context-hunter` | Scope perimeter + Phase 3 questions |
 | 3.5 (AUTO) | `parcel-phase3-answerer` | Auto-resolutions |
-| 4 (+ revision) | `parcel-high-visionary` | Phase 4 in plan file (bottom State & Gates) |
+| 4 (+ revision) | `parcel-high-visionary` | Phase 5 in plan file (bottom State & Gates) |
 | 5 | `parcel-grumpy-architect` | `reviews/arch_review.md` |
 | 6 | `parcel-smooth-operator` | `reviews/product_review.md` |
 | 7-8 | `parcel-code-surgeon` | Executed code + verification |

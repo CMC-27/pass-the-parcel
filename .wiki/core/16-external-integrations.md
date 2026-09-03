@@ -1,4 +1,5 @@
 ---
+title: "External Integrations"
 type: "core"
 name: "External Integrations"
 status: "in-progress"

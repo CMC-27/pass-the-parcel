@@ -1,4 +1,5 @@
 ---
+title: "🗺️ @docs Architecture Blueprint"
 type: "core"
 name: "Documentation Architecture Blueprint"
 status: "stable"

@@ -1,7 +1,8 @@
 ---
+title: "CSS Class Naming Conventions"
 type: "convention"
 name: "CSS Class Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "CSS class naming and organization standards."
 ---

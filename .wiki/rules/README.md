@@ -1,10 +1,10 @@
 ---
 title: Wiki Rules & Patterns
 tags: [wiki, rules, governance, index]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_lint.py]
+related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_lint.py]
 ---
 
 # Wiki Rules & Patterns
@@ -20,6 +20,7 @@ related-to: [../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_lin
 | Adding frontmatter to a document | [frontmatter.md](frontmatter.md) |
 | Structuring a document's sections | [document-structure.md](document-structure.md) |
 | Linking documents, moving content | [link-hygiene.md](link-hygiene.md) |
+| Adding a doc and cataloguing it in an index | [link-hygiene.md](link-hygiene.md) §Maintenance Rules |
 | Declaring an immutable anchor / numbered folder | [structure.md](structure.md) — the structure manifest, enforced by the linter |
 | Deciding what belongs in wiki content vs operational state | [company-scoping.md](company-scoping.md) — the content-vs-state split |
 | Agents, skills, plan lifecycle, dev/ops state | [.devops/rules/](../../.devops/rules/README.md) — the dev governance layer |

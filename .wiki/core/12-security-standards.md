@@ -1,7 +1,8 @@
 ---
+title: "Security Standards: Core Security Principles for Agentic Development"
 type: "core"
 name: "Security Standards"
-status: "approved"
+status: "stable"
 dependencies: []
 db_relations: []
 description: "Core security boundary definitions, data isolation, role-based access, agentic governance, and row-level policies."

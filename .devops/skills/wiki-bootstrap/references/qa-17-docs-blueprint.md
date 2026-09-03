@@ -18,5 +18,5 @@ Agents use this as a quick in-repo reference for the wiki standard itself. A dri
 6. Is the doc kept concise (under ~150 lines), or has it ballooned into a full duplication?
 
 ## Sources of truth
-- `.devops/skills/wiki-bootstrap/SKILL.md` — the source of truth
+- `.opencode/skills/wiki-bootstrap/SKILL.md` — the source of truth
 - This doc should be a pointer, not a duplicate

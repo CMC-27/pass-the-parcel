@@ -17,5 +17,5 @@ Agents use this as a quick in-repo reference for the wiki standard. Drift betwee
 5. Are the "Last Verified" / date metadata in this doc still fresh?
 
 ## What to verify against
-- `.devops/skills/wiki-bootstrap/SKILL.md` — the source of truth
+- `.opencode/skills/wiki-bootstrap/SKILL.md` — the source of truth
 - This doc should be a pointer, not a duplicate

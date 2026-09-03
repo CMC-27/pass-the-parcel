@@ -1,7 +1,8 @@
 ---
+title: "Test Authoring Checklist"
 type: "testing"
 name: "Test PR Checklist"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "PR review checklist for test file compliance."
 ---

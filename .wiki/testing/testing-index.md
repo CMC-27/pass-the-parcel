@@ -20,6 +20,10 @@ This index catalogs all testing standards and conventions for the project.
 | `mocking.md` | Shared mock conventions, canonical mock location, override rules |
 | `performance.md` | Per-file test performance budgets and hard limits |
 | `checklist.md` | PR review checklist for test file compliance |
+| [Test PR Checklist](checklist.md) | checklist |
+| [Mocking Standards](mocking.md) | mocking |
+| [Test Pattern](pattern.md) | pattern |
+| [Test Performance Budgets](performance.md) | performance |
 
 ---
 

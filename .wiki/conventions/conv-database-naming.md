@@ -1,7 +1,8 @@
 ---
+title: "Database Naming Conventions"
 type: "convention"
 name: "Database Naming Convention"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Table, column, and index naming conventions."
 ---

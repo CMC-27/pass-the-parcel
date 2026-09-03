@@ -1,4 +1,5 @@
 ---
+title: "User Journey & Data Hierarchy"
 type: "core"
 name: "User Journey & Data Hierarchy"
 status: "stable"

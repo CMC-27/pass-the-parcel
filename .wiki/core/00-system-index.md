@@ -73,6 +73,7 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 - [Knowledge Changelog](../../.devops/logs/knowledge-changelog.md)
 - [Naming Conventions Index](../conventions/conventions-index.md) - Hub for all naming conventions
 - [Testing Index](../testing/testing-index.md) - Test architecture docs
+- [Integrations Index](../integrations/integrations-index.md) - External systems and APIs
 
 ## 9. Component & View Code
 - [Components Index](../components/components-index.md) - Catalog of all UI components
@@ -144,6 +145,7 @@ This wiki follows a **hub-and-spoke** architecture:
   +-- logic/logic-index.md             <- Spoke: catalogs all util-* and hook-* docs
   +-- conventions/conventions-index.md <- Spoke: catalogs all conv-* docs
   +-- testing/testing-index.md         <- Spoke: catalogs all testing docs
+  +-- integrations/integrations-index.md <- Spoke: catalogs all external integrations
 ```
 
 **How it works:**

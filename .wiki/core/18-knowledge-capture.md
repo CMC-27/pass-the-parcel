@@ -1,4 +1,5 @@
 ---
+title: "Knowledge Capture & Decision Log 🧠"
 type: "core"
 name: "Knowledge Capture"
 status: "stable"
@@ -54,23 +55,44 @@ Each entry should follow this format:
 ---
 
 ## 🚀 Tooling & DevOps
-* **Decision Date:** 2026-08-17
+* **Decision Date:** 2026-08-17 *(phase numbering updated 2026-09-03 — spec-first renumbering; canonical mapping now lives in `.opencode/plans/base-context.md` Model Registry)*
 * **Context:** The pass-the-parcel pipeline needed a clearer model-to-phase mapping to match model strengths to task difficulty and reduce token spend on heavy models for lighter roles.
 * **Action:** Adopted a fixed model assignment for the parcel pipeline (canonical identifiers: `mimo-2.5`, `v4-flash-max`, `deepseek-v4-flash` — no aliases):
-    * **mimo-2.5** — orchestrator + Phases 1-3 (Scoper), Phase 4 (High-Visionary), Phase 6 (Smooth Operator), Phase 10 + Wrap Up.
-    * **v4-flash-max** — Phase 5 (Grumpy Architect / Spec & Logic Audit).
-    * **deepseek-v4-flash** — Phases 7-8 (Code Surgeon, ponytail coding + single-pass direct-to-disk execution).
-    * Phase 4 was trimmed to a standard implementation plan — **no code snippets unless absolutely necessary** — and the persona renamed from "Razor Planner" to **High-Visionary**.
-    * Phase order swapped: **Grumpy Architect (Phase 5)** now runs before **Smooth Operator (Phase 6)**.
-    * **Phase 5 is a Spec & Logic Audit, not a code review** — the plan contains no code, so it evaluates system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, and architectural anti-patterns.
-    * **Deterministic rejection loop at Gate C** — a failing Phase 5/6 review sets `PHASE_4_REVISION` and returns the plan to Group B for fixes; an unapproved plan never advances to execution.
-    * **Execution isolation** — Phase 7 (Code Surgeon) triggers only after Gate C is cleared by explicit user input and writes directly to disk, bypassing intermediate Markdown code blocks.
+    * **mimo-2.5** — orchestrator + Phases 1-3 (Scoper), Phases 4-5 (High-Visionary), Phase 7 (Smooth Operator), Wrap Up.
+    * **v4-flash-max** — Phase 6 (Grumpy Architect / Spec & Logic Audit).
+    * **deepseek-v4-flash** — Phases 8-9 (Code Surgeon, ponytail coding + single-pass direct-to-disk execution).
+    * Phase 4 is the wiki requirements spec + Phase 5 the standard implementation plan — **no code snippets unless absolutely necessary** — persona: **High-Visionary**.
+    * Phase order: **Grumpy Architect (Phase 6)** runs before **Smooth Operator (Phase 7)**.
+    * **Phase 6 is a Spec & Logic Audit, not a code review** — the plan contains no code, so it evaluates system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, and architectural anti-patterns.
+    * **Deterministic rejection loop at Gate B** — a failing Phase 6/7 review sets `PHASE_5_REVISION` and returns the plan to Group B for fixes; an unapproved plan never advances to execution.
+    * **Execution isolation** — Phase 8 (Code Surgeon) triggers only after Gate B is cleared by explicit user input and writes directly to disk, bypassing intermediate Markdown code blocks.
 * **Rationale:**
     * **Capability-fit routing**: the heavy review model (`v4-flash-max`) is reserved for the senior architectural audit; the orchestrator model (mimo-2.5) handles the majority of planning/communication/UX work where balanced capability suffices.
-    * **Token efficiency**: trimming Phase 4 to standard implementation instructions (no code snippets) shrinks plan size and review surface; code specifics are deferred to the Code Surgeon via ponytail markers.
-    * **Review ordering**: architectural hardening (Grumpy, Phase 5) must land before product smoothing (Smooth Operator, Phase 6) so the Smooth Operator cross-checks the already-hardened plan instead of handing off structural concerns forward.
-    * **Safety**: the `PHASE_4_REVISION` loop + execution isolation prevent unapproved plans from cascading into code changes.
-    * **Consistency**: both `opencode.json` and `.opencode/agents/*.md` must stay in lockstep — they are the same agent definitions in two formats; model identifiers are canonicalized to avoid parser ambiguity.
+    * **Token efficiency**: trimming Phase 5 to standard implementation instructions (no code snippets) shrinks plan size and review surface; code specifics are deferred to the Code Surgeon via ponytail markers.
+    * **Review ordering**: architectural hardening (Grumpy, Phase 6) must land before product smoothing (Smooth Operator, Phase 7) so the Smooth Operator cross-checks the already-hardened plan instead of handing off structural concerns forward.
+    * **Safety**: the `PHASE_5_REVISION` loop + execution isolation prevent unapproved plans from cascading into code changes.
+    * **Consistency**: both `opencode.json` and the agent runbooks must stay in lockstep — they are the same agent definitions in two formats; model identifiers are canonicalized to avoid parser ambiguity.
+
+---
+
+### Template Sync Policy — Machinery Flows from the Farthest-Evolved Consumer
+* **Decision Date:** 2026-09-03
+* **Context:** This workspace is the authoritative template for all parcel-* development workspaces, but consumer workspaces (notably GRID-Deploy) evolve the machinery faster than the template is updated — GRID-Deploy had diverged on 19 skills, all 7 parcel agents, the linter, and the parcel phase numbering.
+* **Action:** Imported the latest machinery from GRID-Deploy into this template (spec-first Phase 4-9 pipeline, Theme/Epic plan prefixes, wiki promotion workflow, coverage gate, wiki-verifier agent, wiki-writer rename). GRID-specific app content was excluded (tech stack, BoM/tender docs, Firebase CORS script, workspace overrides). Known issue deferred to backlog: `base-context.md` Model Registry documents `mimo-2.5` for phases 1-5/7 while `opencode.json` runtime assigns `deepseek-v4-flash` to every agent.
+* **Rationale:**
+    * **Battle-tested machinery**: consumer workspaces run the machinery against real code daily; the template should absorb what survived production, not what was last written here.
+    * **App-agnostic template**: app-specific content stays in consumer wikis; the template carries only portable machinery so the next workspace starts clean.
+    * **Single source of truth**: the template remains the canonical copy; future consumer changes should flow back via the same sync policy.
+
+---
+
+### UTF-8 Mojibake in Machinery Files — Repair, Don't Re-copy
+* **Decision Date:** 2026-09-03
+* **Context:** Several `.devops/skills/wiki-*` files carried U+FFFD replacement chars and `?`-mangled arrows/emoji (em dashes → `�`, `→` → `?`, `–` → `n++`) from an ancestor edit saved with the wrong encoding. `check-utf8-agents.ps1` only guards `.devops/agents/parcel-*.md` — skills and scaffolds have no automated guard.
+* **Action:** Repaired all affected files to clean UTF-8 (no BOM). When syncing machinery between workspaces, never assume a source file is encoding-clean: scan for `\uFFFD` and mangled sequences first, and port structural changes onto clean text rather than copying corrupted files whole.
+* **Rationale:**
+    * **Corruption propagates through sync**: a template sync that copies mojibake wholesale re-infects the clean workspace.
+    * **Guard gap**: skills/scaffolds are read by every agent; corrupted glyphs in instructions degrade downstream behavior silently.
 
 ---
 

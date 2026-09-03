@@ -11,6 +11,38 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-03 - Template Sync: Import Latest Parcel Architecture from GRID-Deploy
+
+**Agent:** GitHub Copilot (opencode-go/glm) (Coordinated by user)
+
+**Files Modified:**
+- `.devops/skills/*/SKILL.md` — 19 skills updated from GRID-Deploy (newer machinery): `agent-wrap-up` (Phase 0 mechanical diff + Phase 8 coverage gate), `backlog` (Theme/Epic `T{n}-E{n}.{impl}` prefix convention, all plans live in `.devops/plans/`), `build-roadmap` (three-tier Theme→Epic→Impl hierarchy), `knowledge-capture` v1.1 (3-section format reference), `knowledge-consolidation` v3.0 (Tribal-vs-Canonical promotion test, wiki promotion phase), `pass-the-parcel` + all `ptp-*` personas (spec-first renumbering: Phase 4 wiki spec, Gate A/B/C, `PHASE_5_REVISION` loop), `spaghetti-monster` (overrides halt + State Dashboard), `true-or-false` (plan suffix), `ui-inventory-scanner`/`design-audit` (doc-path fixes), `wiki-lint` v1.2 (deterministic linter invocation)
+- `.devops/skills/wiki-writer/` — ADDED (renamed from `write-wiki/`, which is deleted); all cross-references updated
+- `.devops/skills/wiki-assessment/` + `.devops/skills/wiki-bootstrap/` — Theme-column slot tables, slot-14 testing-subtree note, realigned slot-purpose table, `wiki-writer` companion references, theme-linguistics reference scaffolds; all mojibake (U+FFFD/`?`) repaired to clean UTF-8
+- `.devops/agents/` — all 7 parcel agents re-synced; `wiki-verifier.md` ADDED (clean-context report-only post-wrap-up auditor)
+- `.opencode/plans/base-context.md` — new phase numbering (Phases 4-5 High-Visionary, 6 Grumpy, 7 Smooth, 8-9 Surgeon), Gates A (Spec & Plan) → B (Review) → C (Implementation), `PHASE_5_REVISION` loop; PREFIX-LOCKED prefix re-inlined via `check-parcel-prefix.ps1 -Sync`
+- `opencode.json` — `wiki-verifier` agent registered; model assignments imported from GRID-Deploy; agent descriptions updated to new phase numbering
+- `.vscode/settings.json` — ADDED (instruction/agent/skill file locations + terminal auto-approve policy)
+- `.opencode/package.json` + `package-lock.json` — ADDED (`@opencode-ai/plugin` dependency, gitignored local runtime)
+- `scripts/` — `wiki_lint.py` upgraded (hub-and-spoke enforcement, BFS reachability, index budget, `--changelog`, deterministic `--fix`), `wiki_coverage_check.py` ADDED (code-graph coverage gate), `spaghetti-monster-scan.cjs` ADDED
+- `.devops/plans/template-plan.md` — spec-first restructure: Phase 4 Wiki Requirements & Acceptance Criteria, no-halt after Phase 3/4, three-gate State & Gates
+- `.wiki/rules/` — structure manifest (conventions/testing numbered areas, renumbered anchors), link-hygiene rule 4 (index cataloguing), `status: approved→stable` normalization; language rules synced
+- `.wiki/core/00-system-index.md` — added `Integrations Index` spoke link + spoke diagram row
+- `.wiki/**` frontmatter — `title` field added to 31 docs missing it; legacy `template`/`approved` statuses normalized to `in-progress`/`stable`
+- `.wiki/conventions/conventions-index.md`, `.wiki/testing/testing-index.md`, `.wiki/integrations/integrations-index.md` — missing index rows added via `wiki_lint.py --fix`
+- `AGENTS.md` — `@wiki-writer` + wiki-verifier task-lookup rows, Rule 10 (Wiki Prose Discipline), Pre-Push Requirements section
+
+**Database/API Changes:** None
+
+**Wrap-Up Actions (2026-09-03, same session):**
+- `.devops/rules/plan-lifecycle.md` — synced to the new spec-first lifecycle (`PHASE_4` → `PHASE_5` → `PHASE_7` → `PHASE_9`, Gates A/B/C, `PHASE_5_REVISION`); backlog-plans-in-`.devops/plans/` convention; `last-reviewed` stamped 2026-09-03
+- `.wiki/core/18-knowledge-capture.md` — updated the 2026-08-17 model-mapping decision to the new phase numbering; added two decisions: *Template Sync Policy* and *UTF-8 Mojibake in Machinery Files*
+- `.devops/plans/T1-E1.01-reconcile-model-registry-plan.md` + `.devops/backlog/backlog-index.md` — new backlog item (T1-E1.01): Model Registry documents `mimo-2.5` while `opencode.json` runtime assigns `deepseek-v4-flash`; needs a user decision on the canonical mapping
+- Phase 0 diff verified: 89 modified, 7 added, 1 deleted files; **no `src/` changes** — docs/machinery only, no feature-doc leftovers
+- Phase 8.3 freshness stamp: N/A — the hub has no `Last Verified` Quick Reference field; freshness carried by `last-reviewed` frontmatter (rules docs stamped)
+
+**Summary:** Imported the most current parcel architecture from GRID-Deploy (the farthest-evolved consumer workspace) into this authoritative template, excluding GRID-specific app content (tech stack, BoM/tender docs, Firebase CORS script, `grids-deploy-overrides.md`). Key upgrades: spec-first parcel pipeline (wiki docs written as `in-progress` in Phase 4, promoted to `stable` at wrap-up), Theme/Epic plan prefixes, wiki promotion workflow, coverage gate (`wiki_coverage_check.py`), hardened deterministic linter, and the `wiki-verifier` clean-context auditor. Also repaired pre-existing UTF-8 mojibake in `wiki-bootstrap` skill files and cleared all frontmatter debt the new linter surfaced. Verified: `wiki_lint.py` exit 0 (0 findings), `wiki_coverage_check.py` exit 0, `check-parcel-prefix.ps1` PASS, `check-utf8-agents.ps1` ALL CLEAN, `opencode.json` valid JSON. **Wrap-up ref:** `23f7652` (last commit; all work in this entry is uncommitted on top of it — commit before the next wrap-up so the next Phase 0 diff has a clean baseline).
+
 ## Parcel Version Pipeline Collapse + Single Canonical Template
 
 **Agent:** opencode-go/deepseek-v4-flash (Coordinated by user)

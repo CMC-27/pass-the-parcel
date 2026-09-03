@@ -1,7 +1,8 @@
 ---
+title: "Gemini AI Integration Guide"
 type: "integration"
 name: "Gemini AI Integration"
-status: "template"
+status: "in-progress"
 dependencies: []
 description: "Documentation for LLM/AI model integration patterns."
 ---

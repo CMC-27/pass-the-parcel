@@ -1,7 +1,7 @@
 ---
 title: Document Structure Pattern
 tags: [wiki, rules, structure, front-loading]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./frontmatter.md, ./naming.md, ../AGENTS.md]

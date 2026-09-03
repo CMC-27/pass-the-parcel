@@ -1,7 +1,7 @@
 ---
 title: Naming Conventions
 tags: [wiki, rules, naming, conventions]
-status: approved
+status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./numbering.md, ./frontmatter.md]

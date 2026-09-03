@@ -1,4 +1,5 @@
 ---
+title: "Core Architecture Concepts"
 type: "core"
 name: "Core Architecture Concepts"
 status: "stable"
