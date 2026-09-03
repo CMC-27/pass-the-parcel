@@ -139,6 +139,17 @@ Each entry should follow this format:
 
 ---
 
+### Gate Output Cost Must Be Measured Before Optimizing Agent Token Spend
+* **Decision Date:** 2026-09-03
+* **Context:** The `@agent-wrap-up` and `@test-and-deploy` skills were flagged as token-heavy at session end. Initial analysis assumed the Phase 8 gates (`wiki_lint.py`, `wiki_coverage_check.py`) flooded the main context with output and recommended delegating them. No measurements existed — the claim was an estimate.
+* **Action:** Measured both gates before restructuring: `wiki_lint.py --quiet` runs in 0.63s with zero output; `wiki_coverage_check.py` in 0.25s with 64 chars. The token cost is concentrated in *reads* (the 60-doc wiki, backlog index), not the gates. Rebuilt both skills accordingly: wrap-up gained phase-gating (explicit skip rules after the Phase 0 diff) plus a two-subagent delegation model (Agent A owns `.wiki/**` incl. `defer` rows + knowledge-capture; Agent B owns `.devops/plans|archive|backlog`); Phase 8 stays inline. test-and-deploy now runs lint/test/build concurrently via `Start-Job` (single poll each, logs to files, read only on failure) and defaults to a silent Patch version bump. Versions bumped 1→2.
+* **Rationale:**
+    * **Measure, then optimize**: a grep + `Measure-Command` pass falsified the gate-output claim in minutes; delegating the gates would have added subagent overhead to the cheapest phase of the skill.
+    * **Isolate reads, not writes**: the subagent split pays off only where the read surface is large; cheap deterministic gates belong in the orchestrating context.
+    * **File-ownership rules prevent write collisions**: the naive split (`.wiki/` vs `.devops/`) had a real collision — Phase 5 `defer` rows write into `.wiki/core/18-knowledge-capture.md`; ownership was reassigned accordingly.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]

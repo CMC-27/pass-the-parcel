@@ -11,6 +11,21 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-03 - Skill Streamlining: agent-wrap-up + test-and-deploy Token Economy
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `.devops/skills/agent-wrap-up/SKILL.md` — v1→v2. Added "Token Economy & Delegation Model" section: phase-gating (explicit skip rules after Phase 0 — no `src/` diff skips 2–3, no plan skips 4, nothing surfaced skips 5–7) + two-subagent concurrent delegation for Phases 2–7 with exclusive write scopes (Agent A: `.wiki/**` incl. Phase 5 `defer` rows + Phase 7 knowledge-capture; Agent B: `.devops/plans|archive|backlog`); subagents return summary tables, never file contents. Phase 8 re-anchored as inline-only (gates measured <1s, tiny output; lint gate now invoked with `--quiet`); subagent spawn added to Mandatory Tools.
+- `.devops/skills/test-and-deploy/SKILL.md` — v1→v2. §2–3: lint/test/build now run concurrently as PowerShell 5.1 `Start-Job` background jobs, full output redirected to log files, single poll per job, logs read only on failure (wall-clock = longest job, not the sum; polling discipline prevents token overrun). §4: version level defaults to Patch silently — clarifying prompt fires only on explicit feature/breaking-release signals.
+- `.wiki/core/18-knowledge-capture.md` — new decision: "Gate Output Cost Must Be Measured Before Optimizing Agent Token Spend" (evidence-first validation falsified the initial gate-output claim before restructuring).
+
+**Database/API Changes:** None
+
+**Summary:** User trialled both skills in a satellite workspace and flagged them as token-heavy at session end. Findings were validated against the template before editing: measured both Phase 8 gates (wiki_lint 0.63s / 0 chars with `--quiet`; coverage 0.25s / 64 chars) — the "gates flood context" hypothesis was falsified and withdrawn, while the read-cost claim was confirmed (`.wiki/` = 60 docs, ~135 KB). The restructure delegates the genuinely expensive phases (2–7) to two concurrent subagents with corrected file ownership (naive `.wiki/` vs `.devops/` split had a real collision via Phase 5 `defer` rows writing into the knowledge-capture doc) and keeps cheap gates inline. Phase-gating makes wrap-up cost proportional to session shape instead of always running all 9 phases. test-and-deploy's three verification streams are independent, so they now run concurrently with output truncation by design. Phase-gating applied to this very wrap-up: docs/machinery-only diff → Phases 2–4 skipped; backlog read → no matching items. Verified: `wiki_lint.py --quiet` exit 0; `machinery-version` unchanged (skill frontmatter bumps suffice per bump discipline). Not pushed (human's `@test-and-deploy` owns that). **Wrap-up ref:** `e773d43` (last commit; this session's work is uncommitted on top — commit before the next wrap-up so the next Phase 0 diff has a clean baseline).
+
+---
+
 ## 2026-09-03 - CI Hotfix: Untracked-File Assertion Removed
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)

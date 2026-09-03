@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 1
+version: 2
 updated: 2026-09-03
 ---
 
@@ -15,6 +15,32 @@ Activate this skill whenever:
 1.  A primary development task is completed.
 2.  The user says "wrap up", "we're done", "ship it", "archive this", or "good job".
 3.  You are closing out a major feature branch or bug fix.
+
+---
+
+## Token Economy & Delegation Model
+
+Wrap-up's token cost is concentrated in *reads* (wiki docs, backlog index), not edits. Two rules keep it lean without losing any benefit.
+
+### Phase-Gating (Skip What Doesn't Apply)
+Immediately after Phase 0, triage the diff and declare skips explicitly:
+- Diff touches no `src/` files (docs/process-only session) → skip Phases 2–3.
+- No plan in `.devops/plans/` was followed this session → skip Phase 4.
+- Nothing new surfaced (orphans, debt, backlog matches, tribal knowledge) → skip Phases 5–7 with a one-line declaration in the changelog entry.
+- Phases 0, 1, and 8 are always mandatory.
+
+### Subagent Delegation (Phases 2–7)
+Phases 2–7 are read-heavy and parallelizable. On feature-scale sessions, dispatch two subagents **concurrently** after Phase 0. Each prompt must carry the wiki-first mandate (AGENTS.md rule 6) and the agent's exclusive write scope to prevent collisions:
+
+| Agent | Owns (exclusive write scope) | Phases | Returns (summary only — never file contents) |
+|-------|------------------------------|--------|----------------------------------------------|
+| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 7 knowledge-capture | Table of docs created/updated/promoted + stale refs fixed + deviations logged |
+| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows), 6 | List of plans archived, backlog entries created/resolved/annotated |
+
+Delegation rules:
+- Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 8.
+- Both subagents must follow the `@wiki-writer` discipline for any prose edits they make.
+- On small sessions (a handful of files, no plan), running Phases 2–7 inline is acceptable — delegation pays off only when the read surface is large.
 
 ---
 
@@ -79,7 +105,7 @@ Review the session for discoveries that need their own follow-up work. Do not le
 2. **Spaghetti Triage rows**: If the session identified complexity targets (spaghetti smells), dispose each row:
    - `escalate-monster` — flag for the user to invoke `spaghetti-monster` directly
    - `new-parcel` — one backlog plan per row (use same format as step 1)
-   - `defer` — log to `.wiki/core/18-knowledge-capture.md`
+   - `defer` — log to `.wiki/core/18-knowledge-capture.md` (a `.wiki/` write — Agent A's scope under the Delegation Model)
    - `inline-minor` — confirm resolved in execution trace
 3. **Known issues / tech debt**: If any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
 
@@ -103,9 +129,9 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
 
 ### Phase 8: Coverage Gate (Hard Verification)
-Run the mechanical gates. **Wrap-up is not complete until both exit 0.**
+Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
-1. **Doc-graph lint**: `python scripts/wiki_lint.py` — links, anchors, frontmatter, index completeness.
+1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — links, anchors, frontmatter, index completeness. (Omit `--quiet` when diagnosing failures.)
 2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must be referenced in its domain index. On gaps: add an index row (preferred) or add to the script's `ALLOWLIST` with an explicit reason. Never skip silently.
 3. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
 4. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`.
@@ -115,6 +141,7 @@ Run the mechanical gates. **Wrap-up is not complete until both exit 0.**
 
 ## Mandatory Tools for this Skill
 - `grep`: Essential for Phase 3 (finding stale docs).
+- Subagent spawn (e.g. `task` / `runSubagent`): required for the Delegation Model on feature-scale sessions.
 - `read`: To read existing docs before editing.
 - `edit`: For precise updates.
 

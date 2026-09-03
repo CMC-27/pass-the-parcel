@@ -1,7 +1,7 @@
 ---
 name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
-version: 1
+version: 2
 updated: 2026-09-03
 ---
 
@@ -21,23 +21,21 @@ Before executing any test or git command, verify the target project environment 
 * Verify that Git is initialized (`git status`) and a remote origin repository is configured (`git remote -v`).
 
 ## 2. Test and Lint Phase
-Run tests and linting to ensure zero regressions or formatting errors exist before code leaves the developer environment:
-1. **Lint Verification**: Execute `npm run lint`.
-   * If there are fixable lint errors, run the auto-fix command: `npm run lint -- --fix` (or the equivalent project command).
-   * If any non-fixable lint errors persist, halt the execution, present the logs to the user, and prompt them to resolve the errors.
-2. **Unit & Integration Tests**: Execute `npm test` or `npm run test`.
-   * Wait for all tests to execute and finish successfully.
-   * If any tests fail, do NOT proceed. Halt execution, print the failure details, and prompt for bug remediation.
+Run tests and linting to ensure zero regressions or formatting errors exist before code leaves the developer environment. **Lint, tests, and build (§3) are independent — run them concurrently** (PowerShell 5.1: use `Start-Job`; never `&&`). This cuts wall-clock time from the sum of all three to the longest single one, and prevents token overrun by design:
+
+1. Launch all three as background jobs. Redirect each stream's full output to a log file (e.g. `.agent-logs/lint.log`, `test.log`, `build.log`); return only a pass/fail flag per job.
+2. Poll each job **once** at completion — never stream or repeatedly poll output. That polling discipline is what prevents overrun, not call count.
+3. **Lint Verification** (`npm run lint`): if there are fixable lint errors, run `npm run lint -- --fix` (or the equivalent project command), then re-verify. If non-fixable errors persist, read `lint.log`, halt the execution, present the logs to the user, and prompt them to resolve the errors.
+4. **Unit & Integration Tests** (`npm test` or `npm run test`): on failure, read `test.log`, do NOT proceed. Halt execution, print the failure details, and prompt for bug remediation.
 
 ## 3. Build Verification
-After tests pass, run the build locally to catch issues before they fail in CI:
-1. **Build Verification**: Execute `npm run build`.
-   * If the build fails, halt and prompt the user to fix TypeScript or bundler errors.
+Run the build locally to catch issues before they fail in CI. Under the §2 concurrency model this job is already running alongside lint and tests — do not re-run it; just check its result:
+1. **Build Verification**: on failure, read `build.log`, halt, and prompt the user to fix TypeScript or bundler errors.
 
 ## 4. Version Increment Phase
 Before staging and committing, you MUST check and bump the version in `package.json` following the project's **3-Level Versioning Strategy**:
 1. **Read Current Version**: Retrieve the current `"version"` value from `package.json`.
-2. **Determine/Select Increment Level**: Clarify with the user which level should be bumped:
+2. **Determine/Select Increment Level**: Default to **Level 3 (Patch) silently** — do not prompt. Only ask the user which level should be bumped when they explicitly signal a feature or breaking release, or when the session clearly shipped a new user-facing feature:
    * **Level 1 (Major)**: User-directed primary versions (e.g., `1.02.003` -> `2.00.000`). Resets minor and patch levels to double/triple zero padding.
    * **Level 2 (Minor)**: New feature versions (e.g., `1.02.003` -> `1.03.003`). Increments the minor level by 1, while preserving the patch level as-is.
    * **Level 3 (Patch)**: Routine deployment versions (e.g., `1.02.003` -> `1.02.004`). Increments the patch level by 1, while preserving the minor level as-is. If the user does not request a Major or Minor bump, increment this automatically.
