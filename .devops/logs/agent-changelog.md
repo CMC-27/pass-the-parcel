@@ -64,7 +64,7 @@ All changes made by AI agents are tracked chronologically below.
 **Files Modified:**
 - (all files — initial scaffold)
 **Database/API Changes:** None
-**Summary:** Created the Vibe-App-Wiki repository scaffold with the hub-and-spoke wiki architecture, skill system, opencode integration, pass-the-parcel workflow, and developer conventions. All core docs initialized as templates ready for project-specific content.
+**Summary:** Created the pass-the-parcel repository scaffold (originally named Vibe-App-Wiki) with the hub-and-spoke wiki architecture, skill system, opencode integration, pass-the-parcel workflow, and developer conventions. All core docs initialized as templates ready for project-specific content.
 
 ---
 
