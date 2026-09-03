@@ -97,13 +97,23 @@ function Get-ManifestMachineVersion {
 function Get-ItemHashes {
     param([string]$Path)
     $map = @{}
+    function Hash-Normalized {
+        param([string]$File)
+        # Normalize CRLF -> LF before hashing: git smudge filters (core.autocrlf /
+        # eol=lf in .gitattributes) materialize LF blobs as CRLF on Windows, so raw
+        # byte hashes would report false DRIFT after any checkout.
+        $bytes = [System.IO.File]::ReadAllBytes($File)
+        $text = [System.Text.Encoding]::UTF8.GetString($bytes) -replace "`r`n", "`n"
+        $sha = [System.Security.Cryptography.SHA256]::Create()
+        try { ($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text)) | ForEach-Object { $_.ToString('X2') }) -join '' } finally { $sha.Dispose() }
+    }
     if ((Get-Item $Path).PSIsContainer) {
         Get-ChildItem $Path -Recurse -File | ForEach-Object {
             $rel = $_.FullName.Substring($Path.TrimEnd('\').Length + 1)
-            $map[$rel] = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+            $map[$rel] = Hash-Normalized $_.FullName
         }
     } else {
-        $map[(Split-Path -Leaf $Path)] = (Get-FileHash $Path -Algorithm SHA256).Hash
+        $map[(Split-Path -Leaf $Path)] = Hash-Normalized $Path
     }
     return $map
 }
