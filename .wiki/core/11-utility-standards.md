@@ -53,11 +53,11 @@ All utility functions must explicitly define their rounding strategy.
 
 ### Numeric Outputs by Category
 
-| Material / Data Category | Data Type | Rounding Strategy | Rationale |
+| Value Category | Data Type | Rounding Strategy | Rationale |
 | --- | --- | --- | --- |
 | **[Discrete / Countable Items]** | Integer | `Math.ceil()` | [Rationale] |
-| **[Continuous / Linear Materials]** | Float | To **2 decimal places** | [Rationale] |
-| **[Volumetric / Weight Materials]** | Float | To **3 decimal places** | [Rationale] |
+| **[Continuous / Measured Values]** | Float | To **2 decimal places** | [Rationale] |
+| **[High-Precision Quantities]** | Float | To **3 decimal places** | [Rationale] |
 | **[Currency / Financial Values]** | Integer (Cents) | To **2 decimal places** (UI) | [Rationale] |
 
 ### Tie-Breaking (Banker's Rounding)

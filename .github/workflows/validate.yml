@@ -1,0 +1,58 @@
+name: Validate Machinery
+
+# Deterministic gate for the template's own invariants. Mirrors the pre-push
+# checklist in AGENTS.md (Rule 9) so drift is caught on push, not by satellites.
+# Runs on ubuntu-latest with LF checkout — .gitattributes pins eol=lf, so the
+# PREFIX-LOCKED byte-comparison is valid here without CRLF normalization.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parcel prefix integrity (PREFIX-LOCKED contract)
+        shell: pwsh
+        run: ./scripts/check-parcel-prefix.ps1
+
+      - name: UTF-8 mojibake guard (agent runbooks)
+        shell: pwsh
+        run: ./scripts/check-utf8-agents.ps1
+
+      - name: Wiki lint (links, anchors, frontmatter)
+        run: python scripts/wiki_lint.py --quiet
+
+      - name: Wiki coverage gate (graceful no-op until src/ exists)
+        run: python scripts/wiki_coverage_check.py
+
+      - name: JSON config parses (opencode.json, package manifests)
+        run: |
+          python -c "import json; json.load(open('opencode.json', encoding='utf-8'))"
+          python -c "import json; json.load(open('.opencode/package.json', encoding='utf-8'))"
+
+      - name: Machinery version discipline (manifest vs version-history)
+        run: |
+          python - <<'EOF'
+          import re, sys
+          from pathlib import Path
+          manifest = Path('.devops/sync-manifest.yaml').read_text(encoding='utf-8')
+          m = re.search(r'^machinery-version:\s*(\d+)\s*$', manifest, re.MULTILINE)
+          if not m:
+              sys.exit('machinery-version missing from .devops/sync-manifest.yaml')
+          mv = int(m.group(1))
+          hist = Path('.devops/logs/version-history.md').read_text(encoding='utf-8')
+          row = re.search(r'\|\s*\*\*v[\d.]+\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|([^|]*)\|', hist)
+          notes = row.group(1) if row else ''
+          if f'machinery-version: {mv}' not in notes and f'machinery v{mv}' not in notes:
+              print(f'WARN: top release row does not mention machinery-version {mv} — bump discipline may have slipped')
+          EOF

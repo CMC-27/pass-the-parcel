@@ -30,7 +30,7 @@ VALID_STATUS = {"stable", "in-progress", "deprecated", "template", "approved"}
 REQUIRED_FIELDS = ["name", "type", "status"]
 
 # README/index files are exempt from the required-fields check (they may be plain headers).
-FM_EXEMPT_FILES = {"README.md", "index.md", "testing-index.md", "conventions-index.md", "ref-index.md", "00-system-index.md", "components-index.md", "features-index.md", "logic-index.md", "database-index.md"}
+FM_EXEMPT_FILES = {"README.md", "index.md", "testing-index.md", "conventions-index.md", "ref-index.md", "hooks-index.md", "examples-index.md", "00-system-index.md", "components-index.md", "features-index.md", "logic-index.md", "database-index.md"}
 
 # Paths exempt from the frontmatter required-fields check.
 FM_EXEMPT_PREFIXES = (

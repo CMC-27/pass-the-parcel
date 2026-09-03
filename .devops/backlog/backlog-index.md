@@ -15,4 +15,4 @@ This index serves as the master queue of all proposed, deferred, or future featu
 
 | Plan | Status | Description |
 | :--- | :--- | :--- |
-| [T1-E1.01-reconcile-model-registry-plan.md](../plans/T1-E1.01-reconcile-model-registry-plan.md) | `BACKLOG` | `base-context.md` Model Registry documents `mimo-2.5` for phases 1-5/7 while `opencode.json` runtime assigns `deepseek-v4-flash` to every agent. Pick the canonical mapping and sync one side. |
+| ~~T1-E1.01-reconcile-model-registry-plan.md~~ | `COMPLETE` | Resolved 2026-09-03: Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is now satellite configuration in `opencode.json`. Archived to `.devops/archive/`. |

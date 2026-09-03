@@ -11,6 +11,35 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-03 - Independent Review Hardening: Template Cleanup, Slot Registry, CI (v0.3.0)
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:**
+- `.wiki/core/01-vision-north-star.md`, `03-glossary-of-terms.md` — GRID-Deploy titles removed; BoM glossary row genericized to a placeholder pattern
+- `.wiki/components/components-index.md`, `features/features-index.md`, `database/database-index.md`, `logic/logic-index.md` — catalog rows rebuilt as generic template patterns (domain-specific GRID inventories removed); each index now states "template index — populate from your app's real tree"
+- `.wiki/core/10-validation-standards.md`, `11-utility-standards.md`, `17-docs-blueprint.md`, `conventions/conv-database-naming.md`, `integrations/gemini-integration.md` — domain examples genericized (Material ID → Entity ID, Firebase Cloud Function → serverless function, assembly example → order-dashboard)
+- `.opencode/plans/base-context.md` + all 7 `.devops/agents/parcel-*.md` (via `-Sync`) + `.devops/templates/base-context.template.md` — Model Registry replaced by capability slots (`planning` / `review-heavy` / `execution`); vendor identifiers removed from machinery; binding rule added (satellites bind slots in their own `opencode.json`)
+- `.devops/skills/pass-the-parcel/SKILL.md` + 5 `ptp-*` persona skills — slot vocabulary mirrored; versions bumped 1→2
+- `.github/workflows/validate.yml` — ADDED: CI on push/PR running prefix check, UTF-8 guard, wiki lint, coverage gate, JSON parse, machinery-version discipline warning
+- `scripts/sync-architecture.ps1` — ADDED `-SelfTest`: end-to-end smoke test into a throwaway temp target with manifest-mirror assertions + nested-copy defect guard; `-Target` no longer mandatory when `-SelfTest`
+- `scripts/check-utf8-agents.ps1` — REWRITTEN: scans agents + all skill markdown (97 files), detects both C3 A2 double-encoding and EF BF BD replacement chars
+- `.devops/skills/wiki-bootstrap/references/00-system-index.md`, `17-docs-blueprint.md` — latent U+FFFD mojibake repaired (surfaced by the extended guard)
+- `scripts/wiki_coverage_check.py` — graceful no-op when no `src/` tree exists (template repo passes; satellites activate automatically)
+- `.wiki/hooks/hooks-index.md`, `.wiki/ref/ref-index.md`, `.wiki/examples/examples-index.md` — ADDED following the spoke-index pattern; linked from `00-system-index.md` §8; registered in `wiki_lint.py` FM_EXEMPT_FILES
+- `.wiki/conventions/conventions-index.md`, `.wiki/testing/testing-index.md`, `.wiki/integrations/integrations-index.md` — duplicate `--fix` artifact rows merged into single linked tables (orphans cleared)
+- `.devops/skills/design-audit/SKILL.md` — version bumped 1→2 (its DESIGN.md reference now resolves to the wiki design doc in satellites that kept the file; template itself has none)
+- `DESIGN.md` — DELETED; core token quick-reference table folded into `.wiki/core/09-design-system.md` §2; README updated; AGENTS.md gains Design & Scope Notes callout (design lives in wiki; task-lookup app rows are satellite-facing examples)
+- `.devops/plans/T1-E1.01-reconcile-model-registry-plan.md` → `.devops/archive/` — resolved-by-dissolution with Completion Note; backlog-index row marked COMPLETE
+- `.wiki/core/18-knowledge-capture.md` — new decision: "Model Registry Replaced by Capability Slots"; `.devops/logs/version-history.md` — v0.3.0 release row added, stale v1.0.0 placeholder row removed
+- `.devops/sync-manifest.yaml` — machinery-version 1→2; `HOW-TO.md` §6 — model-binding + CI paragraphs added
+
+**Database/API Changes:** None
+
+**Summary:** Executed the user-approved fix list from an independent review of the template. Root cause of the model-registry contradiction (T1-E1.01) was hardcoding vendor identifiers in portable machinery — dissolved it with abstract capability slots so binding becomes satellite config. De-contaminated the wiki of GRID-Deploy inventory residue, added CI covering every pre-push gate the repo already mandated manually, hardened the sync engine with a self-test, closed the documented UTF-8 guard gap (which immediately caught two latent mojibake files), completed the spoke-index set, and consolidated design docs into the wiki. All gates exit 0: prefix PASS ×7, UTF-8 ALL CLEAN (97 files), wiki lint OK, coverage OK, selftest OK. Not pushed (human's `@test-and-deploy` owns that).
+
+---
+
 ## 2026-09-03 - Agnostic Template: Pull-Based Sync + Machinery Versioning (W1-W9)
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)

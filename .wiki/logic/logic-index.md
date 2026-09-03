@@ -8,42 +8,29 @@ description: "Catalog of all utility functions, custom hooks, and core logic."
 
 # Logic & Utilities Index
 
-This index catalogs all utility functions, custom hooks, and core logic. Utilities are prefixed with `util-`, hooks with `hook-`, and schemas with `schemas-`.
+This index catalogs all utility functions, custom hooks, and core logic. Utilities are prefixed with `util-`, hooks with `hook-`, and schemas with `schemas-`. This is a **template index** — populate it from your app's real utilities and hooks; do not invent rows for code that doesn't exist.
 
 ---
 
 ## Utility Services
 
-- `util-ai-client.md` - AI/LLM client integration
-- `util-assembly-parser.md` - Assembly data parser
-- `util-bom-calculator.md` - Bill of Materials calculator
-- `util-bom-views.md` - BoM view formatters
-- `util-calculated-truth.md` - Calculated truth engine
-- `util-config.md` - Application configuration
-- `util-csv-parser.md` - CSV file parser and validator
-- `util-error-logger.md` - Error logging service
-- `util-feature-flags.md` - Feature flag management
-- `util-fetch-lookup-reverse-refs.md` - Lookup reverse reference fetcher
-- `util-report-service.md` - Report generation service
-- `util-storage.md` - Storage abstraction layer
-- `util-transfer-lookup-references.md` - Lookup reference transfer utility
+| Doc | Description |
+|---|---|
+| `util-config.md` | Application configuration |
+| `util-error-logger.md` | Error logging service |
+| _(one row per shared utility)_ | |
 
 ## Custom Hooks
 
-- `hook-admin-form-save.md` - Admin form save logic
-- `hook-assembly-keyboard.md` - Assembly keyboard shortcuts
-- `hook-assembly-persistence.md` - Assembly state persistence
-- `hook-batch-block-material-save.md` - Batch save for block materials
-- `hook-count-up.md` - Animated count-up
-- `hook-csv-import.md` - CSV import flow hook
-- `hook-csv-import-confirm.md` - CSV import confirmation logic
-- `hook-delete-impact.md` - Delete impact analysis
-- `hook-use-entity-references.md` - Entity reference resolver
-- `hook-use-master-data-counts.md` - Master data count queries
+| Doc | Description |
+|---|---|
+| _(one row per custom hook)_ | |
 
 ## Schemas
 
-- `schemas-zod.md` - Zod validation schema definitions
+| Doc | Description |
+|---|---|
+| `schemas-zod.md` | Zod validation schema definitions (or your validator of choice) |
 
 ---
 

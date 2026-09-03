@@ -2,7 +2,7 @@
 name: design-audit
 description: Make sure to use this skill whenever the user mentions reviewing UI consistency, auditing designs, checking UI rules, verifying frontend compliance, or when modifying/generating UI and frontend code to ensure strict adherence to the project's established design system (DESIGN.md/design-system.md).
 tags: ["ui", "design-system", "frontend", "auditor", "css", "agentic-workflow"]
-version: 1
+version: 2
 updated: 2026-09-03
 ---
 

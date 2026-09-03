@@ -81,6 +81,11 @@ def covered(rel, index_text):
 def main():
     total = 0
     gaps = []
+    # Graceful no-op: the template repo has no application source tree. The gate
+    # activates automatically in satellites that do (src/ present).
+    if not (ROOT / "src").is_dir():
+        print("coverage OK: no src/ tree in this workspace — nothing to cover")
+        return 0
     for domain, (patterns, index_path) in DOMAINS.items():
         index_file = ROOT / index_path
         if not index_file.exists():

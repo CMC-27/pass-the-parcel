@@ -19,6 +19,15 @@ Instead of searching the entire codebase to understand context, **STOP** and rea
 
 ---
 
+## Design & Scope Notes
+
+> [!NOTE]
+> **This repo is the template, not an app.** The task-lookup rows that reference `src/components/ui`, screens, database queries, and CSV parsing are **satellite-facing examples** — they apply in workspaces that contain an application source tree. In this template they document the pattern satellites follow; there is no frontend or database here to edit.
+>
+> **Design lives in the wiki.** There is no separate `DESIGN.md` — `.wiki/core/09-design-system.md` is the single source of truth for visual design: creative North Star, core token table (`--color-surface`, `--color-primary`, …), typography, elevation, and component specs. Read it before creating or modifying any UI element, dashboard, or component.
+
+---
+
 ## MANDATORY READING
 
 Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-index.md`** — it indexes the architecture flow and all feature-to-table mappings. For any specific task, use the lookup table below.

@@ -15,7 +15,7 @@ This document outlines the integration pattern for AI/LLM model access.
 
 ## Architecture
 
-- AI features are accessed via a backend proxy function (e.g., Firebase Cloud Function)
+- AI features are accessed via a backend proxy function (e.g., a serverless edge/cloud function)
 - The proxy handles authentication, rate limiting, and prompt construction
 - Frontend never calls the AI provider directly
 

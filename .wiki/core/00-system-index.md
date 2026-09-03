@@ -74,6 +74,9 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 - [Naming Conventions Index](../conventions/conventions-index.md) - Hub for all naming conventions
 - [Testing Index](../testing/testing-index.md) - Test architecture docs
 - [Integrations Index](../integrations/integrations-index.md) - External systems and APIs
+- [Hooks Index](../hooks/hooks-index.md) - Custom hook docs (subset of Logic)
+- [Reference Index](../ref/ref-index.md) - External reference materials
+- [Examples Index](../examples/examples-index.md) - Worked convention examples
 
 ## 9. Component & View Code
 - [Components Index](../components/components-index.md) - Catalog of all UI components

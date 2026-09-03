@@ -23,7 +23,7 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 The library is organized into **two top-level libraries** based on functional purpose:
 
-### 📖 wiki/ � Architecture Knowledge Base
+### 📖 wiki/ — Architecture Knowledge Base
 
 | Directory | Role | Parent/Index File | Description |
 | :--- | :--- | :--- | :--- |
@@ -33,7 +33,7 @@ The library is organized into **two top-level libraries** based on functional pu
 | `wiki/database` | **The Skeleton** | `database-index.md` | Schema breakdowns, table relationships, and data-layer logic. |
 | `wiki/logic` | **The Internal Organs**| `logic-index.md` | Utility functions, custom hooks, and complex algorithmic explanations. |
 
-### ⚙️ docs/ � Operational Process Tooling
+### ⚙️ docs/ — Operational Process Tooling
 
 | Directory | Role | Index File | Description |
 | :--- | :--- | :--- | :--- |

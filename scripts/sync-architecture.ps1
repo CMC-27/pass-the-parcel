@@ -1,10 +1,10 @@
 param(
     [string]$Source = "",
-    [Parameter(Mandatory = $true)]
-    [string]$Target,
+    [string]$Target = "",
     [switch]$NoVerify,
     [switch]$DryRun,
-    [switch]$Check
+    [switch]$Check,
+    [switch]$SelfTest
 )
 
 <#
@@ -25,6 +25,11 @@ param(
     -Check compares source vs target per manifest item (SHA256 per file + version metadata)
     and prints a CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT verdict table without writing.
 
+    -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
+    the full portable surface, asserts every manifest dir/skill/file landed with matching
+    content hashes, then cleans up. Exit 0 = engine healthy. Use after editing this script
+    or the manifest (CI runs it on every push).
+
     The repo-specific surface is NOT copied: base-context.md, opencode.json, AGENTS.md and the
     wiki content itself embed the target's own layout, task lookup and permissions. After the
     portable surface is copied, the script regenerates each agent's PREFIX-LOCKED prefix from
@@ -35,6 +40,7 @@ param(
     Usage:
         powershell -File scripts\sync-architecture.ps1 -Target C:\path\to\satellite
         powershell -File scripts\sync-architecture.ps1 -Target C:\path\ -DryRun
+        powershell -File scripts\sync-architecture.ps1 -SelfTest
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -42,9 +48,66 @@ $here = Split-Path -Parent $PSScriptRoot
 $src = if ($Source) { $Source } else { $here }
 
 if (-not (Test-Path $src)) { throw "Source repo not found: $src" }
-if (-not (Test-Path $Target)) { throw "Target repo not found: $Target" }
 
 $srcRoot = (Resolve-Path $src).Path
+
+# --- self-test mode: build a throwaway satellite, sync into it, verify, tear down ---
+if ($SelfTest) {
+    $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-selftest-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    try {
+        New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+        Write-Output "SELFTEST: temp target = $tmp"
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
+        if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
+        # Manifest must parse identically inside the test process — re-parse here.
+        $stManifestPath = Join-Path $srcRoot '.devops\sync-manifest.yaml'
+        $stDirs = @(); $stFiles = @(); $stExcluded = @(); $cur = $null
+        foreach ($line in Get-Content $stManifestPath) {
+            $t = $line.Trim()
+            if (-not $t -or $t.StartsWith('#')) { continue }
+            if ($t -match '^([a-z_-]+):\s*$') { $cur = $Matches[1]; continue }
+            if ($t -match '^([a-z_-]+):\s*\[\s*\]\s*(?:#.*)?$') { if ($Matches[1] -eq 'excluded_skills') { $stExcluded = @() }; $cur = $null; continue }
+            if ($t -match '^([a-z_-]+):\s+(.+)$') { $cur = $null; continue }
+            if ($t.StartsWith('- ') -and $cur) {
+                switch ($cur) {
+                    'portable_dirs'  { $stDirs += $t.Substring(2).Trim().Trim('"') }
+                    'portable_files' { $stFiles += $t.Substring(2).Trim().Trim('"') }
+                    'excluded_skills' { $stExcluded += $t.Substring(2).Trim().Trim('"') }
+                }
+            }
+        }
+        $skillsRoot = Join-Path $srcRoot '.devops\skills'
+        $stSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name } | Where-Object { $stExcluded -notcontains $_ })
+        $fail = @()
+        function Assert-Mirror {
+            param([string]$Rel)
+            $sp = Join-Path $srcRoot $Rel
+            $tp = Join-Path $tmp $Rel
+            if (-not (Test-Path $tp)) { $script:fail += "missing in target: $Rel"; return }
+            $sh = Get-ChildItem $sp -Recurse -File | ForEach-Object { $_.FullName.Substring($sp.Length) } | Sort-Object
+            $th = Get-ChildItem $tp -Recurse -File | ForEach-Object { $_.FullName.Substring($tp.Length) } | Sort-Object
+            if (($sh -join '|') -ne ($th -join '|')) { $script:fail += "file set differs: $Rel" }
+        }
+        foreach ($d in $stDirs) { Assert-Mirror $d }
+        foreach ($s in $stSkills) { Assert-Mirror ".devops\skills\$s" }
+        foreach ($f in $stFiles) { Assert-Mirror $f }
+        # Guard the historical Copy-Item nesting defect: no doubled directory names.
+        $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName -match '\\(\.wiki|\.devops)\\\1|\\skills\\([^\\]+)\\\2' }
+        if ($nested) { $fail += "nested-copy defect: $($nested.FullName -join ', ')" }
+        if ($fail.Count -gt 0) {
+            Write-Output "SELFTEST FAILED:"
+            $fail | ForEach-Object { Write-Output "  $_" }
+            exit 1
+        }
+        Write-Output "SELFTEST OK: $($stDirs.Count) dirs, $($stSkills.Count) skills, $($stFiles.Count) files materialised correctly."
+        exit 0
+    } finally {
+        if (Test-Path $tmp) { Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+}
+
+if (-not $Target) { throw "-Target is required (or use -SelfTest)." }
+if (-not (Test-Path $Target)) { throw "Target repo not found: $Target" }
 $tgtRoot = (Resolve-Path $Target).Path
 if ($srcRoot -eq $tgtRoot) { throw "Source and target are the same repo." }
 

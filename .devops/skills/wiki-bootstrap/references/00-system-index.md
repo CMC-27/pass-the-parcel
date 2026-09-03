@@ -7,7 +7,7 @@ db_relations: []
 description: "Master entry point and developer onboarding hub for [APP_NAME]."
 ---
 
-# System Index � [APP_NAME] Developer Onboarding Hub
+# System Index: [APP_NAME] Developer Onboarding Hub
 
 This document is the master gateway into the documentation library. Start here to understand product philosophy, structural patterns, and data infrastructure.
 
@@ -78,11 +78,11 @@ flowchart TD
 
 **Utility Functions**
 <!-- List key utility files here, e.g.: -->
-<!-- - [CSV Parser](../logic/util-csv-parser.md) � `src/utils/csvParser.js` -->
+<!-- - [CSV Parser](../logic/util-csv-parser.md) → `src/utils/csvParser.js` -->
 
 **Custom Hooks**
 <!-- List key hooks here, e.g.: -->
-<!-- - [useDataFetch](../logic/hook-data-fetch.md) � `src/hooks/useDataFetch.js` -->
+<!-- - [useDataFetch](../logic/hook-data-fetch.md) → `src/hooks/useDataFetch.js` -->
 
 ## 6. Database Schema Signatures
 <!-- List each data table/collection doc here, e.g.: -->

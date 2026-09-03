@@ -27,19 +27,21 @@
 | Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Delegation Map (canonical)
-| Phase(s) | Sub-agent | Model |
+| Phase(s) | Sub-agent | Model Slot |
 |---|---|---|
-| 1-3 | `parcel-context-hunter` | mimo-2.5 |
-| 3.5 (AUTO) | `parcel-phase3-answerer` | mimo-2.5 |
-| 4-5 (+ revision) | `parcel-high-visionary` | mimo-2.5 |
-| 6 | `parcel-grumpy-architect` | v4-flash-max |
-| 7 | `parcel-smooth-operator` | mimo-2.5 |
-| 8-9 | `parcel-code-surgeon` | deepseek-v4-flash |
+| 1-3 | `parcel-context-hunter` | planning |
+| 3.5 (AUTO) | `parcel-phase3-answerer` | planning |
+| 4-5 (+ revision) | `parcel-high-visionary` | planning |
+| 6 | `parcel-grumpy-architect` | review-heavy |
+| 7 | `parcel-smooth-operator` | planning |
+| 8-9 | `parcel-code-surgeon` | execution |
 
-## Model Registry (canonical identifiers — no aliases)
-- `mimo-2.5` — orchestrator + Phases 1-3, 4-5, 7 + Wrap Up
-- `v4-flash-max` — Phase 6 (Grumpy Architect Spec & Logic Audit)
-- `deepseek-v4-flash` — Phases 8-9 (Code Surgeon, single-pass direct-to-disk + QA)
+## Model Registry (role slots — no hardcoded model names)
+The pipeline routes by **capability slot**, not by vendor identifier. Slots are abstract; each workspace binds them to concrete models in its own `opencode.json` (`agent.<name>.model`). This template's registry is an example binding, not a mandate.
+- `planning` — orchestrator + Phases 1-3, 4-5, 7 + Wrap Up. Balanced capability: dialogue, scoping, spec writing, product review.
+- `review-heavy` — Phase 6 (Grumpy Architect Spec & Logic Audit). Strongest reasoning model available; reserved for the senior audit only.
+- `execution` — Phases 8-9 (Code Surgeon, single-pass direct-to-disk + QA). Fast, cheap, instruction-faithful coder.
+**Binding rule:** a satellite MUST assign every parcel agent's `model:` in `opencode.json` to one of the three slots' bound values. Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked.
 
 ## PTP Lifecycle
 `BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_4` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`

@@ -1,5 +1,5 @@
 ---
-title: "📖 Glossary of Terms: GRID Deploy"
+title: "📖 Glossary of Terms"
 type: "core"
 name: "Glossary of Terms"
 status: "stable"
@@ -35,7 +35,7 @@ This document defines the terminology used across the application, database, and
 
 ### B
 - **[Term B1]:** [Definition.]
-- **[BoM / Bill of Materials]:** The final, calculated list of every [item/material] required for a [record], [unit], or [project].
+- **[Domain Artifact Term]:** [Definition — e.g., "The final, calculated list of every item required for a record."]
 - **[Budget Lock / Approval Lock]:** A critical state triggered when a record is set to `[Approved]` or `[Finalized]`. All fields become read-only.
 
 ### C

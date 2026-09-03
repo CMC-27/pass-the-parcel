@@ -10,7 +10,7 @@ Below is an overview of the core entry points and directories in this workspace:
 
 *   **[`AGENTS.md`](AGENTS.md)**: The mandatory landing page and instructions for AI agents. It maps tasks to documentation files, defines development rules, and outlines the mandatory wrap-up protocol.
 *   **[`HOW-TO.md`](HOW-TO.md)**: A guide detailing the agentic development lifecycle, covering setup/bootstrapping, planning methodologies, and pre-deployment validation.
-*   **[`DESIGN.md`](DESIGN.md)**: Standard frontend design rules and CSS token references to ensure consistent, premium UI development.
+*   **`.wiki/core/09-design-system.md`**: The single source of truth for frontend design — creative North Star, CSS token reference, and component styling rules (no separate DESIGN.md — the wiki owns design).
 *   **`.opencode/`**: Agent configuration, command definitions, and the canonical PREFIX-LOCKED parcel prefix (`.opencode/plans/base-context.md`).
 *   **`.devops/skills/`**: Reusable agent skills (SKILL.md files) for the opencode ecosystem.
 *   **`.wiki`**: The application architecture knowledge base — stable, long-lived reference documentation:

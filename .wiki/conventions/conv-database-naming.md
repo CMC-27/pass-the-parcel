@@ -11,7 +11,7 @@ description: "Table, column, and index naming conventions."
 
 ## Rules
 
-- Tables: snake_case, plural (`projects`, `assembly_instances`)
+- Tables: snake_case, plural (`projects`, `project_members`)
 - Columns: snake_case (`created_at`, `user_id`)
 - Primary keys: `id` (auto-increment or UUID)
 - Foreign keys: `referenced_table_id`

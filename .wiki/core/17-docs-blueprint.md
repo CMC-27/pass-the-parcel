@@ -62,7 +62,7 @@ docs/
 | Directory | Prefix Pattern | Examples |
 |---|---|---|
 | `.wiki/core/` | `0x-name.md` (numbered) | `00-system-index.md`, `01-vision-north-star.md` |
-| `.wiki/features/` | `feat-feature-name.md` | `feat-assembly-builder.md` |
+| `.wiki/features/` | `feat-feature-name.md` | `feat-order-dashboard.md` |
 | `.wiki/components/` | `ui-component-name.md` | `ui-button.md` |
 | `.wiki/database/` | `db-table-name.md` | `db-projects.md` |
 | `.wiki/logic/` | `util-name.md` or `hook-name.md` | `util-csv-parser.md`, `hook-use-auth.md` |

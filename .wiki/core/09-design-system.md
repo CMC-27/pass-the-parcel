@@ -19,6 +19,19 @@ description: "The single source of truth for visual design decisions: tokens, ty
 
 ## 2. Color Palette
 
+### Core Design Tokens (Quick Reference)
+These variables are defined in the global stylesheet and are the canonical token names every app built on this scaffold uses:
+
+| Token | CSS Variable | Purpose |
+|---|---|---|
+| **Background / Canvas** | `--color-surface` | Primary application canvas background |
+| **Container Base** | `--color-surface-container` | Main structural containers and panels |
+| **Card / Element Base** | `--color-surface-card` | Cards, buttons, and floating panels |
+| **Primary Accent** | `--color-primary` | Main accent branding color |
+| **Secondary Accent** | `--color-secondary` | Supporting theme accent |
+| **Success** | `--color-success` | Success metrics, indicators, and complete states |
+| **Warning / Error** | `--color-error` | Validation failures, alerts, and critical flags |
+
 ### The "[No-Line / Core Constraint]" Rule
 **Explicit Instruction:** [Describe a key design constraint that prevents a common mistake].
 

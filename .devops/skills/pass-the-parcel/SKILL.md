@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/.
-version: 1
+version: 2
 updated: 2026-09-03
 ---
 
@@ -57,25 +57,26 @@ The table below defines the only valid states. An AI agent reading the plan dete
 
 Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a specialized sub-skill that owns the detailed directives. The `Active Persona` field in the **State & Gates** section (bottom of the plan) identifies **who owns the work**; the delegated skill provides **how the work is done**.
 
-| Group | Phase(s) | Active Persona | Delegated Skill | Model Assignment | Scope | Gate |
+| Group | Phase(s) | Active Persona | Delegated Skill | Model Slot | Scope | Gate |
 |---|---|---|---|---|---|---|
-| A | 1-3 | `Scoper` | `ptp-context-hunter` | mimo-2.5 | ptp sub-skill | A |
-| B | 4 | `High-Visionary` | `ptp-high-visionary` (+ `wiki-writer` for spec prose) | mimo-2.5 | ptp sub-skill | B |
-| B | 5 | `High-Visionary` | `ptp-high-visionary` | mimo-2.5 | ptp sub-skill | B |
-| B | 5 (revision) | `High-Visionary` | `ptp-high-visionary` | mimo-2.5 | ptp sub-skill | B |
-| C | 6 | `Reviewer` | `ptp-grumpy-architect` | v4-flash-max | ptp sub-skill | C |
-| C | 7 | `Reviewer` | `ptp-smooth-operator` | mimo-2.5 | ptp sub-skill | C |
-| D | 8 | `Executor` | `ptp-code-surgeon` | deepseek-v4-flash | ptp sub-skill | D |
-| D | 9 | `Executor` | `ptp-code-surgeon` | deepseek-v4-flash | ptp sub-skill | D |
+| A | 1-3 | `Scoper` | `ptp-context-hunter` | planning | ptp sub-skill | A |
+| B | 4 | `High-Visionary` | `ptp-high-visionary` (+ `wiki-writer` for spec prose) | planning | ptp sub-skill | B |
+| B | 5 | `High-Visionary` | `ptp-high-visionary` | planning | ptp sub-skill | B |
+| B | 5 (revision) | `High-Visionary` | `ptp-high-visionary` | planning | ptp sub-skill | B |
+| C | 6 | `Reviewer` | `ptp-grumpy-architect` | review-heavy | ptp sub-skill | C |
+| C | 7 | `Reviewer` | `ptp-smooth-operator` | planning | ptp sub-skill | C |
+| D | 8 | `Executor` | `ptp-code-surgeon` | execution | ptp sub-skill | D |
+| D | 9 | `Executor` | `ptp-code-surgeon` | execution | ptp sub-skill | D |
 | E | 10 | `Reviewer` | `knowledge-capture` (on demand) | — | global | — |
-| F | Wrap Up | `Lead Context Architect` | `agent-wrap-up` | mimo-2.5 | global | — |
+| F | Wrap Up | `Lead Context Architect` | `agent-wrap-up` | planning | global | — |
 
-**Model Registry (canonical identifiers — use these EXACTLY, no aliases):**
-- **`mimo-2.5`**: Orchestrator model. Handles planning, context gathering, product review, and wrap-up. Balanced capability across all tasks.
-- **`v4-flash-max`**: Assigned to Phase 6 (Grumpy Architect / Spec & Logic Audit) for rigorous architectural review.
-- **`deepseek-v4-flash`**: Assigned to Phases 8-9 (Code Surgeon execution + QA tweaks) with ponytail coding.
+**Model Registry (capability slots — no hardcoded vendor models):**
+The pipeline routes by **slot**, not by model name. Each workspace binds the slots to concrete models in its own `opencode.json` (`agent.<name>.model`) — that binding is a satellite configuration choice, never machinery content.
+- **`planning`**: Orchestrator + Phases 1-3, 4-5, 7 + Wrap Up. Balanced capability: dialogue, scoping, spec writing, product review.
+- **`review-heavy`**: Phase 6 (Grumpy Architect / Spec & Logic Audit). The strongest reasoning model available; reserved for the senior audit only.
+- **`execution`**: Phases 8-9 (Code Surgeon execution + QA tweaks). Fast, cheap, instruction-faithful coder.
 
-**Ambiguity rule:** The identifiers above are the ONLY valid strings. `v4 flash`, `deepseek v4 flash`, `v4 flash max`, `flash-max` are deprecated aliases and MUST be normalized to `mimo-2.5`, `v4-flash-max`, or `deepseek-v4-flash`.
+**Binding rule:** every parcel agent's `model:` in `opencode.json` MUST be set to one of the three slots' bound values. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
 
 > **Canonical copy:** This delegation map + model registry is inlined into every parcel-* agent via the PREFIX-LOCKED header (`.opencode/plans/base-context.md`). When editing the map, update `base-context.md` and run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it — then mirror the change here.
 
@@ -130,7 +131,7 @@ If the requested feature exists as a backlog item:
 5. Proceed to **Group A** (Phases 1-3). The backlog plan contains pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the [Fresh Context Rule](#fresh-context-rule). The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
 
 ### GROUP A: Scoping & Context (Phases 1-3)
-* **Model:** mimo-2.5
+* **Model slot:** planning
 * **Goal:** Understand intent, locate context, resolve ambiguities.
 * **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `.devops/plans/<feature-slug>-plan.md` from the [canonical template](../../../plans/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + State & Gates at bottom) from the start — all downstream agents rely on this structure. If this item was picked up from the backlog, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial **State & Gates** section (bottom): **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
@@ -143,7 +144,7 @@ If the requested feature exists as a backlog item:
 * **NO HALT after Phase 3:** Once the final validation question is answered Yes and Phase 3 is fully populated, set **Status** → `PHASE_3` and proceed **directly into Group B** — the human reviews the *formalized* requirements at Gate A (after Phase 4), not the raw scope.
 
 ### GROUP B: Wiki Spec & Implementation Planning (Phases 4-5)
-* **Model:** mimo-2.5
+* **Model slot:** planning
 * **Goal:** Write the wiki requirements spec FIRST (Phase 4), then build the implementation plan to meet it (Phase 5). No code snippets unless absolutely necessary.
 * **Steps:**
   * **Phase 4 (Wiki Requirements & Acceptance Criteria):**
@@ -158,10 +159,10 @@ If the requested feature exists as a backlog item:
 * **Goal:** Peer-review the text-based architecture for logical completeness, edge cases, and UX alignment. **Phase 6 audits the SPEC — the plan contains no code, so no code-level scans (DRY/WET, line checks) are performed.**
 * **Steps:**
   * **Phase 6 (Grumpy Architect Spec & Logic Audit):**
-    * **Model:** v4-flash-max
+    * **Model slot:** review-heavy
     * **CRITICAL:** Initialize and execute the **`ptp-grumpy-architect`** skill as a **Spec & Logic Audit** of the text-based architecture produced in Phase 5. Evaluate: system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, logical completeness, security perimeter, and architectural anti-patterns. **Do not expect or demand source code snippets in the plan file.** Reject on logical gaps or bloat.
   * **Phase 7 (Smooth Operator Product Review):**
-    * **Model:** mimo-2.5
+    * **Model slot:** planning
     * **CRITICAL:** Initialize and execute the **`ptp-smooth-operator`** skill to audit the Phase 5 plan. Ensure strict alignment with user journey, 4 core states, and scope containment. Reject on UX friction.
 * **Deterministic Rejection State (Gate B):**
   * **Pass:** Phase 6 log clean → proceed to Phase 7 (PO Intent Check) → set `PHASE_7` → halt at Gate B for user sign-off.
@@ -173,10 +174,10 @@ If the requested feature exists as a backlog item:
 * **Execution Isolation:** Phase 8 **only triggers after Gate B is cleared by explicit user input.** No execution before explicit approval.
 * **Steps:**
   * **Phase 8 (Execute Changes):**
-    * **Model:** deepseek-v4-flash
+    * **Model slot:** execution
     * **CRITICAL:** Initialize and execute the **`ptp-code-surgeon`** skill to apply Phase 5 edits. **Single-pass direct-to-disk execution:** ingest the text spec and write implementation code DIRECTLY to workspace source files — no multi-pass drafting inside intermediate Markdown files, no staging code blocks in the plan. Use **ponytail coding** style — surgical, minimal, efficient edits that respect existing patterns. Touch only intended lines, clean up only owned orphans, track execution incrementally, and halt on any unresolvable error.
   * **Phase 9 (Verify Changes):**
-    * **Model:** deepseek-v4-flash
+    * **Model slot:** execution
     * **CRITICAL:** Continue executing the **`ptp-code-surgeon`** skill to run compilation/tests/lint, log proof in the plan, and verify runtime stability before declaring the gate clear. Apply any necessary tweaks identified during QA.
 * **HALT POINT (Gate B):** Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference): **Status** → `PHASE_9`, **Active Persona** → `Executor`, **Gate B** → `APPROVED`. Present completed work and QA verification report. **Stop execution immediately and wait for user to test and sign off.**
 
@@ -192,7 +193,7 @@ If the requested feature exists as a backlog item:
 * **COMPLETION:** Phase 10 done when user provides explicit sign-off.
 
 ### GROUP F: Wrap Up (Document Tweaks, Spec Reconciliation & Close-Out)
-* **Model:** mimo-2.5
+* **Model slot:** planning
 * **Goal:** Document all tweaks from Phase 10, promote captured lessons to the knowledge log, reconcile the wiki against what was actually built, and close out the plan.
 * **Steps:**
   * **Wrap Up:**

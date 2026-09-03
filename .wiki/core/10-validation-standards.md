@@ -52,7 +52,7 @@ Once a [record]'s status moves to `[Approved]` or `[Finalized]`:
 | Error Type | Behavior | User Impact |
 |---|---|---|
 | **Warning** | Non-blocking. Shows an alert, allows user to proceed. | [Example: "This quantity seems unusually high."] |
-| **Validation Error** | Blocking at field level. Input highlighted red. | [Example: "Material ID format is invalid."] |
+| **Validation Error** | Blocking at field level. Input highlighted red. | [Example: "Entity ID format is invalid."] |
 | **Critical Stop** | Blocks form submission or status transition. | [Example: "Cannot approve — 3 slots have no selection."] |
 | **System Error** | Caught in `try/catch`. Shows a toast notification. | [Example: "Failed to save. Please try again."] |
 

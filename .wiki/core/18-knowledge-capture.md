@@ -118,6 +118,17 @@ Each entry should follow this format:
 
 ---
 
+### Model Registry Replaced by Capability Slots — Binding Is Satellite Config
+* **Decision Date:** 2026-09-03
+* **Context:** The machinery carried hardcoded vendor model identifiers (`mimo-2.5`, `v4-flash-max`, `deepseek-v4-flash`) in the PREFIX-LOCKED base-context, all seven agent runbooks, six skills, and the seed template — while `opencode.json` runtime assigned different models entirely. The mismatch (backlog T1-E1.01) could not be resolved by "picking a side" because the template cannot know which models a satellite's provider offers; hardcoding was the root defect, not the drift.
+* **Action:** The Model Registry now defines three abstract capability slots — `planning` (orchestrator + Phases 1-3, 4-5, 7 + Wrap Up), `review-heavy` (Phase 6 audit only), `execution` (Phases 8-9). Concrete binding is exclusively each workspace's `opencode.json` (`agent.<name>.model`). All vendor identifiers removed from machinery surfaces; prefix re-synced via `check-parcel-prefix.ps1 -Sync`; pass-the-parcel + ptp-* skills and the seed template mirror the slot vocabulary. T1-E1.01 archived as resolved-by-dissolution.
+* **Rationale:**
+    * **Machinery vs config separation**: the pipeline's phase→persona routing is portable; model availability is a per-workspace, per-provider decision. Encoding the latter in the former guarantees silent drift every time a provider retires a model.
+    * **Slots survive model churn**: a satellite swaps its bound model with a one-line `opencode.json` edit and zero machinery changes.
+    * **Agents stay honest**: the binding rule tells agents to read their own configured model rather than assert a documented-but-false identity.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]

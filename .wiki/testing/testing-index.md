@@ -16,14 +16,10 @@ This index catalogs all testing standards and conventions for the project.
 
 | Doc | Purpose |
 |---|---|
-| `pattern.md` | Test taxonomy, file location, naming, what-to-test boundaries |
-| `mocking.md` | Shared mock conventions, canonical mock location, override rules |
-| `performance.md` | Per-file test performance budgets and hard limits |
-| `checklist.md` | PR review checklist for test file compliance |
-| [Test PR Checklist](checklist.md) | checklist |
-| [Mocking Standards](mocking.md) | mocking |
-| [Test Pattern](pattern.md) | pattern |
-| [Test Performance Budgets](performance.md) | performance |
+| [Test Pattern](pattern.md) | Test taxonomy, file location, naming, what-to-test boundaries |
+| [Mocking Standards](mocking.md) | Shared mock conventions, canonical mock location, override rules |
+| [Test Performance Budgets](performance.md) | Per-file test performance budgets and hard limits |
+| [Test PR Checklist](checklist.md) | PR review checklist for test file compliance |
 
 ---
 

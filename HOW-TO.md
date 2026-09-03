@@ -141,4 +141,11 @@ templates as a coordinated set. The `@agent-wrap-up` skill owns the bump discipl
 portable file → bump its version (and `machinery-version` for non-skill surfaces) → satellites
 see `UPGRADE`, not `DRIFT`.
 
+**Model binding.** The parcel pipeline routes by capability slot — `planning`, `review-heavy`,
+`execution` — never by vendor model name. Machinery docs (base-context, skills, agents) describe
+slots only; each satellite binds slots to concrete models in its own `opencode.json`
+(`agent.<name>.model`). Swapping providers is a config edit, not a machinery sync. CI
+(`.github/workflows/validate.yml`) enforces the prefix, encoding, wiki, JSON, and coverage gates
+on every push; `scripts/sync-architecture.ps1 -SelfTest` smoke-tests the transport engine itself.
+
 This framework ensures that any app built on top of this scaffold remains clean, well-documented, and safe to deploy.
