@@ -35,10 +35,10 @@ jobs:
       - name: Wiki coverage gate (graceful no-op until src/ exists)
         run: python scripts/wiki_coverage_check.py
 
-      - name: JSON config parses (opencode.json, package manifests)
+      - name: JSON config parses (tracked JSON only)
         run: |
+          # .opencode/package.json is gitignored local runtime — never assert untracked files.
           python -c "import json; json.load(open('opencode.json', encoding='utf-8'))"
-          python -c "import json; json.load(open('.opencode/package.json', encoding='utf-8'))"
 
       - name: Machinery version discipline (manifest vs version-history)
         run: |
