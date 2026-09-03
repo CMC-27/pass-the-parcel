@@ -1,8 +1,8 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: "1.1"
-author: "Antigravity Team"
+version: 1
+updated: 2026-09-03
 ---
 
 # Knowledge Capture Skill

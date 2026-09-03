@@ -1,6 +1,8 @@
 ---
 name: backlog
 description: Make sure to use this skill whenever the user asks to add a feature, function, upgrade, idea, or task to the backlog. Use it to analyze the request, gather necessary codebase context, and create a comprehensive entry in the project's backlog-index.md and a separate plan file. This skill creates PARKED items only — it does NOT execute or plan execution.
+version: 1
+updated: 2026-09-03
 ---
 
 # Backlog Management

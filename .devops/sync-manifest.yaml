@@ -8,34 +8,29 @@
 #   portable_dirs:   directories copied recursively into the target (overwrite).
 #   portable_skills: skill slugs copied from .devops/skills/ into the target's
 #                    .devops/skills/ (overwrite that skill only, never the whole folder).
-#   portable_files:  standalone files copied verbatim into the target.
-#   verify_commands: commands run in the target after sync to prove integrity.
+#   portable_files:    standalone files copied verbatim into the target.
+#   excluded_skills:   skill slugs NOT synced. Portable skills are DERIVED: every folder
+#                      in .devops/skills minus this list. Adding a skill needs no manifest
+#                      edit; only exclusions do.
+#   machinery-version: integer bumped whenever agents/rules/scripts/templates change as a
+#                      set; drives UPGRADE vs DRIFT for non-skill items in -Check.
+#
+# Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
+# — there is no verify_commands key; the script is the single source of truth.
+
+machinery-version: 1
 
 portable_dirs:
   - .wiki/rules
   - .devops/rules
   - .devops/agents
-
-portable_skills:
-  - pass-the-parcel
-  - ptp-context-hunter
-  - ptp-phase3-answerer
-  - ptp-high-visionary
-  - ptp-grumpy-architect
-  - ptp-smooth-operator
-  - ptp-code-surgeon
-  - agent-wrap-up
-  - knowledge-capture
-  - knowledge-consolidation
-  - true-or-false
-  - write-wiki
+  - .devops/templates
 
 portable_files:
   - scripts/check-parcel-prefix.ps1
   - scripts/check-utf8-agents.ps1
   - scripts/sync-architecture.ps1
+  - scripts/pull-architecture.ps1
+  - scripts/wiki_lint.py
 
-verify_commands:
-  - powershell -NoProfile -File scripts/check-parcel-prefix.ps1
-  - powershell -NoProfile -File scripts/check-utf8-agents.ps1
-  - python scripts/wiki_lint.py --quiet
+excluded_skills: []

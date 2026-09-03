@@ -1,6 +1,8 @@
 ---
 name: build-roadmap
 description: Make sure to use this skill whenever the user mentions building a product roadmap, creating a roadmap, defining themes or epics, /build-roadmap, planning strategic phases, or wants to map out the future of a product at a high level above the backlog. Use it to create or update a product-roadmap.md file and optionally scaffold aligned epics and implementation plans.
+version: 1
+updated: 2026-09-03
 ---
 
 # Build Roadmap — Product Roadmap Builder

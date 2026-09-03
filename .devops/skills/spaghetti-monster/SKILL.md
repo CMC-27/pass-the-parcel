@@ -1,6 +1,8 @@
 ---
 name: spaghetti-monster
 description: Make sure to use this skill whenever the user mentions "spaghetti", "spaghetti-monster", "god object", "find tangled code", "scan for complexity", "refactor opportunities", "codebase audit", "what needs refactoring", or asks to detect, untangle, or audit high-entropy, highly coupled, non-cohesive code. The monster is a Hunter — it scans the codebase, quantifies the spaghetti, and packages each high-value target into a backlog parcel plan with Phase 1 and Phase 2 pre-populated, ready for the user to pick up Phase 3 (user clarification) in a new conversation. It does NOT execute refactors from this skill — that work happens later via pass-the-parcel execution, with the monster optionally re-invoked as a Group D sub-skill.
+version: 1
+updated: 2026-09-03
 ---
 
 # Spaghetti Monster — The Hunter

@@ -40,7 +40,12 @@ related-to: [./README.md, ../.opencode/plans/base-context.md, ../scripts/check-p
 
 ## Sync Protocol
 
-The machinery layer (`.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, `.devops/skills/`, `.devops/agents/`, `scripts/`) is the **transportable surface** of the repo. When the template updates, `scripts/sync-architecture.ps1` materialises it into satellite repos (see `.devops/rules/plan-lifecycle.md`).
+The machinery layer (`.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, `.devops/skills/`, `.devops/agents/`, `.devops/templates/`, `scripts/`) is the **transportable surface** of the repo. When the template updates, satellites pull it: `scripts/pull-architecture.ps1` (or the `@sync-architecture` skill) wraps `scripts/sync-architecture.ps1`, which materialises the surface and regenerates PREFIX-LOCKED agent prefixes from the target's own `base-context.md` (see `.devops/rules/plan-lifecycle.md`).
+
+- **Derived portable list.** Portable skills = every folder in `.devops/skills/` minus the manifest's `excluded_skills:`. Adding a skill requires no manifest edit; only exclusions do.
+- **`machinery-version`.** One integer in `sync-manifest.yaml` covering agents/rules/scripts/templates as a coordinated set. Drives UPGRADE-vs-DRIFT classification for non-skill items in `-Check`.
+- **Per-skill frontmatter.** Every `SKILL.md` must carry `version: <int>` and `updated: <date>` alongside `name`/`description`. Skill frontmatter without them is treated as version `0` by the drift checker.
+- **Wrap-up bump step.** `@agent-wrap-up` bumps the affected `version` (skills/templates) and `machinery-version` (scripts/agents/rules) whenever a portable file changes, then refreshes `updated`. No bump → satellites see DRIFT instead of UPGRADE.
 
 ---
 

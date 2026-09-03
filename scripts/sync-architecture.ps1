@@ -3,7 +3,8 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$Target,
     [switch]$NoVerify,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$Check
 )
 
 <#
@@ -14,10 +15,15 @@ param(
     The parcel/wiki architecture is engineered to be transportable between workspaces. The
     portable surface is declared in .devops/sync-manifest.yaml:
 
-        portable_dirs:     directories copied recursively (overwrite) into the target
-        portable_skills:   skill slugs copied from .devops/skills/ (overwrite that skill)
-        portable_files:    standalone files copied verbatim into the target
-        verify_commands:   commands run in the target after sync to prove integrity
+        portable_dirs:      directories copied recursively (overwrite) into the target
+        excluded_skills:    skill slugs NOT portable (portable skills are derived:
+                            every folder in .devops/skills minus this exclusion list)
+        portable_files:     standalone files copied verbatim into the target
+        machinery-version:  integer version of the dirs/files/agents/rules set; drives
+                            UPGRADE vs DRIFT classification for non-skill items
+
+    -Check compares source vs target per manifest item (SHA256 per file + version metadata)
+    and prints a CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT verdict table without writing.
 
     The repo-specific surface is NOT copied: base-context.md, opencode.json, AGENTS.md and the
     wiki content itself embed the target's own layout, task lookup and permissions. After the
@@ -65,6 +71,144 @@ foreach ($line in Get-Content $manifestPath) {
     }
 }
 
+# --- helpers ---------------------------------------------------------------
+
+function Get-FrontmatterVersion {
+    param([string]$Path)
+    if (-not (Test-Path $Path)) { return $null }
+    $raw = [System.IO.File]::ReadAllText($Path)
+    $m = [regex]::Match($raw, '^---\r?\n.*?\r?\n---', 'Singleline')
+    if (-not $m.Success) { return $null }
+    $vm = [regex]::Match($m.Value, '(?m)^version:\s*"?(\d+)"?\s*$')
+    if ($vm.Success) { return [int]$vm.Groups[1].Value }
+    return $null
+}
+
+function Get-ManifestMachineVersion {
+    param([string]$Root)
+    $mp = Join-Path $Root '.devops\sync-manifest.yaml'
+    if (-not (Test-Path $mp)) { return $null }
+    foreach ($line in Get-Content $mp) {
+        if ($line -match '^machinery-version:\s*(\d+)') { return [int]$Matches[1] }
+    }
+    return $null
+}
+
+function Get-ItemHashes {
+    param([string]$Path)
+    $map = @{}
+    if ((Get-Item $Path).PSIsContainer) {
+        Get-ChildItem $Path -Recurse -File | ForEach-Object {
+            $rel = $_.FullName.Substring($Path.TrimEnd('\').Length + 1)
+            $map[$rel] = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+        }
+    } else {
+        $map[(Split-Path -Leaf $Path)] = (Get-FileHash $Path -Algorithm SHA256).Hash
+    }
+    return $map
+}
+
+# --- parse the manifest (simple YAML subset - key: / - item lines; scalars supported) ---
+$manifest = [ordered]@{}
+$scalars = [ordered]@{}
+$currentKey = $null
+foreach ($line in Get-Content $manifestPath) {
+    $t = $line.Trim()
+    if (-not $t -or $t.StartsWith('#')) { continue }
+    if ($t -match '^([a-z_-]+):\s+(.+)$') {
+        $scalars[$Matches[1]] = $Matches[2].Trim().Trim('"')
+        $currentKey = $null
+    } elseif ($t -match '^([a-z_-]+):\s*$') {
+        $currentKey = $Matches[1]
+        $manifest[$currentKey] = @()
+    } elseif ($t -match '^([a-z_-]+):\s*\[\s*\]\s*(?:#.*)?$') {
+        $manifest[$Matches[1]] = @()
+        $currentKey = $null
+    } elseif ($t.StartsWith('- ') -and $currentKey) {
+        $manifest[$currentKey] += $t.Substring(2).Trim().Trim('"')
+    }
+}
+
+# Derive the portable skill surface: all skills minus excluded_skills.
+$skillsRoot = Join-Path $srcRoot '.devops\skills'
+$allSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name })
+$excluded = @($manifest['excluded_skills'])
+$portableSkills = @($allSkills | Where-Object { $excluded -notcontains $_ })
+
+if ($Check) {
+    # --- drift report: never writes, never regenerates prefixes ---
+    Write-Output "Checking architecture layer:"
+    Write-Output "  source : $srcRoot"
+    Write-Output "  target : $tgtRoot"
+    Write-Output ""
+
+    $script:verdicts = @()
+    function Add-Verdict {
+        param($Kind, $Name, $Verdict, $Detail)
+        $script:verdicts += [pscustomobject]@{ Kind = $Kind; Item = $Name; Verdict = $Verdict; Detail = $Detail }
+    }
+
+    # Header item: machinery-version itself.
+    $srcMachV = $scalars['machinery-version']
+    $tgtMachV = Get-ManifestMachineVersion $tgtRoot
+    if ($null -eq $tgtMachV) {
+        Add-Verdict 'meta' 'machinery-version' 'MISSING' "target manifest absent or has no machinery-version (source: $srcMachV)"
+    } elseif ([string]$tgtMachV -ne [string]$srcMachV) {
+        Add-Verdict 'meta' 'machinery-version' 'UPGRADE' "target $tgtMachV -> source $srcMachV"
+    } else {
+        Add-Verdict 'meta' 'machinery-version' 'CURRENT' "$srcMachV"
+    }
+
+    function Compare-Item {
+        param($Kind, $Name, $SrcPath, $TgtPath)
+        if (-not (Test-Path $SrcPath)) { Add-Verdict $Kind $Name 'SOURCE-ABSENT' 'manifest lists it, source missing'; return }
+        if (-not (Test-Path $TgtPath)) { Add-Verdict $Kind $Name 'MISSING' 'first-time install'; return }
+        $sh = Get-ItemHashes $SrcPath
+        $th = Get-ItemHashes $TgtPath
+        $equal = ($sh.Count -eq $th.Count)
+        if ($equal) {
+            foreach ($k in $sh.Keys) { if (-not $th.ContainsKey($k) -or $th[$k] -ne $sh[$k]) { $equal = $false; break } }
+        }
+        if ($equal) { Add-Verdict $Kind $Name 'CURRENT' ''; return }
+        if ($Kind -eq 'skill') {
+            $sv = Get-FrontmatterVersion (Join-Path $SrcPath 'SKILL.md')
+            $tv = Get-FrontmatterVersion (Join-Path $TgtPath 'SKILL.md')
+            if ($null -ne $sv -and $null -ne $tv -and $tv -lt $sv) {
+                Add-Verdict $Kind $Name 'UPGRADE' "v$tv -> v$sv"
+            } else {
+                Add-Verdict $Kind $Name 'DRIFT' "target v$tv vs source v$sv (locally customized?)"
+            }
+        } else {
+            if ($null -eq $tgtMachV -or [string]$tgtMachV -ne [string]$srcMachV) {
+                Add-Verdict $Kind $Name 'UPGRADE' 'machinery-version differs'
+            } else {
+                Add-Verdict $Kind $Name 'DRIFT' 'hashes differ at same machinery-version'
+            }
+        }
+    }
+
+    foreach ($dir in $manifest['portable_dirs']) { Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) }
+    foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops\skills\$slug") (Join-Path $tgtRoot ".devops\skills\$slug") }
+    foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
+
+    Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f 'KIND', 'ITEM', 'VERDICT', 'DETAIL')
+    foreach ($v in $script:verdicts) { Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f $v.Kind, $v.Item, $v.Verdict, $v.Detail) }
+
+    $counts = @{}
+    foreach ($v in $script:verdicts) { $counts[$v.Verdict] = 1 + [int]$counts[$v.Verdict] }
+    $bad = 0
+    foreach ($b in @('UPGRADE', 'DRIFT', 'MISSING', 'SOURCE-ABSENT')) { $bad += [int]$counts[$b] }
+    Write-Output ""
+    Write-Output ("Summary: " + (($counts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ' '))
+    if ($bad -eq 0) {
+        Write-Output "IN SYNC"
+        exit 0
+    } else {
+        Write-Output "OUT OF SYNC"
+        exit 1
+    }
+}
+
 $copied = 0
 $skipped = @()
 
@@ -77,14 +221,15 @@ foreach ($dir in $manifest['portable_dirs']) {
         $n = (Get-ChildItem $s -Recurse -File).Count
         Write-Output "DRYRUN would copy $dir ($n files)"
     } else {
-        Copy-Item $s $t -Recurse -Force
+        New-Item -ItemType Directory -Force -Path $t | Out-Null
+        Copy-Item (Join-Path $s '*') $t -Recurse -Force
         Write-Output "COPIED $dir"
     }
     $copied++
 }
 
-# 2. Portable skills (copy each skill folder into the target's .devops/skills/).
-foreach ($slug in $manifest['portable_skills']) {
+# 2. Portable skills (derived: all skills minus excluded_skills; copy each folder).
+foreach ($slug in $portableSkills) {
     $s = Join-Path $srcRoot ".devops\skills\$slug"
     if (-not (Test-Path $s)) { $skipped += "missing in source: skills/$slug"; continue }
     $t = Join-Path $tgtRoot ".devops\skills\$slug"
@@ -92,8 +237,8 @@ foreach ($slug in $manifest['portable_skills']) {
         $n = (Get-ChildItem $s -Recurse -File).Count
         Write-Output "DRYRUN would copy skill $slug ($n files)"
     } else {
-        New-Item -ItemType Directory -Force -Path (Split-Path $t) | Out-Null
-        Copy-Item $s $t -Recurse -Force
+        New-Item -ItemType Directory -Force -Path $t | Out-Null
+        Copy-Item (Join-Path $s '*') $t -Recurse -Force
         Write-Output "COPIED skill $slug"
     }
     $copied++
@@ -158,5 +303,6 @@ try {
 }
 
 Write-Output ""
+if ($scalars['machinery-version']) { Write-Output "machinery-version: $($scalars['machinery-version']) materialised" }
 Write-Output "Sync complete. $copied items materialised into $tgtRoot"
 Write-Output "Next: update $tgtRoot\.opencode\plans\base-context.md + opencode.json + AGENTS.md to the target layout."

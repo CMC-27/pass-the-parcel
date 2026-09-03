@@ -2,6 +2,8 @@
 name: karpathy-guidelines
 description: Make sure to use this skill whenever you write, review, or refactor code, or when the user asks to implement a feature or fix a bug. Use it to reduce common coding mistakes, avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.
 license: MIT
+version: 1
+updated: 2026-09-03
 ---
 
 # Karpathy Guidelines

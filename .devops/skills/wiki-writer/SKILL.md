@@ -1,6 +1,8 @@
 ---
 name: wiki-writer
 description: "Write and rewrite wiki documents in plain, even, front-loaded prose. Make sure to use this skill whenever the user asks to write, edit, rewrite, clean up, rebalance, refresh or restructure any document in a codebase wiki (.wiki/ or knowledge base) — creating new docs, integrating new content into existing docs, consolidating sections, tightening stale prose, or fixing a doc that reads unevenly. Also invoke it when another skill is about to create or edit wiki prose (agent-wrap-up, knowledge-consolidation, wiki-bootstrap). Follows the Review → Re-outline → Re-balance discipline: read the whole document first, never append, and weight detail by relevance, not recency."
+version: 1
+updated: 2026-09-03
 ---
 
 # Wiki Writer

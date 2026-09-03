@@ -1,0 +1,55 @@
+{
+  "_comment": [
+    "type: template | version: 1 | updated: 2026-09-03",
+    "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
+    "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
+    "The 'agent' blocks below are placeholders. The parcel-* agent set is generated",
+    "alongside .devops/agents/parcel-*.md runbooks when a satellite adopts the parcel",
+    "pipeline (see scripts/check-parcel-prefix.ps1 -Sync). A satellite that does NOT use",
+    "parcels should delete the entire parcel-* agent section.",
+    "JSON has no comments — notes live in this _comment array; delete it when done."
+  ],
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.md"],
+  "skills": {
+    "paths": [".devops/skills"]
+  },
+  "default_agent": "build",
+  "agent": {
+    "plan": {
+      "description": "Planning mode. Consults wiki first before any codebase search.",
+      "mode": "primary",
+      "model": "<your provider/model>",
+      "permission": {
+        "edit": "deny",
+        "bash": "ask",
+        "read": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "webfetch": "allow",
+        "skill": "allow",
+        "task": "allow",
+        "question": "allow"
+      },
+      "prompt": "You are in planning mode. Before searching the codebase or spawning any subagent, you MUST follow the AGENTS.md directive: STOP and read .wiki/ first. All research must start at .wiki/core/00-system-index.md. Only search the codebase if the wiki does not contain the answer. When using subagents, explicitly instruct them to follow the same wiki-first workflow."
+    },
+
+    "_example_minimal_subagent__delete_or_rename": {
+      "description": "Example sub-agent showing the {file:} prompt convention. Frontmatter NEVER lives in the runbook file — it lives here. Copy this shape for each parcel-* agent once .devops/agents/ exists.",
+      "mode": "subagent",
+      "model": "<your provider/model>",
+      "hidden": true,
+      "prompt": "{file:.devops/agents/<agent-name>.md}",
+      "permission": {
+        "question": "deny",
+        "task": "deny",
+        "skill": "allow",
+        "read": "allow",
+        "edit": { "*": "ask" },
+        "bash": { "*": "ask" }
+      }
+    },
+
+    "_note_parcel_agents": "Parcel pipeline agents (parcel-orchestrator, parcel-context-hunter, parcel-high-visionary, parcel-grumpy-architect, parcel-smooth-operator, parcel-code-surgeon, ...) go here once adopted. Each mirrors the example above: prompt = {file:.devops/agents/parcel-<role>.md} + scoped edit permissions on .devops/plans/** and .wiki/**. Models per the delegation map in base-context.md."
+  }
+}

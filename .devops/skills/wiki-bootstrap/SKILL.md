@@ -4,6 +4,8 @@ name: "wiki-bootstrap"
 status: "stable"
 description: "Bootstraps the wiki by walking each of the 19 core docs one by one, asking 5-8 targeted questions per doc to elicit correct content. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
 references: "references/0X-*.md — 19 scaffold templates (one per core doc) to copy as starting points. references/qa-0X-*.md — 19 question sets (one per doc) to drive the per-doc Q&A workflow."
+version: 1
+updated: 2026-09-03
 ---
 
 # wiki-bootstrap

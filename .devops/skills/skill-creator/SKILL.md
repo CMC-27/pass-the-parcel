@@ -1,6 +1,8 @@
 ---
 name: skill-creator
 description: Create and iterate on Agent Skills with proper structure, frontmatter, and progressive disclosure. Make sure to use this skill whenever the user asks to build a new skill, create an agentic instruction, generate a SKILL.md, or automate a workflow into a reusable package, even if they don't explicitly use the word "skill".
+version: 1
+updated: 2026-09-03
 ---
 
 # Skill Creator

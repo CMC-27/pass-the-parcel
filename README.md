@@ -37,3 +37,4 @@ Below is an overview of the core entry points and directories in this workspace:
 1.  **Configure the Vision**: Edit `.wiki/core/01-vision-north-star.md` to define the application's core goals.
 2.  **Define the Structure**: Build out the schemas, routes, and features in `.wiki/` to establish a clear architectural layout before writing code.
 3.  **Coordinate with AI Agents**: Direct incoming agents to read `AGENTS.md` first to ensure they adhere to the project's styling tokens, code hygiene rules, and validation pipelines.
+4.  **Sync Into Satellites**: The portable machinery (skills, agents, rule layers, scripts) pulls into any other workspace via `scripts/pull-architecture.ps1` after a one-time push bootstrap — see [HOW-TO.md §6](HOW-TO.md#6-syncing-machinery-into-a-satellite-workspace) and the checklist at `.devops/templates/SATELLITE-BOOTSTRAP.md`.

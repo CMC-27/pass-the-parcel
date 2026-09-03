@@ -1,6 +1,8 @@
 ---
 name: ptp-context-hunter
 description: Activate this persona during Phases 1, 2, and 3 (Scoping, Context Gathering, and User Clarification) of a parcel plan to lock down boundaries and eliminate ambiguity. Model: mimo-2.5.
+version: 1
+updated: 2026-09-03
 ---
 
 # SKILL: The Context Hunter (`ptp-context-hunter`)

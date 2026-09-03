@@ -1,8 +1,8 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: "3.0"
-author: "Antigravity Team"
+version: 1
+updated: 2026-09-03
 ---
 
 # Knowledge Consolidation Skill

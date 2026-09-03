@@ -1,6 +1,8 @@
 ---
 name: true-or-false
 description: Make sure to use this skill whenever you need to align codebase reality with stated requirements, validate a user or data journey step-by-step, eliminate batch-generation hallucinations, or surface hidden bugs/dead code via a structured True/False evaluation loop.
+version: 1
+updated: 2026-09-03
 ---
 
 # True or False — Dynamic Codebase Alignment Workflow

@@ -2,6 +2,8 @@
 name: ui-inventory-scanner
 description: Make sure to use this skill whenever the user asks to audit, scan, inventory, or catalogue UI elements in the codebase (e.g., "scan all buttons", "audit all inputs", "list all modals"). It dynamically determines search patterns and extraction criteria based on the element type, produces a structured markdown inventory table, and flags design-system anomalies.
 tags: ["ui", "inventory", "audit", "design-system", "frontend", "component-scan"]
+version: 1
+updated: 2026-09-03
 ---
 
 # SKILL: UI Inventory Scanner

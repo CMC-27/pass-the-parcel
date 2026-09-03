@@ -1,7 +1,8 @@
 ---
 name: wiki-lint
 description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing index drift and hub reachability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
-version: "1.2"
+version: 1
+updated: 2026-09-03
 ---
 
 # Wiki Lint Skill

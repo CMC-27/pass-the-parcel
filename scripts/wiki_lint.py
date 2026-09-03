@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-wiki_lint.py — Deterministic linter for the pass-the-parcel knowledge base.
+wiki_lint.py — Deterministic linter for the parcel blueprint knowledge base.
 
 Enforces the rules in .wiki/rules/:
   - Structure manifest anchors exist (hard failure if a declared anchor is missing)

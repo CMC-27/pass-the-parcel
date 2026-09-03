@@ -1,7 +1,8 @@
 ---
 name: wiki-query
 description: "Use when asking a question about the codebase, looking up a concept, or synthesizing an answer from the wiki + ref/ docs. Triggers: 'what do I know about X', 'look up Y', 'find in wiki', 'search docs', 'wiki says'. Read-only — defers writing to knowledge-capture."
-version: "1.0"
+version: 1
+updated: 2026-09-03
 ---
 
 # Wiki Query Skill

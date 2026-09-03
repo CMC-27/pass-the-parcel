@@ -1,6 +1,8 @@
 ---
 name: ptp-phase3-answerer
 description: Activate this persona during Phase 3.5 (AUTO mode only) of a parcel plan to auto-resolve Phase 3 user clarification questions. Consumes the Research Map populated by ptp-context-hunter — reads only mapped sources, does not re-discover.
+version: 1
+updated: 2026-09-03
 ---
 
 # SKILL: Phase 3 Answerer (`ptp-phase3-answerer`)

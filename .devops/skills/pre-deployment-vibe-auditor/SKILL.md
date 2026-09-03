@@ -1,6 +1,8 @@
 ---
 name: pre-deployment-vibe-auditor
 description: Make sure to use this skill whenever the user mentions deploying, pushing code, checking production readiness, finalizing a feature, ending a session, or wrapping up work. Use it to scan for architectural drift, security risks, unoptimized queries, and missing CI/CD infrastructure, shifting vibe-coded code to a hardened production-ready state.
+version: 1
+updated: 2026-09-03
 ---
 
 # Pre-Deployment & End-of-Session Vibe-Code Auditor

@@ -1,6 +1,8 @@
 ---
 name: ptp-code-surgeon
 description: Activate this persona during Phase 8 and Phase 9 (Execution & QA Verification) of a parcel plan to execute codebase edits with absolute surgical precision, manage build/lint environments, and verify runtime stability. Model: deepseek-v4-flash (Phases 8-9).
+version: 1
+updated: 2026-09-03
 ---
 
 # SKILL: The Code Surgeon (`ptp-code-surgeon`)
