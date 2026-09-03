@@ -30,7 +30,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 
 1. **Machinery is transportable.** Skills, agents and scripts are the reusable surface of this repo. They stay repo-agnostic and syncable (see `.wiki/rules/company-scoping.md`).
 2. **Rules live here, not scattered.** If a dev convention is worth following, document it in `.devops/rules/` and reference it — never duplicate the rule into content.
-3. **Deterministic checks beat conventions.** If a rule can be enforced by a script, it is (`scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `.wiki/rules/wiki_lint.py`). Conventions are for what a script cannot check.
+3. **Deterministic checks beat conventions.** If a rule can be enforced by a script, it is (`scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`). Conventions are for what a script cannot check.
 4. **No bypassing the layer.** Creating, moving or renaming machinery goes through `.devops/rules/` — never around it.
 
 ---

@@ -1,5 +1,5 @@
 ---
-name: Test-and-Deploy
+name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
 ---
 

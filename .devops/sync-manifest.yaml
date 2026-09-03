@@ -23,11 +23,12 @@ portable_skills:
   - ptp-high-visionary
   - ptp-grumpy-architect
   - ptp-smooth-operator
-  - parcel-compactor
+  - ptp-code-surgeon
   - agent-wrap-up
   - knowledge-capture
   - knowledge-consolidation
   - true-or-false
+  - write-wiki
 
 portable_files:
   - scripts/check-parcel-prefix.ps1

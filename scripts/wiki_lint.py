@@ -37,7 +37,6 @@ FM_EXEMPT_PREFIXES = (
     str(ROOT / ".devops" / "agents"),
     str(ROOT / ".devops" / "skills" / "ptp-"),
     str(ROOT / ".devops" / "skills" / "pass-the-parcel"),
-    str(ROOT / ".devops" / "skills" / "parcel-compactor"),
     str(ROOT / ".devops" / "rules"),
     str(ROOT / ".wiki" / "rules"),
     str(ROOT / ".opencode"),

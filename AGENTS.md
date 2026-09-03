@@ -69,7 +69,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 
 ## Governance Layers
 
-- [`.wiki/rules/`](.wiki/rules/README.md) — how the wiki is structured, named, linked (`python .wiki/rules/wiki_lint.py` enforces it deterministically)
+- [`.wiki/rules/`](.wiki/rules/README.md) — how the wiki is structured, named, linked (`python scripts/wiki_lint.py` enforces it deterministically)
 - [`.wiki/rules/language/`](.wiki/rules/language/README.md) — how we write — voice, tone, evidence, audience
 - [`.devops/rules/`](.devops/rules/README.md) — how agents, skills, plans and operational state are governed
 - [`.devops/`](.devops/README.md) — operational state + the transportable machinery layer (skills, agents, plans, logs)

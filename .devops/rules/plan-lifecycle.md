@@ -4,7 +4,7 @@ tags: [dev, rules, plans, parcel, lifecycle]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./README.md, ../.devops/skills/pass-the-parcel/SKILL.md, ../.devops/skills/parcel-compactor/SKILL.md]
+related-to: [./README.md, ../.devops/skills/pass-the-parcel/SKILL.md]
 ---
 
 # Plan Lifecycle
