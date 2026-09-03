@@ -129,6 +129,16 @@ Each entry should follow this format:
 
 ---
 
+### CI Must Assert Only Tracked Files
+* **Decision Date:** 2026-09-03
+* **Context:** The first CI run (v0.3.0) failed on the JSON-parse step: it asserted `.opencode/package.json`, which is gitignored by `.opencode/.gitignore` (local opencode runtime). Locally the file exists so every gate passed; in a clean CI checkout it never does.
+* **Action:** Dropped the untracked-file assertion from `validate.yml` — CI now parses only tracked JSON (`opencode.json`). Fixed in `14b71ce`; next run green.
+* **Rationale:**
+    * **A CI gate must be reproducible from a fresh clone**: any check referencing a path outside `git ls-files` is a latent false failure.
+    * **Local-green ≠ CI-green**: run gates against a clean checkout before trusting them; this repo's ignore layers (`.gitignore` + `.opencode/.gitignore`) make hidden local state easy to acquire.
+
+---
+
 ## [First Decision Category — e.g., Data Model]
 
 ### [First Decision Title]

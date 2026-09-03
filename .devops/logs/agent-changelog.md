@@ -11,6 +11,20 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-03 - CI Hotfix: Untracked-File Assertion Removed
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:**
+- `.github/workflows/validate.yml` — JSON-parse step no longer asserts `.opencode/package.json` (gitignored local runtime, absent in CI checkouts); tracked JSON only
+- `.wiki/core/18-knowledge-capture.md` — new decision: "CI Must Assert Only Tracked Files"
+
+**Database/API Changes:** None
+
+**Summary:** First v0.3.0 CI run failed on the JSON step — my gate referenced a file that exists locally but is excluded by `.opencode/.gitignore`, so a clean checkout never has it. All other steps (prefix, UTF-8, lint, coverage, version discipline) passed. Fix pushed as `14b71ce`; re-run green in 11s. Lesson captured: CI assertions must be reproducible from `git ls-files` alone.
+
+---
+
 ## 2026-09-03 - Independent Review Hardening: Template Cleanup, Slot Registry, CI (v0.3.0)
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
