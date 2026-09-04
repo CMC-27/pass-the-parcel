@@ -28,7 +28,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Database/API Changes:** None
 
-**Summary:** Migrated the parcel agent set to VS Code custom agent definitions so agents appear in the VS Code agent picker. Only `parcel` and `wiki writer` are selectable (`*.agent.md`); the six `ptp-*` pipeline agents + `wiki-verifier` are subagents (`*.subagent.md`, `user-invocable: false`). The `/parcel` command was folded into `parcel.agent.md`. `opencode.json` agent blocks removed (pure VS Code migration). PREFIX-LOCKED prefix contract preserved — `check-parcel-prefix.ps1` now handles frontmatter-in-file and the new naming. Verified: `check-parcel-prefix.ps1 -Sync` (7 files PASS), `check-utf8-agents.ps1`.
+**Summary:** Migrated the parcel agent set to VS Code custom agent definitions so agents appear in the VS Code agent picker. Only `parcel` and `wiki writer` are selectable (`*.agent.md`); the six `ptp-*` pipeline agents + `wiki-verifier` are subagents (`*.subagent.md`, `user-invocable: false`). The `/parcel` command was folded into `parcel.agent.md`. `opencode.json` agent blocks removed (pure VS Code migration). PREFIX-LOCKED prefix contract preserved — `check-parcel-prefix.ps1` now handles frontmatter-in-file and the new naming. Verified: `check-parcel-prefix.ps1 -Sync` (7 files PASS), `check-utf8-agents.ps1`, `wiki_lint.py --quiet` (exit 0), `wiki_coverage_check.py` (exit 0). **Wrap-up ref:** `47cf81d`
 
 ---
 
