@@ -134,6 +134,7 @@ writes `.ptp-source` — then just say "sync architecture" (`@sync-architecture`
 | `DRIFT` | same version, different bytes — locally customized, diff before overwriting |
 | `MISSING` | never installed here — a sync will create it |
 | `SOURCE-ABSENT` | manifest lists it but the template lacks it — manifest bug |
+| `PRUNE` | listed in `prune_files` and present in the target — a sync will delete it |
 
 **Versioning.** Each skill carries an integer `version:` + `updated:` date in its frontmatter;
 `.devops/sync-manifest.yaml` carries one `machinery-version:` covering agents/rules/scripts/

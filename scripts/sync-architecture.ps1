@@ -19,6 +19,7 @@ param(
         excluded_skills:    skill slugs NOT portable (portable skills are derived:
                             every folder in .devops/skills minus this exclusion list)
         portable_files:     standalone files copied verbatim into the target
+        prune_files:        files deleted from the target if present (retired upstream)
         machinery-version:  integer version of the dirs/files/agents/rules set; drives
                             UPGRADE vs DRIFT classification for non-skill items
 
@@ -61,7 +62,7 @@ if ($SelfTest) {
         if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
         # Manifest must parse identically inside the test process — re-parse here.
         $stManifestPath = Join-Path $srcRoot '.devops\sync-manifest.yaml'
-        $stDirs = @(); $stFiles = @(); $stExcluded = @(); $cur = $null
+        $stDirs = @(); $stFiles = @(); $stExcluded = @(); $stPrune = @(); $cur = $null
         foreach ($line in Get-Content $stManifestPath) {
             $t = $line.Trim()
             if (-not $t -or $t.StartsWith('#')) { continue }
@@ -72,6 +73,7 @@ if ($SelfTest) {
                 switch ($cur) {
                     'portable_dirs'  { $stDirs += $t.Substring(2).Trim().Trim('"') }
                     'portable_files' { $stFiles += $t.Substring(2).Trim().Trim('"') }
+                    'prune_files'    { $stPrune += $t.Substring(2).Trim().Trim('"') }
                     'excluded_skills' { $stExcluded += $t.Substring(2).Trim().Trim('"') }
                 }
             }
@@ -94,6 +96,15 @@ if ($SelfTest) {
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
         $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName -match '\\(\.wiki|\.devops)\\\1|\\skills\\([^\\]+)\\\2' }
         if ($nested) { $fail += "nested-copy defect: $($nested.FullName -join ', ')" }
+        # Prune test: plant a stale file, re-sync, assert it is removed.
+        if ($stPrune.Count -gt 0) {
+            $stale = Join-Path $tmp $stPrune[0]
+            New-Item -ItemType Directory -Force -Path (Split-Path $stale) | Out-Null
+            Set-Content -Path $stale -Value "stale" -NoNewline
+            & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
+            if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
+            if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
+        }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"
             $fail | ForEach-Object { Write-Output "  $_" }
@@ -263,6 +274,11 @@ if ($Check) {
     foreach ($dir in $manifest['portable_dirs']) { Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) }
     foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops\skills\$slug") (Join-Path $tgtRoot ".devops\skills\$slug") }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
+    foreach ($pf in $manifest['prune_files']) {
+        if (Test-Path (Join-Path $tgtRoot $pf)) {
+            Add-Verdict 'prune' $pf 'PRUNE' 'redundant file present in target; sync will delete it'
+        }
+    }
 
     Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f 'KIND', 'ITEM', 'VERDICT', 'DETAIL')
     foreach ($v in $script:verdicts) { Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f $v.Kind, $v.Item, $v.Verdict, $v.Detail) }
@@ -330,6 +346,19 @@ foreach ($file in $manifest['portable_files']) {
         Write-Output "COPIED $file"
     }
     $copied++
+}
+
+# 3b. Prune redundant files from the target (files retired upstream).
+foreach ($pf in $manifest['prune_files']) {
+    $tp = Join-Path $tgtRoot $pf
+    if (Test-Path $tp) {
+        if ($DryRun) {
+            Write-Output "DRYRUN would prune $pf"
+        } else {
+            Remove-Item $tp -Force
+            Write-Output "PRUNED $pf"
+        }
+    }
 }
 
 if ($skipped.Count -gt 0) {

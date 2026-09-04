@@ -11,6 +11,23 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-05 - Sync prune_files Mechanism (machinery-version 6)
+
+**Agent:** GitHub Copilot (Copilot SDK)
+
+**Files Modified:**
+- `.devops/sync-manifest.yaml` — NEW `prune_files:` key listing the 8 retired `parcel-*.md` runbooks; machinery-version 5→6
+- `scripts/sync-architecture.ps1` — prune handling: copy mode deletes `prune_files` present in target (`PRUNED`); `-Check` reports `PRUNE` verdict; `-DryRun` reports would-prune; `-SelfTest` plants a stale file, re-syncs, asserts removal
+- `.devops/rules/agents-and-skills.md` — Sync Protocol documents `prune_files`
+- `.devops/README.md` — Pruning bullet in Transportability
+- `HOW-TO.md` — `PRUNE` verdict row added to the `-Check` verdict table
+
+**Database/API Changes:** None
+
+**Summary:** Added a `prune_files` manifest key so the sync engine deletes files from satellites that were retired upstream. Previously the sync was overwrite-only — renamed/removed portable files (e.g. the `parcel-*.md` → `.agent.md` migration) left orphaned runbooks in satellites. Now `prune_files` entries present in the target are deleted on sync, reported as `PRUNE` in `-Check`, and covered by `-SelfTest`. Verified: `sync-architecture.ps1 -SelfTest` (prune path OK), end-to-end prune test (stale file removed).
+
+---
+
 ## 2026-09-04 - VS Code Custom Agent Migration (machinery-version 5)
 
 **Agent:** GitHub Copilot (Copilot SDK)

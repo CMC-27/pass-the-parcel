@@ -98,6 +98,17 @@ Each entry should follow this format:
 
 ---
 
+### Sync prune_files — Propagating File Removals to Satellites
+* **Decision Date:** 2026-09-05
+* **Context:** The sync engine was overwrite-only — it copied portable files into satellites but never deleted anything. When the VS Code agent migration renamed `parcel-*.md` runbooks to `.agent.md`/`.subagent.md`, satellites that synced kept the old runbooks as silent orphans (the prefix checker no longer matched them, so nothing flagged them).
+* **Action:** Added a `prune_files:` key to `sync-manifest.yaml` listing files deleted from the target if present (relative to repo root). `sync-architecture.ps1` deletes them after copying (`PRUNED <path>`), reports them as a `PRUNE` verdict in `-Check`, shows `DRYRUN would prune` in `-DryRun`, and `-SelfTest` plants a stale file and asserts it is removed on re-sync. The 8 retired `parcel-*.md` runbooks are the first entries.
+* **Rationale:**
+    * **No orphans**: renames/removals of portable files now propagate instead of leaving dead files that pollute satellite context.
+    * **Surgical, not mirror**: explicit per-file list avoids the risk of a full mirror mode deleting legitimate satellite-local additions.
+    * **Previewable**: `-Check` shows `PRUNE` before any mutation, so the operator sees exactly what a sync will delete.
+
+---
+
 ### UTF-8 Mojibake in Machinery Files — Repair, Don't Re-copy
 * **Decision Date:** 2026-09-03
 * **Context:** Several `.devops/skills/wiki-*` files carried U+FFFD replacement chars and `?`-mangled arrows/emoji (em dashes → `�`, `→` → `?`, `–` → `n++`) from an ancestor edit saved with the wrong encoding. `check-utf8-agents.ps1` only guards `.devops/agents/parcel-*.md` — skills and scaffolds have no automated guard.

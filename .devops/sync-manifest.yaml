@@ -8,7 +8,9 @@
 #   portable_dirs:   directories copied recursively into the target (overwrite).
 #   portable_skills: skill slugs copied from .devops/skills/ into the target's
 #                    .devops/skills/ (overwrite that skill only, never the whole folder).
-#   portable_files:    standalone files copied verbatim into the target.
+#   portable_files:  standalone files copied verbatim into the target.
+#   prune_files:     files deleted from the target if present (files retired upstream,
+#                    e.g. renamed/removed runbooks). Relative to repo root.
 #   excluded_skills:   skill slugs NOT synced. Portable skills are DERIVED: every folder
 #                      in .devops/skills minus this list. Adding a skill needs no manifest
 #                      edit; only exclusions do.
@@ -18,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 5
+machinery-version: 6
 
 portable_dirs:
   - .wiki/rules
@@ -33,5 +35,16 @@ portable_files:
   - scripts/sync-architecture.ps1
   - scripts/pull-architecture.ps1
   - scripts/wiki_lint.py
+
+# Old parcel-* runbooks retired by the VS Code .agent.md migration (v0.3.2).
+prune_files:
+  - .devops/agents/parcel-orchestrator.md
+  - .devops/agents/parcel-context-hunter.md
+  - .devops/agents/parcel-high-visionary.md
+  - .devops/agents/parcel-smooth-operator.md
+  - .devops/agents/parcel-grumpy-architect.md
+  - .devops/agents/parcel-code-surgeon.md
+  - .devops/agents/parcel-phase3-answerer.md
+  - .devops/agents/wiki-verifier.md
 
 excluded_skills: []
