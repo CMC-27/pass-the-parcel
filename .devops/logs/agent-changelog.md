@@ -24,7 +24,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Database/API Changes:** None
 
-**Summary:** Added a `prune_files` manifest key so the sync engine deletes files from satellites that were retired upstream. Previously the sync was overwrite-only — renamed/removed portable files (e.g. the `parcel-*.md` → `.agent.md` migration) left orphaned runbooks in satellites. Now `prune_files` entries present in the target are deleted on sync, reported as `PRUNE` in `-Check`, and covered by `-SelfTest`. Verified: `sync-architecture.ps1 -SelfTest` (prune path OK), end-to-end prune test (stale file removed).
+**Summary:** Added a `prune_files` manifest key so the sync engine deletes files from satellites that were retired upstream. Previously the sync was overwrite-only — renamed/removed portable files (e.g. the `parcel-*.md` → `.agent.md` migration) left orphaned runbooks in satellites. Now `prune_files` entries present in the target are deleted on sync, reported as `PRUNE` in `-Check`, and covered by `-SelfTest`. Verified: `sync-architecture.ps1 -SelfTest` (prune path OK), end-to-end prune test (stale file removed). **Wrap-up ref:** `364dae4`
 
 ---
 
