@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/.
-version: 2
-updated: 2026-09-03
+version: 3
+updated: 2026-09-04
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -76,9 +76,9 @@ The pipeline routes by **slot**, not by model name. Each workspace binds the slo
 - **`review-heavy`**: Phase 6 (Grumpy Architect / Spec & Logic Audit). The strongest reasoning model available; reserved for the senior audit only.
 - **`execution`**: Phases 8-9 (Code Surgeon execution + QA tweaks). Fast, cheap, instruction-faithful coder.
 
-**Binding rule:** every parcel agent's `model:` in `opencode.json` MUST be set to one of the three slots' bound values. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
+**Binding rule:** every parcel/ptp agent's `model:` in its agent frontmatter MUST be set to one of the three slots' bound values. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
 
-> **Canonical copy:** This delegation map + model registry is inlined into every parcel-* agent via the PREFIX-LOCKED header (`.opencode/plans/base-context.md`). When editing the map, update `base-context.md` and run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it — then mirror the change here.
+> **Canonical copy:** This delegation map + model registry is inlined into every parcel/ptp agent via the PREFIX-LOCKED header (`.opencode/plans/base-context.md`). When editing the map, update `base-context.md` and run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it — then mirror the change here.
 
 **Naming convention:**
 * **`ptp-*` prefix** = pass-the-parcel sub-skill. Lives in `.devops/skills/ptp-*/SKILL.md`. The full directive detail lives in these skills — pass-the-parcel only references them.

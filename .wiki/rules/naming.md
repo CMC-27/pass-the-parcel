@@ -23,7 +23,8 @@ related-to: [./numbering.md, ./frontmatter.md]
 | `kebab-case.md` | `data-flow.md` | Knowledge docs, work instructions |
 | `NN-slug.md` | `09-design-system.md` | Indexed core docs, sequenced standards |
 | `<slug>/SKILL.md` | `wiki-query/SKILL.md` | Skills (in `.devops/skills/`) |
-| `<slug>.md` | `parcel-orchestrator.md` | Agent runbooks (in `.devops/agents/`) |
+| `<slug>.agent.md` | `parcel.agent.md` | Selectable agents (in `.devops/agents/`) |
+| `ptp-<slug>.subagent.md` | `ptp-context-hunter.subagent.md` | Subagents (in `.devops/agents/`) |
 
 ## Naming Rules
 

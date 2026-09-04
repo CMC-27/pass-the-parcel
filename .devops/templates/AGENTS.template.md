@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 2
+version: 3
 updated: 2026-09-04
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
@@ -24,7 +24,7 @@ user interfaces.
 - **`.devops/backlog/`** — Product roadmap and backlog items
 - **`.devops/logs/`** — Agent changelog, version history, knowledge changelog
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — All parcel-* agent runbooks (PREFIX-LOCKED, pure body)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer
 - **`.devops/rules/`** — Dev governance layer
 

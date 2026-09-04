@@ -23,7 +23,7 @@ related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
 |---|---|
 | Architecture, design system, features, schema, logic, integrations | `.wiki/` — reference knowledge |
 | Skills (SKILL.md per folder) | `.devops/skills/` — machinery |
-| Agent runbooks (parcel-*.md) | `.devops/agents/` — machinery |
+| Agent files (`*.agent.md` / `*.subagent.md`) | `.devops/agents/` — machinery |
 | Active parcel plans + template | `.devops/plans/` — state |
 | Roadmap + backlog items | `.devops/backlog/` — state |
 | Completed / archived plans | `.devops/archive/` — state |

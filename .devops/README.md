@@ -16,7 +16,7 @@ related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 | Path | Type | Contents |
 |---|---|---|
 | `.devops/skills/` | machinery | All skills (`<slug>/SKILL.md`), loaded via `opencode.json` `skills.paths` |
-| `.devops/agents/` | machinery | All parcel agent runbooks (`parcel-*.md`, PREFIX-LOCKED pure body), loaded via `prompt: {file: ...}` in `opencode.json` |
+| `.devops/agents/` | machinery | VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents) |
 | `.devops/plans/` | state | Active parcel plans + `template-plan.md` |
 | `.devops/backlog/` | state | Roadmap, backlog items and pre-prepared plans |
 | `.devops/archive/` | state | Completed / archived plans (moved via `git mv`, no stub) |

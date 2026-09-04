@@ -23,7 +23,7 @@ Below is an overview of the core entry points and directories in this workspace:
     *   `integrations/`: External service and API integration documentation.
     *   `testing/`: Test patterns, mocking, performance budgets, and PR checklist.
 *   **`.devops/`**: Operational process tooling — volatile, workflow-driven assets + the transportable machinery layer:
-    *   `agents/`: Parcel-* agent runbooks (PREFIX-LOCKED pure body, loaded via `prompt: {file: ...}`).
+    *   `agents/`: VS Code custom agents (`parcel.agent.md` + `wiki-writer.agent.md` selectable; `ptp-*.subagent.md` + `wiki-verifier.subagent.md` subagents).
     *   `plans/`: Active implementation plans and the plan template.
     *   `backlog/`: Project backlog index and individual backlog plan files.
     *   `archive/`: Completed and closed implementation plans.

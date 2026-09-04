@@ -10,7 +10,7 @@ This repository is configured with a structured documentation library in **`docs
 - **`.devops/backlog/`** — Product roadmap and backlog items
 - **`.devops/logs/`** — Agent changelog, version history, knowledge changelog
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — All parcel-* agent runbooks (PREFIX-LOCKED, pure body), loaded via `prompt: {file: ...}` in `opencode.json`
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
 - **`.wiki/rules/language/`** — Language governance layer — voice & tone, AI rules, publication rules
 - **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle
@@ -73,7 +73,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 6. **Subagent Wiki-First Mandate:** Any agent spawning a subagent (via `task`) MUST explicitly instruct that subagent to follow the wiki-first directive — STOP and read `.wiki/` before searching the codebase. Subagents spawned without this instruction will default to raw codebase search and waste context. This applies to all subagents regardless of role (planner, reviewer, surgeon, etc.).
 7. **Planning Protocol:** Multi-step tasks MUST use the `@pass-the-parcel` skill.
 8. **Form Field Hygiene (id + name + autoComplete + htmlFor):** Every `<input>`, `<select>`, and `<textarea>` MUST have an `id` attribute, and its corresponding `<label>` MUST have `htmlFor` matching that `id`. Auth forms (login/registration) additionally require `name` + `autoComplete` attributes for password manager support. For fields inside `.map()` loops, use globally unique dynamic IDs (e.g., `id={`field-${parentKey}-${index}`}`) — never a bare local index. See `.wiki/core/09-design-system.md` §5c for the full standard and common pitfalls.
-9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel-* agents. NEVER edit the inline prefix inside `.devops/agents/parcel-*.md` directly — edit `base-context.md`, then run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts\check-parcel-prefix.ps1` (and `scripts\check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`.
+9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel/ptp agents. NEVER edit the inline prefix inside `.devops/agents/parcel.agent.md` or `.devops/agents/ptp-*.subagent.md` directly — edit `base-context.md`, then run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts\check-parcel-prefix.ps1` (and `scripts\check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`.
 
 ---
 

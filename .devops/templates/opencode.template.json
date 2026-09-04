@@ -1,12 +1,12 @@
 {
   "_comment": [
-    "type: template | version: 1 | updated: 2026-09-03",
+    "type: template | version: 2 | updated: 2026-09-04",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
     "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
-    "The 'agent' blocks below are placeholders. The parcel-* agent set is generated",
-    "alongside .devops/agents/parcel-*.md runbooks when a satellite adopts the parcel",
-    "pipeline (see scripts/check-parcel-prefix.ps1 -Sync). A satellite that does NOT use",
-    "parcels should delete the entire parcel-* agent section.",
+    "Parcel/ptp agents are defined as VS Code custom agent files in .devops/agents/",
+    "(parcel.agent.md = selectable, ptp-*.subagent.md = subagents) — NOT in this file.",
+    "The 'agent' block below is optional (e.g. a 'plan' mode). A satellite that does not",
+    "use opencode agents should delete the entire 'agent' section.",
     "JSON has no comments — notes live in this _comment array; delete it when done."
   ],
   "$schema": "https://opencode.ai/config.json",
@@ -35,7 +35,7 @@
     },
 
     "_example_minimal_subagent__delete_or_rename": {
-      "description": "Example sub-agent showing the {file:} prompt convention. Frontmatter NEVER lives in the runbook file — it lives here. Copy this shape for each parcel-* agent once .devops/agents/ exists.",
+      "description": "Example opencode sub-agent. NOTE: parcel/ptp agents now live as VS Code .agent.md / .subagent.md files in .devops/agents/ (frontmatter in-file) — only add opencode agents here if you need opencode-CLI-specific agents.",
       "mode": "subagent",
       "model": "<your provider/model>",
       "hidden": true,
@@ -50,6 +50,6 @@
       }
     },
 
-    "_note_parcel_agents": "Parcel pipeline agents (parcel-orchestrator, parcel-context-hunter, parcel-high-visionary, parcel-grumpy-architect, parcel-smooth-operator, parcel-code-surgeon, ...) go here once adopted. Each mirrors the example above: prompt = {file:.devops/agents/parcel-<role>.md} + scoped edit permissions on .devops/plans/** and .wiki/**. Models per the delegation map in base-context.md."
+    "_note_parcel_agents": "Parcel/ptp agents are defined as VS Code custom agent files in .devops/agents/ (parcel.agent.md = selectable; ptp-*.subagent.md = subagents; wiki-writer.agent.md = selectable; wiki-verifier.subagent.md = subagent). Each carries YAML frontmatter (description/tools/model/user-invocable) + the PREFIX-LOCKED prefix from base-context.md. Models per the delegation map in base-context.md."
   }
 }

@@ -1,3 +1,8 @@
+---
+description: "Clean-context post-wrap-up wiki auditor. Runs after agent-wrap-up completes; audits the git diff since the last wrap-up ref against wiki coverage and prose accuracy. Report-only - never edits files."
+tools: [read, search, execute]
+user-invocable: false
+---
 # Wiki Verifier Agent (Clean-Context Post-Wrap-Up Audit)
 
 ## Identity

@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 2
+version: 3
 updated: 2026-09-04
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -40,11 +40,10 @@ Copy and customize (the sync never overwrites these):
 | Seed (in `.devops/templates/`) | Copy to | Then |
 |---|---|---|
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
-| `opencode.template.json` | `opencode.json` | set models; add parcel-* agent blocks if adopting parcels |
+| `opencode.template.json` | `opencode.json` | keep instructions + skills.paths; agents live in `.devops/agents/*.agent.md` |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 
-If you adopted the parcel pipeline (parcel-* agents in `opencode.json` + runbooks in
-`.devops/agents/`), lock the prefixes:
+If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 
 ```powershell
 powershell -NoProfile -File scripts\check-parcel-prefix.ps1 -Sync

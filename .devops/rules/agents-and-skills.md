@@ -19,14 +19,14 @@ related-to: [./README.md, ../.opencode/plans/base-context.md, ../scripts/check-p
 
 ## Agent Home
 
-- **All parcel agent runbooks live in `.devops/agents/parcel-*.md`.** They are **pure body**: the PREFIX-LOCKED prefix followed by the agent-unique content, with no frontmatter.
-- Agent config (description, mode, model, permissions) lives in `opencode.json`, which loads the runbook via `prompt: {file: .devops/agents/parcel-*.md}`.
-- The runbook must start with the byte-identical PREFIX-LOCKED prefix from `.opencode/plans/base-context.md` — enforced by `scripts/check-parcel-prefix.ps1`.
+- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents).
+- Each file carries YAML frontmatter (description, tools, model, user-invocable) followed by the PREFIX-LOCKED prefix and the agent-unique content.
+- The PREFIX-LOCKED prefix must be byte-identical to `.opencode/plans/base-context.md` — enforced by `scripts/check-parcel-prefix.ps1`.
 
 ## PREFIX-LOCKED Contract
 
-1. `.opencode/plans/base-context.md` is the **canonical shared prefix** for all parcel-* agents.
-2. Never edit the inline prefix inside a `.devops/agents/parcel-*.md` runbook directly — edit `base-context.md`, then run:
+1. `.opencode/plans/base-context.md` is the **canonical shared prefix** for all parcel/ptp agents.
+2. Never edit the inline prefix inside a `.devops/agents/parcel.agent.md` or `.devops/agents/ptp-*.subagent.md` file directly — edit `base-context.md`, then run:
    ```
    powershell -File scripts\check-parcel-prefix.ps1 -Sync
    ```
@@ -35,7 +35,7 @@ related-to: [./README.md, ../.opencode/plans/base-context.md, ../scripts/check-p
 ## Naming
 
 - Skills: `kebab-case` folder + matching frontmatter `name`, e.g. `.devops/skills/wiki-query/SKILL.md` with `name: wiki-query`.
-- Agents: `parcel-<role>.md`, e.g. `.devops/agents/parcel-orchestrator.md`.
+- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent.
 - Skill descriptions must state **when to trigger** the skill (the `description` frontmatter is what agents read).
 
 ## Sync Protocol

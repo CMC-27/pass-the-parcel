@@ -1,5 +1,5 @@
 # Encoding guard: detect UTF-8 mojibake and replacement chars in machinery files.
-# Scans agent runbooks (.devops/agents/parcel-*.md) AND all skill sources
+# Scans agent files (.devops/agents/*.agent.md + *.subagent.md) AND all skill sources
 # (.devops/skills/**/*.md) — the latter closes the documented guard gap where
 # corrupted glyphs propagated through sync into instruction surfaces.
 # Markers: C3 A2 (double-encoded em-dash lead, "â€"), EF BF BD (U+FFFD replacement).
@@ -7,7 +7,8 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
 $targets = @()
-$targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter 'parcel-*.md' -ErrorAction SilentlyContinue
+$targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.agent.md' -ErrorAction SilentlyContinue
+$targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.subagent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 
 $bad = @()

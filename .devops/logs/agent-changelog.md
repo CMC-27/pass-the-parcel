@@ -11,6 +11,27 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-04 - VS Code Custom Agent Migration (machinery-version 5)
+
+**Agent:** GitHub Copilot (Copilot SDK)
+
+**Files Modified:**
+- `.devops/agents/` — renamed to VS Code custom agent convention: `parcel.agent.md` (selectable; merged `/parcel` command + orchestrator runbook) + `wiki-writer.agent.md` (selectable; wraps `wiki-writer` skill) + `ptp-*.subagent.md` (subagents: context-hunter, high-visionary, smooth-operator, grumpy-architect, code-surgeon, phase3-answerer) + `wiki-verifier.subagent.md` (subagent). Each carries YAML frontmatter (description/tools/user-invocable) + PREFIX-LOCKED prefix (parcel/ptp only)
+- `.opencode/command/parcel.md` — DELETED (moved into `parcel.agent.md`)
+- `.opencode/plans/base-context.md` — PREFIX-LOCKED note + delegation map → `ptp-*` names; model registry binding → agent frontmatter
+- `scripts/check-parcel-prefix.ps1` — matches `parcel.agent.md` + `ptp-*.subagent.md`; strips/preserves YAML frontmatter
+- `scripts/check-utf8-agents.ps1` — scans `*.agent.md` + `*.subagent.md`
+- `opencode.json` — `agent` block removed (agents now defined by `.agent.md` files)
+- `.devops/templates/base-context.template.md`, `opencode.template.json`, `AGENTS.template.md`, `SATELLITE-BOOTSTRAP.md` — naming + frontmatter-in-file updates
+- `AGENTS.md`, `.devops/README.md`, `.devops/rules/agents-and-skills.md`, `.wiki/rules/naming.md`, `.wiki/rules/company-scoping.md`, `README.md`, `.devops/skills/pass-the-parcel/SKILL.md` — agent naming references updated
+- `.devops/sync-manifest.yaml` — machinery-version 4→5
+
+**Database/API Changes:** None
+
+**Summary:** Migrated the parcel agent set to VS Code custom agent definitions so agents appear in the VS Code agent picker. Only `parcel` and `wiki writer` are selectable (`*.agent.md`); the six `ptp-*` pipeline agents + `wiki-verifier` are subagents (`*.subagent.md`, `user-invocable: false`). The `/parcel` command was folded into `parcel.agent.md`. `opencode.json` agent blocks removed (pure VS Code migration). PREFIX-LOCKED prefix contract preserved — `check-parcel-prefix.ps1` now handles frontmatter-in-file and the new naming. Verified: `check-parcel-prefix.ps1 -Sync` (7 files PASS), `check-utf8-agents.ps1`.
+
+---
+
 ## 2026-09-04 - Sync Discoverability + .vscode Portability (machinery-version 4)
 
 **Agent:** GitHub Copilot (Copilot SDK)

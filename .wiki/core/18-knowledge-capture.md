@@ -86,6 +86,18 @@ Each entry should follow this format:
 
 ---
 
+### VS Code Custom Agent Migration — Agents Defined as .agent.md Files
+* **Decision Date:** 2026-09-04
+* **Context:** The parcel agent set was defined in `opencode.json` (`agent.<name>` blocks with `prompt: {file: ...}` pointing at pure-body runbooks in `.devops/agents/parcel-*.md`). VS Code's agent picker only surfaces custom agents defined as `<slug>.agent.md` files, so the parcel agents were invisible in the VS Code agent selection window.
+* **Action:** Migrated the agent set to VS Code custom agent files in `.devops/agents/`: `parcel.agent.md` + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents, `user-invocable: false`). Each file carries YAML frontmatter (description/tools/model/user-invocable) followed by the PREFIX-LOCKED prefix (parcel/ptp only). The `/parcel` command was folded into `parcel.agent.md`; the `agent` block was removed from `opencode.json` (pure VS Code migration). `check-parcel-prefix.ps1` now matches `parcel.agent.md` + `ptp-*.subagent.md` and strips/preserves YAML frontmatter.
+* **Rationale:**
+    * **VS Code discoverability**: `<slug>.agent.md` is the only convention VS Code's agent picker reads; `user-invocable: false` hides subagents while keeping them invocable by the orchestrator.
+    * **Naming alignment**: agents renamed `parcel-*` → `ptp-*` to match the existing `ptp-*` skill names (one name for skill + agent).
+    * **Frontmatter-in-file**: VS Code requires frontmatter in the agent file itself, so the PREFIX-LOCKED prefix now sits after the frontmatter block; the byte-identical prefix contract is preserved and enforced by `check-parcel-prefix.ps1`.
+    * **No per-agent version frontmatter**: agents are versioned as a coordinated set via `machinery-version` (agents/rules/scripts/templates), not per-file `version:` — only skills carry per-file versions because the sync drift checker reads them from `SKILL.md`.
+
+---
+
 ### UTF-8 Mojibake in Machinery Files — Repair, Don't Re-copy
 * **Decision Date:** 2026-09-03
 * **Context:** Several `.devops/skills/wiki-*` files carried U+FFFD replacement chars and `?`-mangled arrows/emoji (em dashes → `�`, `→` → `?`, `–` → `n++`) from an ancestor edit saved with the wrong encoding. `check-utf8-agents.ps1` only guards `.devops/agents/parcel-*.md` — skills and scaffolds have no automated guard.
