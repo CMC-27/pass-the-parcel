@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 3
-updated: 2026-09-04
+version: 4
+updated: 2026-09-05
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -65,6 +65,16 @@ powershell -NoProfile -File scripts\pull-architecture.ps1 -Check
 
 Expect every row `CURRENT` and `IN SYNC` (exit 0). Any `DRIFT` = you customized a portable
 file locally — diff it before overwriting. Any `MISSING` = re-run step 1.
+
+Then confirm the authored surface is wired correctly:
+
+```powershell
+powershell -NoProfile -File scripts\pull-architecture.ps1 -Verify
+```
+
+Expect `VERIFIED` (exit 0). `[FAIL]` rows name exactly what is missing or mis-wired
+(`AGENTS.md` machinery markers, `opencode.json` keys, `base-context.md`, the wiki anchor,
+missing machinery); `[WARN]` rows are advisory (e.g. `.ptp-source` not yet recorded).
 
 ## Done
 

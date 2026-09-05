@@ -2,6 +2,7 @@ param(
     [string]$Source = "",
     [switch]$Check,
     [switch]$DryRun,
+    [switch]$Verify,
     [switch]$NoVerify
 )
 
@@ -14,7 +15,8 @@ param(
     source (explicit -Source param > .ptp-source file in this repo root), caches git URLs under
     $env:USERPROFILE\.ptp\template, validates the source, then invokes sync-architecture.ps1
     with -Source <template> -Target <this repo>. Switches pass through: -Check (drift report,
-    never writes), -DryRun (preview), -NoVerify (skip post-sync verification).
+    never writes), -DryRun (preview), -Verify (structural + gate verification, never writes),
+    -NoVerify (skip post-sync verification).
 
     The first -Source value given is remembered in .ptp-source at this repo's root so future
     runs need no arguments.
@@ -23,6 +25,7 @@ param(
     Usage:
         powershell -File scripts\pull-architecture.ps1 -Source https://github.com/you/template.git
         powershell -File scripts\pull-architecture.ps1 -Check
+        powershell -File scripts\pull-architecture.ps1 -Verify
         powershell -File scripts\pull-architecture.ps1
 #>
 
@@ -76,7 +79,7 @@ if ($PSBoundParameters.ContainsKey('Source')) {
     Write-Output "Remembered source in .ptp-source : $Source"
 }
 
-$mode = if ($Check) { 'check (report only)' } elseif ($DryRun) { 'dry-run (no writes)' } else { 'sync' }
+$mode = if ($Check) { 'check (report only)' } elseif ($DryRun) { 'dry-run (no writes)' } elseif ($Verify) { 'verify (no writes)' } else { 'sync' }
 Write-Output "Pulling architecture layer:"
 Write-Output "  source : $resolved"
 Write-Output "  target : $root"
@@ -87,6 +90,7 @@ Write-Output ""
 $args = @('-NoProfile', '-File', $syncScript, '-Source', $resolved, '-Target', $root)
 if ($Check) { $args += '-Check' }
 if ($DryRun) { $args += '-DryRun' }
+if ($Verify) { $args += '-Verify' }
 if ($NoVerify) { $args += '-NoVerify' }
 & powershell @args
 exit $LASTEXITCODE

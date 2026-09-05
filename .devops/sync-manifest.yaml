@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 6
+machinery-version: 7
 
 portable_dirs:
   - .wiki/rules

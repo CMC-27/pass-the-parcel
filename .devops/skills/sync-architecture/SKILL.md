@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 2
-updated: 2026-09-04
+version: 3
+updated: 2026-09-05
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -24,6 +24,7 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    | "what's new" / "check" / "is anything outdated" | `powershell -NoProfile -File scripts\pull-architecture.ps1 -Check` |
    | "preview" / "show me what would change" | `powershell -NoProfile -File scripts\pull-architecture.ps1 -DryRun` |
    | "sync" / "update machinery" / "pull latest" | `powershell -NoProfile -File scripts\pull-architecture.ps1` |
+   | "verify" / "is my satellite wired up correctly" / "check my bootstrap" | `powershell -NoProfile -File scripts\pull-architecture.ps1 -Verify` |
 
    Never pass `-Source` unless the user explicitly supplies one — `.ptp-source` remembers it.
    If no `.ptp-source` exists, relay the script's hint: run once with `-Source <path-or-git-url>`.
@@ -39,6 +40,17 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    | `SOURCE-ABSENT` | manifest bug in the template | report to the template repo owner |
 
    Summarize counts + the IN SYNC / OUT OF SYNC line. Exit code 1 = out of sync.
+
+3b. **Interpret `-Verify` output** (never writes; exit 0 = `VERIFIED`):
+
+   - `[FAIL]` rows name exactly what is missing or mis-wired: `AGENTS.md` machinery
+     markers, `opencode.json` keys (`instructions` / `skills.paths`), `base-context.md`,
+     the wiki anchor (`.wiki/core/00-system-index.md`), or machinery a sync should have
+     materialised. Fix the named item, then re-run.
+   - `[WARN]` rows are advisory only (e.g. `.ptp-source` not yet recorded) and never fail
+     the run.
+   - Machinery gates run check-only (prefix check without `-Sync`, UTF-8, wiki lint).
+     A gate failure means the machinery itself is broken — report verbatim.
 
 4. **First-time satellite** (many `MISSING` rows): after syncing, tell the user which
    repo-specific files still need authoring from the seed templates in `.devops/templates/`:

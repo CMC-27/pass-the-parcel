@@ -28,6 +28,24 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-05 - Sync `-Verify` Mode: Post-Load Structural Verification (machinery-version 7)
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `scripts/sync-architecture.ps1` — NEW `-Verify` switch (verify-only mode, never writes): structural checks of the satellite-authored surface (`AGENTS.md` machinery markers, `opencode.json` `instructions`/`skills.paths` wiring, `base-context.md`, wiki anchor `.wiki/core/00-system-index.md`, machinery presence, `.ptp-source` advisory) + machinery gates. Extracted `Invoke-StructuralVerify` + `Invoke-VerificationGates` helpers; post-sync now reuses them and appends an informational STRUCTURE report (does not fail first-time bootstraps). Wiki-lint gate now SKIPs targets with no `.wiki/core` content (fresh-bootstrap false positive — previously a fresh sync exited 1 at wiki lint)
+- `scripts/pull-architecture.ps1` — `-Verify` passthrough + mode line + usage doc
+- `.devops/skills/sync-architecture/SKILL.md` — version 2→3; `-Verify` command row + verdict interpretation (3b)
+- `.devops/templates/SATELLITE-BOOTSTRAP.md` — version 3→4; step 4 gains `-Verify` after `-Check`
+- `.devops/sync-manifest.yaml` — machinery-version 6→7 (combined set with prune_files)
+- `.devops/README.md` — Transportability section mentions `-Verify`
+
+**Database/API Changes:** None
+
+**Summary:** Adds the post-load verification gate discussed when evaluating (and rejecting) a `.parcel` folder restructure: after a satellite syncs and authors its repo-specific files, `pull-architecture.ps1 -Verify` confirms the outer structures conform to the template blueprint (`AGENTS.md` markers, `opencode.json` wiring, `base-context.md`, wiki anchor) and re-runs the machinery gates check-only, without writing. Design decisions: `-Verify` is read-only (prefix check runs without `-Sync`); post-sync structural findings are informational so first-time bootstraps still exit 0; wiki lint skips wiki-less targets. Two PowerShell pitfalls fixed during verification: `Write-Output` and native-command stdout inside functions are captured by return-value assignment — status lines now use `Write-Host`/`Out-Host`. Rebased onto the parallel `prune_files` commit (remote v0.3.3); this feature re-versioned v0.3.3→v0.3.4 and machinery-version combined to 7. Verified: `-SelfTest` OK (5 dirs, 29 skills, 5 files, prune path); e2e `-Verify` on a wired clone → `VERIFIED` exit 0; negative case (removed `opencode.json`) → `VERIFY FAILED` exit 1; fresh-target post-sync → exit 0 with STRUCTURE guidance; repo gates (prefix, UTF-8, wiki lint) all exit 0. **Wrap-up ref:** pending
+
+---
+
 ## 2026-09-04 - VS Code Custom Agent Migration (machinery-version 5)
 
 **Agent:** GitHub Copilot (Copilot SDK)
