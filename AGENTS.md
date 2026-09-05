@@ -48,6 +48,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Touching AI / agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
 | Checking backlog/roadmap or parked items | `.devops/backlog/backlog-index.md` | Specific backlog plan doc |
 | Viewing archived implementation plans | `.devops/archive/README.md` | Specific archived plan |
+| Viewing audit results (T/F, Q&A, UI inventories) | `.devops/audits/README.md` | Originating skill doc |
 | Adding or editing form fields | `.wiki/core/09-design-system.md` §5c | `.wiki/core/10-validation-standards.md` |
 | Checking wiki health / link integrity | `@wiki-lint` skill | `.devops/logs/knowledge-changelog.md` (soft-report) |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` + `ref/` |

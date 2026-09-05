@@ -20,6 +20,7 @@ related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 | `.devops/plans/` | state | Active parcel plans + `template-plan.md` |
 | `.devops/backlog/` | state | Roadmap, backlog items and pre-prepared plans |
 | `.devops/archive/` | state | Completed / archived plans (moved via `git mv`, no stub) |
+| `.devops/audits/` | state | Audit session artifacts: true-or-false logs, Q&A logs, UI inventory reports |
 | `.devops/logs/` | state | Agent changelog, knowledge changelog, version history |
 
 ## Governance

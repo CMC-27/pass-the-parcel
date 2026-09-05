@@ -11,6 +11,24 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-06 - Audits Home + Q&A / True-or-False Skill Alignment
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `.devops/audits/README.md` — NEW state folder for audit session artifacts: `true-or-false-<slug>-YYYY-MM-DD.md`, `<slug>-QA-YYYY-MM-DD.md`, `ui-inventory-<element>-YYYY-MM-DD.md`; rules (one file per session, JIT persistence, findings promote to plans but logs are never retro-edited)
+- `.devops/skills/q-and-a/SKILL.md` — NEW skill (was untracked); frontmatter aligned to repo trigger-description convention, version 1→3; log location → `.devops/audits/`; plan naming `<slug>-plan.md`; phantom skill refs replaced (write-knowledge-document/write-process/refine-knowledge-area → wiki-writer, cross-reference-analysis → wiki-lint); `.wikirules/`/`.languagerules/` → `.wiki/rules/` paths; "Phase 4.1" → "Phase 3 discovery / Gate A"
+- `.devops/skills/true-or-false/SKILL.md` — version 2→4; same alignment pass (trigger description, `.devops/audits/` log home, `.wiki/rules/` paths, wiki-lint/wiki-assessment/knowledge-capture refs, genericized SME persona, plan template path)
+- `.devops/skills/ui-inventory-scanner/SKILL.md` — version 1→2; NEW Phase 7 "Persist the Report": every scan saves full report (stats + tables + anomalies + Proposed Changes section) to `.devops/audits/ui-inventory-<element>-YYYY-MM-DD.md`
+- `.devops/README.md` — `.devops/audits/` added to "What Lives Here" table (type: state)
+- `AGENTS.md` — task-lookup row added: "Viewing audit results (T/F, Q&A, UI inventories)" → `.devops/audits/README.md`
+
+**Database/API Changes:** None
+
+**Summary:** Established `.devops/audits/` as the single home for audit-style session artifacts (True-or-False validation logs, Q&A discovery logs, UI inventory scan reports) and aligned the two newly added skills (q-and-a, true-or-false) with repo conventions so they are transportable machinery: trigger-style descriptions, canonical `.wiki/rules/` paths, `.devops/plans/` plan naming, and cross-references only to skills that exist in this repo. UI inventory scans now persist durable reports to the audits folder instead of dying with the session. No `sync-manifest.yaml` change needed — audits are state, not machinery; satellites receive the convention via the synced skills. Skipped: Phases 2–4 (no `src/` or `.wiki/` code docs, no plan followed), Phases 5–7 (no orphan/debt/backlog matches surfaced). **Wrap-up ref:** recorded after commit.
+
+---
+
 ## 2026-09-05 - Sync prune_files Mechanism (machinery-version 6)
 
 **Agent:** GitHub Copilot (Copilot SDK)

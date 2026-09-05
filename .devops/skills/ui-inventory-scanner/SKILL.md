@@ -1,9 +1,9 @@
 ---
 name: ui-inventory-scanner
-description: Make sure to use this skill whenever the user asks to audit, scan, inventory, or catalogue UI elements in the codebase (e.g., "scan all buttons", "audit all inputs", "list all modals"). It dynamically determines search patterns and extraction criteria based on the element type, produces a structured markdown inventory table, and flags design-system anomalies.
+description: Make sure to use this skill whenever the user asks to audit, scan, inventory, or catalogue UI elements in the codebase (e.g., "scan all buttons", "audit all inputs", "list all modals"). It dynamically determines search patterns and extraction criteria based on the element type, produces a structured markdown inventory table, flags design-system anomalies, and saves the report to `.devops/audits/`.
 tags: ["ui", "inventory", "audit", "design-system", "frontend", "component-scan"]
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-06
 ---
 
 # SKILL: UI Inventory Scanner
@@ -105,4 +105,38 @@ Flag anything unusual based on the design system:
 - Inconsistent patterns across the same screen
 - For buttons specifically: missing `type="button"` on non-submit buttons
 
-End with: **"Review the table above and propose changes — I can then apply them."**
+End with: **"Review the table above and propose changes — I can then apply them. Full report saved to `.devops/audits/ui-inventory-<element>-YYYY-MM-DD.md`."**
+
+### Phase 7: Persist the Report
+
+Save the full report (summary statistics + inventory table(s) + anomalies) to `.devops/audits/ui-inventory-<element>-YYYY-MM-DD.md` so it survives the session and can be referenced by a later parcel plan:
+
+```markdown
+---
+title: UI Inventory — <Element Type> (<YYYY-MM-DD>)
+tags: [ui-inventory, <element>, audit]
+status: draft
+owner: <requester or Wiki Owner>
+created: YYYY-MM-DD
+last-reviewed: YYYY-MM-DD
+related-to: [.wiki/core/09-design-system.md]
+---
+
+# UI Inventory — <Element Type> (YYYY-MM-DD)
+
+> Scan scope: <patterns searched, files included/excluded>. Findings below are a point-in-time snapshot; re-scan after any refactor.
+
+<Summary Statistics>
+
+<Inventory Table(s)>
+
+<Anomalies>
+
+## Proposed Changes
+
+_To be filled after user review — each accepted change becomes a Change Item in a parcel plan._
+```
+
+- Create `.devops/audits/` if it does not exist.
+- One file per scan — never append a new scan to an old report.
+- If the user proposes changes from the review, hand them to the `@backlog` skill or a parcel plan as Change Items; the audit file records findings only.
