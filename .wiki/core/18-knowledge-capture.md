@@ -34,6 +34,20 @@ Each entry should follow this format:
 
 ## 🚀 Tooling & DevOps
 
+### Dual-Surface Agent Model Binding (VS Code Frontmatter + opencode.json)
+* **Decision Date:** 2026-09-06
+* **Context:** Parcel/ptp agents live once in `.devops/agents/*.md` but run on two surfaces: VS Code chat (custom agent files) and the opencode CLI (JSON agents in `opencode.json`). Model binding must resolve on both, and the two surfaces resolve differently — VS Code takes each agent file's own `model:` frontmatter (the session model picker does NOT cascade to spawned subagents), while opencode reads `agent.<name>.model` as `provider/model-id`.
+* **Action:** Bound orchestrator (`parcel.agent.md`) + `wiki-writer.agent.md` → `Glm 5.3 Flash`; all `ptp-*.subagent.md` + `wiki-verifier.subagent.md` → `Deepseek V4 Flash`. VS Code frontmatter values must match the provider's picker labels exactly (`Glm 5.3 Flash`, `Deepseek V4 Flash` — provider casing, not marketing casing). `opencode.json` gained 9 JSON agent entries referencing the canonical files via `prompt: "{file:.devops/agents/<name>.md}"` with models `opencode/glm-5.3-flash` / `opencode/deepseek-v4-flash`; `parcel` is primary with `permission.task` glob-locked to `ptp-*` + `wiki-verifier`, subagents are `hidden: true`, permissions mapped from each agent's `tools:` list, and VS Code's `vscode_askQuestions` maps to opencode's `question` permission. `default_agent` → `parcel`.
+* **Rationale:**
+    * **Single source of truth**: agent bodies stay in `.devops/agents/`; both surfaces reference them, so no duplicate drift surface and the prefix checker is untouched.
+    * **Declarative per-file binding**: subagent model is a property of the subagent file, not the spawn site — the orchestrator cannot mis-spawn a model.
+    * **Cache zones**: Glm 5.3 Flash is shared by orchestrator + wiki-writer (near-identical toolsets → long shared prefix); Deepseek builds a per-subagent cache that warms within its own multi-turn run.
+    * **Accepted noise**: `{file:...}` prompts include the agent file's YAML frontmatter as prompt text — a few harmless lines, cheaper than maintaining body-only copies.
+
+---
+
+## 🚀 Tooling & DevOps
+
 ### Parcel Cache-Anchored Template Convention (State & Gates at Bottom)
 * **Decision Date:** 2026-08-19
 * **Context:** Every parcel plan file's State Dashboard sat at the top. LLM prefix-caching is byte-precise — editing the top rows (`Status` / `Active Persona` / `Last Updated`) at every gate invalidated the entire file's cache, so each stateless downstream agent that re-read the plan paid a full cache miss on the whole document.

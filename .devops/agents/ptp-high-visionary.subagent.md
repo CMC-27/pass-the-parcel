@@ -1,6 +1,7 @@
 ---
 description: "Parcel High-Visionary sub-agent. Executes Phases 4-5 of a parcel plan by loading the ptp-high-visionary skill, writing the wiki requirements spec (Phase 4) and producing a standard implementation plan (Phase 5, no code snippets unless absolutely necessary) with the Simplicity Ladder and wiki citations. Also owns PHASE_5_REVISION fix rounds when Phase 6/7 review fails."
 tools: [read, edit, search]
+model: Deepseek V4 Flash
 user-invocable: false
 ---
 > **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. This block is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).

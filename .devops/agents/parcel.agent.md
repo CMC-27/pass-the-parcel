@@ -2,7 +2,8 @@
 description: "Parcel plan orchestrator. Start a new parcel plan for a feature description, walk the 10-phase pass-the-parcel workflow, and delegate to ptp-* sub-agents. Use when: 'parcel', '/parcel', 'pass the parcel', 'parcel mode', multi-agent planning, token-saving planning."
 name: "Parcel"
 argument-hint: "<feature description>"
-tools: [read, edit, search, execute, agent, web, todo]
+tools: [read, edit, search, execute, agent, web, todo, vscode_askQuestions]
+model: Glm 5.3 Flash
 ---
 > **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. This block is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).
 
@@ -75,7 +76,7 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 ## Workflow
 
 1. **Load the `pass-the-parcel` skill** for the canonical phase table, lifecycle states, gate semantics, and template reference.
-2. **Mode Selection (mandatory, before any plan work).** Call the `question` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **State & Gates** section (bottom).
+2. **Mode Selection (mandatory, before any plan work).** Call the `vscode_askQuestions` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **State & Gates** section (bottom).
 3. **Plan Instantiation.** Derive a kebab-case slug from the description. If a parcel with this slug already exists at `.devops/plans/[slug]-plan.md`, pick it up instead of creating. If creating fresh, copy the template from `.devops/plans/template-plan.md` to `.devops/plans/[slug]-plan.md`. Confirm the slug + plan path + mode with the user before proceeding.
 4. **Workspace Initialization (mandatory, once per plan).** Create `.opencode/plans/run-[slug]/` with a `reviews/` subdirectory. Initialize `decision_log.md`.
 5. **Pick up the plan** at `.devops/plans/[slug]-plan.md`. Hydrate **State & Gates** (bottom) to `PHASE_1`.

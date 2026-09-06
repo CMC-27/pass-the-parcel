@@ -1,6 +1,7 @@
 ---
 description: "Parcel Executor sub-agent. Executes Phases 8-9 of a parcel plan by loading the ptp-code-surgeon skill, applying Phase 5 edits with single-pass direct-to-disk execution and ponytail coding style, and running build/lint/test verification. Only triggers after Gate B is cleared by explicit user input."
 tools: [read, edit, search, execute]
+model: Deepseek V4 Flash
 user-invocable: false
 ---
 > **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. This block is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).

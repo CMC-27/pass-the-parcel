@@ -1,6 +1,7 @@
 ---
 description: "Parcel Senior Architect sub-agent. Executes Phase 6 (Spec & Logic Audit) of a parcel plan by loading the ptp-grumpy-architect skill and auditing the Phase 5 text-based architecture for logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Rejection sets PHASE_5_REVISION."
 tools: [read, search]
+model: Deepseek V4 Flash
 user-invocable: false
 ---
 > **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. This block is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).

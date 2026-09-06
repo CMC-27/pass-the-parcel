@@ -11,6 +11,27 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-06 - Dual-Surface Model Binding: Glm 5.3 Flash Orchestrator + Deepseek V4 Flash Subagents
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `.devops/agents/parcel.agent.md` — frontmatter `tools:` gains `vscode_askQuestions`; workflow step 2 (Mode Selection) now names the tool explicitly; `model: Glm 5.3 Flash` bound (picker-exact label)
+- `.devops/agents/wiki-writer.agent.md` — same: `vscode_askQuestions` + `model: Glm 5.3 Flash`
+- `.devops/agents/ptp-code-surgeon.subagent.md`, `ptp-context-hunter.subagent.md`, `ptp-grumpy-architect.subagent.md`, `ptp-high-visionary.subagent.md`, `ptp-phase3-answerer.subagent.md`, `ptp-smooth-operator.subagent.md`, `wiki-verifier.subagent.md` — `model: Deepseek V4 Flash` bound (picker-exact label)
+- `opencode.json` — NEW `agent` block: 9 JSON agent entries referencing the canonical `.devops/agents/*.md` bodies via `prompt: "{file:...}"`; `parcel` primary on `opencode/glm-5.3-flash` with `permission.task` glob-locked to `ptp-*` + `wiki-verifier`; 7 subagents `hidden: true` on `opencode/deepseek-v4-flash` with permissions mapped from each agent's VS Code `tools:` list; `default_agent` `build` → `parcel`
+- `.devops/sync-manifest.yaml` — machinery-version 8→9 (`.devops/agents/` change per versioning rule)
+- `.wiki/core/18-knowledge-capture.md` — new Tooling & DevOps entry: Dual-Surface Agent Model Binding
+- `.devops/logs/version-history.md` — v0.3.5 release row
+
+**Database/API Changes:** None
+
+**Summary:** Gave both agent surfaces explicit model bindings per the capability-slot registry: orchestrator + wiki-writer on Glm 5.3 Flash (planning slot), all subagents on Deepseek V4 Flash. VS Code resolves subagent models from each subagent file's own frontmatter (the session picker does not cascade), so binding is declarative per file; opencode resolves via `agent.<name>.model` with `{file:...}` prompts keeping `.devops/agents/` the single source of truth (frontmatter noise in prompts accepted). All edits confined to YAML frontmatter / JSON config — the PREFIX-LOCKED block is untouched and byte-identical across all 7 parcel/ptp agents. Seed template `opencode.template.json` unchanged: it already documents the `{file:...}` binding pattern; the live `opencode.json` is this repo's instantiation of it. Skipped: Phases 2–3 (no `src/` files — process-only session), Phase 4 (no plan followed), Phase 5 (no orphans/debt), Phase 6 (no backlog matches — T1-E1.01 model-registry reconciliation already COMPLETE and this work follows its slot-based design). Pending verification: exact opencode model IDs via `opencode models` (frontmatter labels verified against the VS Code picker; opencode IDs use the `opencode/<model-id>` convention).
+
+**Wrap-up ref:** recorded post-commit
+
+---
+
 ## 2026-09-06 - Sync Post-Sync Bookkeeping: Manifest Stamp + Prefix-Aware Agents Check (machinery-version 8)
 
 **Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)

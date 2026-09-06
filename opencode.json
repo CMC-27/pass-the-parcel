@@ -4,5 +4,181 @@
   "skills": {
     "paths": [".devops/skills"]
   },
-  "default_agent": "build"
+  "default_agent": "parcel",
+  "agent": {
+    "parcel": {
+      "description": "Parcel plan orchestrator. Start a new parcel plan for a feature description, walk the 10-phase pass-the-parcel workflow, and delegate to ptp-* sub-agents. Use when: 'parcel', '/parcel', 'pass the parcel', 'parcel mode', multi-agent planning, token-saving planning.",
+      "mode": "primary",
+      "model": "opencode/glm-5.3-flash",
+      "prompt": "{file:.devops/agents/parcel.agent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": {
+          "*": "deny",
+          "ptp-*": "allow",
+          "wiki-verifier": "allow"
+        },
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "question": "allow"
+      }
+    },
+    "wiki-writer": {
+      "description": "Write and rewrite wiki documents in plain, even, front-loaded prose. Use when: writing, editing, rewriting, cleaning up, rebalancing, refreshing or restructuring any document in .wiki/ or a knowledge base.",
+      "mode": "primary",
+      "model": "opencode/glm-5.3-flash",
+      "prompt": "{file:.devops/agents/wiki-writer.agent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "allow"
+      }
+    },
+    "ptp-context-hunter": {
+      "description": "Parcel Context Hunter sub-agent. Executes Phases 1-3 of a parcel plan by loading the ptp-context-hunter skill, locking the scope perimeter, gathering wiki-first context, and producing Phase 3 user clarification questions.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-context-hunter.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-phase3-answerer": {
+      "description": "Phase 3.5 AUTO-mode sub-agent. Auto-resolves Phase 3 user clarification questions from the Research Map populated by ptp-context-hunter, recording Unresolvable entries for genuinely blocked questions.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-phase3-answerer.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-high-visionary": {
+      "description": "Phase 4-5 sub-agent. Writes the wiki requirements spec + acceptance criteria (Phase 4) and the standard implementation plan (Phase 5) into the parcel plan file, enforcing the Simplicity Ladder.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-high-visionary.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-grumpy-architect": {
+      "description": "Phase 6 sub-agent. Ruthlessly audits the plan's spec and logic for completeness, edge cases, boundary collisions, YAGNI bloat, and architectural anti-patterns. Writes an isolated review file.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-grumpy-architect.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-smooth-operator": {
+      "description": "Phase 7 sub-agent. Reviews the plan's product vision, user journey, and UX for bloat and complexity. Writes an isolated review file.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-smooth-operator.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "deny",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-code-surgeon": {
+      "description": "Parcel Executor sub-agent. Executes Phases 8-9 of a parcel plan by loading the ptp-code-surgeon skill, applying Phase 5 edits with single-pass direct-to-disk execution and ponytail coding style, and running build/lint/test verification. Only triggers after Gate B is cleared by explicit user input.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/ptp-code-surgeon.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "wiki-verifier": {
+      "description": "Wiki verification sub-agent. Validates wiki documents against live codebase reality step-by-step, surfacing drift, gaps, and stale content for the true-or-false workflow.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "opencode/deepseek-v4-flash",
+      "prompt": "{file:.devops/agents/wiki-verifier.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    }
+  }
 }
