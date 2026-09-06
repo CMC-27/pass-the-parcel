@@ -109,6 +109,17 @@ Each entry should follow this format:
 
 ---
 
+### Post-Sync Bookkeeping — Stamp the Target Manifest, Exclude the Prefix from -Check
+* **Decision Date:** 2026-09-06
+* **Context:** Two satellite-reported upstream bugs in the sync engine. (1) A sync copied all machinery but never updated the target's own `sync-manifest.yaml` `machinery-version` — the manifest is not on the portable surface — so `-Check` compared the stale target version against the source and reported a phantom `UPGRADE` forever after every successful sync; satellites resorted to manual manifest bumps. (2) `-Check` hashed the whole `.devops/agents` folder, but the PREFIX-LOCKED region of `parcel.agent.md`/`ptp-*.subagent.md` is regenerated from each satellite's own `base-context.md` after every sync, so the agents row could never report `CURRENT` for a satellite with a customized base-context.
+* **Action:** `sync-architecture.ps1` gained step 3c `Update-TargetManifestVersion`: after copying, the target manifest's `machinery-version:` line is rewritten in place to the source's value (manifest seeded verbatim from source on first sync; `DRYRUN` reports would-bump). `-Check` now hashes only the agent-unique content of PREFIX-LOCKED agents (frontmatter stripped, everything from the first `## Delegated Skill:` / `You are the` marker — same markers as `check-parcel-prefix.ps1`). `-SelfTest` runs `-Check` against the temp target after a successful sync and asserts `IN SYNC`. machinery-version 7→8.
+* **Rationale:**
+    * **Verdicts must reflect intent, not artifacts**: the prefix difference is by design (the cache anchor is per-repo), so it must be excluded from drift classification; the version stamp is exactly the bookkeeping `-Check`'s meta row compares.
+    * **In-place stamp, not wholesale copy**: the manifest may carry target-local content; only the version line is machinery-owned bookkeeping.
+    * **Regression guard at the engine level**: the self-test's post-sync `-Check` gate fails on any future change that re-breaks either invariant, without needing a satellite to report it.
+
+---
+
 ### UTF-8 Mojibake in Machinery Files — Repair, Don't Re-copy
 * **Decision Date:** 2026-09-03
 * **Context:** Several `.devops/skills/wiki-*` files carried U+FFFD replacement chars and `?`-mangled arrows/emoji (em dashes → `�`, `→` → `?`, `–` → `n++`) from an ancestor edit saved with the wrong encoding. `check-utf8-agents.ps1` only guards `.devops/agents/parcel-*.md` — skills and scaffolds have no automated guard.

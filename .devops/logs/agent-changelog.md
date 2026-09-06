@@ -11,6 +11,23 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-06 - Sync Post-Sync Bookkeeping: Manifest Stamp + Prefix-Aware Agents Check (machinery-version 8)
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `scripts/sync-architecture.ps1` — two upstream bug fixes reported from a satellite:
+  (1) NEW step 3c `Update-TargetManifestVersion`: after copying, the target's own `.devops/sync-manifest.yaml` is stamped with the source `machinery-version` (in-place line rewrite; manifest seeded verbatim from source on first sync; `DRYRUN` reports would-bump). Without it, `-Check` reported a phantom `UPGRADE` forever after every successful sync because the manifest is not on the portable surface.
+  (2) `-Check` now hashes only the agent-unique content of PREFIX-LOCKED agents (`parcel.agent.md`, `ptp-*.subagent.md`): the prefix region is regenerated from each repo's own `base-context.md` after every sync, so whole-file hashing guaranteed eternal DRIFT/UPGRADE for satellites with a customized base-context. Real drift in unique content still reports DRIFT/UPGRADE.
+  `-SelfTest` now also runs `-Check` against the temp target after a successful sync and asserts IN SYNC — guarding both bugs end-to-end.
+- `.devops/sync-manifest.yaml` — machinery-version 7→8 (scripts/ change per agents-and-skills.md versioning rule)
+
+**Database/API Changes:** None
+
+**Summary:** Fixed the two satellite-reported sync bookkeeping bugs. Post-sync, the target manifest version now matches the source (CURRENT, not phantom UPGRADE), and the agents dir verdict ignores the intentionally-local PREFIX-LOCKED region while still catching real drift. The self-test's new `-Check` gate would have caught both regressions. Satellites pick up both fixes on their next sync (machinery-version 8).
+
+---
+
 ## 2026-09-06 - Audits Home + Q&A / True-or-False Skill Alignment
 
 **Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)

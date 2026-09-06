@@ -26,11 +26,20 @@ param(
 
     -Check compares source vs target per manifest item (SHA256 per file + version metadata)
     and prints a CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT verdict table without writing.
+    For the PREFIX-LOCKED agents (.devops/agents/parcel.agent.md + ptp-*.subagent.md) only
+    the agent-unique content is hashed: the prefix region is regenerated from each repo's
+    own base-context.md after every sync, so it legitimately differs between source and
+    target and must never mask a CURRENT verdict.
+
+    After copying, the script stamps the TARGET's own .devops/sync-manifest.yaml with the
+    source machinery-version (installing a copy of the manifest on first sync). Without
+    this bookkeeping, -Check would report a phantom UPGRADE forever after every successful
+    sync, because the manifest itself is not on the portable surface.
 
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
-    content hashes, then cleans up. Exit 0 = engine healthy. Use after editing this script
-    or the manifest (CI runs it on every push).
+    content hashes and the target manifest version was stamped, then cleans up. Exit 0 =
+    engine healthy. Use after editing this script or the manifest (CI runs it on every push).
 
     -Verify runs the verification stack against an already-materialised target WITHOUT
     copying anything: structural checks of the satellite-authored surface (AGENTS.md
@@ -104,6 +113,15 @@ if ($SelfTest) {
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
         $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName -match '\\(\.wiki|\.devops)\\\1|\\skills\\([^\\]+)\\\2' }
         if ($nested) { $fail += "nested-copy defect: $($nested.FullName -join ', ')" }
+        # Manifest stamping: the target's machinery-version must now match the source's,
+        # otherwise -Check reports a phantom UPGRADE after every successful sync.
+        $stSrcV = $null; $stTgtV = $null
+        foreach ($line in Get-Content $stManifestPath) { if ($line -match '^machinery-version:\s*(\d+)') { $stSrcV = $Matches[1]; break } }
+        $stTgtManifest = Join-Path $tmp '.devops\sync-manifest.yaml'
+        if (Test-Path $stTgtManifest) {
+            foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
+        }
+        if ($stTgtV -ne $stSrcV) { $fail += "manifest stamp failed: target machinery-version '$stTgtV' vs source '$stSrcV'" }
         # Prune test: plant a stale file, re-sync, assert it is removed.
         if ($stPrune.Count -gt 0) {
             $stale = Join-Path $tmp $stPrune[0]
@@ -113,6 +131,12 @@ if ($SelfTest) {
             if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
             if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
         }
+        # End-to-end -Check gate: immediately after a successful sync the target must
+        # report IN SYNC (manifest stamped, prefix-locked agents excluded from the hash).
+        # This guards both post-sync bookkeeping bugs: the phantom UPGRADE from an
+        # unstamped manifest and the eternal agents DRIFT from the regenerated prefix.
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
+        if ($LASTEXITCODE -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"
             $fail | ForEach-Object { Write-Output "  $_" }
@@ -176,6 +200,37 @@ function Get-ManifestMachineVersion {
     return $null
 }
 
+function Update-TargetManifestVersion {
+    # Post-sync bookkeeping: stamp the target's own sync-manifest.yaml with the source
+    # machinery-version so -Check classifies the target as CURRENT instead of reporting a
+    # phantom UPGRADE forever. The manifest is not on the portable surface (satellites may
+    # carry target-local notes in it), so only the version line is rewritten in place; a
+    # missing manifest (first-time install) is seeded verbatim from the source.
+    param([string]$TgtRoot, [string]$SrcRoot, [string]$Version, [switch]$DryRun)
+    if (-not $Version) { Write-Host 'SKIP: source manifest has no machinery-version - target not stamped'; return }
+    $tgtManifest = Join-Path $TgtRoot '.devops\sync-manifest.yaml'
+    $srcManifest = Join-Path $SrcRoot '.devops\sync-manifest.yaml'
+    if (-not (Test-Path $tgtManifest)) {
+        if ($DryRun) { Write-Output "DRYRUN would install .devops/sync-manifest.yaml (machinery-version $Version)"; return }
+        New-Item -ItemType Directory -Force -Path (Split-Path $tgtManifest) | Out-Null
+        Copy-Item $srcManifest $tgtManifest -Force
+        Write-Output "INSTALLED .devops/sync-manifest.yaml (machinery-version $Version)"
+        return
+    }
+    $raw = [System.IO.File]::ReadAllText($tgtManifest)
+    if ($raw -match '(?m)^machinery-version:\s*(\d+)') {
+        if ($Matches[1] -eq $Version) { return }
+        if ($DryRun) { Write-Output "DRYRUN would bump machinery-version $($Matches[1]) -> $Version"; return }
+        $raw = [regex]::Replace($raw, '(?m)^machinery-version:\s*\d+', "machinery-version: $Version")
+        [System.IO.File]::WriteAllText($tgtManifest, $raw)
+        Write-Output "STAMPED .devops/sync-manifest.yaml machinery-version $($Matches[1]) -> $Version"
+    } else {
+        if ($DryRun) { Write-Output "DRYRUN would add machinery-version: $Version to target manifest"; return }
+        [System.IO.File]::WriteAllText($tgtManifest, $raw.TrimEnd() + "`r`n`r`nmachinery-version: $Version`r`n")
+        Write-Output "STAMPED .devops/sync-manifest.yaml machinery-version -> $Version (key was absent)"
+    }
+}
+
 function Get-ItemHashes {
     param([string]$Path)
     $map = @{}
@@ -184,8 +239,32 @@ function Get-ItemHashes {
         # Normalize CRLF -> LF before hashing: git smudge filters (core.autocrlf /
         # eol=lf in .gitattributes) materialize LF blobs as CRLF on Windows, so raw
         # byte hashes would report false DRIFT after any checkout.
-        $bytes = [System.IO.File]::ReadAllBytes($File)
-        $text = [System.Text.Encoding]::UTF8.GetString($bytes) -replace "`r`n", "`n"
+        #
+        # PREFIX-LOCKED agents (.devops/agents/parcel.agent.md + ptp-*.subagent.md):
+        # the prefix region is regenerated from each repo's own base-context.md after
+        # every sync, so it legitimately differs between source and target. Hash only
+        # the agent-unique content (everything from the first "## Delegated Skill:" /
+        # "You are the" marker, frontmatter stripped) so -Check can report CURRENT for
+        # satellites with a customized base-context; real drift in the unique content
+        # still reports DRIFT/UPGRADE as normal.
+        $name = Split-Path -Leaf $File
+        $text = $null
+        if (($name -eq 'parcel.agent.md' -or $name -like 'ptp-*.subagent.md') -and $File -like '*\.devops\agents\*') {
+            $raw = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($File)) -replace "`r`n", "`n"
+            $body = $raw
+            if ($raw.StartsWith("---`n")) {
+                $closeIdx = $raw.IndexOf("`n---`n", 4)
+                if ($closeIdx -ge 0) { $body = $raw.Substring($closeIdx + 5) }
+            }
+            $skillIdx = $body.IndexOf('## Delegated Skill:')
+            $orchIdx = $body.IndexOf('You are the')
+            if ($skillIdx -ge 0 -and $orchIdx -ge 0) { $text = $body.Substring([Math]::Min($skillIdx, $orchIdx)) }
+            elseif ($skillIdx -ge 0) { $text = $body.Substring($skillIdx) }
+            elseif ($orchIdx -ge 0) { $text = $body.Substring($orchIdx) }
+        }
+        if ($null -eq $text) {
+            $text = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($File)) -replace "`r`n", "`n"
+        }
         $sha = [System.Security.Cryptography.SHA256]::Create()
         try { ($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text)) | ForEach-Object { $_.ToString('X2') }) -join '' } finally { $sha.Dispose() }
     }
@@ -519,6 +598,9 @@ foreach ($pf in $manifest['prune_files']) {
         }
     }
 }
+
+# 3c. Stamp the target's manifest with the source machinery-version (post-sync bookkeeping).
+Update-TargetManifestVersion -TgtRoot $tgtRoot -SrcRoot $srcRoot -Version $scalars['machinery-version'] -DryRun:$DryRun
 
 if ($skipped.Count -gt 0) {
     Write-Output ""
