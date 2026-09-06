@@ -24,7 +24,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Database/API Changes:** None
 
-**Summary:** Fixed the two satellite-reported sync bookkeeping bugs. Post-sync, the target manifest version now matches the source (CURRENT, not phantom UPGRADE), and the agents dir verdict ignores the intentionally-local PREFIX-LOCKED region while still catching real drift. The self-test's new `-Check` gate would have caught both regressions. Satellites pick up both fixes on their next sync (machinery-version 8).
+**Summary:** Fixed the two satellite-reported sync bookkeeping bugs. Post-sync, the target manifest version now matches the source (CURRENT, not phantom UPGRADE), and the agents dir verdict ignores the intentionally-local PREFIX-LOCKED region while still catching real drift. The self-test's new `-Check` gate would have caught both regressions. Satellites pick up both fixes on their next sync (machinery-version 8). Skipped: Phases 2–4 (no `src/` files, no plan followed), Phase 5 (no orphans/debt — the satellite's manual manifest bump self-heals on next sync), Phase 6 (no backlog matches). Knowledge capture: post-sync bookkeeping invariants logged to `.wiki/core/18-knowledge-capture.md`. **Wrap-up ref:** `191b3ae`
 
 ---
 
