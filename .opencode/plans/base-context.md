@@ -1,4 +1,4 @@
-> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. This block is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. Do NOT edit this block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`).
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry) is inlined only into `parcel.agent.md`. Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -26,36 +26,52 @@
 | Asking question about codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` |
 | Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
-## PTP Delegation Map (canonical)
-| Phase(s) | Sub-agent | Model Slot |
-|---|---|---|
-| 1-3 | `ptp-context-hunter` | planning |
-| 3.5 (AUTO) | `ptp-phase3-answerer` | planning |
-| 4-5 (+ revision) | `ptp-high-visionary` | planning |
-| 6 | `ptp-grumpy-architect` | review-heavy |
-| 7 | `ptp-smooth-operator` | planning |
-| 8-9 | `ptp-code-surgeon` | execution |
+## PTP Lifecycle (canonical — 4 gates)
+`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
-## Model Registry (role slots — no hardcoded model names)
-The pipeline routes by **capability slot**, not by vendor identifier. Slots are abstract; each workspace binds them to concrete models in its own agent frontmatter (`model:` in `.devops/agents/*.agent.md` / `*.subagent.md`). This template's registry is an example binding, not a mandate.
-- `planning` — orchestrator + Phases 1-3, 4-5, 7 + Wrap Up. Balanced capability: dialogue, scoping, spec writing, product review.
-- `review-heavy` — Phase 6 (Grumpy Architect Spec & Logic Audit). Strongest reasoning model available; reserved for the senior audit only.
-- `execution` — Phases 8-9 (Code Surgeon, single-pass direct-to-disk + QA). Fast, cheap, instruction-faithful coder.
-**Binding rule:** a satellite MUST assign every parcel/ptp agent's `model:` in its agent frontmatter to one of the three slots' bound values. Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked.
+**Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
-## PTP Lifecycle
-`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_4` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
+**Revision loop:** `PHASE_7` -> (Gate B or C fails) -> `PHASE_5_REVISION` -> `PHASE_5` -> (Phases 6-7 re-run) -> `PHASE_7` -> Gate C
 
-**Revision loop:** `PHASE_7` -> (Phase 6/7 fail) -> `PHASE_5_REVISION` -> `PHASE_5` -> `PHASE_7`
+**Failure states:** Gate A rejected -> `PHASE_1`. Execution rolled back after two failed self-healing attempts -> `PHASE_8_FAILED` (orchestrator routes retry / `PHASE_5_REVISION` / user decision).
 
-**Gates:** A (Spec & Plan) -> B (Review) -> C (Implementation)
+**Gate flips:** gates flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 
-**Modes:** `BLIND`/`SINGLE` (agent delegation) x `USER-MANAGED`/`AUTO` (gate behavior)
+**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
 
 ## Workspace Layout
 - Active plans: `.devops/plans/[slug]-plan.md`
 - Plan template: `.devops/plans/template-plan.md`
-- Per-run workspace: `.opencode/plans/run-[slug]/`
+- Per-run workspace: `.opencode/plans/run-[slug]/` (created by the orchestrator at plan start; reviews live here)
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
 - Audit log: `run-[slug]/decision_log.md`
 - Archived plans: `.devops/archive/`
+
+<!-- ORCHESTRATOR-ONLY:START (inlined into parcel.agent.md only — not the ptp-* subagents) -->
+## PTP Delegation Map (canonical)
+| Phase(s) | Sub-agent | Capability Class | Output |
+|---|---|---|---|
+| 1-3 | `ptp-context-hunter` | retrieval/inventory | Scope perimeter + Phase 3 questions (drafted; orchestrator asks one at a time) |
+| 3.5 (AUTO) | `ptp-phase3-answerer` | retrieval/Q&A | Auto-resolutions (or `Unresolvable:` hard halt) |
+| 4-5 (+ revision) | `ptp-high-visionary` | deep planning/authoring | Phase 4 spec + Phase 5 plan in plan file |
+| 6 | `ptp-grumpy-architect` | adversarial review | `reviews/arch_review.md` (`PASS` / `**REJECTED:**` first line) |
+| 7 | `ptp-smooth-operator` | product review | `reviews/product_review.md` (`PASS` / `**REJECTED:**` first line) |
+| 8-9 | `ptp-code-surgeon` | execution | Executed code + verification proof |
+
+## Model Registry (per-subagent bindings — no hardcoded model names in prose)
+Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
+
+Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = `.opencode/agents/*.md` frontmatter). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models. Current template routing: **all models route to Qwen3.8 Flash** (uniform binding by user direction, 2026-09-07 — capability classes are retained for future rebinding):
+
+| Agent key | Capability class | VS Code model | opencode model |
+|---|---|---|---|
+| parcel | orchestration | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-context-hunter | retrieval/inventory | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-phase3-answerer | retrieval/Q&A | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-high-visionary | deep planning/authoring | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-grumpy-architect | adversarial review | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-smooth-operator | product review | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| ptp-code-surgeon | execution | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+
+**Binding rule:** every parcel/ptp agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime). Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (frontmatter + registry row + `-Sync` + validation).
+<!-- ORCHESTRATOR-ONLY:END -->

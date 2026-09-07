@@ -78,8 +78,8 @@ Each entry should follow this format:
     * Phase 4 is the wiki requirements spec + Phase 5 the standard implementation plan — **no code snippets unless absolutely necessary** — persona: **High-Visionary**.
     * Phase order: **Grumpy Architect (Phase 6)** runs before **Smooth Operator (Phase 7)**.
     * **Phase 6 is a Spec & Logic Audit, not a code review** — the plan contains no code, so it evaluates system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, and architectural anti-patterns.
-    * **Deterministic rejection loop at Gate B** — a failing Phase 6/7 review sets `PHASE_5_REVISION` and returns the plan to Group B for fixes; an unapproved plan never advances to execution.
-    * **Execution isolation** — Phase 8 (Code Surgeon) triggers only after Gate B is cleared by explicit user input and writes directly to disk, bypassing intermediate Markdown code blocks.
+    * ~~**Deterministic rejection loop at Gate B**~~ — *(superseded 2026-09-07 by the canonical 4-gate model below)*
+    * ~~**Execution isolation** — Phase 8 (Code Surgeon) triggers only after Gate B is cleared by explicit user input and writes directly to disk, bypassing intermediate Markdown code blocks.~~ — *(superseded 2026-09-07; execution now triggers after Gate C)*
 * **Rationale:**
     * **Capability-fit routing**: the heavy review model (`v4-flash-max`) is reserved for the senior architectural audit; the orchestrator model (mimo-2.5) handles the majority of planning/communication/UX work where balanced capability suffices.
     * **Token efficiency**: trimming Phase 5 to standard implementation instructions (no code snippets) shrinks plan size and review surface; code specifics are deferred to the Code Surgeon via ponytail markers.
@@ -169,7 +169,7 @@ Each entry should follow this format:
 ### Model Registry Replaced by Capability Slots — Binding Is Satellite Config
 * **Decision Date:** 2026-09-03
 * **Context:** The machinery carried hardcoded vendor model identifiers (`mimo-2.5`, `v4-flash-max`, `deepseek-v4-flash`) in the PREFIX-LOCKED base-context, all seven agent runbooks, six skills, and the seed template — while `opencode.json` runtime assigned different models entirely. The mismatch (backlog T1-E1.01) could not be resolved by "picking a side" because the template cannot know which models a satellite's provider offers; hardcoding was the root defect, not the drift.
-* **Action:** The Model Registry now defines three abstract capability slots — `planning` (orchestrator + Phases 1-3, 4-5, 7 + Wrap Up), `review-heavy` (Phase 6 audit only), `execution` (Phases 8-9). Concrete binding is exclusively each workspace's `opencode.json` (`agent.<name>.model`). All vendor identifiers removed from machinery surfaces; prefix re-synced via `check-parcel-prefix.ps1 -Sync`; pass-the-parcel + ptp-* skills and the seed template mirror the slot vocabulary. T1-E1.01 archived as resolved-by-dissolution.
+* **Action:** The Model Registry now defines three abstract capability slots — `planning` (orchestrator + Phases 1-3, 4-5, 7 + Wrap Up), `review-heavy` (Phase 6 audit only), `execution` (Phases 8-9). Concrete binding is exclusively each workspace's `opencode.json` (`agent.<name>.model`). All vendor identifiers removed from machinery surfaces; prefix re-synced via `check-parcel-prefix.ps1 -Sync`; pass-the-parcel + ptp-* skills and the seed template mirror the slot vocabulary. T1-E1.01 archived as resolved-by-dissolution. *(Superseded 2026-09-07: the 3-slot abstraction was replaced by per-agent capability classes bound in frontmatter — see "Determinism Overhaul" below.)*
 * **Rationale:**
     * **Machinery vs config separation**: the pipeline's phase→persona routing is portable; model availability is a per-workspace, per-provider decision. Encoding the latter in the former guarantees silent drift every time a provider retires a model.
     * **Slots survive model churn**: a satellite swaps its bound model with a one-line `opencode.json` edit and zero machinery changes.
@@ -195,6 +195,19 @@ Each entry should follow this format:
     * **Measure, then optimize**: a grep + `Measure-Command` pass falsified the gate-output claim in minutes; delegating the gates would have added subagent overhead to the cheapest phase of the skill.
     * **Isolate reads, not writes**: the subagent split pays off only where the read surface is large; cheap deterministic gates belong in the orchestrating context.
     * **File-ownership rules prevent write collisions**: the naive split (`.wiki/` vs `.devops/`) had a real collision — Phase 5 `defer` rows write into `.wiki/core/18-knowledge-capture.md`; ownership was reassigned accordingly.
+
+---
+
+### Parcel Machinery Determinism Overhaul — 4 Gates, Script-Enforced Embeds, One Question At A Time
+* **Decision Date:** 2026-09-07
+* **Context:** A full machinery review found the pipeline's state machine stated three different ways across five surfaces: the delegation map implied 4 gates, the template + parcel agent used 3 gates with two halts both named "Gate B" (and Gate C literally unclosable — Phase 9 mislabeled its halt), and `plan-lifecycle.md` defined 4 gates with different semantics. Worse, every ptp agent file embedded a condensed copy of its skill and all five pairs had drifted in both directions — the Research Map contract `ptp-phase3-answerer` depends on existed only in the context-hunter *agent file*, while high-visionary's Phase 4 directives existed only in the *skill*. Gate-affecting decisions leaned on judgment words ("feels like a bolt-on", "absolutely necessary", "immediate blast radius").
+* **Action:** Canonicalized one 4-gate model — A (Scope, after Phase 3) / B (Spec & Plan, after Phase 5) / C (Peer Reviews, after Phase 7) / D (Implementation, after Phase 9) — with states `PHASE_1/3/5/5_REVISION/7/8_FAILED/9`, stated identically in the orchestrator skill, base-context, parcel agent, template, and rules doc. SKILL.md is now canonical; each ptp agent embeds it verbatim between `<!-- EMBED:START:<key> -->` markers, byte-checked and regenerated by `check-parcel-prefix.ps1 -Sync` (drift mechanically impossible). The shared prefix split: delegation map + model registry are ORCHESTRATOR-ONLY (~35 lines × 6 subagents trimmed per cold start). Phase 3 questions mandated **one at a time** via the ask-questions tool — orchestrator relays, subagents draft into the plan. All gate-affecting hedges replaced with operational tests (Bolt-on Test, binary telemetry rule, quotable-source test, deterministic tie-breaks, 20-file blast-radius bound, exhaustive string-literal exception list for code snippets). Reviewers stay read-only: smooth-operator's wiki-write mandate removed (Phase 10 / knowledge-capture owns capture); grumpy/smooth gained Findings Output Contracts (`**REJECTED:**` first line parsed by the orchestrator). Code-surgeon got the missing agent wrapper. Machinery-version 10→11.
+* **Rationale:**
+    * **One state machine, five mirrors**: agents act on what they read; conflicting definitions meant each surface silently redefined the protocol. The 4-gate model matches the approved rules doc and gives one hard stop per phase-group.
+    * **Verbatim embeds kill dual sources of truth**: condensed copies drift because nothing checks them; a byte-checked marker region makes drift a build failure, not a surprise.
+    * **Determinism = mechanical verification**: human sign-off on gates, script enforcement on structure — judgment stays where it belongs (product decisions), never where it hides (state transitions).
+    * **One-at-a-time questioning** prevents batched-question overload and keeps each user answer attributable to exactly one decision point.
+    * **Split prefix saves tokens without splitting truth**: subagents forbidden from delegating no longer carry the delegation map; the registry remains validated centrally.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 description: "Clean-context post-wrap-up wiki auditor. Runs after agent-wrap-up completes; audits the git diff since the last wrap-up ref against wiki coverage and prose accuracy. Report-only - never edits files."
 tools: [read, search, execute]
-model: Deepseek V4 Flash
+model: Qwen3.8 Flash
 user-invocable: false
 ---
 # Wiki Verifier Agent (Clean-Context Post-Wrap-Up Audit)
@@ -14,15 +14,15 @@ Invoke after `agent-wrap-up` completes (Phase 8 passed), or whenever the user sa
 
 ## Inputs (read these ONLY — do not re-discover)
 1. **Latest entry** in `.devops/logs/agent-changelog.md` — the wrap-up being audited.
-2. **The mechanical diff**: `git diff --name-only <wrap-up-ref>..HEAD` where `<wrap-up-ref>` is the commit recorded in the previous changelog entry (or the commit before the latest entry's changes).
+2. **The mechanical diff**: `git diff --name-only <wrap-up-ref>..HEAD` where `<wrap-up-ref>` is the commit recorded in the most recent changelog entry BEFORE the one being audited. If that entry records no commit, halt and report "no wrap-up ref" — do not guess a boundary.
 3. **Gate outputs**: run `python scripts/wiki_lint.py` and `python scripts/wiki_coverage_check.py`.
 
 ## Procedure
 1. Run both gate scripts. Record exit codes verbatim.
 2. For every `src/` file in the diff, check it is reflected in the wiki:
    - Referenced in its domain index (or script ALLOWLIST with a reason), AND
-   - Its behavior change is described in the relevant feature/component/logic doc (spot-check prose, not just index presence).
-3. **Spec reconciliation audit**: for every doc the parcel's Phase 4 wrote as `status: in-progress`, verify it was either promoted to `stable` (with code matching spec) or left `in-progress` with a logged deviation. Flag any `in-progress` doc that was silently abandoned, and any promotion where the code visibly contradicts the spec.
+   - Its behavior change is described in the relevant feature/component/logic doc — open the doc's relevant section and compare prose against the diff; index presence alone is not coverage.
+3. **Spec reconciliation audit**: for every doc the parcel's Phase 4 wrote as `status: in-progress`, verify it was either promoted to `stable` (with code matching spec) or left `in-progress` with a logged deviation. Flag any `in-progress` doc that was silently abandoned, and any promotion where the implemented behavior contradicts the spec as written.
 4. For every `.wiki/` file in the diff, verify the edit follows `.wiki/rules/` (frontmatter, link hygiene, structure).
 5. Check the changelog entry lists every changed file from the diff (no silent omissions).
 6. Check `Last Verified` stamps in `.wiki/core/00-system-index.md` were updated for touched core docs.

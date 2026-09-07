@@ -55,7 +55,7 @@
 
 ---
 
-> **NO HALT after Phase 3:** Phase 3 complete -> set Status -> `PHASE_3` and proceed directly to Phase 4. The human reviews the formalized requirements at Gate A (after Phase 4), not the raw scope.
+> **HALT POINT (Gate A — Scope):** Phases 1-3 complete (+ Phase 3.5 auto-resolutions in AUTO mode). Set Status -> `PHASE_3`, Active Persona -> `Scoper`. Present the scope perimeter + Phase 3 Q&A record; the user approves the scope before planning begins. On rejection: Status -> `PHASE_1`, Gate A -> `REJECTED`, re-run the affected questions. Questions are relayed to the user **one at a time** via the ask-questions tool — never batched.
 
 ---
 
@@ -64,7 +64,7 @@
 
 > **Spec-First Rule:** The wiki is written BEFORE the code. Docs written here describe target behavior and are marked `status: in-progress` — a pre-code doc is a claim, not truth. Promotion to `stable` happens only at Wrap Up, after the executor verifies code matches spec.
 >
-> **Conditional Skip:** If the task changes no user-visible behavior or logic contract (bug-fix internals, copy tweaks, refactors), skip this phase and record: `No wiki delta — rationale: <why>`.
+> **Conditional Skip (checklist):** Run Phase 4 only if ANY of: (a) new or changed user-visible strings/UI, (b) API, schema, or logic-contract change, (c) wiki-facing behavior change. If none apply, skip this phase and record: `No wiki delta — rationale: <why>`. Never skip silently.
 
 **Wiki Docs to Write/Update (as `in-progress`):**
 | Doc | Change |
@@ -83,7 +83,7 @@
 
 ---
 
-> **NO HALT after Phase 4:** the spec is reviewed together with the implementation plan at Gate A (after Phase 5) — one decision, what it will do and what it will cost.
+> **NO HALT after Phase 4:** the spec is reviewed together with the implementation plan at Gate B (after Phase 5) — one decision, what it will do and what it will cost.
 
 ---
 
@@ -115,7 +115,7 @@
 ### File-Level Steps
 1.
 
-### Implementation Instructions (no code snippets unless absolutely necessary)
+### Implementation Instructions (no code snippets except exact string literals: regex, SQL migration, CLI command, config key, error message)
 
 ### Wiki Core References
 - `.wiki/core/[doc].md` -> [which blueprints derive from this doc]
@@ -124,7 +124,7 @@
 
 ---
 
-> **HALT POINT (Gate A — Spec & Plan Review):** Phases 4-5 complete. Present the wiki requirements spec (with acceptance criteria) AND the execution plan together as one decision. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_5`, Active Persona -> `High-Visionary`, Gate A -> `APPROVED`.
+> **HALT POINT (Gate B — Spec & Plan Review):** Phases 4-5 complete. Present the wiki requirements spec (with acceptance criteria) AND the execution plan together as one decision. Do not proceed to reviews until user approves. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_5`, Active Persona -> `High-Visionary`. Leave Gate B `OPEN` — the orchestrator records the user's verdict.
 
 ---
 
@@ -174,16 +174,17 @@
 
 ---
 
-> **HALT POINT (Gate B):** Reviews complete. Present findings and required fixes. Update the **State & Gates** section at the bottom of this file:
-> - **PASS:** Phase 6 log clean -> set Status `PHASE_7`, Active Persona `Reviewer`, Gate B -> `APPROVED`. Do not proceed to execution until user approves.
-> - **FAIL:** Phase 6 or 7 flagged blocking flaws -> set Status `PHASE_5_REVISION`, Active Persona `High-Visionary`, Gate B -> `REJECTED`. Return to Group B for plan adjustments, then re-run Phases 6-7. **Never advance an unapproved plan to execution.**
+> **HALT POINT (Gate C — Peer Reviews):** Reviews complete. Present findings and required fixes. Update the **State & Gates** section at the bottom of this file:
+> - **PASS:** Phase 6 log clean -> set Status `PHASE_7`, Active Persona `Reviewer`. Do not proceed to execution until user approves Gate C.
+> - **FAIL:** Phase 6 or 7 flagged blocking flaws -> set Status `PHASE_5_REVISION`, Active Persona `High-Visionary`. Return to Group B for plan adjustments, then re-run Phases 6-7. **Never advance an unapproved plan to execution.**
+> The orchestrator records Gate C -> `APPROVED`/`REJECTED` only after the user's verdict.
 
 ---
 
 ## 8 Phase 8: Execute Changes
 **Skill Executed:** `ptp-code-surgeon`
 
-**Execution Isolation:** Phase 8 triggers ONLY after Gate B cleared by explicit user input.
+**Execution Isolation:** Phase 8 triggers ONLY after Gate C cleared by explicit user input.
 
 **Single-Pass Direct-to-Disk:**
 > [ ] Implementation written DIRECTLY to source files - no intermediate Markdown code blocks, no drafting files
@@ -205,15 +206,15 @@
 > [ ] Type-generation re-run if schema/API changes
 
 **Test Report:**
-- [ ] Lint pass
-- [ ] Tests pass
-- [ ] Build pass
-- [ ] Code matches exact plan specifications
+- [ ] Lint pass (exit 0)
+- [ ] Tests pass (exit 0)
+- [ ] Build pass (exit 0)
+- [ ] Code matches exact plan specifications — verified by re-running the Phase 5 Test Verification Plan commands; every command exits `0`
 - [ ] No functional gaps identified
 
 ---
 
-> **HALT POINT (Gate B):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_9`, Active Persona -> `Executor`, Gate B -> `APPROVED`.
+> **HALT POINT (Gate D — Implementation):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_9`, Active Persona -> `Executor`. Leave Gate D `OPEN` — the orchestrator records the user's verdict. On rollback: Status -> `PHASE_8_FAILED`.
 
 ---
 
@@ -259,7 +260,7 @@
 
 **Wiki Updates:** [List wiki docs updated]
 
-**Plan Archiving:** Plan archived to `.devops/archive/{code}-{slug}-plan.md`
+**Plan Archiving:** Plan archived to `.devops/archive/[slug]-plan.md` (via `git mv`, no stub)
 
 **Backlog Review:** [Backlog items reviewed / updated]
 
@@ -273,19 +274,20 @@
 |---|---|
 | **Status** | `BACKLOG` |
 | **Version** | `v0.1.0` |
-| **Mode** | `USER-MANAGED` / `AUTO` |
-| **Active Persona** | `High-Visionary` |
+| **Mode** | `USER-MANAGED` (set to `AUTO` only when the user explicitly selects it at plan start) |
+| **Active Persona** | `Planner` |
 | **Depends On** | none |
 | **Blocks** | none |
 
-> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_9`, `COMPLETE`.
+> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
 
 | Gate | Requirement | Status |
 |---|---|---|
-| A | Spec & plan approved (Phases 4-5) | `OPEN` |
-| B | Reviews passed (Phases 6-7) | `OPEN` |
-| C | Implementation verified (Phases 8-9) | `OPEN` |
+| A | Scope approved (Phases 1-3, + 3.5 in AUTO) | `OPEN` |
+| B | Spec & plan approved (Phases 4-5) | `OPEN` |
+| C | Peer reviews passed (Phases 6-7) | `OPEN` |
+| D | Implementation verified (Phases 8-9) | `OPEN` |
 
-> On each gate: flip the row Status `OPEN` → `APPROVED` (or `REJECTED` → `PHASE_5_REVISION` for Gate B). Never edit rows above this section for gate bookkeeping.
+> Gate flips: rows flip `OPEN` → `APPROVED`/`REJECTED` ONLY after the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`. Rejection routes: A -> `PHASE_1`; B/C -> `PHASE_5_REVISION`; D/rollback -> `PHASE_8_FAILED`. Never edit rows above this section for gate bookkeeping.
 
 > **This section is the LAST section in the file. All gate bookkeeping happens here.**

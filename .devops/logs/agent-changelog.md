@@ -11,6 +11,59 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-07 - Uniform Model Routing: All Agents Rebound to Qwen3.8 Flash (machinery-version 12)
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:**
+- `.opencode/plans/base-context.md` — Model Registry: all 7 rows rebound to `Qwen3.8 Flash` / `opencode-go/qwen3.8-flash`; registry prose notes the uniform routing (user direction, capability classes retained for future rebinding)
+- `.devops/agents/parcel.agent.md`, `wiki-writer.agent.md`, `ptp-*.subagent.md` (×6), `wiki-verifier.subagent.md` — frontmatter `model:` → `Qwen3.8 Flash`; prefixes re-inlined via `check-parcel-prefix.ps1 -Sync`
+- `opencode.json` — all 9 JSON agent entries `model:` → `opencode-go/qwen3.8-flash` (was `opencode/glm-5.3-flash` ×2, `opencode/deepseek-v4-flash` ×7)
+- `.devops/skills/model-routing/SKILL.md` — v2→v3. Example bindings updated to Qwen3.8 Flash; new anti-pattern note documenting deliberate single-model routing (uniform binding is intentional, not drift)
+- `.devops/sync-manifest.yaml` — machinery-version 11→12
+
+**Database/API Changes:** None
+
+**Summary:** Per user direction, every parcel/ptp/wiki agent now routes to a single model (Qwen3.8 Flash) on both surfaces (VS Code frontmatter + opencode.json). Followed the @model-routing §3 procedure: frontmatter + registry row + `-Sync` + validation. Verification: `check-parcel-prefix.ps1` PASS ×8 with all MODEL lines reporting Qwen3.8 Flash; `opencode.json` parsed as valid JSON. Capability-class decision matrix left intact so individual agents can be rebound later.
+
+---
+
+## 2026-09-07 - Parcel Machinery Determinism Overhaul: 4-Gate Canonical Model + Script-Enforced Skill Embeds (machinery-version 11)
+
+**Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)
+
+**Files Modified:**
+- `.devops/skills/pass-the-parcel/SKILL.md` — v3→v4. Canonical 4-gate lifecycle table (A Scope / B Spec & Plan / C Peer Reviews / D Implementation), `PHASE_8_FAILED` state, Gate A rejection path, gate-flip-only-after-verdict rule; Phase 3.5 + AUTO mode added to delegation map and Group A steps; capability-class registry replaces 3-slot prose (single source = base-context Model Registry); four named gates replace the two-halts-both-named-"Gate B" protocol; one-question-at-a-time mandate for Phase 3; broken template paths (`../../../plans/`) and dangling `#fresh-context-rule` anchor fixed
+- `.devops/skills/ptp-context-hunter/SKILL.md` — v2→v3. Research Map (§3b) + Test Proposals (§3c) moved in from agent file (phase3-answerer's input contract now lives in the canonical skill); blast radius defined with 20-file bound + completeness rule; question budget 5-8 with deferral rule; ask-vs-draft contradiction resolved (tool if held, plan-draft + orchestrator relay otherwise, always one at a time); deleted `references/template-plan.md` pointer fixed; Gate A halt added
+- `.devops/skills/ptp-phase3-answerer/SKILL.md` — v1→v2. Activation moved to top (sibling convention); §8 numbering skip fixed; deterministic tie-breaks (most-cited match, then alphabetical + `[tie-break]`); "confidently" → quotable-from-mapped-source test; bonus resolutions restricted to perimeter-reversing decisions; boundary contradiction resolved (input contract + direct-reference verification allowed)
+- `.devops/skills/ptp-high-visionary/SKILL.md` — v2→v3. Gate A/B revision-loop contradiction fixed (re-run Phases 6-7, Gate C re-presented; never flip gates); stale code-snippet directives deleted ("review the code", "ponytail comment in plan snippets"); "absolutely necessary" replaced by exhaustive string-literal exception list; Phase 4 skip becomes 3-condition checklist; run workspace path defined; Spaghetti Triage added to output contract
+- `.devops/skills/ptp-grumpy-architect/SKILL.md` — v2→v3. Findings Output Contract moved in from agent file (`reviews/arch_review.md`, do-not-edit-plan, `**REJECTED:**` first-line parse rule, binary verdict); Feature Bleed cross-refs Scope Bleed (no double-count); stack qualifiers on Zod/RLS/Error Boundaries; memoization + named-ceiling hedges operationalized
+- `.devops/skills/ptp-smooth-operator/SKILL.md` — v2→v3. Mandatory Decision Sync removed (Phase 10 / knowledge-capture owns capture; reviewer stays read-only); "feels like a bolt-on" → deterministic Bolt-on Test; journey continuity → sibling-pattern check; telemetry → binary REJECT rule; Findings Output Contract added (`reviews/product_review.md`)
+- `.devops/skills/ptp-code-surgeon/SKILL.md` — v2→v3. Gate B→C trigger; lint loop capped at two attempts (cross-ref §9 rollback); "unexpected error" → plan-unaccounted-for test; type-gen command must be plan-named; Phase 9 pass = exit 0 on all Test Verification Plan commands
+- `.opencode/plans/base-context.md` — PREFIX split: shared prefix (rules, task lookup, 4-gate lifecycle, workspace layout) + ORCHESTRATOR-ONLY block (delegation map with Output column + model registry, parcel.agent.md only); BLIND/SINGLE orphan modes removed; ~35 lines of orchestrator-only content trimmed from every subagent cold start
+- `.devops/templates/base-context.template.md` — v2→v3 seed mirrors the split structure, 4-gate lifecycle, per-agent registry shape
+- `.devops/agents/parcel.agent.md` — workflow rewritten to 16 steps: one-at-a-time question relay via `vscode_askQuestions`, explicit PHASE_3 transition, Gate A presentation + rejection path, Gates B/C/D renamed correctly, `PHASE_8_FAILED` routing, AUTO auto-clear rules (Gate D always human), Tweak Discipline defined inline; duplicate delegation map removed (prefix carries it)
+- `.devops/agents/ptp-*.subagent.md` (×6) — embedded skill copies replaced with `<!-- EMBED:START:<key> -->` verbatim regions regenerated by `-Sync` (dual-source-of-truth drift eliminated mechanically); wrappers fixed: context-hunter ask/draft + read-only rules, high-visionary gate flips removed, grumpy/smooth rejection first-line + no-gate-flip rules, smooth wiki-write ban, **code-surgeon wrapper created** (was the only ptp agent without one — now sets `PHASE_9`/`PHASE_8_FAILED` and returns a report contract)
+- `.devops/skills/model-routing/SKILL.md` — v1→v2 (was untracked; added to git this session). Description trigger "model slots" → "capability classes"; §2 matrix split into per-class rows (`retrieval/Q&A`, `product review`) matching the canonical registry; reviewer/planner same-model anti-pattern softened to a check (the seed binding legitimately shares Deepseek V4 Flash)
+- `.devops/agents/wiki-writer.agent.md` — ~80% duplicated method stripped; skill declared canonical with precedence rule; "substantive" edit operationalized (heading change or >10% body text)
+- `.devops/agents/wiki-verifier.subagent.md` — single wrap-up-ref definition (prior changelog entry's commit, halt if absent); "spot-check"/"visibly" replaced with concrete compare-the-section criteria
+- `.devops/plans/template-plan.md` — Gate A halt after Phase 3 (questions one at a time); Phase 4 skip checklist; Phase 5/7/9 halts renamed to Gates B/C/D; Gate D closable at last (was unclosable — Phase 9 mislabeled Gate B); Mode defaults `USER-MANAGED`; Persona default `Planner`; `{code}` placeholder resolved to `[slug]-plan.md`; Phase 9 verification method = exit 0; State & Gates table lists 4 gates + `PHASE_8_FAILED`
+- `.devops/rules/plan-lifecycle.md` — lifecycle chain reconciled to `PHASE_1/3/5/7/9` (its `PHASE_4/6/8` names were drifted); 4-gate semantics kept (they were right all along); failure states + gate-flip rule + AUTO behavior added; BLIND/SINGLE removed
+- `scripts/check-parcel-prefix.ps1` — prefix split (shared vs full per file type) + verbatim embed verify/regenerate between EMBED markers; `-Sync` repairs both; ASCII-only (PS 5.1 parse safety)
+- `scripts/check-utf8-agents.ps1` — scan extended to `.devops/plans/`, `.devops/archive/`, `.devops/backlog/`, `.devops/logs/`
+- `.devops/archive/agnostic-template-sync-plan.md` — 54 mojibake glyphs repaired (survived unchecked pre-extension)
+- `.devops/sync-manifest.yaml` — machinery-version 10→11
+- `.wiki/core/18-knowledge-capture.md` — new Tooling & DevOps entry: Parcel Machinery Determinism Overhaul (4 gates, script-enforced embeds, one-question-at-a-time); two superseded entries annotated (Gate B rejection loop + Gate B execution trigger; capability-slot registry)
+- `.devops/logs/version-history.md` — v0.3.6 release row
+
+**Database/API Changes:** None
+
+**Summary:** Full machinery review (user-approved plan) executed for determinism: one canonical 4-gate state machine now stated identically in five surfaces; skill↔agent dual sources of truth collapsed into script-enforced verbatim embeds (all five pairs had drifted in both directions — each drifted section was given a canonical home first); every gate-affecting hedge replaced with an operational test; the unclosable-Gate-C bug, the double-"Gate B" naming collision, the missing Phase 3.5 orchestration, the code-surgeon wrapper gap, and the one-at-a-time questioning mandate (user amendment) are all closed. Verification: `check-parcel-prefix.ps1` PASS ×2 (idempotent), `check-utf8-agents.ps1` ALL CLEAN (110 files), grep sweeps zero stale references. Skipped: Phases 1-5 formal parcel scaffold (user directed execution directly from the approved session plan; process-only session, no `src/`). Human sign-off required: this entry + machinery-version 11 bump cover changes to approved rules docs (`plan-lifecycle.md`).
+
+**Wrap-up ref:** 3c5558d (baseline from previous entry; this session lands as one commit on push — next wrap-up diffs from that hash)
+
+---
+
 ## 2026-09-06 - Dual-Surface Model Binding: Glm 5.3 Flash Orchestrator + Deepseek V4 Flash Subagents
 
 **Agent:** GitHub Copilot (OpenCode Go / Glm 5.3 Flash)

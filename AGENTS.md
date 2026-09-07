@@ -58,6 +58,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Checking cross-view pattern consistency | `.wiki/core/18-knowledge-capture.md` (Domain Index) | `ptp-context-hunter` skill §2 + `ptp-grumpy-architect` skill §11 |
 | Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |
 | Multi-step planning | `@pass-the-parcel` skill | Parcel template at `.devops/plans/template-plan.md` |
+| Choosing/editing subagent model bindings | `@model-routing` skill | `.opencode/plans/base-context.md` (Model Registry) |
 | Pre-push validation (lint/test/build/push) | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/README.md` (Transportability) + HOW-TO.md §6 |
 | Writing or editing code | `@karpathy-guidelines` skill | `.wiki/core/09-design-system.md` (if UI) |
