@@ -60,7 +60,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Summary:** Full machinery review (user-approved plan) executed for determinism: one canonical 4-gate state machine now stated identically in five surfaces; skill↔agent dual sources of truth collapsed into script-enforced verbatim embeds (all five pairs had drifted in both directions — each drifted section was given a canonical home first); every gate-affecting hedge replaced with an operational test; the unclosable-Gate-C bug, the double-"Gate B" naming collision, the missing Phase 3.5 orchestration, the code-surgeon wrapper gap, and the one-at-a-time questioning mandate (user amendment) are all closed. Verification: `check-parcel-prefix.ps1` PASS ×2 (idempotent), `check-utf8-agents.ps1` ALL CLEAN (110 files), grep sweeps zero stale references. Skipped: Phases 1-5 formal parcel scaffold (user directed execution directly from the approved session plan; process-only session, no `src/`). Human sign-off required: this entry + machinery-version 11 bump cover changes to approved rules docs (`plan-lifecycle.md`).
 
-**Wrap-up ref:** 3c5558d (baseline from previous entry; this session lands as one commit on push — next wrap-up diffs from that hash)
+**Wrap-up ref:** `0bc2f7a` (pushed to origin/main 2026-09-08; the v0.3.7 rebind commit carried these changes plus uniform Qwen3.8 Flash binding)
 
 ---
 
