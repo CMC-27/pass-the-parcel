@@ -24,7 +24,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Database/API Changes:** None
 
-**Summary:** Per user direction, every parcel/ptp/wiki agent now routes to a single model (Qwen3.8 Flash) on both surfaces (VS Code frontmatter + opencode.json). Followed the @model-routing §3 procedure: frontmatter + registry row + `-Sync` + validation. Verification: `check-parcel-prefix.ps1` PASS ×8 with all MODEL lines reporting Qwen3.8 Flash; `opencode.json` parsed as valid JSON. Capability-class decision matrix left intact so individual agents can be rebound later.
+**Summary:** Per user direction, every parcel/ptp/wiki agent now routes to a single model (Qwen3.8 Flash) on both surfaces (VS Code frontmatter + opencode.json). Followed the @model-routing §3 procedure: frontmatter + registry row + `-Sync` + validation. Verification: `check-parcel-prefix.ps1` PASS ×8 with all MODEL lines reporting Qwen3.8 Flash; `opencode.json` parsed as valid JSON. Capability-class decision matrix left intact so individual agents can be rebound later. **Wrap-up ref:** `0bc2f7a`
 
 ---
 
