@@ -3,7 +3,8 @@
 # (.devops/skills/**/*.md), AND plan-state surfaces (plans, archive, backlog, logs) —
 # the latter closes the documented guard gap where corrupted glyphs propagated through
 # sync into instruction surfaces and survived unchecked in archived plans.
-# Markers: C3 A2 (double-encoded em-dash lead, "â€"), EF BF BD (U+FFFD replacement).
+# Markers: C3 A2 (double-encoded em-dash lead, "â€"), C3 B0 C2 (double-encoded emoji lead, "ðŸ"),
+# EF BF BD (U+FFFD replacement).
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
@@ -14,6 +15,8 @@ $targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Fil
 foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs')) {
     $targets += Get-ChildItem -Path (Join-Path $root $dir) -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 }
+$kc = Join-Path $root '.wiki\core\18-knowledge-capture.md'
+if (Test-Path $kc) { $targets += Get-Item $kc }
 
 $bad = @()
 foreach ($file in $targets) {
@@ -21,6 +24,7 @@ foreach ($file in $targets) {
     $mojibake = $false
     for ($i = 0; $i -lt $bytes.Length - 2; $i++) {
         if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xA2) { $mojibake = $true; break }
+        if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xB0 -and $bytes[$i + 2] -eq 0xC2) { $mojibake = $true; break }
         if ($bytes[$i] -eq 0xEF -and $bytes[$i + 1] -eq 0xBF -and $bytes[$i + 2] -eq 0xBD) { $mojibake = $true; break }
     }
     if ($mojibake) {

@@ -10,6 +10,27 @@ description: "Chronological record of all AI agent actions, changes, and audits.
 All changes made by AI agents are tracked chronologically below.
 
 ---
+## 2026-09-09 - Knowledge Capture System Overhaul: Closed Consolidation Loop + Hard Size Caps
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:**
+- `.devops/skills/agent-wrap-up/SKILL.md` — v2→v3. Phase 7 renamed "Knowledge Capture & Consolidation" with mandatory step 3: run `@knowledge-consolidation` (tidy mode) after capture — the handoff that was documented but never wired, the root cause of one-way KC growth. Phase 1 gained a hard 500-line cap on this changelog with oldest-entry pruning.
+- `.devops/skills/knowledge-consolidation/SKILL.md` — v1→v2. Two modes: **Tidy** (default, every plan, surgical edits only, never a whole-file rewrite) and **Full audit** (explicit request / vibe-auditor flag / file > 200 lines). Hard limits: 500-line file ceiling, max 5 Decision Archive entries, 3-line top-level entries. Promotion policy rewritten per user direction: promoted rules are DELETED from KC (no pointers — agents read the wiki before KC), `link-to-wiki` verdict replaced by `cut-duplicate`, zero wiki duplication enforced.
+- `.devops/skills/knowledge-capture/SKILL.md` — v1→v2. Lean-at-capture mandate: ≤3-line entries at capture time, append under existing headers only (never re-emit duplicate section headers), superseded entries cut at capture with supersession logged to knowledge-changelog, no-pointer rule (skip capture entirely when the wiki covers the rule).
+- `.wiki/core/18-knowledge-capture.md` — full consolidation (first ever run): 269 → 64 lines. Converted to canonical 4-section format; 5 superseded entries cut, 3 rules promoted to `.devops/README.md` §Transportability then deleted here, 4 template placeholder blocks (44 lines) removed, 13 duplicate `## 🚀 Tooling & DevOps` headers collapsed, mojibake repaired. New pitfalls: truncated-line edit landmine, UTF-8 BOM via `Set-Content`.
+- `.devops/README.md` — Transportability gained three canonical rules promoted from KC: portable = no absolute paths, normalize CRLF→LF before hashing across git boundaries, gates must be reproducible from a fresh clone (tracked files only).
+- `scripts/check-utf8-agents.ps1` — scan extended to `.wiki/core/18-knowledge-capture.md`; new marker C3 B0 C2 catches double-encoded emoji (the `ðŸš€` class found in KC headers). Verified against synthetic bytes.
+- `.devops/sync-manifest.yaml` — machinery-version 13→14
+- `.devops/logs/knowledge-changelog.md` — consolidation audit record with supersession/promotion log
+
+**Database/API Changes:** None
+
+**Summary:** Reviewed the knowledge-capture system per user request: measured 269-line KC growing ~9 lines/day with zero consolidations ever applied (wrap-up only appended; the documented consolidation handoff existed in no executable surface). Fixed the loop (wrap-up Phase 7 now runs tidy consolidation), made consolidation cheap enough to actually fire (two modes, surgical-only default), moved leanness upstream to capture time, and adopted the user's policy: KC holds only edge cases with future practical use, never pointers, never wiki duplicates, hard 500-line caps on both KC and the agent changelog, deterministic short entries. Verification: `check-utf8-agents.ps1` ALL CLEAN (114 files), `wiki_lint.py --quiet` exit 0, `check-parcel-prefix.ps1` PASS ×7 byte-identical. **Wrap-up ref:** `b0ca295`
+
+---
+
+---
 
 ## 2026-09-07 - Uniform Model Routing: All Agents Rebound to Qwen3.8 Flash (machinery-version 12)
 

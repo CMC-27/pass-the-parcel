@@ -1,8 +1,8 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-09
 ---
 
 # Knowledge Consolidation Skill
@@ -26,18 +26,27 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 | **Wiki home** | None — too specific | Could fit under existing § | Clear natural home in core/conventions |
 | **Example** | "`activeAssemblyIdRef` ref-mutation is a safety pattern, not a smell" | "Container 'on' token architecture" | "Every form field needs `id` + `htmlFor`" |
 
-**The promotion test:** If you can replace the entry with `"See [wiki doc] §[section]"` and an agent reading only KC would still be effective, it belongs in the wiki. If the agent needs the full story to avoid repeating a mistake, it stays tribal.
+**The promotion test:** If the rule is stable and repeatable enough that an agent would find it by reading the wiki first, it belongs in the wiki — and gets **deleted from KC entirely**. KC never holds pointers or summaries of wiki content: agents read the wiki before KC, so a pointer duplicates a lookup they already do. What survives in KC is only what the wiki cannot hold: one-off edge cases with future practical use, gotchas that cost time, and constraints not derivable from reading the code.
 
 **Repetition is a promotion signal:** When the same rule appears under different dates from different plans, the wiki is missing it. Frequency trumps the individual stability heuristic — those entries should be promoted, not just deduplicated inside KC.
 
 ---
 
+## Modes
+
+| Mode | When | What runs |
+|---|---|---|
+| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7 | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (light counts report) |
+| **Full audit (explicit only)** | Fires when: the user requests it, a `pre-deployment-vibe-auditor` run flags KC as bloated/contradictory, **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
+
+**Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. Tidy mode must keep the file well under the **hard 500-line ceiling**; if a tidy run leaves the file above 200 lines, say so and recommend a full audit.
+
 ## Trigger Conditions
 Activate this skill whenever:
 
-1. **Primary trigger — Parcel plan completion.** Whenever a parcel plan in `.devops/plans/` is being marked complete (after tweaks, wiki updates, and tests are done), as the final step before archiving the plan to `.devops/archive/`.
-2. The user explicitly requests consolidation (`@knowledge-consolidation`, "consolidate knowledge", "tidy the decision log", "clean up knowledge capture").
-3. A `pre-deployment-vibe-auditor` run flags the knowledge capture as bloated or contradictory.
+1. **Primary trigger — Parcel plan completion (tidy mode).** Whenever a parcel plan in `.devops/plans/` is being marked complete (after tweaks, wiki updates, and tests are done), as the final step before archiving the plan to `.devops/archive/`.
+2. The user explicitly requests consolidation (tidy if they say "tidy the log", full audit if they say "consolidate/clean up knowledge capture").
+3. A `pre-deployment-vibe-auditor` run flags the knowledge capture as bloated or contradictory (full audit).
 
 ---
 
@@ -77,7 +86,7 @@ For every existing entry, ask:
 2. **Is this actionable?** Does it tell a future agent *what to do* or *what to avoid*? If it only narrates history, demote or cut.
 3. **Is this a pitfall or a rule?** Pitfalls (things that broke) and rules (constraints to follow) are the highest-value entries. Pure context without a takeaway is low value.
 4. **Could this be merged into an existing entry** without losing signal?
-5. **Is this duplicated by a wiki doc** (e.g. `09-design-system.md`, `12-security-standards.md`)? If yes, mark `link-to-wiki` — replace the entry with a one-line pointer and a wiki link.
+5. **Is this duplicated by a wiki doc** (e.g. `09-design-system.md`, `12-security-standards.md`)? If yes, mark `cut-duplicate` — delete the KC entry outright. No pointers, no summaries: agents read the wiki before KC, so any wiki-covered content in KC is dead weight.
 6. **Should this be promoted to a wiki doc?** Apply the Tribal vs. Canonical test:
    - Is the rule stable (survived 2+ plans or appears repeatedly)?
    - Is it cross-cutting (relevant beyond the original context)?
@@ -85,7 +94,7 @@ For every existing entry, ask:
    - Does a clear wiki home exist (core doc §, conventions doc, feature doc)?
    If 3/4 are yes, mark `promote`.
 
-Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `link-to-wiki`, `promote`.
+Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `cut-duplicate`, `promote`.
 
 ### Phase 5 — Duplicate & Conflict Detection
 1. Identify **exact duplicates** (same rule, same wording).
@@ -103,9 +112,7 @@ For every entry marked `promote`, determine its natural wiki home and execute th
    - If a natural home exists (a § within an existing doc), insert the entry's actionable rule at the relevant section. Use the wiki doc's existing format — don't force the KC format into it.
    - If no natural home exists and the entry warrants a new doc, create it. Add a cross-reference in the relevant index file (see Phase 11).
 
-3. **Replace in KC**: Replace the full entry with a 1-3 line pointer + wiki link:
-   `- **[Title]**: [One-line rule]. *See:* [path/to/wiki/doc.md]`
-   The canonical detail now lives in the wiki. KC is the index; the wiki is the reference.
+3. **Delete from KC**: Remove the entry entirely — promoted knowledge has no residual in KC, not even a pointer. The wiki is the single home for canonical rules; KC holds only what the wiki cannot.
 
 4. **Track promotions**: Maintain a running list of promotions for the Phase 10 report.
 
@@ -114,9 +121,9 @@ Apply these changes without user intervention:
 
 - **Merge exact and near-duplicates** into a single, sharper entry.
 - **Cut entries that are fully superseded** by a later, more specific rule.
-- **Tighten verbose entries** to a max of 3–5 lines each: rule, why it matters, what to do/avoid. Strip narrative.
-- **Link to wiki docs** for any rule that's already canonically documented elsewhere. The knowledge capture should reference, not duplicate.
-- **Promote entries** marked `promote`: extract the actionable rule to the target wiki doc via the `@wiki-writer` discipline (integrate + rebalance, never append), replace the KC entry with a 1-line pointer (per Phase 6 step 3). If the wiki update is non-trivial (new section, new doc, structural re-org), flag it via Phase 8 instead of auto-applying.
+- **Tighten verbose entries** to a max of 3 lines each: rule, why it matters, what to do/avoid. Strip narrative. Entries must be deterministic — state the constraint, not the discussion that produced it.
+- **Cut wiki-duplicated entries** (`cut-duplicate`) outright — no pointers, no summaries. Verify the wiki actually covers the rule first; if it doesn't, promote instead.
+- **Promote entries** marked `promote`: extract the actionable rule to the target wiki doc via the `@wiki-writer` discipline (integrate + rebalance, never append), then delete the KC entry per Phase 6 step 3. If the wiki update is non-trivial (new section, new doc, structural re-org), flag it via Phase 8 instead of auto-applying.
 - **Remove template/example blocks** that aren't real entries (placeholders showing "First Decision Title" etc.).
 
 Track every change in a running log.
@@ -149,29 +156,28 @@ _(Mistakes that cost time or broke things. Read these first when starting simila
 - **[Date] [Short title]**: [One-line rule]. *Why:* [One-line consequence]. *Do instead:* [One-line fix].
 
 ## Rules & Constraints
-_(Stable rules derived from prior decisions. Grouped by theme.)_
+_(Edge-case constraints with future practical use, not derivable from the wiki or the code. Grouped by theme.)_
 
 ### [Theme Name]
-- **[Date] [Short title]**: [One-line rule]. *See also:* [wiki doc link if applicable].
+- **[Date] [Short title]**: [One-line rule].
 
 ## Decision Archive
-_(Full context for decisions that need historical rationale. Link here from Quick Reference.)_
+_(Only decisions whose full story prevents a specific repeat mistake. Most recent 5 max.)_
 
 ### [Date] [Decision Title]
 - **Context**: [1–2 lines max]
 - **Action**: [1–2 lines max]
 - **Rationale**: [1–2 lines max]
-- **Wiki ref**: [link]
 ```
 
-_NOTE: Entries promoted to wiki docs appear as pointers in the "Rules & Constraints" section or in "See Also" with a wiki link. Their full canonical content lives in the wiki._
-
 **Hard limits:**
+- **Whole file: max 500 lines.** A tidy run that cannot bring the file under 200 lines recommends a full audit; anything over 500 is a consolidation failure, not a warning.
 - Every entry in *Pitfalls* and *Rules* sections: **max 3 lines** of body text.
-- Every entry in *Decision Archive*: **max 10 lines** of body text.
+- Every entry in *Decision Archive*: **max 10 lines** of body text, **max 5 archive entries** (oldest cut first).
 - No narrative paragraphs. Bullet points only.
 - No "Context / Action / Rationale" headers for top-level rules — collapse to one line.
 - No template placeholders. Real entries only.
+- **No wiki pointers.** If the wiki covers it, the KC entry is deleted.
 
 ### Phase 10 — Validation & Report
 Present a final report:
@@ -183,8 +189,9 @@ Present a final report:
 | Cut (obsolete/superseded) | _n_ |
 | Merged (duplicates) | _n_ |
 | Tightened (verbose → sharp) | _n_ |
-| Linked to wiki docs | _n_ |
-| Promoted to wiki docs | _n_ |
+| Cut as wiki-duplicates | _n_ |
+| Promoted to wiki docs (entry deleted from KC) | _n_ |
+| File line count after | _n_ / 500 cap |
 | New entries from current plan | _n_ |
 | User decisions requested | _n_ |
 
@@ -199,11 +206,12 @@ If any new wiki docs were created, OR existing docs were updated during promotio
 ## Non-Negotiable Rules
 - **Optimise for the next agent, not for history.** Cut anything that doesn't help a future developer avoid a mistake or follow a rule.
 - **3-line rule for top-level entries.** If a rule can't be said in 3 lines, it's not sharp enough — tighten it.
-- **Never delete without confirmation.** Auto-merge combines entries; it never removes information. Only user-confirmed cuts are allowed.
+- **Never delete tribal knowledge without confirmation.** Auto-merge combines entries; it never removes information. User-confirmed cuts and `cut-duplicate` (wiki verifiably covers the rule) are the only deletions allowed without asking.
 - **No template/example bloat.** The living log must contain real entries only. Move templates to `.wiki/templates/`.
-- **Link, don't duplicate.** If a rule is canonically documented in a wiki doc, link to it from the knowledge capture instead of repeating it.
-- **Proactive promotion, not passive linking.** "Link, don't duplicate" is reactive — it only fires when a wiki doc already exists. If a stable, cross-cutting pattern lives only in KC, it's a knowledge silo. Promote it to the wiki. KC is the decision log; the wiki is the canon. An entry that never graduates to the wiki is a signal that either (a) it's not stable enough to be a rule, or (b) consolidation left a silo.
-- **Repetition is a promotion signal, not just a dedup signal.** If the same rule appears under different dates from different plans, don't just merge it tighter in KC — promote it to the wiki. The frequency tells you the wiki is missing that entry. Collapse to one canonical wiki entry and one KC pointer.
+- **Zero wiki duplication — zero pointers.** Agents read the wiki before KC, so a pointer or summary in KC is dead weight. If the wiki covers a rule, delete the KC entry. If the wiki *should* cover it but doesn't, promote the rule into the wiki, then delete the KC entry.
+- **Proactive promotion.** If a stable, cross-cutting pattern lives only in KC, it's a knowledge silo. Promote it to the wiki and delete it from KC. An entry that never graduates is a signal that either (a) it's not stable enough to be a rule, or (b) consolidation left a silo.
+- **Repetition is a promotion signal, not just a dedup signal.** If the same rule appears under different dates from different plans, promote it to a single canonical wiki entry and delete all KC copies.
+- **Deterministic entries only.** State the constraint or the fix, not the discussion. An entry is too vague to act on if it needs more than 3 lines to be executable.
 - **Run after every parcel plan.** Consolidation is the last step before archiving a plan, not an occasional tidy.
 - **No scope creep on new knowledge.** This skill consolidates *and harvests from the completed plan*. It does not add knowledge from unrelated work.
 

@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 2
-updated: 2026-09-03
+version: 3
+updated: 2026-09-09
 ---
 
 # Agent Wrap-Up Skill
@@ -63,6 +63,7 @@ Documentation of history is the foundation of project health.
     - **Files Modified**: Full bulleted list of all files created, modified, or deleted.
     - **Database Changes**: Describe any schema, index, or rule changes. If none, state "None".
     - **Summary**: A paragraph explaining the *technical rationale* and *functional impact*.
+2.  **Enforce the size cap**: the changelog is capped at **500 lines**. After adding the entry, check `(Get-Content .devops/logs/agent-changelog.md).Count`. If over 500, prune the oldest entries until back under the cap — the current session's entries are never pruned. Deep history lives in git, not the changelog.
 
 ### Phase 2: Wiki Docs (Reconcile Code Against Spec)
 With the spec-first pipeline, docs for planned behavior were already written in parcel Phase 4 (marked `status: in-progress`). Wrap-up **reconciles** rather than retro-documents.
@@ -124,9 +125,10 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 
 > Always read the full `backlog-index.md` before deciding nothing applies. Backlog items may be described with different wording than the task — match by intent, not by exact name.
 
-### Phase 7: Knowledge Capture
+### Phase 7: Knowledge Capture & Consolidation
 1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered.
 2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
+3. **Consolidate (mandatory)**: After capture, run the `@knowledge-consolidation` skill in **tidy mode** — harvest from this session, enforce line limits on touched entries, merge duplicates introduced this session, remove placeholders/duplicate headers/superseded entries, and report counts. This is the step that keeps the log lean; skipping it makes KC growth one-way. Full audit (Phases 3–11) is NOT part of wrap-up — it fires only on the consolidation skill's own triggers.
 
 ### Phase 8: Coverage Gate (Hard Verification)
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.

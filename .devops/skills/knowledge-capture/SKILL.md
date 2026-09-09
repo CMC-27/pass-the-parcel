@@ -1,8 +1,8 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-09
 ---
 
 # Knowledge Capture Skill
@@ -61,6 +61,14 @@ Classify the decision into one of three sections based on its nature:
 
 When in doubt between **Pitfall** and **Rule**: a Pitfall answers "what broke and how to fix it"; a Rule answers "how things work and what to follow."
 
+### Lean-at-capture rules (mandatory)
+The log must be readable in minutes the moment an entry lands — consolidation is a light tidy, not the thing that finally makes entries short. At capture time:
+
+*   **Hard limits**: Pitfalls and Rules — max **3 lines** of body text. Decision Archive — max **10 lines**. Strip narrative at capture; deep rationale belongs in the plan's Completion Note / decision log, not here.
+*   **Append under an existing header**: before writing, check the file's section headers — if the target section or `### [Theme]` already exists, append the entry under it. **Never emit a duplicate section or theme header.**
+*   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through. Log the supersession (one line) in `.devops/logs/knowledge-changelog.md`. Contradictions resolve to the later decision.
+*   **No wiki duplication, no pointers**: if the rule is already canonically documented in a wiki doc or `.devops/README.md`, **do not add an entry at all** — agents read the wiki before KC, so a pointer is dead weight. If the rule *should* be in the wiki but isn't, capture it normally and let consolidation promote it (which deletes the KC copy).
+
 ### 3. Entry Capture
 *   Accept a "Decision" or "Suggestion" from the user.
 *   Assign a **Theme** that best categorises the entry (used as a grouping heading in Rules & Constraints). Common themes: `Architecture & Patterns`, `UI/UX & Design Aesthetic`, `Testing & QA`, `Tooling & Code Quality`, `Product & Process`
@@ -69,6 +77,7 @@ When in doubt between **Pitfall** and **Rule**: a Pitfall answers "what broke an
 *   If adding to **Pitfalls**, no theme subsection — entries are flat under the section header.
 *   If adding to **Decision Archive**, use the `### [Title]` format with `- **Context:**` / `- **Action:**` / `- **Rationale:**` / `- **Wiki ref:**` bullet points.
 *   **Do not** add or modify the Quick Reference table — it's maintained by the consolidation skill.
+*   **Before appending**, read the file's current section headers (a grep for `^#` suffices) — duplicates, mojibake, and stale placeholders in the file are yours to fix on sight when adding an entry.
 
 ### 4. Validation
 *   Confirm to the user that the knowledge has been persisted.
