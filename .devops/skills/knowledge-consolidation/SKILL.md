@@ -1,7 +1,7 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 2
+version: 3
 updated: 2026-09-09
 ---
 
@@ -63,13 +63,13 @@ Activate this skill whenever:
 5. Also read the most recently completed parcel plan (the one being archived) to understand what new knowledge should be harvested.
 
 ### Phase 2 — Harvest from Completed Plan
-Before consolidating, extract any tribal knowledge that emerged from the just-completed parcel plan:
+Before consolidating, extract any tribal knowledge that emerged from the just-completed parcel plan. Apply the `@knowledge-capture` **Admission Gate strictly** to each candidate — most tweaks produce nothing worth harvesting:
 
-- **Pitfalls hit** — bugs, config issues, or design mistakes that cost time.
+- **Pitfalls hit** — bugs, config issues, or design mistakes whose *underlying lesson generalizes* beyond this plan.
 - **Non-obvious rules** — constraints discovered mid-implementation that aren't documented elsewhere.
 - **Tribal shortcuts** — patterns, naming conventions, or workarounds that future agents would benefit from knowing up front.
 
-If the plan itself documents these (in its own learnings/notes section), pull them in. If not, infer them from the plan's diffs and changelog.
+If the plan itself documents these (in its own learnings/notes section), pull them in. If not, infer them from the plan's diffs and changelog. **Never harvest:** plan-conformity tweaks (the implementation matched the approved recommendation), accident fixes (typos, formatting, careless build breaks), full-change rewrites without an extractable lesson, one-time taste preferences. Those stay in the archived plan.
 
 ### Phase 3 — Inventory & Metrics
 Produce a snapshot before any changes:
@@ -84,6 +84,7 @@ For every existing entry, ask:
 
 1. **Is this still true?** Has the codebase, design system, or architecture moved on?
 2. **Is this actionable?** Does it tell a future agent *what to do* or *what to avoid*? If it only narrates history, demote or cut.
+2b. **Did it ever clear the Admission Gate?** Retroactively apply the strict bar: if the entry is an accident fix, a plan-conformity note, or a one-time preference that never generalized, mark `cut-lowvalue` — KC is for real deviations and valuable tribal knowledge only.
 3. **Is this a pitfall or a rule?** Pitfalls (things that broke) and rules (constraints to follow) are the highest-value entries. Pure context without a takeaway is low value.
 4. **Could this be merged into an existing entry** without losing signal?
 5. **Is this duplicated by a wiki doc** (e.g. `09-design-system.md`, `12-security-standards.md`)? If yes, mark `cut-duplicate` — delete the KC entry outright. No pointers, no summaries: agents read the wiki before KC, so any wiki-covered content in KC is dead weight.
@@ -94,7 +95,7 @@ For every existing entry, ask:
    - Does a clear wiki home exist (core doc §, conventions doc, feature doc)?
    If 3/4 are yes, mark `promote`.
 
-Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `cut-duplicate`, `promote`.
+Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `cut-duplicate`, `cut-lowvalue`, `promote`.
 
 ### Phase 5 — Duplicate & Conflict Detection
 1. Identify **exact duplicates** (same rule, same wording).
@@ -120,7 +121,7 @@ For every entry marked `promote`, determine its natural wiki home and execute th
 Apply these changes without user intervention:
 
 - **Merge exact and near-duplicates** into a single, sharper entry.
-- **Cut entries that are fully superseded** by a later, more specific rule.
+- **Cut entries that are fully superseded** by a later, more specific rule, or that fail the retroactive Admission Gate (`cut-lowvalue`: accident fixes, plan-conformity notes, one-time preferences).
 - **Tighten verbose entries** to a max of 3 lines each: rule, why it matters, what to do/avoid. Strip narrative. Entries must be deterministic — state the constraint, not the discussion that produced it.
 - **Cut wiki-duplicated entries** (`cut-duplicate`) outright — no pointers, no summaries. Verify the wiki actually covers the rule first; if it doesn't, promote instead.
 - **Promote entries** marked `promote`: extract the actionable rule to the target wiki doc via the `@wiki-writer` discipline (integrate + rebalance, never append), then delete the KC entry per Phase 6 step 3. If the wiki update is non-trivial (new section, new doc, structural re-org), flag it via Phase 8 instead of auto-applying.
@@ -187,6 +188,7 @@ Present a final report:
 | Entries before | _n_ |
 | Entries after | _n_ |
 | Cut (obsolete/superseded) | _n_ |
+| Cut (failed Admission Gate) | _n_ |
 | Merged (duplicates) | _n_ |
 | Tightened (verbose → sharp) | _n_ |
 | Cut as wiki-duplicates | _n_ |

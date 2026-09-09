@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/.
-version: 4
-updated: 2026-09-07
+version: 5
+updated: 2026-09-09
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -190,11 +190,18 @@ If the requested feature exists as a backlog item:
 * **Goal:** User performs testing and provides feedback. Iterative back-and-forth with agent for tweaks, with important lessons captured to improve future outputs.
 * **Steps:**
   * **Phase 10 (User Review & Tweaks):** User tests the implementation. Agent and user iterate on feedback. **All tweaks are logged inline in this plan's Phase 10 `Back-and-Forth Log`** (one entry per round: User Feedback → Tweaks Applied → Result). Phase complete when user signs off.
-  * **Knowledge Capture Hook:** After *every* tweak, evaluate whether it carries a **lesson worth preserving** and, if so, initialize the **`knowledge-capture`** skill (global). The trigger is **not** "shared theme" alone — capture anything that would help the next agent. The qualifying categories are:
-      * **Recurring pattern** — same correction needed twice or more across rounds.
+  * **Knowledge Capture Hook:** After *every* tweak, evaluate whether it carries a **lesson worth preserving** and, if so, initialize the **`knowledge-capture`** skill (global). The bar is **strict**: KC holds only real deviations and valuable tribal knowledge — things that teach the next agent something the wiki and the plan cannot.
+    * **Qualifies (capture):**
+      * **Real deviation** — the user's feedback shows the plan or spec was wrong about how the product should work (a corrected assumption, not a preference).
       * **Tribal-knowledge decision** — non-obvious project rule, convention, or constraint (e.g., "we never mutate X in this codebase").
-      * **Significant one-off** — a single bug, gotcha, clever fix, or surprising requirement that even a fresh agent would benefit from knowing.
-    * **Data flow:** raw tweaks stay in the Phase 10 log. Any tweak that meets the bar above is promoted to `.wiki/core/18-knowledge-capture.md` via the `knowledge-capture` skill, then consolidated in Wrap Up by `agent-wrap-up`. **Default to capture; skip only when the tweak is purely cosmetic (typo, formatting) with no underlying lesson.**
+      * **Recurring pattern** — same correction needed twice or more across rounds (the repetition itself is the lesson).
+      * **Significant one-off** — a bug, gotcha, or surprising requirement whose underlying lesson generalizes beyond this plan.
+    * **Does NOT qualify (stay in the Phase 10 log only):**
+      * **Plan-conformity tweaks** — the implementation simply agreed with / matched the approved recommendation.
+      * **Accident fixes** — typos, formatting, missed renames, build breaks from careless edits. Fixed ≠ learned.
+      * **Full-change rewrites** — "redo this whole thing differently" without an extractable generalizable lesson; the lesson is in the diff, not reusable knowledge.
+      * **One-time preferences** — taste-level choices scoped to this feature alone.
+    * **Data flow:** raw tweaks stay in the Phase 10 log. Only qualifying items are promoted to `.wiki/core/18-knowledge-capture.md` via the `knowledge-capture` skill, then consolidated in Wrap Up by `agent-wrap-up`. **Default to skip.** Before capturing, answer in one line: *"What will a future agent do differently because of this entry?"* If that sentence can't be completed without naming this specific plan, it doesn't enter KC.
 * **COMPLETION:** Phase 10 done when user provides explicit sign-off.
 
 ### GROUP F: Wrap Up (Document Tweaks, Spec Reconciliation & Close-Out)
@@ -202,7 +209,7 @@ If the requested feature exists as a backlog item:
 * **Goal:** Document all tweaks from Phase 10, promote captured lessons to the knowledge log, reconcile the wiki against what was actually built, and close out the plan.
 * **Steps:**
   * **Wrap Up:**
-     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 10 tweaks, sync captured lessons (per Phase 10 `Capture Flag`) to the project's knowledge capture log, reconcile code against the Phase 4 spec, **promote `status: in-progress` wiki docs to `stable`** (or log the deviation), update wiki docs, archive the plan to `.devops/archive/`, review backlog items, and set the **State & Gates** section (bottom) → `COMPLETE` (all gates `APPROVED`). **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `.devops/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
+     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 10 tweaks, sync captured lessons (per Phase 10 `Capture Flag`, strict-admission only) to the project's knowledge capture log, reconcile code against the Phase 4 spec, **promote `status: in-progress` wiki docs to `stable`** (or log the deviation), update wiki docs, archive the plan to `.devops/archive/`, review backlog items, and set the **State & Gates** section (bottom) → `COMPLETE` (all gates `APPROVED`). **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `.devops/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---

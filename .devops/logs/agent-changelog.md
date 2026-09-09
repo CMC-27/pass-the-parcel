@@ -10,6 +10,23 @@ description: "Chronological record of all AI agent actions, changes, and audits.
 All changes made by AI agents are tracked chronologically below.
 
 ---
+
+## 2026-09-09 - KC Strict Admission Gate: Real Deviations + Valuable Tribal Knowledge Only
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:
+- `.devops/skills/knowledge-capture/SKILL.md` — v2→v3. New §1 Admission Gate (strict, runs before classification): default answer is no; one-line test ('what will a future agent do differently without naming this plan?'); admit/reject table — accident fixes, plan-conformity tweaks, full-change rewrites, one-time preferences rejected and left in the plan log. Stale Wiki-ref bullet removed from Decision Archive format.
+- `.devops/skills/pass-the-parcel/SKILL.md` — v4→v5. Phase 10 Knowledge Capture Hook rewritten: 'default to capture' inverted to 'default to skip' with the four qualifying categories and four explicit exclusions; Wrap Up references strict-admission Capture Flag.
+- `.devops/skills/knowledge-consolidation/SKILL.md` — v2→v3. Phase 2 harvest applies the Admission Gate (most tweaks produce nothing worth harvesting); Phase 4 adds retroactive Q2b (cut-lowvalue) for entries that never cleared the bar; report gains 'Cut (failed Admission Gate)' row.
+- `.devops/skills/agent-wrap-up/SKILL.md` — Phase 7 step 1 now states the strict bar inline.
+
+**Database/API Changes:** None
+
+**Summary:** Per user direction, KC admission tightened: only real deviations (plan/spec was wrong and the correction generalizes) and valuable tribal knowledge enter the log. Simply agreeing with the recommendation, fixing accidents, or redoing a change wholesale stays in the Phase 10 log / Completion Note. The gate is enforced at all three surfaces where content enters KC (capture, per-tweak hook, consolidation harvest) plus retroactively during audits. Verification: wiki_lint exit 0, check-utf8 ALL CLEAN (114 files). **Wrap-up ref:** `b0ca295`
+
+
+---
 ## 2026-09-09 - Knowledge Capture System Overhaul: Closed Consolidation Loop + Hard Size Caps
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)

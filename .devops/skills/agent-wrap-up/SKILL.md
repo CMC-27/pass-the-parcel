@@ -126,7 +126,7 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 > Always read the full `backlog-index.md` before deciding nothing applies. Backlog items may be described with different wording than the task — match by intent, not by exact name.
 
 ### Phase 7: Knowledge Capture & Consolidation
-1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered.
+1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered. Apply the `@knowledge-capture` **Admission Gate strictly**: only real deviations and valuable tribal knowledge qualify — plan-conformity tweaks, accident fixes, and full-change rewrites stay in the plan's Phase 10 log and Completion Note, not KC.
 2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
 3. **Consolidate (mandatory)**: After capture, run the `@knowledge-consolidation` skill in **tidy mode** — harvest from this session, enforce line limits on touched entries, merge duplicates introduced this session, remove placeholders/duplicate headers/superseded entries, and report counts. This is the step that keeps the log lean; skipping it makes KC growth one-way. Full audit (Phases 3–11) is NOT part of wrap-up — it fires only on the consolidation skill's own triggers.
 
