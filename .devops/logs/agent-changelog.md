@@ -11,6 +11,14 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-09 - Changelog Format: Lean (When + Why), File Lists Retired
+
+**Why:** Audit showed ~42% of changelog lines were file-bullet inventories already derivable from each entry's ref commit and the plan's Completion Note. Phase 1 now mandates a max-5-line entry (title + Why + Ref); Agent/Files/Database fields retired; delegation returns trimmed to summaries. Existing entries left as-is — no mass rewrite.
+**Ref:** `b0ca295`
+
+
+---
+
 ## 2026-09-09 - Wiki-Writer Rebalance Pass Over the Four Knowledge Skills
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)

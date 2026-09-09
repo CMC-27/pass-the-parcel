@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 5
+version: 6
 updated: 2026-09-09
 ---
 
@@ -26,7 +26,7 @@ Wrap-up's token cost is concentrated in *reads* (wiki docs, backlog index), not 
 Immediately after Phase 0, triage the diff and declare skips explicitly:
 - Diff touches no `src/` files (docs/process-only session) → skip Phases 2–3.
 - No plan in `.devops/plans/` was followed this session → skip Phase 4.
-- Nothing new surfaced (orphans, debt, backlog matches, tribal knowledge) → skip Phases 5–7 with a one-line declaration in the changelog entry.
+- Nothing new surfaced (orphans, debt, backlog matches, tribal knowledge) → skip Phases 5–7 with a one-line declaration in the changelog Why line.
 - Phases 0, 1, and 8 are always mandatory.
 
 ### Subagent Delegation (Phases 2–7)
@@ -34,8 +34,8 @@ Phases 2–7 are read-heavy and parallelizable. On feature-scale sessions, dispa
 
 | Agent | Owns (exclusive write scope) | Phases | Returns (summary only — never file contents) |
 |-------|------------------------------|--------|----------------------------------------------|
-| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 7 knowledge-capture | Table of docs created/updated/promoted + stale refs fixed + deviations logged |
-| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows), 6 | List of plans archived, backlog entries created/resolved/annotated |
+| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 7 knowledge-capture | One-line-per-doc summary: created/updated/promoted + stale refs fixed + deviations logged |
+| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows), 6 | Counts only: plans archived, backlog entries created/resolved/annotated |
 
 Delegation rules:
 - Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 8.
@@ -56,13 +56,20 @@ Before writing anything, establish **what actually changed** — never rely on r
 > **Why this phase exists:** wrap-up used to rely on the working agent's memory of "what's new". Memory-based inventories silently drop files, which is how entire feature areas (e.g., the proposals engine suite) went undocumented while lint stayed green.
 
 ### Phase 1: The Audit Log (`.devops/logs/agent-changelog.md`)
-Documentation of history is the foundation of project health.
+The changelog records **when and why** — never *what files*. File inventories are derivable from each entry's `ref` commit (`git show --stat <ref>`) and already live in the plan's Completion Note; duplicating them here is what made the log unreadable (2026-09-09 audit: ~42% of its lines were file bullets).
 
-1.  **Add Detailed Entry**: Create a new `## [Task Name]` section.
-    - **Agent**: `Antigravity (Model Name)`
-    - **Files Modified**: Full bulleted list of all files created, modified, or deleted.
-    - **Database Changes**: Describe any schema, index, or rule changes. If none, state "None".
-    - **Summary**: A paragraph explaining the *technical rationale* and *functional impact*.
+1.  **Add Lean Entry**: Create a new section, **max 5 content lines**:
+
+    ```markdown
+    ## YYYY-MM-DD - Short outcome title
+
+    **Why:** [1–3 lines — the decision, the lesson, or the reason it mattered. What changed is implied by the title + ref.]
+    **Ref:** `<commit-hash>`
+    ```
+
+    - One line per session, not per change: multiple plans closed in one session get one entry naming the theme.
+    - No "Files Modified" list, no "Agent" line, no "Database/API Changes: None" filler. Schema changes worth flagging go in the Why line ("added X column; backfill script at …").
+    - Deep detail belongs where it already lives: the archived plan (Completion Note) and git history.
 2.  **Size check (warning only)**: after adding the entry, check `(Get-Content .devops/logs/agent-changelog.md).Count`. If it exceeds **500 lines**, warn the user in one line — "agent-changelog is over the 500-line guideline (currently _n_ lines); consider archiving old entries manually" — and stop. **Never auto-prune or move entries**: automated pruning was tried on 2026-09-09 and corrupted the log's structure; the cap is a soft guideline enforced by human judgment only.
 
 ### Phase 2: Wiki Docs (Reconcile Code Against Spec)
