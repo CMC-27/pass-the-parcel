@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 3
-updated: 2026-09-04
+version: 4
+updated: 2026-09-09
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -51,6 +51,9 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Writing a database query | `<your database index>` | Specific schema doc |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` |
 | Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |
+| Planning a sprint / starting a dev cycle | `@sprint-plan` skill | `.devops/backlog/SPRINTS.md` |
+| Checking sprint progress / "where are we" | `@sprint-status` skill | Active `sprints/sprint-{n}/plan.md` |
+| Closing a sprint / retrospective | `@sprint-close` skill | `sprints/sprint-{n}/retro.md` + REFACTORING.md scan |
 | Multi-step planning | `@pass-the-parcel` skill | Template at `.devops/plans/template-plan.md` |
 | Pre-push validation | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/templates/SATELLITE-BOOTSTRAP.md` |
@@ -70,7 +73,8 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 6. **Subagent Wiki-First Mandate:** Any agent spawning a subagent MUST instruct it to read
    `.wiki/` before searching the codebase. <!-- MACHINERY -->
 7. **Planning Protocol:** Multi-step tasks MUST use the `@pass-the-parcel` skill. <!-- MACHINERY -->
-8. <!-- CUSTOMIZE if your app has form-field/validation standards; otherwise delete. -->
+8. **Sprint Discipline (Agile Cycle):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in `backlog-index.md`, committed into a sprint via `@sprint-plan`, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close` (retro + spaghetti scan). One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives OUTSIDE the roadmap in `REFACTORING.md`, triggered by the sprint-close scan, not the backlog. See `.devops/backlog/TRIAGE.md`. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
+9. <!-- CUSTOMIZE if your app has form-field/validation standards; otherwise delete. -->
 
 ---
 
@@ -85,4 +89,4 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 
 ## Wrap-Up Protocol
 
-Use the `@agent-wrap-up` skill when a task is complete.
+Use the `@agent-wrap-up` skill when a task is complete. When the last committed plan of an active sprint finishes, follow with `@sprint-close`.

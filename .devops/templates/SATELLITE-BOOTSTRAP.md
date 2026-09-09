@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 4
-updated: 2026-09-05
+version: 5
+updated: 2026-09-09
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -33,7 +33,7 @@ This materialises the portable surface (skills, agents, rules, templates, script
 workspace. It will SKIP prefix regeneration — you haven't authored `base-context.md` yet. That's
 expected; continue.
 
-## 2. Author the three repo-specific files from the seeds
+## 2. Author the repo-specific files from the seeds
 
 Copy and customize (the sync never overwrites these):
 
@@ -42,6 +42,11 @@ Copy and customize (the sync never overwrites these):
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
 | `opencode.template.json` | `opencode.json` | keep instructions + skills.paths; agents live in `.devops/agents/*.agent.md` |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
+| `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
+| `TRIAGE.template.md` | `.devops/backlog/TRIAGE.md` | triage framework — process doc, edit only if your tiers differ |
+| `REFACTORING.template.md` | `.devops/backlog/REFACTORING.md` | code-quality register — scan tables populate via `@spaghetti-monster` / `@sprint-close` |
+
+> The three backlog seeds (`SPRINTS` / `TRIAGE` / `REFACTORING`) are optional but recommended — they wire up the agile cycle that the `@sprint-*` skills drive. A satellite without them still gets the parcel pipeline; it just plans work ad-hoc instead of in sprints.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 
