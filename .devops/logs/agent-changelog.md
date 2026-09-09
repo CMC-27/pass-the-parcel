@@ -11,6 +11,23 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-09 - Wiki-Writer Rebalance Pass Over the Four Knowledge Skills
+
+**Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)
+
+**Files Modified:
+- `.devops/skills/knowledge-capture/SKILL.md` — v3→v4. Skeleton is now the single canonical KC format (Wiki-ref removed, date-prefix convention added); header-check bullet folded into lean-at-capture; consolidation-boundary line corrected to include retroactive low-value cuts.
+- `.devops/skills/knowledge-consolidation/SKILL.md` — v3→v4, 224→214 lines. Trigger Conditions merged into the Modes table (one trigger surface); Phase 2 stopped restating the gate's reject categories and references the canonical gate instead; stale `link to wiki doc Y` recommendation fixed to the current verdict set; report table deduped and reordered.
+- `.devops/skills/pass-the-parcel/SKILL.md` — v5→v6, 221→211 lines. Phase 10 hook collapsed from two restated tables to one line referencing the canonical Admission Gate (marked canonical — defined once in knowledge-capture).
+- `.devops/skills/agent-wrap-up/SKILL.md` — v3→v4. Phase 7 step 3 trimmed to reference the consolidation Modes table instead of restating tidy scope.
+
+**Database/API Changes:** None
+
+**Summary:** Applied the wiki-writer Review → Re-outline → Re-balance discipline to the four skills edited across three consecutive sessions this date, which had accumulated recency-biased append drift: the Admission Gate existed in ~6 homes. Ownership fixed: knowledge-capture owns the gate table canonically; consolidation/wrap-up/pass-the-parcel reference it in one line each. No functional changes — same outcomes, less surface, no future drift vectors. Verification: wiki_lint exit 0, check-utf8 ALL CLEAN (114 files), duplication scan clean. **Wrap-up ref:** `b0ca295`
+
+
+---
+
 ## 2026-09-09 - KC Strict Admission Gate: Real Deviations + Valuable Tribal Knowledge Only
 
 **Agent:** GitHub Copilot (OpenCode Go / Qwen3.8 Flash)

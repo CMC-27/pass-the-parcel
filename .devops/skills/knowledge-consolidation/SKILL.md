@@ -1,7 +1,7 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 3
+version: 5
 updated: 2026-09-09
 ---
 
@@ -34,19 +34,12 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 
 ## Modes
 
-| Mode | When | What runs |
+| Mode | When it fires | What runs |
 |---|---|---|
-| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7 | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (light counts report) |
-| **Full audit (explicit only)** | Fires when: the user requests it, a `pre-deployment-vibe-auditor` run flags KC as bloated/contradictory, **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
+| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (light counts report) |
+| **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
 
 **Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. Tidy mode must keep the file well under the **hard 500-line ceiling**; if a tidy run leaves the file above 200 lines, say so and recommend a full audit.
-
-## Trigger Conditions
-Activate this skill whenever:
-
-1. **Primary trigger — Parcel plan completion (tidy mode).** Whenever a parcel plan in `.devops/plans/` is being marked complete (after tweaks, wiki updates, and tests are done), as the final step before archiving the plan to `.devops/archive/`.
-2. The user explicitly requests consolidation (tidy if they say "tidy the log", full audit if they say "consolidate/clean up knowledge capture").
-3. A `pre-deployment-vibe-auditor` run flags the knowledge capture as bloated or contradictory (full audit).
 
 ---
 
@@ -63,13 +56,11 @@ Activate this skill whenever:
 5. Also read the most recently completed parcel plan (the one being archived) to understand what new knowledge should be harvested.
 
 ### Phase 2 — Harvest from Completed Plan
-Before consolidating, extract any tribal knowledge that emerged from the just-completed parcel plan. Apply the `@knowledge-capture` **Admission Gate strictly** to each candidate — most tweaks produce nothing worth harvesting:
+Before consolidating, extract any tribal knowledge that emerged from the just-completed parcel plan. Apply the `@knowledge-capture` **Admission Gate strictly** to each candidate — most tweaks produce nothing worth harvesting, and anything failing the gate stays in the archived plan. Candidates, drawn from the plan's learnings section or inferred from its diffs and changelog:
 
 - **Pitfalls hit** — bugs, config issues, or design mistakes whose *underlying lesson generalizes* beyond this plan.
 - **Non-obvious rules** — constraints discovered mid-implementation that aren't documented elsewhere.
 - **Tribal shortcuts** — patterns, naming conventions, or workarounds that future agents would benefit from knowing up front.
-
-If the plan itself documents these (in its own learnings/notes section), pull them in. If not, infer them from the plan's diffs and changelog. **Never harvest:** plan-conformity tweaks (the implementation matched the approved recommendation), accident fixes (typos, formatting, careless build breaks), full-change rewrites without an extractable lesson, one-time taste preferences. Those stay in the archived plan.
 
 ### Phase 3 — Inventory & Metrics
 Produce a snapshot before any changes:
@@ -134,7 +125,7 @@ For entries that can't be confidently resolved, present them to the user:
 
 1. For each ambiguous case, show:
    - The entry (with date).
-   - A recommendation: `keep`, `tighten`, `cut`, `merge with X`, `link to wiki doc Y`, `promote to wiki doc Z`.
+   - A recommendation: `keep`, `tighten`, `cut`, `merge with X`, `cut-duplicate (wiki covers)`, `cut-lowvalue (fails Admission Gate)`, `promote to wiki doc Z`.
    - Brief rationale.
 2. Use the `question` tool to collect decisions.
 3. **Do not proceed until the user has responded.**
@@ -172,7 +163,7 @@ _(Only decisions whose full story prevents a specific repeat mistake. Most recen
 ```
 
 **Hard limits:**
-- **Whole file: max 500 lines.** A tidy run that cannot bring the file under 200 lines recommends a full audit; anything over 500 is a consolidation failure, not a warning.
+- **Whole file: max 500 lines.** A tidy run that cannot bring the file under 200 lines recommends a full audit; if a run finishes above 500 lines, report it as a failed consolidation rather than declaring done.
 - Every entry in *Pitfalls* and *Rules* sections: **max 3 lines** of body text.
 - Every entry in *Decision Archive*: **max 10 lines** of body text, **max 5 archive entries** (oldest cut first).
 - No narrative paragraphs. Bullet points only.
@@ -185,15 +176,14 @@ Present a final report:
 
 | Metric | Count |
 |---|---|
-| Entries before | _n_ |
-| Entries after | _n_ |
+| Entries before / after | _n_ / _n_ |
+| File line count after | _n_ / 500 cap |
 | Cut (obsolete/superseded) | _n_ |
 | Cut (failed Admission Gate) | _n_ |
+| Cut (wiki-duplicated) | _n_ |
 | Merged (duplicates) | _n_ |
 | Tightened (verbose → sharp) | _n_ |
-| Cut as wiki-duplicates | _n_ |
 | Promoted to wiki docs (entry deleted from KC) | _n_ |
-| File line count after | _n_ / 500 cap |
 | New entries from current plan | _n_ |
 | User decisions requested | _n_ |
 

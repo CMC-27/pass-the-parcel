@@ -1,7 +1,7 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 3
+version: 5
 updated: 2026-09-09
 ---
 
@@ -12,7 +12,7 @@ Capture and persist key architectural or procedural decisions in a centralized l
 
 ## File Format Reference
 
-This skill adds entries to `.wiki/core/18-knowledge-capture.md`, which is periodically restructured by the **knowledge-consolidation** skill into a canonical 4-section layout. Write entries in the format that matches the section below — it matches what consolidation Phase 9 produces.
+This skill adds entries to `.wiki/core/18-knowledge-capture.md`, which follows the canonical 4-section layout below — identical to what `knowledge-consolidation` Phase 9 produces. Write entries in the format of the section they belong to.
 
 ### Current file sections
 
@@ -28,7 +28,7 @@ _Mistakes that cost time or broke things._
 _Stable rules derived from prior decisions. Grouped by theme._
 
 ### [Theme Name]
-- **[Short title]**: [One-line rule]. *See also:* [wiki doc link if applicable].
+- **[Short title]**: [One-line rule].
 
 ## Decision Archive
 _Full context for decisions that need historical rationale._
@@ -37,8 +37,9 @@ _Full context for decisions that need historical rationale._
 - **Context**: [1–2 lines max]
 - **Action**: [1–2 lines max]
 - **Rationale**: [1–2 lines max]
-- **Wiki ref**: [link]
 ```
+
+Prefix every entry title with its capture date (`**[YYYY-MM-DD] Short title**`) so supersession and promotion frequency can be judged without git blame.
 
 ## Workflow
 
@@ -52,7 +53,7 @@ KC holds only **real deviations and valuable tribal knowledge** — things that 
 | Recurring pattern (same correction twice+) | Full-change rewrite without an extractable lesson — the lesson is in the diff |
 | Significant one-off whose underlying lesson generalizes | One-time taste preference scoped to this feature |
 
-Rejected items are NOT recorded here at all — they live in the plan's Phase 10 log / Completion Note, which the archive preserves. State the rejection reason to the user in one line when declining a capture.
+Rejected items are NOT recorded here at all — they live in the plan's Phase 10 log / Completion Note, which the archive preserves. State the rejection reason to the user in one line when declining a capture. The same gate governs what consolidation harvests from completed plans.
 
 ### 2. Discovery & Initialization
 *   The canonical knowledge capture file is **always** located at:
@@ -77,7 +78,7 @@ When in doubt between **Pitfall** and **Rule**: a Pitfall answers "what broke an
 The log must be readable in minutes the moment an entry lands — consolidation is a light tidy, not the thing that finally makes entries short. At capture time:
 
 *   **Hard limits**: Pitfalls and Rules — max **3 lines** of body text. Decision Archive — max **10 lines**. Strip narrative at capture; deep rationale belongs in the plan's Completion Note / decision log, not here.
-*   **Append under an existing header**: before writing, check the file's section headers — if the target section or `### [Theme]` already exists, append the entry under it. **Never emit a duplicate section or theme header.**
+*   **Append under an existing header**: before writing, grep the file's current headers (`^#`) — if the target section or `### [Theme]` already exists, append the entry under it. **Never emit a duplicate section or theme header.** Fix mojibake or stale placeholders you encounter on sight.
 *   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through. Log the supersession (one line) in `.devops/logs/knowledge-changelog.md`. Contradictions resolve to the later decision.
 *   **No wiki duplication, no pointers**: if the rule is already canonically documented in a wiki doc or `.devops/README.md`, **do not add an entry at all** — agents read the wiki before KC, so a pointer is dead weight. If the rule *should* be in the wiki but isn't, capture it normally and let consolidation promote it (which deletes the KC copy).
 
@@ -87,9 +88,8 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 *   Append the new entry to the appropriate section using the exact format from §File Format Reference.
 *   If adding to **Rules & Constraints**, place under the correct `### [Theme]` subsection. Create a new theme subsection if none fits.
 *   If adding to **Pitfalls**, no theme subsection — entries are flat under the section header.
-*   If adding to **Decision Archive**, use the `### [Title]` format with `- **Context:**` / `- **Action:**` / `- **Rationale:**` bullet points.
+*   If adding to **Decision Archive**, use the `### [Title]` format with `- **Context:**` / `- **Action:**` / `- **Rationale:**` bullet points — no wiki links or pointers anywhere in KC.
 *   **Do not** add or modify the Quick Reference table — it's maintained by the consolidation skill.
-*   **Before appending**, read the file's current section headers (a grep for `^#` suffices) — duplicates, mojibake, and stale placeholders in the file are yours to fix on sight when adding an entry.
 
 ### 5. Validation
 *   Confirm to the user that the knowledge has been persisted.
@@ -99,4 +99,4 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 ## Usage Guidelines
 *   **Proactive Recording**: If a user says "I prefer X over Y" or "Always do Z in this project", activate this skill immediately — then apply the Admission Gate; a stated preference qualifies as a tribal rule only if it isn't already captured in the wiki and generalizes beyond the current task.
 *   **App Dev Universal**: This skill is NOT limited to estimation briefs; use it for all coding, architectural, and design decisions.
-*   **Consolidation boundary**: This skill captures raw knowledge. The `knowledge-consolidation` skill handles deduplication, tightening, promotion to wiki, and restructuring. Do not self-edit existing entries — leave reorganization to consolidation.
+*   **Consolidation boundary**: This skill captures raw knowledge and applies the Admission Gate. The `knowledge-consolidation` skill handles deduplication, tightening, promotion to wiki, restructuring, and retroactive low-value cuts. Do not self-edit existing entries beyond the supersession cut above — leave reorganization to consolidation.

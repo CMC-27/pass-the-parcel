@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/.
-version: 5
+version: 6
 updated: 2026-09-09
 ---
 
@@ -190,18 +190,8 @@ If the requested feature exists as a backlog item:
 * **Goal:** User performs testing and provides feedback. Iterative back-and-forth with agent for tweaks, with important lessons captured to improve future outputs.
 * **Steps:**
   * **Phase 10 (User Review & Tweaks):** User tests the implementation. Agent and user iterate on feedback. **All tweaks are logged inline in this plan's Phase 10 `Back-and-Forth Log`** (one entry per round: User Feedback → Tweaks Applied → Result). Phase complete when user signs off.
-  * **Knowledge Capture Hook:** After *every* tweak, evaluate whether it carries a **lesson worth preserving** and, if so, initialize the **`knowledge-capture`** skill (global). The bar is **strict**: KC holds only real deviations and valuable tribal knowledge — things that teach the next agent something the wiki and the plan cannot.
-    * **Qualifies (capture):**
-      * **Real deviation** — the user's feedback shows the plan or spec was wrong about how the product should work (a corrected assumption, not a preference).
-      * **Tribal-knowledge decision** — non-obvious project rule, convention, or constraint (e.g., "we never mutate X in this codebase").
-      * **Recurring pattern** — same correction needed twice or more across rounds (the repetition itself is the lesson).
-      * **Significant one-off** — a bug, gotcha, or surprising requirement whose underlying lesson generalizes beyond this plan.
-    * **Does NOT qualify (stay in the Phase 10 log only):**
-      * **Plan-conformity tweaks** — the implementation simply agreed with / matched the approved recommendation.
-      * **Accident fixes** — typos, formatting, missed renames, build breaks from careless edits. Fixed ≠ learned.
-      * **Full-change rewrites** — "redo this whole thing differently" without an extractable generalizable lesson; the lesson is in the diff, not reusable knowledge.
-      * **One-time preferences** — taste-level choices scoped to this feature alone.
-    * **Data flow:** raw tweaks stay in the Phase 10 log. Only qualifying items are promoted to `.wiki/core/18-knowledge-capture.md` via the `knowledge-capture` skill, then consolidated in Wrap Up by `agent-wrap-up`. **Default to skip.** Before capturing, answer in one line: *"What will a future agent do differently because of this entry?"* If that sentence can't be completed without naming this specific plan, it doesn't enter KC.
+  * **Knowledge Capture Hook:** After *every* tweak, evaluate it against the **`knowledge-capture` Admission Gate** (canonical — defined once in that skill). Only real deviations and valuable tribal knowledge qualify; plan-conformity tweaks, accident fixes, full-change rewrites without an extractable lesson, and one-time preferences are rejected and stay in the Phase 10 log. **Default to skip.**
+    * **Data flow:** raw tweaks stay in the Phase 10 log. Qualifying items are promoted to `.wiki/core/18-knowledge-capture.md` via the `knowledge-capture` skill, then consolidated in Wrap Up by `agent-wrap-up`. Flag each captured item with a `Capture Flag` in its Phase 10 log entry so Wrap Up can sync them.
 * **COMPLETION:** Phase 10 done when user provides explicit sign-off.
 
 ### GROUP F: Wrap Up (Document Tweaks, Spec Reconciliation & Close-Out)
