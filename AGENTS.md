@@ -8,7 +8,7 @@ This repository is configured with a structured documentation library in **`docs
 - **`.devops/plans/`** — Active implementation plans (parcel format)
 - **`.devops/archive/`** — Completed plans
 - **`.devops/backlog/`** — Product roadmap and backlog items
-- **`.devops/logs/`** — Agent changelog, version history, knowledge changelog
+- **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
@@ -50,7 +50,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Viewing archived implementation plans | `.devops/archive/README.md` | Specific archived plan |
 | Viewing audit results (T/F, Q&A, UI inventories) | `.devops/audits/README.md` | Originating skill doc |
 | Adding or editing form fields | `.wiki/core/09-design-system.md` §5c | `.wiki/core/10-validation-standards.md` |
-| Checking wiki health / link integrity | `@wiki-lint` skill | `.devops/logs/knowledge-changelog.md` (soft-report) |
+| Checking wiki health / link integrity | `@wiki-lint` skill | stdout report (soft, never blocks deploy) |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` + `ref/` |
 | Recording a knowledge-capture decision | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 | Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |
@@ -62,7 +62,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Pre-push validation (lint/test/build/push) | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/README.md` (Transportability) + HOW-TO.md §6 |
 | Writing or editing code | `@karpathy-guidelines` skill | `.wiki/core/09-design-system.md` (if UI) |
-| Reviewing agent operations history | `.devops/logs/agent-changelog.md` | (distinct from `knowledge-changelog.md`) |
+| Reviewing agent operations history | `.devops/logs/agent-changelog.md` | git log for older history |
 
 ---
 

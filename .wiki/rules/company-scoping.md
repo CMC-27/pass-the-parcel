@@ -27,7 +27,7 @@ related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
 | Active parcel plans + template | `.devops/plans/` — state |
 | Roadmap + backlog items | `.devops/backlog/` — state |
 | Completed / archived plans | `.devops/archive/` — state |
-| Agent changelog, knowledge changelog, version history | `.devops/logs/` — state |
+| Agent changelog, version history | `.devops/logs/` — state |
 
 ## Rules
 

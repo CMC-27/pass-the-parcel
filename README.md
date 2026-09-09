@@ -27,7 +27,7 @@ Below is an overview of the core entry points and directories in this workspace:
     *   `plans/`: Active implementation plans and the plan template.
     *   `backlog/`: Project backlog index and individual backlog plan files.
     *   `archive/`: Completed and closed implementation plans.
-    *   `logs/`: Development history records, including `agent-changelog.md`, `version-history.md`, and `knowledge-changelog.md`.
+    *   `logs/`: Development history records, including `agent-changelog.md` and `version-history.md`.
 *   **`.wiki/rules/`**: Wiki governance layer (structure, naming, numbering, frontmatter, link hygiene) + `wiki_lint.py`.
 
 ---

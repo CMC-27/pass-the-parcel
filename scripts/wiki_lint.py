@@ -24,7 +24,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 WIKI = ROOT / ".wiki"
 MANIFEST = ROOT / ".wiki" / "rules" / "structure.md"
-LOGS = ROOT / ".devops" / "logs" / "knowledge-changelog.md"
 
 VALID_STATUS = {"stable", "in-progress", "deprecated", "template", "approved"}
 REQUIRED_FIELDS = ["name", "type", "status"]

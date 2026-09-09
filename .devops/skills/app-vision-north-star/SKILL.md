@@ -2,8 +2,8 @@
 name: app-vision-north-star
 description: Expert Product Manager + Lead Systems Architect skill for creating, evaluating, and updating the 4 strategic artifacts (App Vision, Core Workflow + Product Shape, User Journey, Core Architecture & Data Architecture). Operates as 3 strictly separate actions (Create, Evaluate, Update) and pressure-tests every line for directness, specificity, and non-contradiction.
 allowed-tools: ["read", "write", "edit", "glob", "grep", "question", "todowrite"]
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-09
 ---
 
 # ≡ƒîƒ App Vision & North Star ΓÇö Strategic Artifact System
@@ -610,10 +610,7 @@ When the skill discovers a tribal decision during EVALUATE or UPDATE, it drafts 
 > - **Action:** [What was changed in the artifacts.]
 > - **Rationale:** [Why this matters for future agents.]
 >
-> **Proposed Changelog Row** (for `.devops/logs/knowledge-changelog.md`)
-> - **Date:** [today] | **Operation:** knowledge-capture drafted | **Subject:** [one line]
->
-> *Write both? [Y/N]*
+> *Write? [Y/N]*
 
 Only write on explicit user approval.
 

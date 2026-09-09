@@ -1,7 +1,7 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 5
+version: 6
 updated: 2026-09-09
 ---
 
@@ -36,7 +36,7 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 
 | Mode | When it fires | What runs |
 |---|---|---|
-| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (light counts report) |
+| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (stdout-only counts summary) |
 | **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
 
 **Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. Tidy mode must keep the file well under the **hard 500-line ceiling**; if a tidy run leaves the file above 200 lines, say so and recommend a full audit.
@@ -172,20 +172,10 @@ _(Only decisions whose full story prevents a specific repeat mistake. Most recen
 - **No wiki pointers.** If the wiki covers it, the KC entry is deleted.
 
 ### Phase 10 — Validation & Report
-Present a final report:
+Print a short summary to the user — **stdout only, nothing written to any log file**. Git history is the permanent record of what consolidation changed:
 
-| Metric | Count |
-|---|---|
-| Entries before / after | _n_ / _n_ |
-| File line count after | _n_ / 500 cap |
-| Cut (obsolete/superseded) | _n_ |
-| Cut (failed Admission Gate) | _n_ |
-| Cut (wiki-duplicated) | _n_ |
-| Merged (duplicates) | _n_ |
-| Tightened (verbose → sharp) | _n_ |
-| Promoted to wiki docs (entry deleted from KC) | _n_ |
-| New entries from current plan | _n_ |
-| User decisions requested | _n_ |
+- Entries before / after; file line count vs the 500 cap.
+- Counts by action: cut (obsolete / failed Admission Gate / wiki-duplicated), merged, tightened, promoted (with target wiki doc names), new from current plan.
 
 Confirm the user is satisfied with the result.
 

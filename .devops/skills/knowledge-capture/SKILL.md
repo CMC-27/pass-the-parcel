@@ -1,7 +1,7 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 5
+version: 6
 updated: 2026-09-09
 ---
 
@@ -79,7 +79,7 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 
 *   **Hard limits**: Pitfalls and Rules — max **3 lines** of body text. Decision Archive — max **10 lines**. Strip narrative at capture; deep rationale belongs in the plan's Completion Note / decision log, not here.
 *   **Append under an existing header**: before writing, grep the file's current headers (`^#`) — if the target section or `### [Theme]` already exists, append the entry under it. **Never emit a duplicate section or theme header.** Fix mojibake or stale placeholders you encounter on sight.
-*   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through. Log the supersession (one line) in `.devops/logs/knowledge-changelog.md`. Contradictions resolve to the later decision.
+*   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through — the deletion is visible in git history; no separate log. Contradictions resolve to the later decision.
 *   **No wiki duplication, no pointers**: if the rule is already canonically documented in a wiki doc or `.devops/README.md`, **do not add an entry at all** — agents read the wiki before KC, so a pointer is dead weight. If the rule *should* be in the wiki but isn't, capture it normally and let consolidation promote it (which deletes the KC copy).
 
 ### 4. Entry Capture

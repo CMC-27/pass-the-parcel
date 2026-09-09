@@ -22,7 +22,7 @@ user interfaces.
 - **`.devops/plans/`** — Active implementation plans (parcel format)
 - **`.devops/archive/`** — Completed plans
 - **`.devops/backlog/`** — Product roadmap and backlog items
-- **`.devops/logs/`** — Agent changelog, version history, knowledge changelog
+- **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer

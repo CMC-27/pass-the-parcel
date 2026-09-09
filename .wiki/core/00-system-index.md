@@ -70,7 +70,6 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 ## 8. External References
 - [Agent Changelog](../../.devops/logs/agent-changelog.md)
 - [Version History](../../.devops/logs/version-history.md)
-- [Knowledge Changelog](../../.devops/logs/knowledge-changelog.md)
 - [Naming Conventions Index](../conventions/conventions-index.md) - Hub for all naming conventions
 - [Testing Index](../testing/testing-index.md) - Test architecture docs
 - [Integrations Index](../integrations/integrations-index.md) - External systems and APIs
