@@ -75,7 +75,8 @@ if (-not (Test-Path $manifest)) { throw "Not a template repo (missing .devops\sy
 
 # 4. Remember an explicitly supplied source.
 if ($PSBoundParameters.ContainsKey('Source')) {
-    Set-Content -Path $sourceFile -Value $Source -Encoding UTF8
+    # UTF-8 no-BOM via .NET — Set-Content -Encoding UTF8 (PS 5.1) writes a BOM.
+    [System.IO.File]::WriteAllText($sourceFile, $Source, (New-Object System.Text.UTF8Encoding($false)))
     Write-Output "Remembered source in .ptp-source : $Source"
 }
 

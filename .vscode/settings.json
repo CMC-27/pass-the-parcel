@@ -1,5 +1,8 @@
-﻿{
+{
     "terminal.integrated.defaultLocation": "editor",
+
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": false,
 
     "chat.agentFilesLocations": {
         ".github/agents": true,

@@ -6,6 +6,7 @@ Enforces the rules in .wiki/rules/:
   - Structure manifest anchors exist (hard failure if a declared anchor is missing)
   - Internal links resolve (hard failure if a link target is missing)
   - Frontmatter required fields present (name, title, type, status)
+  - UTF-8 encoding guard (hard failure on BOMs or non-UTF-8 files)
   - Orphans detected (report only)
 
 Usage:
@@ -82,6 +83,22 @@ def extract_links(text: str) -> list[str]:
     return re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
 
 
+def encoding_problem(path: Path) -> str | None:
+    """Return a description if the file has a BOM or is not valid UTF-8, else None."""
+    raw = path.read_bytes()
+    if raw.startswith(b"\xef\xbb\xbf"):
+        return "UTF-8 BOM (EF BB BF) — write UTF-8 without BOM"
+    if raw.startswith(b"\xff\xfe"):
+        return "UTF-16 LE BOM (FF FE) — must be UTF-8"
+    if raw.startswith(b"\xfe\xff"):
+        return "UTF-16 BE BOM (FE FF) — must be UTF-8"
+    try:
+        raw.decode("utf-8")
+    except UnicodeDecodeError as e:
+        return f"not valid UTF-8 ({e})"
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Deterministic wiki linter")
     parser.add_argument("--fix", action="store_true", help="auto-repair deterministic issues")
@@ -91,9 +108,24 @@ def main() -> int:
     findings = []
     hard_failures = 0
 
+    # 0. Encoding guard: flag BOMs and non-UTF-8 files before any parsing.
+    #    wiki_lint previously reported corrupted files as "healthy" — this byte
+    #    check is the only one that inspects raw bytes, not parsed text.
+    bad_encoding = set()
+    for f in sorted(WIKI.rglob("*.md")):
+        rel = f.relative_to(ROOT).as_posix()
+        enc = encoding_problem(f)
+        if enc:
+            bad_encoding.add(str(f.resolve()))
+            hard_failures += 1
+            findings.append(f"HARD  {rel}: {enc}")
+
     # 1. Structure manifest anchors exist.
-    manifest_text = MANIFEST.read_text(encoding="utf-8")
-    anchors = re.findall(r"\| `([^`]+)` \|", manifest_text)
+    if str(MANIFEST.resolve()) in bad_encoding:
+        anchors = []
+    else:
+        manifest_text = MANIFEST.read_text(encoding="utf-8")
+        anchors = re.findall(r"\| `([^`]+)` \|", manifest_text)
     for anchor in anchors:
         # Skip anchors that look like paths inside tables with backticks (files).
         p = ROOT / anchor
@@ -104,6 +136,8 @@ def main() -> int:
     # 2. Walk wiki content, check links + frontmatter.
     for f in sorted(WIKI.rglob("*.md")):
         rel = f.relative_to(ROOT).as_posix()
+        if str(f.resolve()) in bad_encoding:
+            continue
         text = f.read_text(encoding="utf-8")
         fm, body = parse_frontmatter(text)
 
@@ -130,6 +164,8 @@ def main() -> int:
     # 3. Orphans (report only).
     linked_targets = set()
     for f in WIKI.rglob("*.md"):
+        if str(f.resolve()) in bad_encoding:
+            continue
         text = f.read_text(encoding="utf-8")
         for link in extract_links(text):
             t = resolve_link(link, f)
