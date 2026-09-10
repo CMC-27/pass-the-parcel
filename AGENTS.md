@@ -5,9 +5,10 @@ This repository is configured with a structured documentation library in **`docs
 
 ### Documentation Structure
 - **`.wiki/`** — Architecture knowledge, design system, features, and technical specs
-- **`.devops/plans/`** — Active implementation plans (parcel format)
+- **`.devops/plans/`** — **Plans.** Every `*-plan.md`, parked (`BACKLOG`) or in flight (`PHASE_1`+); template at `template-plan.md`
 - **`.devops/archive/`** — Completed plans
-- **`.devops/backlog/`** — Product roadmap and backlog items
+- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + roadmap, triage, refactoring registers
+- **`.devops/backlog/SPRINTS.md`** — **Sprints.** Sprint register; per-sprint scope + retro in `.devops/backlog/sprints/sprint-{n}/`
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
