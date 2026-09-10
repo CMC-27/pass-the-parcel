@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - T1-E2.01 Machinery Integrity & Portability Hardening (v0.3.13)
 
 **Why:** Made the template's own guarantees true. W1 linter truth & power (`wiki_lint.py`: frontmatter `related-to`/`dependencies` link checks, hub→spoke, `[UNINDEXED]`/`[MISSING]`, hub BFS reachability; `--fix` implemented; pattern-based exemptions); W2 7 broken frontmatter links repaired + `Last Verified` column; W3 transport engine Linux parity (single `Read-Manifest`, `$shellExe`, forward-slash paths) + `-SelfTest` in CI + manifest completeness; W4 seeds reconciled (`opencode.template.json` ships the 9-agent block); W5 doc truth sweep; W6 version/log discipline + failing CI version check; W7 residue removed (Gemini genericised, sprint registers parked, `theme-linguistics` refs deleted); W8 `opencode.json`↔registry validation + uniform rebind to DeepSeek V4.1 Flash. Gates: prefix PASS ×7 + `OC-MODEL`, UTF-8 ALL CLEAN (167), `wiki_lint` exit 0, coverage no-op exit 0, `-SelfTest` OK. machinery-version 19→20.
-**Ref:** working tree uncommitted at wrap-up (last commit `8c50a87`); plan archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`.
+**Ref:** `0aac8bd` — plan archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`.
 
 ---
 
