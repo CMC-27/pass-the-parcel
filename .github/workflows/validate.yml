@@ -39,6 +39,11 @@ jobs:
         run: |
           # .opencode/package.json is gitignored local runtime — never assert untracked files.
           python -c "import json; json.load(open('opencode.json', encoding='utf-8'))"
+          python -c "import json; json.load(open('.devops/templates/opencode.template.json', encoding='utf-8'))"
+
+      - name: SelfTest sync engine (transport contract)
+        shell: pwsh
+        run: ./scripts/sync-architecture.ps1 -SelfTest
 
       - name: Machinery version discipline (manifest vs version-history)
         run: |
@@ -51,8 +56,7 @@ jobs:
               sys.exit('machinery-version missing from .devops/sync-manifest.yaml')
           mv = int(m.group(1))
           hist = Path('.devops/logs/version-history.md').read_text(encoding='utf-8')
-          row = re.search(r'\|\s*\*\*v[\d.]+\*\*\s*\|[^|]*\|[^|]*\|[^|]*\|([^|]*)\|', hist)
-          notes = row.group(1) if row else ''
-          if f'machinery-version: {mv}' not in notes and f'machinery v{mv}' not in notes:
-              print(f'WARN: top release row does not mention machinery-version {mv} — bump discipline may have slipped')
+          if f'machinery-version: {mv}' not in hist:
+              sys.exit(f'FAIL: version-history.md records no release row for machinery-version {mv}')
+          print(f'OK: machinery-version {mv} is recorded in version-history.md')
           EOF

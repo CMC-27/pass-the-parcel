@@ -12,7 +12,7 @@ Agents use this to wire up new AI features correctly. A wrong prompt template = 
 
 ## Questions to ask
 1. What user-facing AI features exist in the app? (E.g., "auto-summarize a document," "suggest a tag.")
-2. Which LLM and model is in use, and what is the integration path? (e.g., `geminiProxy` Cloud Function in `australia-southeast1`.)
+2. Which LLM and model is in use, and what is the integration path? (e.g., a backend proxy function in a specific deployed region.)
 3. What is the canonical structure of a system prompt for this app? (Show the template, the variable slots, and any "do not include" rules.)
 4. What does the response schema look like? (Zod schema, or example JSON, with all fields spelled out.)
 5. What fallback rules apply when the model errors, times out, rate-limits, or returns malformed output?

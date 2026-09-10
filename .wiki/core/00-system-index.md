@@ -13,27 +13,29 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 
 ## Quick Reference - Core Docs
 
-| Slot | Doc | Theme | Description |
-|---|---|---|---|
-| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index |
-| 01 | Vision & North Star | Strategy | Strategic vision, North Star metric, anti-goals |
-| 02 | Product Context | Strategy | User personas, use cases, data hierarchy, roadmap |
-| 03 | Glossary of Terms | Strategy | Domain terms, data hierarchy, abbreviations |
-| 04 | State & Context | Architecture | State management, context shapes, data flow |
-| 05 | Core Architecture | Architecture | Architecture decisions, guardrails, core patterns |
-| 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming |
-| 07 | App Structure | Architecture | Application shell, router, context providers |
-| 08 | User Journey | Workflow | End-to-end workflow, user roles, phases |
-| 09 | Design System | Design | Color tokens, typography, components, interaction states |
-| 10 | Validation Standards | Standards | Field/entity validation, data integrity rules |
-| 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol |
-| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt |
-| 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization |
-| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets |
-| 15 | AI Features | Features | AI workflows, model integration, prompt architecture |
-| 16 | External Integrations | Features | Third-party API integrations, import/export mappings |
-| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy |
-| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log |
+| Slot | Doc | Theme | Description | Last Verified |
+|---|---|---|---|---|
+| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index | 2026-09-10 |
+| 01 | Vision & North Star | Strategy | Strategic vision, North Star metric, anti-goals | — |
+| 02 | Product Context | Strategy | User personas, use cases, data hierarchy, roadmap | — |
+| 03 | Glossary of Terms | Strategy | Domain terms, data hierarchy, abbreviations | — |
+| 04 | State & Context | Architecture | State management, context shapes, data flow | — |
+| 05 | Core Architecture | Architecture | Architecture decisions, guardrails, core patterns | — |
+| 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming | — |
+| 07 | App Structure | Architecture | Application shell, router, context providers | — |
+| 08 | User Journey | Workflow | End-to-end workflow, user roles, phases | — |
+| 09 | Design System | Design | Color tokens, typography, components, interaction states | — |
+| 10 | Validation Standards | Standards | Field/entity validation, data integrity rules | — |
+| 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol | — |
+| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | — |
+| 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization | — |
+| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | — |
+| 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |
+| 16 | External Integrations | Features | Third-party API integrations, import/export mappings | — |
+| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | — |
+| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | 2026-09-10 |
+
+> `Last Verified`: date the doc was last verified against reality by wrap-up or an assessment pass. `—` = never verified under this workflow.
 
 ## 1. Strategy - Vision, Context & Vocabulary
 - [Vision & North Star](./01-vision-north-star.md) - Strategic vision, North Star metric, anti-goals

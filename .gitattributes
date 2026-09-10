@@ -13,6 +13,19 @@
 .devops/rules/** text eol=lf
 scripts/wiki_lint.py text eol=lf
 
+# Remaining portable text surface (byte-stability contract, not just the catch-all).
+AGENTS.md text eol=lf
+HOW-TO.md text eol=lf
+README.md text eol=lf
+opencode.json text eol=lf
+scripts/*.ps1 text eol=lf
+scripts/*.py text eol=lf
+scripts/*.cjs text eol=lf
+.devops/templates/** text eol=lf
+.devops/sync-manifest.yaml text eol=lf
+.vscode/*.json text eol=lf
+.github/workflows/*.yml text eol=lf
+
 # Binary files must never be touched.
 *.png binary
 *.jpg binary

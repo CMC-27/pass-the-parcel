@@ -61,17 +61,17 @@
 ## Model Registry (per-subagent bindings — no hardcoded model names in prose)
 Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
 
-Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = `.opencode/agents/*.md` frontmatter). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models. Current template routing: **all models route to Qwen3.8 Flash** (uniform binding by user direction, 2026-09-07 — capability classes are retained for future rebinding):
+Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = the opencode runtime — `opencode.json` `agent.<key>.model`). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models. Current template routing: **all models route to DeepSeek V4.1 Flash** (uniform binding by user direction, 2026-09-11 — capability classes are retained for future rebinding):
 
 | Agent key | Capability class | VS Code model | opencode model |
 |---|---|---|---|
-| parcel | orchestration | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-context-hunter | retrieval/inventory | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-phase3-answerer | retrieval/Q&A | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-high-visionary | deep planning/authoring | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-grumpy-architect | adversarial review | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-smooth-operator | product review | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
-| ptp-code-surgeon | execution | Qwen3.8 Flash | opencode-go/qwen3.8-flash |
+| parcel | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-context-hunter | retrieval/inventory | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-phase3-answerer | retrieval/Q&A | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-high-visionary | deep planning/authoring | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-grumpy-architect | adversarial review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-smooth-operator | product review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-code-surgeon | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 
 **Binding rule:** every parcel/ptp agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime). Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (frontmatter + registry row + `-Sync` + validation).
 <!-- ORCHESTRATOR-ONLY:END -->

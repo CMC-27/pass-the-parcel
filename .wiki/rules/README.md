@@ -37,7 +37,7 @@ related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_
 | [link-hygiene.md](link-hygiene.md) | Cross-referencing, no-duplication and link maintenance |
 | [structure.md](structure.md) | Structure manifest — machine-readable registry of every immutable anchor path (numbered areas, sub-areas, canonical files); a missing anchor is a hard lint failure |
 | [company-scoping.md](company-scoping.md) | Content-vs-state principle — what lives in wiki content vs the unnumbered operational layer |
-| [wiki_lint.py](../../scripts/wiki_lint.py) | Deterministic linter that enforces the rules above — structure drift, broken links, index drift, frontmatter, orphans. Run `python scripts/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
+| [wiki_lint.py](../../scripts/wiki_lint.py) | Deterministic linter that enforces the rules above — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, and orphans. Run `python scripts/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
 
 ---
 

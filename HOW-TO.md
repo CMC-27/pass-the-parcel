@@ -25,16 +25,9 @@ graph TD
 
 ---
 
-## 2. Dual Agent Development Methodologies
+## 2. The Parcel Pipeline
 
-Depending on the task's complexity, team style, or token optimization constraints, you can choose or combine two primary agentic coding patterns:
-
-### Method A: Pass the Parcel (Stateless / Planning Mode)
-*   **Skill:** `@pass-the-parcel`
-*   **Execution:** Highly token-efficient and modular. A single markdown plan file (`.devops/plans/...`) acts as the state carrier. Agents pass the file "parcel" to the next step, ensuring clean context boundaries.
-
-### Method B: The Multi-Stage Code Pipeline
-For deeply structured, robust feature implementation, use the sequential pipeline of specialized agent personas:
+Every multi-step task runs through the same stateless parcel pipeline: a single markdown plan file (`.devops/plans/[slug]-plan.md`) carries all state, and each phase group is executed by one specialized sub-agent that reads the plan, does its job, updates the plan, and exits.
 
 ```mermaid
 flowchart LR
@@ -44,18 +37,21 @@ flowchart LR
     PO --> E[ptp-code-surgeon]
 ```
 
-1.  **`ptp-context-hunter`**: Group A (Phases 1-3) — expands intent, runs Context Inventory (wiki docs + knowledge capture + source), resolves all ambiguity via interactive Phase 3 questioning, halts at Gate A.
-2.  **`ptp-high-visionary`**: Group B (Phase 4) — reads scoped plan at Gate A, produces standard implementation plan via Simplicity Ladder (no code snippets unless necessary), halts at Gate B. Handles `PHASE_4_REVISION` fix rounds when a review fails.
-3.  **`ptp-grumpy-architect`**: Phase 5 — **Spec & Logic Audit** of the text-based architecture (the plan contains no code). Evaluates logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Rejection sets `PHASE_4_REVISION`.
-4.  **`ptp-smooth-operator`**: Phase 6 — audits plan for vision alignment, business logic, edge cases, and functional risk; syncs decisions to knowledge capture.
-5.  **`ptp-code-surgeon`**: Group D (Phases 7-8) — **triggers only after Gate C is cleared by explicit user input**. Executes the approved spec with single-pass direct-to-disk writing (no intermediate Markdown code blocks), runs QA verification, halts at Gate D for user sign-off.
+1.  **`ptp-context-hunter`** — Group A (Phases 1-3): expands intent, runs the Context Inventory (wiki docs + knowledge capture + source), resolves ambiguity via interactive Phase 3 questioning, halts at Gate A.
+2.  **`ptp-phase3-answerer`** — Phase 3.5 (`AUTO` mode only): auto-resolves Phase 3 questions from the Research Map; any `Unresolvable:` entry falls back to asking the user.
+3.  **`ptp-high-visionary`** — Group B (Phases 4-5): writes the wiki requirements spec + acceptance criteria, then the implementation plan (Simplicity Ladder; no code snippets except exact string literals), halts at Gate B. Also owns `PHASE_5_REVISION` fix rounds.
+4.  **`ptp-grumpy-architect`** — Phase 6: **Spec & Logic Audit** of the text-based architecture (the plan contains no code). Evaluates logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Rejection sets `PHASE_5_REVISION`.
+5.  **`ptp-smooth-operator`** — Phase 7: product review of vision alignment, user journey, and scope containment. Rejection sets `PHASE_5_REVISION`.
+6.  **`ptp-code-surgeon`** — Group D (Phases 8-9): **triggers only after Gate C is cleared by explicit user input**. Executes the approved plan single-pass direct-to-disk (no intermediate Markdown code blocks), runs QA verification, halts at Gate D for user sign-off.
 
-**Deterministic Rejection Loop (Gate C):** If Phase 5 or 6 fails review, the plan's status is set to `PHASE_4_REVISION` and returned to Group B (High-Visionary) for fixes before re-evaluating Gate C. **An unapproved plan never advances to execution.**
+**Deterministic rejection loop (Gate C):** if Phase 6 or 7 fails review, the plan's status is set to `PHASE_5_REVISION` and returned to Group B (High-Visionary) before Gate C is re-evaluated. **An unapproved plan never advances to execution.**
+
+**Gates:** A (Scope, after Phase 3) → B (Spec & Plan, after Phase 5) → C (Peer Reviews, after Phase 7) → D (Implementation, after Phase 9). The lifecycle states are canonical in the `@pass-the-parcel` skill.
 
 ### Mode Selection
 Plans support two operational modes:
-- **`USER-MANAGED`** *(Recommended)* — the orchestrator halts at every gate (A, B, C, D) for explicit user approval.
-- **`AUTO`** — gates auto-advance without user interaction. Hard halts still fire for destructive actions, build failures, and unresolvable blockers.
+- **`USER-MANAGED`** *(default)* — the orchestrator halts at every gate (A, B, C, D) for explicit user approval.
+- **`AUTO`** — Gates A-C auto-clear after mechanical verification; **Gate D always halts for the human**. Hard halts still fire for destructive actions, build failures, and unresolvable blockers.
 
 ---
 
@@ -122,6 +118,12 @@ Then author the three repo-specific files from the seeds in `.devops/templates/`
 (`AGENTS.md`, `opencode.json`, `.opencode/plans/base-context.md`) — see
 `.devops/templates/SATELLITE-BOOTSTRAP.md` for the full checklist.
 
+> **v20 migration (opencode.json).** If you previously deleted the `agent` block from
+> `opencode.json` (the old seed told you to), that layout still validates —
+> `check-parcel-prefix.ps1` prints `SKIP` rather than failing. To run the parcel orchestrator in
+> the opencode runtime, re-copy `.devops/templates/opencode.template.json` and fill the
+> `<your provider/model>` placeholders.
+
 **Ongoing pulls.** Record the source once — `scripts\pull-architecture.ps1 -Source <path-or-git-url>`
 writes `.ptp-source` — then just say "sync architecture" (`@sync-architecture`) or run
 `scripts\pull-architecture.ps1`. Add `-Check` for a read-only drift report with per-item verdicts:
@@ -141,11 +143,13 @@ templates as a coordinated set. The `@agent-wrap-up` skill owns the bump discipl
 portable file → bump its version (and `machinery-version` for non-skill surfaces) → satellites
 see `UPGRADE`, not `DRIFT`.
 
-**Model binding.** The parcel pipeline routes by capability slot — `planning`, `review-heavy`,
-`execution` — never by vendor model name. Machinery docs (base-context, skills, agents) describe
-slots only; each satellite binds slots to concrete models in its own `opencode.json`
-(`agent.<name>.model`). Swapping providers is a config edit, not a machinery sync. CI
-(`.github/workflows/validate.yml`) enforces the prefix, encoding, wiki, JSON, and coverage gates
-on every push; `scripts/sync-architecture.ps1 -SelfTest` smoke-tests the transport engine itself.
+**Model binding.** The parcel pipeline routes by capability class — `orchestration`,
+`retrieval/inventory`, `retrieval/Q&A`, `deep planning/authoring`, `adversarial review`,
+`product review`, `execution` — never by vendor model name in prose. The Model Registry in
+`.opencode/plans/base-context.md` declares each agent's binding; each satellite binds the runtime
+in its own `opencode.json` (`agent.<name>.model`). Swapping providers is a config edit, not a
+machinery sync. CI (`.github/workflows/validate.yml`) enforces the prefix, encoding, wiki, JSON,
+SelfTest, and coverage gates on every push; `scripts/sync-architecture.ps1 -SelfTest` smoke-tests
+the transport engine itself on `ubuntu-latest`.
 
 This framework ensures that any app built on top of this scaffold remains clean, well-documented, and safe to deploy.

@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 3
-updated: 2026-09-07
+version: 4
+updated: 2026-09-11
 
 SEED TEMPLATE — copy to <satellite root>/.opencode/plans/base-context.md and customize.
 
@@ -71,7 +71,7 @@ normalize model aliases inconsistently.
 ## Model Registry (per-subagent bindings — no hardcoded model names in prose)
 Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
 
-Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = `.opencode/agents/*.md` frontmatter). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models:
+Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = the opencode runtime — `opencode.json` `agent.<key>.model`). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models:
 
 | Agent key | Capability class | VS Code model | opencode model |
 |---|---|---|---|

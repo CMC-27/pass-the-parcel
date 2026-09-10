@@ -54,7 +54,7 @@ These sit **above** the numbered areas and are never numbered:
 1. **Format:** `NN-Name` where `NN` is a two-digit sequence (`00`, `01`, ... `99`) and `Name` is a short lowercase-hyphenated label.
 2. **Order by use:** place folders in the order they appear in the workflow, not alphabetically.
 3. **Relevance over symmetry:** a folder used constantly gets a low number even if "later" in the formal process.
-4. **Renumbering is a structural event:** when renumbering, update the row in the [Structure Manifest](structure.md), register the old paths in the redirect log, update every link, run `wiki_lint.py --fix`, and update all spoke indexes.
+4. **Renumbering is a structural event:** when renumbering, update the row in the [Structure Manifest](structure.md), update every link that pointed at the old paths, run `wiki_lint.py --fix`, and update all spoke indexes.
 5. **Never break the sequence silently:** gaps are acceptable only with a documented reason.
 
 ---

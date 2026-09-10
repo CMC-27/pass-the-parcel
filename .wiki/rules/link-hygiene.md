@@ -4,7 +4,7 @@ tags: [wiki, rules, links, cross-referencing]
 status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../AGENTS.md]
+related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../../AGENTS.md]
 ---
 
 # Link Hygiene
@@ -22,7 +22,7 @@ related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../AGENTS.md]
 
 1. **Single canonical source** — each fact, pattern or decision lives in exactly one place.
 2. **Link, don't copy** — never paste content into a second file. Point to the canonical document instead.
-3. **Register moves, never stub** — when moving a document, record the old path in the redirect log. Do **not** leave a physical "Moved to …" stub at the old location. The redirect log is the redirect layer; the linter resolves old paths through it. Archived history stays in `.devops/archive/` as content — only register the old path.
+3. **Register moves, never stub** — when moving a document, update every link that pointed at the old path, and update the [Structure Manifest](structure.md) if the path is an anchor. Do **not** leave a physical "Moved to …" stub at the old location. Git records the move; there is no separate redirect artifact to maintain. Archived history stays in `.devops/archive/` as content.
 4. **Immutable anchors are declared, not assumed** — every numbered area, numbered sub-area and canonical file is registered in the [Structure Manifest](structure.md). A missing anchor is a hard lint failure, so a rename surfaces at move-time, not after links break.
 
 ## Link Types
@@ -40,7 +40,7 @@ related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../AGENTS.md]
 
 When adding, renaming, moving or deleting a document:
 
-1. **Register the move** in the redirect log — one row per old path (never a physical stub).
+1. **Update every link to the old path** — a move is not complete until `wiki_lint.py` reports 0 broken links. Never leave a physical stub.
 2. **If the path is an anchor** (numbered area, numbered sub-area or canonical file), update its row in the [Structure Manifest](structure.md) — a missing anchor is a hard lint failure.
 3. Update the area index (add/remove the entry).
 4. Run `python scripts/wiki_lint.py --fix` to catch broken links, structure drift, orphans and frontmatter violations.

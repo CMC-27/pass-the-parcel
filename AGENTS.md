@@ -1,14 +1,14 @@
 # Application Workspace — Agent Entry Point
 
 **Welcome to the Application Workspace.**
-This repository is configured with a structured documentation library in **`docs/`** designed to serve as the single source of truth for the codebase, architecture, state management, and user interfaces.
+This repository is configured with a structured documentation library in **`.wiki/`** designed to serve as the single source of truth for the codebase, architecture, state management, and user interfaces.
 
 ### Documentation Structure
 - **`.wiki/`** — Architecture knowledge, design system, features, and technical specs
-- **`.devops/plans/`** — **Plans.** Every `*-plan.md`, parked (`BACKLOG`) or in flight (`PHASE_1`+); template at `template-plan.md`
+- **`.devops/plans/`** — **Plans.** In-flight `*-plan.md` only (`PHASE_1`+); template at `template-plan.md`
 - **`.devops/archive/`** — Completed plans
-- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + roadmap, triage, refactoring registers
-- **`.devops/backlog/SPRINTS.md`** — **Sprints.** Sprint register; per-sprint scope + retro in `.devops/backlog/sprints/sprint-{n}/`
+- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + parked `<slug>-backlog.md` plans (`BACKLOG`); pick up by `git mv` to `.devops/plans/<slug>-plan.md`
+- **`.devops/backlog/SPRINTS.md`** — **Sprints (optional).** Register seeds ship in `.devops/templates/`; a satellite creates its own `.devops/backlog/SPRINTS.md` + per-sprint folders only if it adopts the cycle
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)

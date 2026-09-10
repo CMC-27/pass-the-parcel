@@ -31,6 +31,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+# Cross-platform: re-invoke the current PowerShell host (pwsh on Linux CI)
+# instead of 'powershell', which only exists on Windows.
+$shellExe = (Get-Process -Id $PID).Path
+
 $root = Split-Path -Parent $PSScriptRoot
 $sourceFile = Join-Path $root '.ptp-source'
 
@@ -50,7 +54,7 @@ $isGitUrl = ($Source -match '^https?://' -or $Source -match '^git@' -or $Source 
 
 # 2. Git URLs -> cache under %USERPROFILE%\.ptp\template; local paths used directly.
 if ($isGitUrl) {
-    $cacheDir = Join-Path $env:USERPROFILE '.ptp\template'
+    $cacheDir = Join-Path $env:USERPROFILE '.ptp/template'
     if (-not (Test-Path (Join-Path $cacheDir '.git'))) {
         New-Item -ItemType Directory -Force -Path (Split-Path $cacheDir) | Out-Null
         Write-Output "Cloning template repo into cache: $cacheDir"
@@ -68,10 +72,10 @@ if (-not (Test-Path $resolved)) { throw "Source path not found: $resolved" }
 $resolved = (Resolve-Path $resolved).Path
 
 # 3. Validate the source actually is a template repo.
-$syncScript = Join-Path $resolved 'scripts\sync-architecture.ps1'
-$manifest = Join-Path $resolved '.devops\sync-manifest.yaml'
-if (-not (Test-Path $syncScript)) { throw "Not a template repo (missing scripts\sync-architecture.ps1): $resolved" }
-if (-not (Test-Path $manifest)) { throw "Not a template repo (missing .devops\sync-manifest.yaml): $resolved" }
+$syncScript = Join-Path $resolved 'scripts/sync-architecture.ps1'
+$manifest = Join-Path $resolved '.devops/sync-manifest.yaml'
+if (-not (Test-Path $syncScript)) { throw "Not a template repo (missing scripts/sync-architecture.ps1): $resolved" }
+if (-not (Test-Path $manifest)) { throw "Not a template repo (missing .devops/sync-manifest.yaml): $resolved" }
 
 # 4. Remember an explicitly supplied source.
 if ($PSBoundParameters.ContainsKey('Source')) {
@@ -88,10 +92,10 @@ Write-Output "  mode   : $mode"
 Write-Output ""
 
 # 5. Invoke the push engine against this repo, passing switches through.
-$args = @('-NoProfile', '-File', $syncScript, '-Source', $resolved, '-Target', $root)
-if ($Check) { $args += '-Check' }
-if ($DryRun) { $args += '-DryRun' }
-if ($Verify) { $args += '-Verify' }
-if ($NoVerify) { $args += '-NoVerify' }
-& powershell @args
+$syncArgs = @('-NoProfile', '-File', $syncScript, '-Source', $resolved, '-Target', $root)
+if ($Check) { $syncArgs += '-Check' }
+if ($DryRun) { $syncArgs += '-DryRun' }
+if ($Verify) { $syncArgs += '-Verify' }
+if ($NoVerify) { $syncArgs += '-NoVerify' }
+& $shellExe @syncArgs
 exit $LASTEXITCODE

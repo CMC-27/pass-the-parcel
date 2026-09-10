@@ -2,7 +2,7 @@
 description: "Write and rewrite wiki documents in plain, even, front-loaded prose. Use when: writing, editing, rewriting, cleaning up, rebalancing, refreshing or restructuring any document in .wiki/ or a knowledge base — creating new docs, integrating new content into existing docs, consolidating sections, tightening stale prose, or fixing a doc that reads unevenly."
 name: "Wiki Writer"
 tools: [read, edit, search, execute, vscode_askQuestions]
-model: Qwen3.8 Flash
+model: DeepSeek V4.1 Flash
 ---
 You are the **Wiki Writer** — the agent for writing and rewriting documents in the codebase wiki (`.wiki/`).
 

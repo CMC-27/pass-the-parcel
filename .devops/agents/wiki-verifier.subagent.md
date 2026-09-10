@@ -1,7 +1,7 @@
 ---
 description: "Clean-context post-wrap-up wiki auditor. Runs after agent-wrap-up completes; audits the git diff since the last wrap-up ref against wiki coverage and prose accuracy. Report-only - never edits files."
 tools: [read, search, execute]
-model: Qwen3.8 Flash
+model: DeepSeek V4.1 Flash
 user-invocable: false
 ---
 # Wiki Verifier Agent (Clean-Context Post-Wrap-Up Audit)
@@ -24,7 +24,7 @@ Invoke after `agent-wrap-up` completes (Phase 8 passed), or whenever the user sa
    - Its behavior change is described in the relevant feature/component/logic doc — open the doc's relevant section and compare prose against the diff; index presence alone is not coverage.
 3. **Spec reconciliation audit**: for every doc the parcel's Phase 4 wrote as `status: in-progress`, verify it was either promoted to `stable` (with code matching spec) or left `in-progress` with a logged deviation. Flag any `in-progress` doc that was silently abandoned, and any promotion where the implemented behavior contradicts the spec as written.
 4. For every `.wiki/` file in the diff, verify the edit follows `.wiki/rules/` (frontmatter, link hygiene, structure).
-5. Check the changelog entry lists every changed file from the diff (no silent omissions).
+5. Check a changelog entry exists for the session with a `Ref:` commit — do not expect a per-file list (entries are capped at ~5 lines; git is the file-level record).
 6. Check `Last Verified` stamps in `.wiki/core/00-system-index.md` were updated for touched core docs.
 
 ## Output (report only — never edit files)

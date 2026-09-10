@@ -4,7 +4,7 @@ tags: [dev, rules, governance, index]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, ../AGENTS.md]
+related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, ../../AGENTS.md]
 ---
 
 # Dev Rules

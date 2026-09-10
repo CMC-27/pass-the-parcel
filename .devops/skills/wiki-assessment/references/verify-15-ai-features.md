@@ -16,7 +16,7 @@ Agents use this to wire up new AI features. A wrong prompt template = silent qua
 3. Have the fallback rules drifted? (E.g., a documented "show error toast" is now a "retry 3 times, then toast.")
 4. Are there new AI features in the code that aren't documented here?
 5. Are there documented AI features that have been removed or disabled?
-6. Is the model and integration path (e.g., `geminiProxy` Cloud Function in `australia-southeast1`) still the one in use?
+6. Is the model and integration path (e.g., the backend proxy function in its deployed region) still the one in use?
 
 ## What to verify against
 - The Cloud Function in `functions/` (or equivalent) — actual prompt assembly and response parsing

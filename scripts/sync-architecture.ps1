@@ -69,33 +69,54 @@ if (-not (Test-Path $src)) { throw "Source repo not found: $src" }
 
 $srcRoot = (Resolve-Path $src).Path
 
+# Cross-platform: re-invocations must use the current PowerShell host executable.
+# 'powershell' does not exist on Linux CI runners; 'pwsh' does. (Get-Process).Path
+# gives the running host, so the same script works on both.
+$shellExe = (Get-Process -Id $PID).Path
+
+function Read-Manifest {
+    # Parse the sync-manifest.yaml YAML subset once: list keys (key: followed by
+    # '- item' lines, or 'key: []') and scalar keys (key: value). Single source of
+    # truth for both the main path and -SelfTest.
+    param([string]$Path)
+    $lists = [ordered]@{}
+    $scalars = [ordered]@{}
+    $currentKey = $null
+    foreach ($line in Get-Content $Path) {
+        $t = $line.Trim()
+        if (-not $t -or $t.StartsWith('#')) { continue }
+        if ($t -match '^([a-z_-]+):\s*\[\s*\]\s*(?:#.*)?$') {
+            $lists[$Matches[1]] = @()
+            $currentKey = $null
+        } elseif ($t -match '^([a-z_-]+):\s*$') {
+            $currentKey = $Matches[1]
+            $lists[$currentKey] = @()
+        } elseif ($t -match '^([a-z_-]+):\s+(.+)$') {
+            $scalars[$Matches[1]] = $Matches[2].Trim().Trim('"')
+            $currentKey = $null
+        } elseif ($t.StartsWith('- ') -and $currentKey) {
+            $lists[$currentKey] += $t.Substring(2).Trim().Trim('"')
+        }
+    }
+    return @{ Lists = $lists; Scalars = $scalars }
+}
+
 # --- self-test mode: build a throwaway satellite, sync into it, verify, tear down ---
 if ($SelfTest) {
     $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-selftest-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
     try {
         New-Item -ItemType Directory -Force -Path $tmp | Out-Null
         Write-Output "SELFTEST: temp target = $tmp"
-        & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
         if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
-        # Manifest must parse identically inside the test process — re-parse here.
-        $stManifestPath = Join-Path $srcRoot '.devops\sync-manifest.yaml'
-        $stDirs = @(); $stFiles = @(); $stExcluded = @(); $stPrune = @(); $cur = $null
-        foreach ($line in Get-Content $stManifestPath) {
-            $t = $line.Trim()
-            if (-not $t -or $t.StartsWith('#')) { continue }
-            if ($t -match '^([a-z_-]+):\s*$') { $cur = $Matches[1]; continue }
-            if ($t -match '^([a-z_-]+):\s*\[\s*\]\s*(?:#.*)?$') { if ($Matches[1] -eq 'excluded_skills') { $stExcluded = @() }; $cur = $null; continue }
-            if ($t -match '^([a-z_-]+):\s+(.+)$') { $cur = $null; continue }
-            if ($t.StartsWith('- ') -and $cur) {
-                switch ($cur) {
-                    'portable_dirs'  { $stDirs += $t.Substring(2).Trim().Trim('"') }
-                    'portable_files' { $stFiles += $t.Substring(2).Trim().Trim('"') }
-                    'prune_files'    { $stPrune += $t.Substring(2).Trim().Trim('"') }
-                    'excluded_skills' { $stExcluded += $t.Substring(2).Trim().Trim('"') }
-                }
-            }
-        }
-        $skillsRoot = Join-Path $srcRoot '.devops\skills'
+        # Manifest must parse identically inside the test process — reuse Read-Manifest.
+        $stManifestPath = Join-Path $srcRoot '.devops/sync-manifest.yaml'
+        $stMan = Read-Manifest $stManifestPath
+        $stDirs = @($stMan.Lists['portable_dirs'])
+        $stFiles = @($stMan.Lists['portable_files'])
+        $stPrune = @($stMan.Lists['prune_files'])
+        $stExcluded = @($stMan.Lists['excluded_skills'])
+        $skillsRoot = Join-Path $srcRoot '.devops/skills'
         $stSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name } | Where-Object { $stExcluded -notcontains $_ })
         $fail = @()
         function Assert-Mirror {
@@ -111,13 +132,13 @@ if ($SelfTest) {
         foreach ($s in $stSkills) { Assert-Mirror ".devops\skills\$s" }
         foreach ($f in $stFiles) { Assert-Mirror $f }
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
-        $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName -match '\\(\.wiki|\.devops)\\\1|\\skills\\([^\\]+)\\\2' }
+        $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName.Replace('\','/') -match '/(\.wiki|\.devops)/\1|/skills/([^/]+)/\2' }
         if ($nested) { $fail += "nested-copy defect: $($nested.FullName -join ', ')" }
         # Manifest stamping: the target's machinery-version must now match the source's,
         # otherwise -Check reports a phantom UPGRADE after every successful sync.
         $stSrcV = $null; $stTgtV = $null
         foreach ($line in Get-Content $stManifestPath) { if ($line -match '^machinery-version:\s*(\d+)') { $stSrcV = $Matches[1]; break } }
-        $stTgtManifest = Join-Path $tmp '.devops\sync-manifest.yaml'
+        $stTgtManifest = Join-Path $tmp '.devops/sync-manifest.yaml'
         if (Test-Path $stTgtManifest) {
             foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
         }
@@ -127,7 +148,7 @@ if ($SelfTest) {
             $stale = Join-Path $tmp $stPrune[0]
             New-Item -ItemType Directory -Force -Path (Split-Path $stale) | Out-Null
             Set-Content -Path $stale -Value "stale" -NoNewline
-            & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
             if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
             if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
         }
@@ -135,7 +156,7 @@ if ($SelfTest) {
         # report IN SYNC (manifest stamped, prefix-locked agents excluded from the hash).
         # This guards both post-sync bookkeeping bugs: the phantom UPGRADE from an
         # unstamped manifest and the eternal agents DRIFT from the regenerated prefix.
-        & powershell -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
         if ($LASTEXITCODE -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"
@@ -154,7 +175,7 @@ if (-not (Test-Path $Target)) { throw "Target repo not found: $Target" }
 $tgtRoot = (Resolve-Path $Target).Path
 if ($srcRoot -eq $tgtRoot) { throw "Source and target are the same repo." }
 
-$manifestPath = Join-Path $srcRoot '.devops\sync-manifest.yaml'
+$manifestPath = Join-Path $srcRoot '.devops/sync-manifest.yaml'
 if (-not (Test-Path $manifestPath)) { throw "Manifest not found: $manifestPath" }
 
 Write-Output "Syncing architecture layer:"
@@ -162,20 +183,6 @@ Write-Output "  source : $srcRoot"
 Write-Output "  target : $tgtRoot"
 Write-Output "  manifest: $manifestPath"
 Write-Output ""
-
-# Parse the manifest (simple YAML subset - key: - item lines).
-$manifest = [ordered]@{}
-$currentKey = $null
-foreach ($line in Get-Content $manifestPath) {
-    $t = $line.Trim()
-    if (-not $t -or $t.StartsWith('#')) { continue }
-    if ($t -match '^([a-z_]+):\s*$') {
-        $currentKey = $Matches[1]
-        $manifest[$currentKey] = @()
-    } elseif ($t.StartsWith('- ') -and $currentKey) {
-        $manifest[$currentKey] += $t.Substring(2).Trim().Trim('"')
-    }
-}
 
 # --- helpers ---------------------------------------------------------------
 
@@ -192,7 +199,7 @@ function Get-FrontmatterVersion {
 
 function Get-ManifestMachineVersion {
     param([string]$Root)
-    $mp = Join-Path $Root '.devops\sync-manifest.yaml'
+    $mp = Join-Path $Root '.devops/sync-manifest.yaml'
     if (-not (Test-Path $mp)) { return $null }
     foreach ($line in Get-Content $mp) {
         if ($line -match '^machinery-version:\s*(\d+)') { return [int]$Matches[1] }
@@ -208,8 +215,8 @@ function Update-TargetManifestVersion {
     # missing manifest (first-time install) is seeded verbatim from the source.
     param([string]$TgtRoot, [string]$SrcRoot, [string]$Version, [switch]$DryRun)
     if (-not $Version) { Write-Host 'SKIP: source manifest has no machinery-version - target not stamped'; return }
-    $tgtManifest = Join-Path $TgtRoot '.devops\sync-manifest.yaml'
-    $srcManifest = Join-Path $SrcRoot '.devops\sync-manifest.yaml'
+    $tgtManifest = Join-Path $TgtRoot '.devops/sync-manifest.yaml'
+    $srcManifest = Join-Path $SrcRoot '.devops/sync-manifest.yaml'
     if (-not (Test-Path $tgtManifest)) {
         if ($DryRun) { Write-Output "DRYRUN would install .devops/sync-manifest.yaml (machinery-version $Version)"; return }
         New-Item -ItemType Directory -Force -Path (Split-Path $tgtManifest) | Out-Null
@@ -249,7 +256,7 @@ function Get-ItemHashes {
         # still reports DRIFT/UPGRADE as normal.
         $name = Split-Path -Leaf $File
         $text = $null
-        if (($name -eq 'parcel.agent.md' -or $name -like 'ptp-*.subagent.md') -and $File -like '*\.devops\agents\*') {
+        if (($name -eq 'parcel.agent.md' -or $name -like 'ptp-*.subagent.md') -and $File.Replace('\','/') -like '*/.devops/agents/*') {
             $raw = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($File)) -replace "`r`n", "`n"
             $body = $raw
             if ($raw.StartsWith("---`n")) {
@@ -270,7 +277,7 @@ function Get-ItemHashes {
     }
     if ((Get-Item $Path).PSIsContainer) {
         Get-ChildItem $Path -Recurse -File | ForEach-Object {
-            $rel = $_.FullName.Substring($Path.TrimEnd('\').Length + 1)
+            $base = $Path.TrimEnd('\', '/'); $rel = $_.FullName.Substring($base.Length + 1).Replace('\','/')
             $map[$rel] = Hash-Normalized $_.FullName
         }
     } else {
@@ -325,21 +332,21 @@ function Invoke-StructuralVerify {
     }
 
     # 3. base-context.md - the prefix-lock source.
-    if (Test-Path (Join-Path $TgtRoot '.opencode\plans\base-context.md')) {
+    if (Test-Path (Join-Path $TgtRoot '.opencode/plans/base-context.md')) {
         Line 'PASS' 'base-context.md present (.opencode/plans/)'
     } else {
         Line 'FAIL' 'base-context.md missing (seed: .devops/templates/base-context.template.md -> .opencode/plans/)'; $fail++
     }
 
     # 4. Wiki anchor - the mandatory-reading entry point.
-    if (Test-Path (Join-Path $TgtRoot '.wiki\core\00-system-index.md')) {
+    if (Test-Path (Join-Path $TgtRoot '.wiki/core/00-system-index.md')) {
         Line 'PASS' 'wiki anchor present (.wiki/core/00-system-index.md)'
     } else {
         Line 'FAIL' 'wiki anchor missing: .wiki/core/00-system-index.md (mandatory reading entry point)'; $fail++
     }
 
     # 5. Machinery surface - the portable dirs/files a sync materialises.
-    foreach ($rel in @('.devops\skills', '.devops\agents', '.devops\rules', '.wiki\rules', '.devops\templates', 'scripts\check-parcel-prefix.ps1', 'scripts\check-utf8-agents.ps1', 'scripts\wiki_lint.py')) {
+    foreach ($rel in @('.devops/skills', '.devops/agents', '.devops/rules', '.wiki/rules', '.devops/templates', 'scripts/check-parcel-prefix.ps1', 'scripts/check-utf8-agents.ps1', 'scripts/wiki_lint.py')) {
         if (Test-Path (Join-Path $TgtRoot $rel)) { continue }
         Line 'FAIL' "machinery missing: $rel (run a sync first)"; $fail++
     }
@@ -363,37 +370,37 @@ function Invoke-VerificationGates {
     Push-Location $TgtRoot
     try {
         $ok = $true
-        $hasBaseContext = Test-Path (Join-Path $TgtRoot '.opencode\plans\base-context.md')
-        $prefixScript = Join-Path $TgtRoot 'scripts\check-parcel-prefix.ps1'
+        $hasBaseContext = Test-Path (Join-Path $TgtRoot '.opencode/plans/base-context.md')
+        $prefixScript = Join-Path $TgtRoot 'scripts/check-parcel-prefix.ps1'
         if ($RegenPrefix) {
             if ($hasBaseContext) {
                 Write-Host "Regenerating PREFIX-LOCKED prefixes from target base-context..."
-                & powershell -NoProfile -File $prefixScript -Sync | Out-Host
+                & $shellExe -NoProfile -File $prefixScript -Sync | Out-Host
                 if ($LASTEXITCODE -ne 0) { Write-Host 'VERIFY FAILED: check-parcel-prefix'; $ok = $false }
                 else { Write-Host 'PREFIX-LOCKED: OK' }
             } else {
                 Write-Host 'SKIP: target has no base-context.md yet - edit it, then run check-parcel-prefix -Sync'
             }
         } elseif ($hasBaseContext -and (Test-Path $prefixScript)) {
-            & powershell -NoProfile -File $prefixScript | Out-Host
+            & $shellExe -NoProfile -File $prefixScript | Out-Host
             if ($LASTEXITCODE -ne 0) { Write-Host 'VERIFY FAILED: check-parcel-prefix (check-only)'; $ok = $false }
             else { Write-Host 'PREFIX-LOCKED: OK' }
         } else {
             Write-Host 'SKIP: prefix check not applicable (no base-context.md or prefix script)'
         }
-        $utf8Script = Join-Path $TgtRoot 'scripts\check-utf8-agents.ps1'
+        $utf8Script = Join-Path $TgtRoot 'scripts/check-utf8-agents.ps1'
         if (Test-Path $utf8Script) {
-            & powershell -NoProfile -File $utf8Script | Out-Host
+            & $shellExe -NoProfile -File $utf8Script | Out-Host
             if ($LASTEXITCODE -ne 0) { Write-Host 'VERIFY FAILED: check-utf8-agents'; $ok = $false }
             else { Write-Host 'UTF-8: OK' }
         } else {
             Write-Host 'VERIFY FAILED: check-utf8-agents.ps1 missing (machinery not materialised?)'; $ok = $false
         }
-        if (Test-Path (Join-Path $TgtRoot 'scripts\wiki_lint.py')) {
+        if (Test-Path (Join-Path $TgtRoot 'scripts/wiki_lint.py')) {
             # A fresh satellite has no wiki content yet - the synced structure manifest
             # declares anchors that cannot exist, so linting there is a false positive.
-            if (Test-Path (Join-Path $TgtRoot '.wiki\core')) {
-                & python (Join-Path $TgtRoot 'scripts\wiki_lint.py') --quiet | Out-Host
+            if (Test-Path (Join-Path $TgtRoot '.wiki/core')) {
+                & python (Join-Path $TgtRoot 'scripts/wiki_lint.py') --quiet | Out-Host
                 if ($LASTEXITCODE -ne 0) { Write-Host 'VERIFY FAILED: wiki_lint'; $ok = $false }
                 else { Write-Host 'WIKI LINT: OK' }
             } else {
@@ -408,29 +415,13 @@ function Invoke-VerificationGates {
     }
 }
 
-# --- parse the manifest (simple YAML subset - key: / - item lines; scalars supported) ---
-$manifest = [ordered]@{}
-$scalars = [ordered]@{}
-$currentKey = $null
-foreach ($line in Get-Content $manifestPath) {
-    $t = $line.Trim()
-    if (-not $t -or $t.StartsWith('#')) { continue }
-    if ($t -match '^([a-z_-]+):\s+(.+)$') {
-        $scalars[$Matches[1]] = $Matches[2].Trim().Trim('"')
-        $currentKey = $null
-    } elseif ($t -match '^([a-z_-]+):\s*$') {
-        $currentKey = $Matches[1]
-        $manifest[$currentKey] = @()
-    } elseif ($t -match '^([a-z_-]+):\s*\[\s*\]\s*(?:#.*)?$') {
-        $manifest[$Matches[1]] = @()
-        $currentKey = $null
-    } elseif ($t.StartsWith('- ') -and $currentKey) {
-        $manifest[$currentKey] += $t.Substring(2).Trim().Trim('"')
-    }
-}
+# --- parse the manifest (single shared parser — see Read-Manifest) ---
+$man = Read-Manifest $manifestPath
+$manifest = $man.Lists
+$scalars = $man.Scalars
 
 # Derive the portable skill surface: all skills minus excluded_skills.
-$skillsRoot = Join-Path $srcRoot '.devops\skills'
+$skillsRoot = Join-Path $srcRoot '.devops/skills'
 $allSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name })
 $excluded = @($manifest['excluded_skills'])
 $portableSkills = @($allSkills | Where-Object { $excluded -notcontains $_ })
@@ -510,7 +501,7 @@ if ($Check) {
     }
 
     foreach ($dir in $manifest['portable_dirs']) { Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) }
-    foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops\skills\$slug") (Join-Path $tgtRoot ".devops\skills\$slug") }
+    foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
     foreach ($pf in $manifest['prune_files']) {
         if (Test-Path (Join-Path $tgtRoot $pf)) {
@@ -557,9 +548,9 @@ foreach ($dir in $manifest['portable_dirs']) {
 
 # 2. Portable skills (derived: all skills minus excluded_skills; copy each folder).
 foreach ($slug in $portableSkills) {
-    $s = Join-Path $srcRoot ".devops\skills\$slug"
+    $s = Join-Path $srcRoot ".devops/skills/$slug"
     if (-not (Test-Path $s)) { $skipped += "missing in source: skills/$slug"; continue }
-    $t = Join-Path $tgtRoot ".devops\skills\$slug"
+    $t = Join-Path $tgtRoot ".devops/skills/$slug"
     if ($DryRun) {
         $n = (Get-ChildItem $s -Recurse -File).Count
         Write-Output "DRYRUN would copy skill $slug ($n files)"

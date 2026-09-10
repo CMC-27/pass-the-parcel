@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 5
-updated: 2026-09-09
+version: 6
+updated: 2026-09-11
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -40,13 +40,19 @@ Copy and customize (the sync never overwrites these):
 | Seed (in `.devops/templates/`) | Copy to | Then |
 |---|---|---|
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
-| `opencode.template.json` | `opencode.json` | keep instructions + skills.paths; agents live in `.devops/agents/*.agent.md` |
+| `opencode.template.json` | `opencode.json` | fill every `agent.<name>.model` placeholder — `-Verify` fails visibly until you do; delete the `_comment` array |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 | `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
 | `TRIAGE.template.md` | `.devops/backlog/TRIAGE.md` | triage framework — process doc, edit only if your tiers differ |
 | `REFACTORING.template.md` | `.devops/backlog/REFACTORING.md` | code-quality register — scan tables populate via `@spaghetti-monster` / `@sprint-close` |
 
 > The three backlog seeds (`SPRINTS` / `TRIAGE` / `REFACTORING`) are optional but recommended — they wire up the agile cycle that the `@sprint-*` skills drive. A satellite without them still gets the parcel pipeline; it just plans work ad-hoc instead of in sprints.
+>
+> **v20 migration (opencode.json):** satellites created before machinery v20 were told to
+> delete the `agent` block. That layout is still supported — `check-parcel-prefix.ps1`
+> prints `SKIP  opencode.json: no agent block (VS Code-only satellite)` instead of failing.
+> To run the parcel orchestrator in the opencode runtime, re-copy `opencode.template.json`
+> and fill the model placeholders.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 

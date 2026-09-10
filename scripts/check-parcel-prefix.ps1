@@ -6,9 +6,9 @@ param(
 .SYNOPSIS
     Verifies (and optionally repairs) the PREFIX-LOCKED byte-for-byte contract
     between .opencode/plans/base-context.md and every PREFIX-LOCKED agent file
-    (.devops/agents/parcel.agent.md + .devops/agents/ptp-*.subagent.md, plus the
-    opencode mirrors .opencode/agents/parcel.md + .opencode/agents/ptp-*.md),
-    AND the verbatim skill-embed contract inside each ptp-* agent file.
+    (.devops/agents/parcel.agent.md + .devops/agents/ptp-*.subagent.md), the
+    verbatim skill-embed contract inside each ptp-* agent file, and the
+    opencode.json <-> Model Registry model-binding agreement.
 
 .DESCRIPTION
     The pass-the-parcel pipeline relies on a byte-for-byte identical shared prefix
@@ -27,13 +27,16 @@ param(
     byte-identical to the SKILL.md body (frontmatter stripped). -Sync regenerates it.
 
     Agents physically live in .devops/agents/ as VS Code custom agent files
-    (parcel.agent.md = selectable, ptp-*.subagent.md = subagents), with opencode
-    mirrors in .opencode/agents/ (parcel.md = selectable primary, ptp-*.md =
-    subagents). Each file carries YAML frontmatter (fields differ per runtime:
-    VS Code = description/tools/model/user-invocable; opencode =
-    description/mode/model) followed by the PREFIX-LOCKED prefix and the
-    agent-unique content (everything from the first "## Delegated Skill:"
-    heading, or "You are the" for the orchestrator).
+    (parcel.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
+    YAML frontmatter (description/tools/model/user-invocable) followed by the
+    PREFIX-LOCKED prefix and the agent-unique content (everything from the first
+    "## Delegated Skill:" heading, or "You are the" for the orchestrator).
+
+    The opencode runtime binding lives in opencode.json `agent.<key>.model` and is
+    validated against the Model Registry's opencode column. A present agent block
+    fails on a missing key, a mismatched model, or the unresolved
+    `<your provider/model>` placeholder. An absent opencode.json, or an absent/empty
+    agent block, is a documented opt-out for VS Code-only satellites -> SKIP.
 
     Without -Sync:  prints PASS/FAIL per agent file and exits non-zero if any drift.
     With -Sync:     rebuilds each agent file's prefix from base-context.md and refreshes
@@ -78,18 +81,14 @@ if ($orchStartIdx -ge 0 -and $orchEndIdx -gt $orchStartIdx) {
     $fullPrefix = $canonical
 }
 
-# PREFIX-LOCKED set: the selectable parcel agent + the ptp-* subagents, in both
-# the VS Code format (.devops/agents/) and the opencode format (.opencode/agents/).
-$opencodeAgentsDir = Join-Path $root '.opencode\agents'
+# PREFIX-LOCKED set: the selectable parcel agent + the ptp-* subagents.
+# All agents are VS Code custom agent files in .devops/agents/ (no .opencode/agents/
+# mirror exists; the opencode runtime is configured in opencode.json, validated below).
 $agentFiles = @()
 $agentFiles += @(Get-ChildItem -Path $agentsDir -Filter 'parcel.agent.md' -ErrorAction SilentlyContinue)
 $agentFiles += @(Get-ChildItem -Path $agentsDir -Filter 'ptp-*.subagent.md' -ErrorAction SilentlyContinue)
-if (Test-Path $opencodeAgentsDir) {
-    $agentFiles += @(Get-ChildItem -Path $opencodeAgentsDir -Filter 'parcel.md' -ErrorAction SilentlyContinue)
-    $agentFiles += @(Get-ChildItem -Path $opencodeAgentsDir -Filter 'ptp-*.md' -ErrorAction SilentlyContinue)
-}
 $agentFiles = @($agentFiles | Where-Object { $_ }) | Sort-Object Name
-if (-not $agentFiles) { throw "No PREFIX-LOCKED agent files found (parcel.agent.md / ptp-*.subagent.md in $agentsDir; parcel.md / ptp-*.md in $opencodeAgentsDir)" }
+if (-not $agentFiles) { throw "No PREFIX-LOCKED agent files found (parcel.agent.md / ptp-*.subagent.md in $agentsDir)" }
 
 $failures = @()
 
@@ -202,8 +201,8 @@ foreach ($file in $agentFiles) {
             if (-not $modelMatch.Success) {
                 $failures += "$($file.Name): frontmatter has no 'model:' line but a registry row exists"
             } else {
-                # .devops\agents = VS Code runtime (display name); .opencode\agents = opencode runtime (provider ID).
-                $runtime = if ($file.FullName -like "$agentsDir*") { 'vscode' } else { 'opencode' }
+                # All PREFIX-LOCKED agents are VS Code files now (.devops/agents/).
+                $runtime = 'vscode'
                 $actual = $modelMatch.Groups[1].Value.Trim('`', ' ')
                 $expectedModel = $modelBindings[$key][$runtime]
                 if ($actual -ne $expectedModel) {
@@ -218,6 +217,48 @@ foreach ($file in $agentFiles) {
 
 Write-Output "---"
 Write-Output ("Canonical source: " + $canonicalPath)
+
+# --- opencode.json <-> Model Registry validation ---
+# Present agent block: every registry key must exist, with a model matching the registry's
+# opencode column and not the unresolved `<your provider/model>` placeholder.
+# Absent opencode.json, or an absent/empty `agent` block, is a documented opt-out for
+# VS Code-only satellites -> SKIP, no failure (the pre-v20 seed instructed satellites to
+# delete the block, so it must stay valid).
+$ocPath = Join-Path $root 'opencode.json'
+if (-not (Test-Path $ocPath)) {
+    Write-Output 'SKIP  opencode.json: not present (VS Code-only satellite)'
+} else {
+    try {
+        $oc = Get-Content -Raw $ocPath | ConvertFrom-Json
+        $ocAgents = $oc.agent
+        $agentProps = if ($ocAgents) { @($ocAgents.PSObject.Properties) } else { @() }
+        if ($agentProps.Count -eq 0) {
+            Write-Output 'SKIP  opencode.json: no agent block (VS Code-only satellite)'
+        } else {
+            foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+                $prop = $ocAgents.PSObject.Properties[$key]
+                if (-not $prop) {
+                    $failures += "opencode.json: no agent entry for registry key '$key'"
+                    continue
+                }
+                $val = [string]$prop.Value.model
+                $expected = $modelBindings[$key]['opencode']
+                if (-not $val) {
+                    $failures += "opencode.json: agent '$key' has no model (registry expects '$expected')"
+                } elseif ($val -eq '<your provider/model>') {
+                    $failures += "opencode.json: agent '$key' still has the placeholder model '<your provider/model>'"
+                } elseif ($val -ne $expected) {
+                    $failures += "opencode.json: agent '$key' model '$val' != registry '$expected'"
+                } else {
+                    Write-Output "OC-MODEL $val  agent.$key"
+                }
+            }
+        }
+    } catch {
+        $failures += "opencode.json: not valid JSON ($($_.Exception.Message))"
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Output "FAILURES:"
     $failures | ForEach-Object { Write-Output "  $_" }

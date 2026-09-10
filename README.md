@@ -13,7 +13,7 @@ Below is an overview of the core entry points and directories in this workspace:
 *   **`.wiki/core/09-design-system.md`**: The single source of truth for frontend design — creative North Star, CSS token reference, and component styling rules (no separate DESIGN.md — the wiki owns design).
 *   **`.opencode/`**: Agent configuration, command definitions, and the canonical PREFIX-LOCKED parcel prefix (`.opencode/plans/base-context.md`).
 *   **`.devops/skills/`**: Reusable agent skills (SKILL.md files) for the opencode ecosystem.
-*   **`.wiki`**: The application architecture knowledge base — stable, long-lived reference documentation:
+*   **`.wiki/`**: The application architecture knowledge base — stable, long-lived reference documentation:
     *   `core/`: Core architecture, vision, design systems, and state context.
     *   `features/`: Feature-specific logic, layouts, and components.
     *   `components/`: Catalog of design system component specifications.
@@ -28,7 +28,7 @@ Below is an overview of the core entry points and directories in this workspace:
     *   `backlog/`: Project backlog index and individual backlog plan files.
     *   `archive/`: Completed and closed implementation plans.
     *   `logs/`: Development history records, including `agent-changelog.md` and `version-history.md`.
-*   **`.wiki/rules/`**: Wiki governance layer (structure, naming, numbering, frontmatter, link hygiene) + `wiki_lint.py`.
+*   **`.wiki/rules/`**: Wiki governance layer (structure, naming, numbering, frontmatter, link hygiene) + the deterministic linter `scripts/wiki_lint.py`.
 
 ---
 

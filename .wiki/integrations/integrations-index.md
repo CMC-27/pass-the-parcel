@@ -16,7 +16,7 @@ This index catalogs all external service integrations used by the application.
 
 | Doc | Service | Description |
 |---|---|---|
-| [Gemini AI Integration](gemini-integration.md) | Gemini/LLM | AI model integration for features |
+| [AI Provider Integration (Example)](ai-provider-integration.md) | AI provider | Provider-neutral AI model integration pattern |
 
 ---
 

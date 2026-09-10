@@ -4,7 +4,7 @@ tags: [dev, rules, plans, parcel, lifecycle]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./README.md, ../.devops/skills/pass-the-parcel/SKILL.md]
+related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 ---
 
 # Plan Lifecycle
@@ -14,7 +14,7 @@ related-to: [./README.md, ../.devops/skills/pass-the-parcel/SKILL.md]
 ## The Parcel
 
 - **Active plans:** `.devops/plans/[slug]-plan.md` — instantiated from `.devops/plans/template-plan.md`.
-- **Backlog:** `.devops/backlog/` — early-prepared plans not yet picked up.
+- **Backlog:** `.devops/backlog/` — parked plans (`<slug>-backlog.md`, `BACKLOG`) not yet picked up. Pick-up is a `git mv` to `.devops/plans/<slug>-plan.md`; the rename is the in-flight signal.
 - **Archive:** `.devops/archive/` — completed plans, moved via `git mv` with **no stub left** at the old location.
 - **Per-run workspace:** `.opencode/plans/run-[slug]/` — reviews, versions, decision log.
 - **Template:** `.devops/plans/template-plan.md` — the canonical scaffold (cache-anchored State & Gates at the bottom).

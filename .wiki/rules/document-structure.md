@@ -4,7 +4,7 @@ tags: [wiki, rules, structure, front-loading]
 status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./frontmatter.md, ./naming.md, ../AGENTS.md]
+related-to: [./frontmatter.md, ./naming.md, ../../AGENTS.md]
 ---
 
 # Document Structure Pattern

@@ -4,7 +4,7 @@ tags: [wiki, rules, scope, governance]
 status: stable
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./README.md, ./link-hygiene.md, ../AGENTS.md]
+related-to: [./README.md, ./link-hygiene.md, ../../AGENTS.md]
 ---
 
 # Content-vs-State Principle

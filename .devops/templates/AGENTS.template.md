@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 5
-updated: 2026-09-10
+version: 6
+updated: 2026-09-11
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -19,10 +19,10 @@ user interfaces.
 ### Documentation Structure
 <!-- MACHINERY: keep verbatim -->
 - **`.wiki/`** — Architecture knowledge, design system, features, and technical specs
-- **`.devops/plans/`** — **Plans.** Every `*-plan.md`, parked (`BACKLOG`) or in flight (`PHASE_1`+); template at `template-plan.md`
+- **`.devops/plans/`** — **Plans.** In-flight `*-plan.md` only (`PHASE_1`+); template at `template-plan.md`
 - **`.devops/archive/`** — Completed plans
-- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + roadmap, triage, refactoring registers
-- **`.devops/backlog/SPRINTS.md`** — **Sprints.** Sprint register; per-sprint scope + retro in `.devops/backlog/sprints/sprint-{n}/`
+- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + parked `<slug>-backlog.md` plans (`BACKLOG`); pick up by `git mv` to `.devops/plans/<slug>-plan.md`
+- **`.devops/backlog/SPRINTS.md`** — **Sprints (optional).** Register seeds ship in `.devops/templates/`; a satellite creates its own `.devops/backlog/SPRINTS.md` + per-sprint folders only if it adopts the cycle
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
@@ -74,8 +74,10 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 6. **Subagent Wiki-First Mandate:** Any agent spawning a subagent MUST instruct it to read
    `.wiki/` before searching the codebase. <!-- MACHINERY -->
 7. **Planning Protocol:** Multi-step tasks MUST use the `@pass-the-parcel` skill. <!-- MACHINERY -->
-8. **Sprint Discipline (Agile Cycle):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in `backlog-index.md`, committed into a sprint via `@sprint-plan`, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close` (retro + spaghetti scan). One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives OUTSIDE the roadmap in `REFACTORING.md`, triggered by the sprint-close scan, not the backlog. See `.devops/backlog/TRIAGE.md`. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
-9. <!-- CUSTOMIZE if your app has form-field/validation standards; otherwise delete. -->
+8. <!-- CUSTOMIZE if your app has form-field/validation standards; otherwise delete. -->
+9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel/ptp agents. NEVER edit the inline prefix inside `.devops/agents/parcel.agent.md` or `.devops/agents/ptp-*.subagent.md` directly — edit `base-context.md`, then run `scripts/check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts/check-parcel-prefix.ps1` (and `scripts/check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`. <!-- MACHINERY: keep verbatim -->
+10. **Sprint Discipline (Agile Cycle, optional):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in `backlog-index.md`, committed into a sprint via `@sprint-plan`, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close`. One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives in `REFACTORING.md` (sprint-close scan), not the backlog. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
+11. <!-- CUSTOMIZE if your app has additional repo-specific rules; otherwise delete. -->
 
 ---
 

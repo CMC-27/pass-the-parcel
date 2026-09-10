@@ -21,7 +21,7 @@ AI-assisted development accelerates feature delivery but introduces unique risks
 
 AI assistants must operate within strictly defined boundaries to prevent architectural drift:
 
-* **Mandatory Context Loading:** Before generating code, agents must read and internalize the workspace rules file (`AGENT.md` / `GEMINI.md` / `.cursorrules`) and any relevant architectural documentation in `/docs/core`.
+* **Mandatory Context Loading:** Before generating code, agents must read and internalize the workspace rules file (`AGENTS.md` / `.cursorrules`) and any relevant architectural documentation in `.wiki/core`.
 * **Framework Adherence:** Code generation must strictly follow the defined UI library, state management patterns, and testing requirements. Do not introduce new frameworks or patterns without explicit authorization.
 * **Self-Correction:** If an instruction contradicts the established rules or security baselines, the agent must halt execution, explicitly flag the contradiction, and request clarification.
 

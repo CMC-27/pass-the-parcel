@@ -128,7 +128,6 @@ Use this checklist to establish the core knowledge infrastructure. All 19 slots 
 | 12 | `11-utility-standards.md` | Utility Standards | Required |
 | 13 | `12-security-standards.md` | Security Standards | Required |
 | 14 | `13-performance-standards.md` | Performance Standards | Required |
-| 15 | `15-theme-linguistics.md` | Theme & Linguistics | If applicable |
 | 16 | `03-glossary-of-terms.md` | Glossary of Terms | Required |
 | 17 | `17-docs-blueprint.md` | Docs Blueprint (This File) | Required |
 | 18 | `18-knowledge-capture.md` | Knowledge Capture | Required |

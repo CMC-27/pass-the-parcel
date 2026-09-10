@@ -1,8 +1,8 @@
 ---
 name: model-routing
 description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, rebinding a ptp-* subagent, "which model for", or editing the Model Registry in base-context.md. Guides the per-subagent model choice for the parcel architecture and applies the binding edit safely (frontmatter + registry + prefix sync + validation).
-version: 3
-updated: 2026-09-07
+version: 4
+updated: 2026-09-11
 ---
 
 # SKILL: Model Routing (per-subagent model binding)
@@ -16,7 +16,7 @@ There are exactly two places a model binding lives, and they must always agree:
 | Layer | File | Format | Example |
 |---|---|---|---|
 | **Runtime binding** | `.devops/agents/parcel.agent.md`, `ptp-*.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
-| **Runtime binding** | `.opencode/agents/parcel.md`, `ptp-*.md` (opencode mirrors) | provider ID | `model: opencode-go/qwen3.8-flash` |
+| **Runtime binding** | `opencode.json` → `agent.<key>.model` (opencode) | provider ID | `"opencode-go/qwen3.8-flash"` |
 | **Canonical registry** | `.opencode/plans/base-context.md` → `## Model Registry` table | both columns | one row per agent |
 
 Rules:
@@ -63,7 +63,7 @@ To change the model for one agent/subagent, or the whole pipeline:
 1. **Decide per subagent** using §2 — record the rationale (one line) in the plan's `decision_log.md` if this happens mid-parcel-run.
 2. **Edit the frontmatter** of the agent file(s):
    - `.devops/agents/<name>.agent.md` or `<name>.subagent.md` → `model: <display name>`
-   - `.opencode/agents/<name>.md` (if the mirror exists) → `model: <provider ID>`
+   - `opencode.json` → `agent.<name>.model` (opencode runtime) → `"<provider>/<model>"`
    - Never touch the PREFIX-LOCKED body of these files.
 3. **Update the `## Model Registry` table** in `.opencode/plans/base-context.md` so the row matches the new frontmatter value.
 4. **Re-sync the prefix** so the updated registry is inlined byte-for-byte into every agent file:
@@ -76,6 +76,6 @@ To change the model for one agent/subagent, or the whole pipeline:
 `scripts/check-parcel-prefix.ps1` checks two things per agent file:
 
 - **Prefix integrity** — the inlined prefix matches `base-context.md` byte-for-byte (existing check).
-- **Model binding** — the frontmatter `model:` value equals the value in the registry's row for that agent, using the correct column for the runtime (`devops/agents` → VS Code column, `opencode/agents` → opencode column).
+- **Model binding** — each agent's frontmatter `model:` (VS Code column) equals its registry row, **and** `opencode.json` `agent.<key>.model` equals the registry's opencode column. A present agent block fails on a missing key, a mismatch, or the unresolved `<your provider/model>` placeholder; an absent `opencode.json` or absent/empty agent block is a documented SKIP for VS Code-only satellites.
 
 If validation fails after a manual edit, the registry row and the frontmatter disagree — fix whichever one reflects the intended binding (usually the frontmatter was edited without step 3, or `-Sync` was skipped).

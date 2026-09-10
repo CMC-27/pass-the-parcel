@@ -4,7 +4,7 @@ tags: [dev, rules, agents, skills, governance]
 status: approved
 owner: Wiki Owner
 last-reviewed: 2026-08-19
-related-to: [./README.md, ../.opencode/plans/base-context.md, ../scripts/check-parcel-prefix.ps1]
+related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/check-parcel-prefix.ps1]
 ---
 
 # Agents & Skills

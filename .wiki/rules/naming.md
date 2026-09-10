@@ -35,8 +35,8 @@ related-to: [./numbering.md, ./frontmatter.md]
 
 ## Index Files
 
-- Every area has an `index.md` or `*index.md` that lists all documents in it.
-- Index filenames are fixed: `index.md` — do not rename.
+- Every area has an index that lists all documents in it.
+- The index filename is `<area>-index.md` (e.g. `components-index.md`, `conventions-index.md`), or `index.md`. Keep the existing name — do not rename an index after creation.
 
 ---
 

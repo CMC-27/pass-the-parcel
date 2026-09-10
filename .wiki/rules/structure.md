@@ -23,7 +23,7 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 ## Summary
 
 - Every numbered area, numbered sub-area and canonical file the wiki depends on has exactly one row here.
-- A renamed anchor is caught the first time `wiki_lint.py` runs after the change, with a clear instruction to register the old path in the redirect log.
+- A renamed anchor is caught the first time `wiki_lint.py` runs after the change, with a clear instruction to update every link to the old path.
 - Adding a numbered folder means adding one row here **before** the folder is linked from anywhere.
 - No anchor row is pruned — the manifest records the current structural contract, not history.
 - The linter exits 0 only when no links are broken **and** no anchor is missing.

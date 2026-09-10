@@ -11,6 +11,27 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - T1-E2.01 Machinery Integrity & Portability Hardening (v0.3.13)
+
+**Why:** Made the template's own guarantees true. W1 linter truth & power (`wiki_lint.py`: frontmatter `related-to`/`dependencies` link checks, hub→spoke, `[UNINDEXED]`/`[MISSING]`, hub BFS reachability; `--fix` implemented; pattern-based exemptions); W2 7 broken frontmatter links repaired + `Last Verified` column; W3 transport engine Linux parity (single `Read-Manifest`, `$shellExe`, forward-slash paths) + `-SelfTest` in CI + manifest completeness; W4 seeds reconciled (`opencode.template.json` ships the 9-agent block); W5 doc truth sweep; W6 version/log discipline + failing CI version check; W7 residue removed (Gemini genericised, sprint registers parked, `theme-linguistics` refs deleted); W8 `opencode.json`↔registry validation + uniform rebind to DeepSeek V4.1 Flash. Gates: prefix PASS ×7 + `OC-MODEL`, UTF-8 ALL CLEAN (167), `wiki_lint` exit 0, coverage no-op exit 0, `-SelfTest` OK. machinery-version 19→20.
+**Ref:** working tree uncommitted at wrap-up (last commit `8c50a87`); plan archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`.
+
+---
+
+## 2026-09-10 - Machinery Version 19 + AGENTS.md Structure (v0.3.12)
+
+**Why:** Bumped `machinery-version` 18→19 and aligned the documentation-structure block in `AGENTS.md` + `AGENTS.template.md`. No session changelog entry was written at the time; reconstructed from commit `8c50a87` during T1-E2.01.
+**Ref:** `8c50a87`
+
+---
+
+## 2026-09-09 - Encoding-Hardening Series (v0.3.9–v0.3.11)
+
+**Why:** One session closed three encoding gaps: `check-utf8-agents.ps1` extended to `.wiki/**/*.md` (v0.3.9), a byte-level BOM/UTF-8 guard added to `wiki_lint.py` + `.ptp-source` written via .NET UTF-8 no-BOM (v0.3.10), and portable `.vscode/settings.json` pinned to `files.encoding: utf8` + `files.autoGuessEncoding: false` (v0.3.11); machinery-version 15→18. Reconstructed from commit `99663cd` — release rows exist in `version-history.md` but the changelog entries were never written.
+**Ref:** `99663cd`
+
+---
+
 ## 2026-09-09 - Knowledge-Changelog Decommission + Changelog History Prune (v0.3.8)
 
 **Why:** The `knowledge-changelog.md` concept was retired — its content was template placeholders + two one-off entries, and the new philosophy (adopted this session) is that git history is the permanent record. Deleted the file, purged all live references (skills, templates, wiki, README/HOW-TO/AGENTS, `wiki_lint.py` `--changelog` flag + `LOGS` constant), and made `@wiki-lint`/`@knowledge-consolidation` reports stdout-only. `agent-changelog.md` pruned to current-session entries (older history recoverable via git). Skill versions bumped (app-vision-north-star v1→2, knowledge-capture v5→6, knowledge-consolidation v5→6, wiki-lint v1→2); machinery-version 14→15. Gates: prefix PASS ×7, UTF-8 ALL CLEAN (113), wiki_lint OK.
@@ -77,8 +98,6 @@ All changes made by AI agents are tracked chronologically below.
 **Database/API Changes:** None
 
 **Summary:** Reviewed the knowledge-capture system per user request: measured 269-line KC growing ~9 lines/day with zero consolidations ever applied (wrap-up only appended; the documented consolidation handoff existed in no executable surface). Fixed the loop (wrap-up Phase 7 now runs tidy consolidation), made consolidation cheap enough to actually fire (two modes, surgical-only default), moved leanness upstream to capture time, and adopted the user's policy: KC holds only edge cases with future practical use, never pointers, never wiki duplicates, hard 500-line caps on both KC and the agent changelog, deterministic short entries. Verification: `check-utf8-agents.ps1` ALL CLEAN (114 files), `wiki_lint.py --quiet` exit 0, `check-parcel-prefix.ps1` PASS ×7 byte-identical. **Wrap-up ref:** `b0ca295`
-
----
 
 ---
 

@@ -9,14 +9,14 @@ description: "Documents the in-app AI capabilities, model integrations, prompt a
 
 # AI Integration & Agentic Workflows
 
-**AI Engine:** [AI Provider & Model — e.g., Gemini 2.5 Flash via Gemini Developer REST API]
+**AI Engine:** [AI Provider & Model — e.g., your chosen LLM via its provider API]
 
 ---
 
 ## 1. AI Design Philosophy
 
 * **Human-in-the-Loop (HITL):** The AI acts as an advisor and drafter. All AI-generated outputs must be explicitly confirmed by a human user before being saved or acted upon.
-* **[API Method]:** [Describe the integration method — e.g., "Direct REST calls to `generativelanguage.googleapis.com` using `VITE_GEMINI_API_KEY`. No proxy layer required."]
+* **[API Method]:** [Describe the integration method — e.g., "Direct REST calls to the provider endpoint using `VITE_AI_API_KEY`. No proxy layer required."]
 * **Structured Outputs:** Leverage JSON response schemas where possible to ensure the frontend can render AI output into predictable UI elements.
 * **Filtered Context:** To prevent token limit issues, only inject contextually relevant subsets of data into AI prompts. [Describe the cap — e.g., "Capped at 200 items for resolution tasks."]
 

@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 6
-updated: 2026-09-09
+version: 7
+updated: 2026-09-11
 ---
 
 # Agent Wrap-Up Skill
@@ -102,14 +102,14 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
 1.  **Update Implementation Plans**: If you were following a plan in `.devops/plans/`, finalize it in this strict order:
     - **Step 1 — Mark Complete:** Open the plan file and update its **State Dashboard** to set `Status` to `COMPLETE`. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
-    - **Step 3 — Archive:** Move the completed plan file from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md`. Write the updated content to the archive path, then delete the original from `.devops/plans/`.
+    - **Step 3 — Archive:** Move the completed plan with `git mv` from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md` — no stub is left at the old location.
 
 > **Archival is mandatory, not optional.** A plan that is done but still sitting in `.devops/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
 
 ### Phase 5: Scan for Unfinished Business
 Review the session for discoveries that need their own follow-up work. Do not let discovered issues disappear into the archive.
 
-1. **Orphan files / dead code**: If the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/plans/{code}-{slug}-plan.md` with affected file paths and a terse description. Follow the backlog plan template from the pass-the-parcel skill.
+1. **Orphan files / dead code**: If the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{slug}-backlog.md` with affected file paths and a terse description. Follow the backlog plan template from the pass-the-parcel skill.
 2. **Spaghetti Triage rows**: If the session identified complexity targets (spaghetti smells), dispose each row:
    - `escalate-monster` — flag for the user to invoke `spaghetti-monster` directly
    - `new-parcel` — one backlog plan per row (use same format as step 1)
@@ -140,7 +140,7 @@ Completed work may resolve one or more open backlog items. Do not skip this phas
 ### Phase 8: Coverage Gate (Hard Verification)
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
-1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — links, anchors, frontmatter, index completeness. (Omit `--quiet` when diagnosing failures.)
+1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
 2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must be referenced in its domain index. On gaps: add an index row (preferred) or add to the script's `ALLOWLIST` with an explicit reason. Never skip silently.
 3. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
 4. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`.

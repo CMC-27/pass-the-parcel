@@ -33,7 +33,6 @@ This document is the master gateway into the documentation library. Start here t
 - [Utility Standards](./11-utility-standards.md)
 - [Security Standards](./12-security-standards.md)
 - [Performance Standards](./13-performance-standards.md)
-- [Theme & Linguistics](./15-theme-linguistics.md)
 
 ## 3. Component & View Code
 
