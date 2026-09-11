@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - Wrap-up + deploy skill streamlining (v0.3.15)
 
 **Why:** `agent-wrap-up` (v7→v8, 161→145 lines): dropped the dead "Mandatory Tools" section and the phase-restating "Non-Negotiable Rules", merged Phases 5–6 into one Backlog Reconciliation phase (renumbering KC→6, gates→7), and split the gate phase into 7a hard-stop coverage vs 7b state stamps. `test-and-deploy` (v2→v3): added a no-`package.json` applicability guard and the missing AGENTS.md rule 9 pre-push checks (`check-parcel-prefix` + `check-utf8-agents`), folded the build step into the concurrent block. Cross-refs updated (`knowledge-consolidation`, `wiki-verifier.subagent`, `18-knowledge-capture`); `machinery-version` 21→22.
-**Ref:** _(uncommitted — set at push)_
+**Ref:** `af8065c`
 
 ## 2026-09-11 - T1-E2.01 review fixes (v0.3.14)
 
