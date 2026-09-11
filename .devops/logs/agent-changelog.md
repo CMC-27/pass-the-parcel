@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - Coverage gate: symbol/claims evidence (v0.5.0)
 
 **Why:** `wiki_coverage_check.py` passed a file on a bare filename-substring mention — a renamed symbol inside an unchanged file was invisible to CI, so the wiki could drift while staying green. Replaced the weak anchor with a four-route evidence OR (filename, parent folder, index-cited exported symbol, `claims: source` binding); symbol discovery is a stdlib regex export scan (documented `ponytail:` ceiling), and coverage now consumes `wiki_claims.py` (single parser owner) via a lazy import after the `src/`-absent no-op guard. Additive — satellites do not regress. Closes the T2-E1.01 Q6 carry-over. `machinery-version: 26`.
-**Ref:** `uncommitted working tree` (v0.5.0, commit pending)
+**Ref:** `ce7f079`
 
 ---
 
