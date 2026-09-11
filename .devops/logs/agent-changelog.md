@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-12 - Plan Settings promoted to a frozen header block (machinery 34)
 
 **Why:** Plan-start settings (`Mode`/`Agents`) sat in the cache-anchored BOTTOM `State & Gates` table next to mutable gate state, so resumed sessions and narrowly-prompted subagents sometimes missed them. Split by mutability: `Mode`/`Agents` now sit in a frozen `## ⚙️ Plan Settings` block at the TOP (read before any phase); the bottom holds only mutable state. Moved (not copied) across `template-plan.md`, `base-context.md` (re-inlined ×7, prefix PASS), `parcel.agent.md` steps 2-3, `pass-the-parcel` v7→v8, `plan-lifecycle.md`, `HOW-TO.md`, seed `base-context.template.md` v5→v6, and the KC entry. machinery-version 33→34.
-**Ref:** working tree (uncommitted; baseline `126c926`).
+**Ref:** `37c84b7`.
 
 ---
 
