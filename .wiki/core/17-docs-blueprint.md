@@ -91,36 +91,14 @@ docs/           <- Generated visualizer export (not authored)
 
 ## 4. Standard Document Anatomy
 
-Every `.md` file in the library should adhere to this structure:
+Every `.md` file in the library opens with the same three front-loaded sections, then unlimited detail. The opening pattern and the frontmatter schema are canonical in [document-structure.md](../rules/document-structure.md) and [frontmatter.md](../rules/frontmatter.md) — reference them, never restate them in a document. A doc whose prose makes a material factual claim may also carry a `claims:` block binding the claim to its source (see [claims.md](../rules/claims.md)).
 
-### A. YAML Frontmatter
-
-One schema (see [frontmatter.md](../rules/frontmatter.md)). Required keys: `name`, `type`, `status`, `format-version`. Everything else is optional.
-
-```yaml
----
-name: "doc-slug"
-type: "feature" | "component" | "database" | "logic" | "core" | "rule"
-status: "stable" | "in-progress" | "deprecated" | "template" | "approved"
-format-version: 1
-title: "Human Readable Title"
-description: "Brief summary of the document purpose."
-dependencies: ["../features/feat-auth.md"]
-related-to: ["../database/db-projects.md"]
----
-```
-
-A doc whose prose makes a material factual claim may also carry a `claims:` block binding the claim to its source. See [claims.md](../rules/claims.md).
-
-### B. Header & Summary
-A clear H1 followed by a 2-3 sentence overview of the subject.
-
-### C. Technical Context (The "What")
+### A. Technical Context (The "What")
 - **Physical Path:** Explicit path to the code (`src/views/...`).
 - **Data Shape:** JSON or TypeScript definitions of relevant state.
 - **Mermaid Diagrams:** Use flowcharts or sequence diagrams to visualize logic.
 
-### D. Relationships (The "How it Connects")
+### B. Relationships (The "How it Connects")
 Links to related database tables, parent indices, or sibling features.
 
 ---

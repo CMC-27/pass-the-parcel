@@ -10,7 +10,7 @@ description: "Core security boundary definitions, data isolation, role-based acc
 claims:
   - id: agents-read-operating-rules
     source: AGENTS.md#Core Development Rules
-    hash: sha256:5f75211cb981aff72cfe130d53941ec8a754cb89d6ef4f86848c3f461e858da7
+    hash: sha256:7b12cc076cee755e7cc1e648eadb54169413b0bb77e6f5a35d455da94c84a386
   - id: env-vars-excluded-from-git
     source: .gitignore#.env
     hash: sha256:5ac7f6640c04da066f021c3f8bdc2f9d901ee1b93d0bdd22243a937908f627d3
@@ -27,7 +27,7 @@ This document defines the strict security perimeter, architectural guardrails, a
 
 AI assistants must operate within strictly defined boundaries to prevent architectural drift:
 
-* **Mandatory Context Loading:** Before generating code, agents must read and internalize the workspace rules file (`AGENT.md`) and relevant architectural documentation.
+* **Mandatory Context Loading:** Before generating code, agents must read the workspace rules file (`AGENTS.md`) and the wiki hub (`.wiki/core/00-system-index.md`).
 * **Framework Adherence:** Code generation must strictly follow the defined UI library, state management patterns, and testing requirements.
 * **Self-Correction:** If an instruction contradicts the established rules or security baselines, the agent must halt execution, explicitly flag the contradiction, and request clarification.
 
@@ -69,7 +69,7 @@ AI assistants must operate within strictly defined boundaries to prevent archite
 ## 6. Blast Radius Control & Safe Releases
 
 * **Feature Flag Integration:** Significant new features should be wrapped in feature flags.
-* **Stateless Deployments:** Ensure code remains stateless for seamless rollbacks.
+* **Stateless Deployments:** Keep code stateless, so a rollback is a redeploy of the previous version.
 
 ---
 

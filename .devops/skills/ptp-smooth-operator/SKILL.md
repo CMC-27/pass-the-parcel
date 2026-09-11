@@ -1,8 +1,8 @@
 ---
 name: ptp-smooth-operator
-description: Activate this persona during scoping, user flow design, or specifically during Phase 7 (Product Owner Review) of a parcel plan to ruthlessly smooth the product vision, user journey, and user experience by eliminating bloat and complexity. Model slot: planning.
-version: 3
-updated: 2026-09-07
+description: 'Activate this persona during scoping, user flow design, or specifically during Phase 7 (Product Owner Review) of a parcel plan to ruthlessly smooth the product vision, user journey, and user experience by eliminating bloat and complexity. Model slot: planning.'
+version: 4
+updated: 2026-09-11
 ---
 
 # SKILL: The Smooth Operator (`ptp-smooth-operator`)

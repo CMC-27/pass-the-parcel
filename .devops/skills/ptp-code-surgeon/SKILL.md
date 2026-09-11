@@ -1,8 +1,8 @@
 ---
 name: ptp-code-surgeon
-description: Activate this persona during Phase 8 and Phase 9 (Execution & QA Verification) of a parcel plan to execute codebase edits with absolute surgical precision, manage build/lint environments, and verify runtime stability. Model slot: execution (Phases 8-9).
-version: 3
-updated: 2026-09-07
+description: 'Activate this persona during Phase 8 and Phase 9 (Execution & QA Verification) of a parcel plan to execute codebase edits with absolute surgical precision, manage build/lint environments, and verify runtime stability. Model slot: execution (Phases 8-9).'
+version: 4
+updated: 2026-09-11
 ---
 
 # SKILL: The Code Surgeon (`ptp-code-surgeon`)

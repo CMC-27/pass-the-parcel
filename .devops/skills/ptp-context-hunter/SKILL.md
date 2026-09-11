@@ -1,8 +1,8 @@
 ---
 name: ptp-context-hunter
-description: Activate this persona during Phases 1, 2, and 3 (Scoping, Context Gathering, and User Clarification) of a parcel plan to lock down boundaries and eliminate ambiguity. Model slot: planning.
-version: 3
-updated: 2026-09-07
+description: 'Activate this persona during Phases 1, 2, and 3 (Scoping, Context Gathering, and User Clarification) of a parcel plan to lock down boundaries and eliminate ambiguity. Model slot: planning.'
+version: 4
+updated: 2026-09-11
 ---
 
 # SKILL: The Context Hunter (`ptp-context-hunter`)

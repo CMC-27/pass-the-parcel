@@ -1,6 +1,8 @@
 ---
 name: caveman
 description: Make sure to use this skill whenever the user mentions "caveman mode", "talk like caveman", "use caveman", "less tokens", "be brief", "terse", or invokes /caveman. Ultra-compressed communication mode cuts token usage ~75% by dropping filler, articles, and pleasantries while keeping full technical accuracy.
+version: 1
+updated: 2026-09-11
 ---
 
 # SKILL: Caveman Mode (Ultra-Compressed Terse Communication)

@@ -11,6 +11,27 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - Skill frontmatter validity + CP437 mojibake repair (machinery 33)
+
+**Why:** Pre-commit audit found three latent defects in portable skills. (1) Six skills (`ptp-code-surgeon`, `ptp-context-hunter`, `ptp-grumpy-architect`, `ptp-high-visionary`, `ptp-smooth-operator`, `sprint-close`) had an unquoted `: ` in `description` — invalid strict YAML that opencode's loader tolerates but any real parser rejects; descriptions are now single-quoted. `caveman` was missing `version`/`updated`; added. (2) `app-vision-north-star` and `wiki-assessment` were heavily corrupted with **CP437 mojibake** — UTF-8 bytes misread through code page 437, so every `—`/`–`/emoji appeared as a multi-glyph CP437 misread; repaired by reversing each high-char run through `cp437→utf-8` (app-vision 114 runs; wiki-assessment 48 runs with 2 legitimate `—` preserved). (3) Root cause was a **guard gap**: `check-utf8-agents.ps1` detected only CP1252 mojibake (`C3 A2`, `C3 B0 C2`) and U+FFFD, so both files passed as ALL CLEAN despite the gate scanning 190 files; it now also flags the CP437 lead pairs `CE 93`+`C2`/`C3` and `E2 89 A1 C6 92`. Verified the new pattern flags the pre-repair bytes and the tree is now clean. Skill versions bumped (see v0.7.4); machinery-version 32→33.
+**Ref:** working tree (uncommitted; baseline `4b06594`).
+
+---
+
+## 2026-09-11 - PRUNE exit-code honesty in sync -Check (machinery 32)
+
+**Why:** `-Check` emitted a `PRUNE` verdict for a retired file lingering in a satellite but excluded it from the out-of-sync tally, so the documented contract "exit 1 = out of sync" was not driven by PRUNE. Investigation showed the literal tally fix alone was a no-op: every `prune_files` entry lives inside a portable dir, so the extra file also made its parent report `DRIFT` — misleadingly described to users as "locally customized — ask before overwriting" when the file is simply retired — and *that* already forced exit 1, masking the PRUNE nuance. Complete fix: prune files are stripped from the target side of the parent-directory hash comparison (source side untouched so a manifest bug still surfaces as a diff), and `PRUNE` is added to the `$bad` tally. `-SelfTest` gains a negative assertion — a planted prune file must report `PRUNE` + `OUT OF SYNC` with no `DRIFT`, clean again after re-sync — which fails on the pre-fix script. `sync-architecture` SKILL v4→v5; HOW-TO §6 + `.devops/README` pruning note refreshed; machinery-version 31→32.
+**Ref:** working tree (uncommitted; baseline `4b06594`).
+
+---
+
+## 2026-09-11 - Wiki-writer pass: core-doc sweep + HOW-TO rebalance
+
+**Why:** Wiki-writer sweep of the core docs and HOW-TO. Fixed real drift (00 dead `#9` anchor + duplicate refs; 12 wrong `AGENT.md` path + prohibited word; 17 restating canonical frontmatter/structure rules) and rebalanced HOW-TO (stale §1 bootstrap corrected to `@wiki-generate` -> `@wiki-bootstrap`, which was contradicting §5 and the v2 skills; §6 split into subsections; appended wiki-evidence paragraph promoted to §7). Added the missing `PRUNE` verdict to `sync-architecture` (v3->v4) — the engine emits it at `sync-architecture.ps1:523`, though `PRUNE` is excluded from the `-Check` out-of-sync count (flagged, not changed).
+**Ref:** working tree (uncommitted; baseline `4b06594`). Tree also carries prior-session maturity-register changes (AGENTS/README/.devops/README/backlog-index/09-design-system/`MATURITY.md`) not authored this session.
+
+---
+
 ## 2026-09-11 - OKF round-trip parity (v0.7.2)
 
 **Why:** Post-review F4. `wiki_okf.py export` counted 56 "concepts" (any doc with a `type`) while `import` ingested 45 — the 11 `*-index.md` navigation docs were exported but skipped on ingest, so the round-trip was lossy and CI's count read like parity. Export now applies the same `is_fm_exempt_name` predicate as import, and CI asserts `exported concepts == imported`.

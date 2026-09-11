@@ -1,6 +1,7 @@
-# Application Workspace — Agent Entry Point
+# Pass the Parcel — Agent Entry Point
 
-**Welcome to the Application Workspace.**
+> **What this repo is.** Pass the Parcel is a template with **two jobs**: (1) a **stateless, multi-agent planning & execution framework** — the 10-phase parcel pipeline with four hard gates and independent review; and (2) an **agent-first wiki system** — a governed, grounded knowledge base (deterministic linter + Grounded Claims + drift automation) that keeps an agent's context cheap and honest. This repo is the **template, not an app**: the app-facing content under `.wiki/` documents the pattern satellites fill in. Maturity of both jobs is tracked in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
+
 This repository is configured with a structured documentation library in **`.wiki/`** designed to serve as the single source of truth for the codebase, architecture, state management, and user interfaces.
 
 ### Documentation Structure
@@ -48,6 +49,8 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Extending a utility or custom hook | `.wiki/logic/logic-index.md` | Specific util/hook doc |
 | Touching AI / agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
 | Checking backlog/roadmap or parked items | `.devops/backlog/backlog-index.md` | Specific backlog plan doc |
+| Assessing template maturity / axis health | `.devops/backlog/MATURITY.md` | Specific axis evidence + next lever |
+| Understanding what this template is / its dual purpose | `README.md` (Two jobs) | `.devops/backlog/MATURITY.md` |
 | Viewing archived implementation plans | `.devops/archive/README.md` | Specific archived plan |
 | Viewing audit results (T/F, Q&A, UI inventories) | `.devops/audits/README.md` | Originating skill doc |
 | Adding or editing form fields | `.wiki/core/09-design-system.md` §5c | `.wiki/core/10-validation-standards.md` |

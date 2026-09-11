@@ -9,6 +9,8 @@ description: "Master queue of all pending, parked, and roadmap features."
 
 This index serves as the master queue of all proposed, deferred, or future feature requests and roadmap items. Each item points to a detailed plan file containing scoping, requirements, and design context. **Parked** plans live in `.devops/backlog/<slug>-backlog.md`; pick-up renames the file to `.devops/plans/<slug>-plan.md` (the `git mv` is the signal that it is now in flight).
 
+> **Maturity, not queue.** Per-axis template maturity and next levers live in [`MATURITY.md`](MATURITY.md) — this index tracks work items; that register tracks how healthy each axis is.
+
 ## T1 — Parcel Pipeline Machinery
 
 ### T1-E1: Model & Config Integrity

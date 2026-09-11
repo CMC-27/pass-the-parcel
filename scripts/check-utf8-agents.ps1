@@ -5,8 +5,10 @@
 # generated `docs/` and `.github/` markdown — the wiki scan closes the guard gap
 # where corrupted glyphs in documentation prose (which wiki_lint never inspects)
 # survived unchecked.
-# Markers: C3 A2 (double-encoded em-dash lead, "â€"), C3 B0 C2 (double-encoded emoji lead, "ðŸ"),
-# EF BF BD (U+FFFD replacement).
+# Markers: C3 A2 (CP1252 double-encoded em-dash lead, "â€"), C3 B0 C2 (CP1252 double-encoded emoji lead, "ðŸ"),
+# CE 93 + C2/C3 (CP437 double-encoded dash/emoji lead, "ΓÇ"), E2 89 A1 C6 92 (CP437 double-encoded
+# 4-byte emoji lead, "≡ƒ"), EF BF BD (U+FFFD replacement). The CP437 pair catches UTF-8 bytes misread
+# through code page 437 — a second corruption path the CP1252 markers alone missed.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
@@ -34,6 +36,10 @@ foreach ($file in $targets) {
         if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xA2) { $mojibake = $true; break }
         if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xB0 -and $bytes[$i + 2] -eq 0xC2) { $mojibake = $true; break }
         if ($bytes[$i] -eq 0xEF -and $bytes[$i + 1] -eq 0xBF -and $bytes[$i + 2] -eq 0xBD) { $mojibake = $true; break }
+        # CP437 double-encoding: Γ (CE 93) leads misread E2 xx sequences (dash / most emoji).
+        if ($bytes[$i] -eq 0xCE -and $bytes[$i + 1] -eq 0x93 -and ($bytes[$i + 2] -eq 0xC2 -or $bytes[$i + 2] -eq 0xC3)) { $mojibake = $true; break }
+        # CP437 double-encoding: ≡ƒ (E2 89 A1 C6 92) leads misread 4-byte F0 9F emoji sequences.
+        if ($i -lt $bytes.Length - 4 -and $bytes[$i] -eq 0xE2 -and $bytes[$i + 1] -eq 0x89 -and $bytes[$i + 2] -eq 0xA1 -and $bytes[$i + 3] -eq 0xC6 -and $bytes[$i + 4] -eq 0x92) { $mojibake = $true; break }
     }
     if ($mojibake) {
         $bad += $file.FullName.Substring($root.Length + 1)

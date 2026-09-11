@@ -13,7 +13,7 @@ claims:
 
 # System Index (Developer Onboarding Hub)
 
-This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke Pattern](#9-hub--spoke-pattern)). It links to the major category index docs - those index docs are the authoritative catalogs for their domains.
+This document is the **hub** in a hub-and-spoke architecture (see [14 Hub & Spoke Pattern](#14-hub--spoke-pattern)). It links to the major category index docs - those index docs are the authoritative catalogs for their domains.
 
 ## Quick Reference - Core Docs
 
@@ -76,8 +76,6 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 - [Knowledge Capture & Decisions](./18-knowledge-capture.md) - Architectural decisions, tribal knowledge
 
 ## 8. External References
-- [Agent Changelog](../../.devops/logs/agent-changelog.md)
-- [Version History](../../.devops/logs/version-history.md)
 - [Naming Conventions Index](../conventions/conventions-index.md) - Hub for all naming conventions
 - [Testing Index](../testing/testing-index.md) - Test architecture docs
 - [Integrations Index](../integrations/integrations-index.md) - External systems and APIs

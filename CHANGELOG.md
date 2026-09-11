@@ -22,6 +22,8 @@ First public release of the template.
 - The public product name is **Pass the Parcel**; "Application Wiki" is retained only as the descriptor for the wiki knowledge layer.
 
 ## Earlier releases
+- **v0.7.4** (2026-09-11) — Encoding-hygiene fix: repaired CP437 mojibake in two portable skills (`app-vision-north-star`, `wiki-assessment`), quoted unquoted-colon skill descriptions and completed `caveman` frontmatter, and widened the UTF-8 guard (`check-utf8-agents.ps1`) to catch the CP437 corruption path it previously missed.
+- **v0.7.3** (2026-09-11) — Sync `-Check` exit-code honesty: `PRUNE` now counts as out-of-sync, and a retired file no longer masquerades as a parent-directory `DRIFT` ("locally customized"); `-SelfTest` asserts both.
 - **v0.7.2** (2026-09-11) — OKF round-trip parity: export skips navigation (`README`/`*-index`) exactly as import does, and CI asserts the two counts are equal.
 - **v0.7.1** (2026-09-11) — OKF interop hardening: export/import now quote YAML scalars (titles containing `: ` were producing invalid YAML), CI parses the exported bundle with a real YAML parser, and import fails loudly if it leaves the wiki lint-dirty.
 - **v0.7.0** (2026-09-11) — Wiki refresh automation: `wiki_okf.py import` ingests an OpenWiki/OKF v0.2 bundle as local `in-progress` drafts (index-registered, skip-on-collision), and a secret-free scheduled `wiki-refresh.yml` raises a `wiki-drift` issue when grounded claims go stale.

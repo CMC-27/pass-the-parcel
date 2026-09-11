@@ -25,7 +25,11 @@ param(
                             UPGRADE vs DRIFT classification for non-skill items
 
     -Check compares source vs target per manifest item (SHA256 per file + version metadata)
-    and prints a CURRENT/UPGRADE/DRIFT/MISSING/SOURCE-ABSENT verdict table without writing.
+    and prints a CURRENT/UPGRADE/DRIFT/MISSING/PRUNE/SOURCE-ABSENT verdict table without writing.
+    A retired file still present in the target is a PRUNE verdict, and like every other
+    non-CURRENT verdict it makes -Check exit 1. Prune files are excluded from their parent
+    directory's comparison, so a lingering retired file surfaces as PRUNE rather than a
+    misleading parent-dir DRIFT ("locally customized") when the live content matches upstream.
     For the PREFIX-LOCKED agents (.devops/agents/parcel.agent.md + ptp-*.subagent.md) only
     the agent-unique content is hashed: the prefix region is regenerated from each repo's
     own base-context.md after every sync, so it legitimately differs between source and
@@ -145,11 +149,18 @@ if ($SelfTest) {
             foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
         }
         if ($stTgtV -ne $stSrcV) { $fail += "manifest stamp failed: target machinery-version '$stTgtV' vs source '$stSrcV'" }
-        # Prune test: plant a stale file, re-sync, assert it is removed.
+        # Prune test: plant a retired file, assert -Check reports PRUNE (not a parent-dir
+        # DRIFT) and exits out-of-sync; re-sync, assert it is removed and Check is clean.
+        # The planted file lives inside a portable dir, so this guards both the PRUNE
+        # tally and the parent-dir masking fix.
         if ($stPrune.Count -gt 0) {
             $stale = Join-Path $tmp $stPrune[0]
             New-Item -ItemType Directory -Force -Path (Split-Path $stale) | Out-Null
             Set-Content -Path $stale -Value "stale" -NoNewline
+            $stOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+            if ($LASTEXITCODE -eq 0) { $fail += "-Check reported IN SYNC with a prune file present (exit 0)" }
+            if (-not ($stOut -match 'PRUNE')) { $fail += "-Check did not report a PRUNE verdict for $($stPrune[0])" }
+            if ($stOut -match 'DRIFT') { $fail += "-Check reported DRIFT (not PRUNE) for a retired file inside a portable dir" }
             & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
             if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
             if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
@@ -488,11 +499,17 @@ if ($Check) {
     }
 
     function Compare-Item {
-        param($Kind, $Name, $SrcPath, $TgtPath)
+        param($Kind, $Name, $SrcPath, $TgtPath, [string[]]$IgnoreInTarget)
         if (-not (Test-Path $SrcPath)) { Add-Verdict $Kind $Name 'SOURCE-ABSENT' 'manifest lists it, source missing'; return }
         if (-not (Test-Path $TgtPath)) { Add-Verdict $Kind $Name 'MISSING' 'first-time install'; return }
         $sh = Get-ItemHashes $SrcPath
         $th = Get-ItemHashes $TgtPath
+        # A retired file lingering in the target is reported separately as PRUNE. Strip it
+        # from the target hash map so it does not also make the parent directory look
+        # DRIFT ("locally customized") when the dir's live content actually matches upstream.
+        # Only the target is stripped: a prune path present in the source would be a manifest
+        # bug and should still surface as a directory difference.
+        if ($IgnoreInTarget) { foreach ($i in $IgnoreInTarget) { [void]$th.Remove($i) } }
         $equal = ($sh.Count -eq $th.Count)
         if ($equal) {
             foreach ($k in $sh.Keys) { if (-not $th.ContainsKey($k) -or $th[$k] -ne $sh[$k]) { $equal = $false; break } }
@@ -515,7 +532,12 @@ if ($Check) {
         }
     }
 
-    foreach ($dir in $manifest['portable_dirs']) { Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) }
+    $prunePaths = @($manifest['prune_files'] | ForEach-Object { $_.Replace('\','/') })
+    foreach ($dir in $manifest['portable_dirs']) {
+        $dirPrefix = $dir.TrimEnd('/') + '/'
+        $ignore = @($prunePaths | Where-Object { $_.StartsWith($dirPrefix) } | ForEach-Object { $_.Substring($dirPrefix.Length) })
+        Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) $ignore
+    }
     foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
     foreach ($pf in $manifest['prune_files']) {
@@ -530,7 +552,7 @@ if ($Check) {
     $counts = @{}
     foreach ($v in $script:verdicts) { $counts[$v.Verdict] = 1 + [int]$counts[$v.Verdict] }
     $bad = 0
-    foreach ($b in @('UPGRADE', 'DRIFT', 'MISSING', 'SOURCE-ABSENT')) { $bad += [int]$counts[$b] }
+    foreach ($b in @('UPGRADE', 'DRIFT', 'MISSING', 'SOURCE-ABSENT', 'PRUNE')) { $bad += [int]$counts[$b] }
     Write-Output ""
     Write-Output ("Summary: " + (($counts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ' '))
     if ($bad -eq 0) {

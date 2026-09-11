@@ -6,6 +6,15 @@
 
 Pass the Parcel is a template for **stateless, multi-agent software delivery**. A single plan file (`.devops/plans/<slug>-plan.md`) holds all state; each phase is executed by one agent that reads the plan, does exactly one job, writes its result back, and exits. No agent carries a conversation, the reviewers never see the planner's reasoning, and every gate is a hard stop. Around the pipeline sits an **agent-first wiki** that acts as the source of truth for the codebase.
 
+## Two jobs
+
+Pass the Parcel is a template with two deliberate halves:
+
+1. **A planning & execution framework** — a stateless, 10-phase, multi-agent pipeline carried entirely in one Markdown plan, with four hard gates (Scope → Spec & Plan → Peer Reviews → Implementation) and independent, context-isolated review.
+2. **An agent-first wiki system** — a governed, grounded knowledge base that keeps an agent's context cheap and honest: a deterministic linter, Grounded Claims with source evidence, and drift automation. **Governance is the differentiator**; generation interoperates with [OpenWiki](https://github.com/langchain-ai/openwiki) through the Open Knowledge Format.
+
+Maturity of both halves is tracked per axis in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
+
 ## Why this exists
 
 Agentic coding tends to fail in predictable ways: the context window fills and the agent forgets the plan; the "reviewer" is just the same model agreeing with itself; and six weeks later nobody can reconstruct why a decision was made. Pass the Parcel fixes the structure, not the model:
@@ -83,6 +92,7 @@ powershell -NoProfile -File scripts\pull-architecture.ps1          # pull update
 ## Go deeper
 
 - **Contributing:** [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) · [`SECURITY.md`](SECURITY.md)
+- **Maturity:** [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md) — per-axis scorecard and next levers
 - **Releases:** [`CHANGELOG.md`](CHANGELOG.md) · [`.devops/logs/version-history.md`](.devops/logs/version-history.md)
 - **Licence:** [`LICENSE`](LICENSE) (MIT)
 

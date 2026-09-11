@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 3
-updated: 2026-09-05
+version: 5
+updated: 2026-09-11
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -38,8 +38,11 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    | `DRIFT` | same version, different bytes | **locally customized copy — do not blindly overwrite; ask the user.** Offer to show the diff before re-running without `-Check` |
    | `MISSING` | never installed here | will be created by a sync |
    | `SOURCE-ABSENT` | manifest bug in the template | report to the template repo owner |
+   | `PRUNE` | retired upstream but present in the target | a sync will delete it — **counts as out of sync** |
 
-   Summarize counts + the IN SYNC / OUT OF SYNC line. Exit code 1 = out of sync.
+   Summarize counts + the IN SYNC / OUT OF SYNC line. Exit code 1 = out of sync (any
+   `UPGRADE`/`DRIFT`/`MISSING`/`SOURCE-ABSENT`/`PRUNE` verdict). A retired file reports
+   `PRUNE` on its own line, never a parent-directory `DRIFT`.
 
 3b. **Interpret `-Verify` output** (never writes; exit 0 = `VERIFIED`):
 
