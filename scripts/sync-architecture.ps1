@@ -124,15 +124,17 @@ if ($SelfTest) {
             $sp = Join-Path $srcRoot $Rel
             $tp = Join-Path $tmp $Rel
             if (-not (Test-Path $tp)) { $script:fail += "missing in target: $Rel"; return }
-            $sh = Get-ChildItem $sp -Recurse -File | ForEach-Object { $_.FullName.Substring($sp.Length) } | Sort-Object
-            $th = Get-ChildItem $tp -Recurse -File | ForEach-Object { $_.FullName.Substring($tp.Length) } | Sort-Object
+            # -Force keeps the source/target file-set comparison honest for hidden
+            # (dot-prefixed) entries on Unix; both sides are filtered identically.
+            $sh = Get-ChildItem -Force $sp -Recurse -File | ForEach-Object { $_.FullName.Substring($sp.Length) } | Sort-Object
+            $th = Get-ChildItem -Force $tp -Recurse -File | ForEach-Object { $_.FullName.Substring($tp.Length) } | Sort-Object
             if (($sh -join '|') -ne ($th -join '|')) { $script:fail += "file set differs: $Rel" }
         }
         foreach ($d in $stDirs) { Assert-Mirror $d }
         foreach ($s in $stSkills) { Assert-Mirror ".devops\skills\$s" }
         foreach ($f in $stFiles) { Assert-Mirror $f }
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
-        $nested = Get-ChildItem $tmp -Recurse -Directory | Where-Object { $_.FullName.Replace('\','/') -match '/(\.wiki|\.devops)/\1|/skills/([^/]+)/\2' }
+        $nested = Get-ChildItem -Force $tmp -Recurse -Directory | Where-Object { $_.FullName.Replace('\','/') -match '/(\.wiki|\.devops)/\1|/skills/([^/]+)/\2' }
         if ($nested) { $fail += "nested-copy defect: $($nested.FullName -join ', ')" }
         # Manifest stamping: the target's machinery-version must now match the source's,
         # otherwise -Check reports a phantom UPGRADE after every successful sync.
@@ -275,8 +277,13 @@ function Get-ItemHashes {
         $sha = [System.Security.Cryptography.SHA256]::Create()
         try { ($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text)) | ForEach-Object { $_.ToString('X2') }) -join '' } finally { $sha.Dispose() }
     }
-    if ((Get-Item $Path).PSIsContainer) {
-        Get-ChildItem $Path -Recurse -File | ForEach-Object {
+    # -Force: on Unix, dot-prefixed names are hidden and Get-Item/Get-ChildItem
+    # ignore hidden items by default. .vscode is the only portable-surface leaf
+    # that is dot-prefixed (.wiki/rules, .devops/agents, ... end in visible
+    # names), so without -Force -Check dies on it under Linux/pwsh — the
+    # "Could not find item .../.vscode" crash that reddens the CI self-test.
+    if ((Get-Item -Force $Path).PSIsContainer) {
+        Get-ChildItem -Force $Path -Recurse -File | ForEach-Object {
             $base = $Path.TrimEnd('\', '/'); $rel = $_.FullName.Substring($base.Length + 1).Replace('\','/')
             $map[$rel] = Hash-Normalized $_.FullName
         }
