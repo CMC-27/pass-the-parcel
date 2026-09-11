@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-12 - wiki-writer runs as a subagent on demand (machinery 35)
 
 **Why:** `wiki-writer` was configured `mode: primary`, so only a user could select it and no orchestrator could delegate wiki prose to it via the Task tool. It is now bound `mode: all` in `opencode.json`: it stays selectable, and any primary agent may invoke it as a subagent when required. `parcel`'s `task` allow-list gains `wiki-writer: allow` beside `wiki-verifier`. Mirrored in the seed `opencode.template.json` (v3→v4); agent-surface wording updated in `AGENTS.md`, `.devops/templates/AGENTS.template.md`, `.devops/README.md` and `.devops/rules/agents-and-skills.md`. machinery-version 34→35.
-**Ref:** working tree (uncommitted; baseline `68ddc50`).
+**Ref:** `d43aebc`.
 
 ---
 
