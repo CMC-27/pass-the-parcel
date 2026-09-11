@@ -45,6 +45,8 @@
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start. Full contract: `@pass-the-parcel` § Agent Topology.
 
+**Where they live:** both settings are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start, read before any phase). They are NOT in the bottom `## 📍 State & Gates` section, which holds only mutable runtime state (Status / Active Persona / gates).
+
 ## Workspace Layout
 - Active plans: `.devops/plans/[slug]-plan.md`
 - Plan template: `.devops/plans/template-plan.md`

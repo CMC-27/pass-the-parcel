@@ -17,7 +17,7 @@ related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 - **Backlog:** `.devops/backlog/` — parked plans (`<slug>-backlog.md`, `BACKLOG`) not yet picked up. Pick-up is a `git mv` to `.devops/plans/<slug>-plan.md`; the rename is the in-flight signal.
 - **Archive:** `.devops/archive/` — completed plans, moved via `git mv` with **no stub left** at the old location.
 - **Per-run workspace:** `.opencode/plans/run-[slug]/` — reviews, versions, decision log.
-- **Template:** `.devops/plans/template-plan.md` — the canonical scaffold (cache-anchored State & Gates at the bottom).
+- **Template:** `.devops/plans/template-plan.md` — the canonical scaffold (frozen Plan Settings at the top; cache-anchored State & Gates at the bottom).
 
 ## Lifecycle
 
@@ -33,12 +33,13 @@ related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 
 **Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
 
-**Agents (topology axis — orthogonal to Modes):** `MULTI` (default — **comprehensive plan**: full `ptp-*` delegation, independent Group C reviewers, 4 gates) / `SINGLE` (**fast plan**: the orchestrator executes each group's persona inline with no `task` spawns, Group C is skipped, and Gates B+C merge into one approval at Gate B with Gate C `N/A`). Chosen by task complexity at plan start (blast radius / contract change / risk / ambiguity / novelty) and confirmed by the user. Gate A and Gate D always halt for the human in both. See `@pass-the-parcel` § Agent Topology.
+**Agents (topology axis — orthogonal to Modes):** `MULTI` (default — **comprehensive plan**: full `ptp-*` delegation, independent Group C reviewers, 4 gates) / `SINGLE` (**fast plan**: the orchestrator executes each group's persona inline with no `task` spawns, Group C is skipped, and Gates B+C merge into one approval at Gate B with Gate C `N/A`). Chosen by task complexity at plan start (blast radius / contract change / risk / ambiguity / novelty) and confirmed by the user. Gate A and Gate D always halt for the human in both. See `@pass-the-parcel` § Agent Topology. Both `Mode` and `Agents` are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start) — never the bottom State & Gates.
 
 ## Cache-Anchored State & Gates
 
-- The State Dashboard + Gate Log are the **last section** of every plan file (`## 📍 State & Gates`).
-- Gate transitions mutate ONLY those bottom rows; phase content above stays byte-stable to preserve LLM prefix-cache hits.
+- The **Plan Settings** block (`Mode` + `Agents`) is frozen config at the **TOP** of every plan file — written once at plan start, never edited after.
+- The State Dashboard + Gate Log are the **last section** of every plan file (`## 📍 State & Gates`) and hold the only mutable runtime state.
+- Gate transitions mutate ONLY those bottom rows; the frozen settings block and phase content above stay byte-stable to preserve LLM prefix-cache hits.
 - Every "update the dashboard" instruction means "update the bottom State & Gates section".
 
 ## Rules

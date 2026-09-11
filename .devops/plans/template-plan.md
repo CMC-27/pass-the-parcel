@@ -1,15 +1,24 @@
 # Parcel Plan: T{theme}-E{epic}.{impl} - [Title]
 ## Theme-Epic: T{theme} - {Theme Name}, E{epic} - {Epic Name}
 
+## ⚙️ Plan Settings (FROZEN — set at plan start, read before any phase)
+
+| Setting | Value | Meaning |
+|---|---|---|
+| **Mode** | `USER-MANAGED` | `USER-MANAGED` (every gate halts for the user) or `AUTO` (orchestrator auto-clears Gates A-C; Gate D always halts) |
+| **Agents** | `MULTI` | `MULTI` (comprehensive — full `ptp-*` delegation, 4 gates) or `SINGLE` (fast — inline personas, Group C skipped, Gates B+C merged at Gate B, Gate C `N/A`) |
+
+> **Frozen config — read before executing ANY phase.** These two settings govern the entire pipeline and are never edited after plan start; they sit at the TOP so no session can miss them. Mutable runtime state (Status / Active Persona / gates) lives ONLY in the cache-anchored `## 📍 State & Gates` section at the bottom. See `@pass-the-parcel` § Agent Topology.
+
 > **Skill Architecture:** This template is consumed by the `pass-the-parcel` skill. Each phase delegates to a specialized sub-skill. See the parcel skill's Skill Delegation Map.
 >
 > **RULES:**
 > - Full skeleton required - ALL 10 phases + Wrap Up MUST be present.
 > - Halt points are HARD STOPS - each gate blocks all subsequent phases.
 > - Persona matches Status - use the State Lifecycle table in pass-the-parcel skill.
-> - **Topology:** `Agents: MULTI` (default — full `ptp-*` delegation, 4 gates) or `Agents: SINGLE` (fast plan — orchestrator plays personas inline, Group C skipped, Gates B+C merged into one approval at Gate B; Gate C recorded `N/A`). The full skeleton stays present in both. See `@pass-the-parcel` § Agent Topology.
+> - Read **Plan Settings** above before acting; the topology there governs which gates apply. See `@pass-the-parcel` § Agent Topology.
 >
-> **🔒 CACHE-ANCHORED:** State Dashboard + Gate Log live in the **last section** of this file (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
+> **🔒 CACHE-ANCHORED:** The **Plan Settings** block above is frozen config; the mutable State Dashboard + Gate Log live in the **last section** (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
 
 ---
 
@@ -275,17 +284,17 @@
 
 ## 📍 State & Gates (CACHE-ANCHORED — update ONLY this section at gate transitions)
 
-> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above stays byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
+> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above AND the frozen **Plan Settings** block at the top stay byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
 
 | Metric | Value |
 |---|---|
 | **Status** | `BACKLOG` |
 | **Version** | `v0.1.0` |
-| **Mode** | `USER-MANAGED` (set to `AUTO` only when the user explicitly selects it at plan start) |
-| **Agents** | `MULTI` (comprehensive plan — full `ptp-*` delegation; set `SINGLE` for a fast plan — inline personas, Group C skipped, Gates B+C merged) |
 | **Active Persona** | `Planner` |
 | **Depends On** | none |
 | **Blocks** | none |
+
+> **Settings pointer:** `Mode` and `Agents` live in the frozen **Plan Settings** block at the TOP of this file — read them there before any phase. Never duplicate them here.
 
 > Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
 

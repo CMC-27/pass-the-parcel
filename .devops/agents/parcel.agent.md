@@ -52,6 +52,8 @@ model: DeepSeek V4.1 Flash
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start. Full contract: `@pass-the-parcel` § Agent Topology.
 
+**Where they live:** both settings are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start, read before any phase). They are NOT in the bottom `## 📍 State & Gates` section, which holds only mutable runtime state (Status / Active Persona / gates).
+
 ## Workspace Layout
 - Active plans: `.devops/plans/[slug]-plan.md`
 - Plan template: `.devops/plans/template-plan.md`
@@ -96,8 +98,8 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 ## Workflow
 
 1. **Load the `pass-the-parcel` skill** for the canonical phase table, lifecycle states, gate semantics, and template reference.
-2. **Mode Selection (mandatory, before any plan work).** Call the `vscode_askQuestions` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **State & Gates** section (bottom).
-3. **Agent Topology Selection (mandatory, before any plan work).** Classify task complexity (blast radius, contract change, risk/reversibility, ambiguity, novelty) and **recommend** a topology via `vscode_askQuestions`: `MULTI` (comprehensive plan — full `ptp-*` delegation, independent Group C reviewers, 4 gates) or `SINGLE` (fast plan — orchestrator plays every persona inline, no `task` spawns, Group C skipped, Gates B+C merge into one approval at Gate B with Gate C `N/A`). Record in the plan's **State & Gates** `Agents` row. Orthogonal to `Mode`. **Gate A and Gate D always halt** in both topologies. See `pass-the-parcel` § Agent Topology.
+2. **Mode Selection (mandatory, before any plan work).** Call the `vscode_askQuestions` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **Plan Settings** block at the **TOP** of the plan file — never the bottom State & Gates.
+3. **Agent Topology Selection (mandatory, before any plan work).** Classify task complexity (blast radius, contract change, risk/reversibility, ambiguity, novelty) and **recommend** a topology via `vscode_askQuestions`: `MULTI` (comprehensive plan — full `ptp-*` delegation, independent Group C reviewers, 4 gates) or `SINGLE` (fast plan — orchestrator plays every persona inline, no `task` spawns, Group C skipped, Gates B+C merge into one approval at Gate B with Gate C `N/A`). Record in the plan's **Plan Settings** `Agents` row at the **TOP** of the plan file. Orthogonal to `Mode`. **Gate A and Gate D always halt** in both topologies. See `pass-the-parcel` § Agent Topology.
 4. **Plan Instantiation.** Derive a kebab-case slug from the description. If a parcel with this slug already exists at `.devops/plans/[slug]-plan.md`, pick it up instead of creating. If creating fresh, copy the template from `.devops/plans/template-plan.md` to `.devops/plans/[slug]-plan.md`. Confirm the slug + plan path + mode + topology with the user before proceeding.
 5. **Workspace Initialization (mandatory, once per plan).** Create `.opencode/plans/run-[slug]/` with a `reviews/` subdirectory. Initialize `decision_log.md`.
 6. **Pick up the plan** at `.devops/plans/[slug]-plan.md`. Hydrate **State & Gates** (bottom) to `PHASE_1`.

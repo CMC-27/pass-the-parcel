@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-12 - Plan Settings promoted to a frozen header block (machinery 34)
+
+**Why:** Plan-start settings (`Mode`/`Agents`) sat in the cache-anchored BOTTOM `State & Gates` table next to mutable gate state, so resumed sessions and narrowly-prompted subagents sometimes missed them. Split by mutability: `Mode`/`Agents` now sit in a frozen `## ⚙️ Plan Settings` block at the TOP (read before any phase); the bottom holds only mutable state. Moved (not copied) across `template-plan.md`, `base-context.md` (re-inlined ×7, prefix PASS), `parcel.agent.md` steps 2-3, `pass-the-parcel` v7→v8, `plan-lifecycle.md`, `HOW-TO.md`, seed `base-context.template.md` v5→v6, and the KC entry. machinery-version 33→34.
+**Ref:** working tree (uncommitted; baseline `126c926`).
+
+---
+
 ## 2026-09-11 - Skill frontmatter validity + CP437 mojibake repair (machinery 33)
 
 **Why:** Pre-commit audit found three latent defects in portable skills. (1) Six skills (`ptp-code-surgeon`, `ptp-context-hunter`, `ptp-grumpy-architect`, `ptp-high-visionary`, `ptp-smooth-operator`, `sprint-close`) had an unquoted `: ` in `description` — invalid strict YAML that opencode's loader tolerates but any real parser rejects; descriptions are now single-quoted. `caveman` was missing `version`/`updated`; added. (2) `app-vision-north-star` and `wiki-assessment` were heavily corrupted with **CP437 mojibake** — UTF-8 bytes misread through code page 437, so every `—`/`–`/emoji appeared as a multi-glyph CP437 misread; repaired by reversing each high-char run through `cp437→utf-8` (app-vision 114 runs; wiki-assessment 48 runs with 2 legitimate `—` preserved). (3) Root cause was a **guard gap**: `check-utf8-agents.ps1` detected only CP1252 mojibake (`C3 A2`, `C3 B0 C2`) and U+FFFD, so both files passed as ALL CLEAN despite the gate scanning 190 files; it now also flags the CP437 lead pairs `CE 93`+`C2`/`C3` and `E2 89 A1 C6 92`. Verified the new pattern flags the pre-repair bytes and the tree is now clean. Skill versions bumped (see v0.7.4); machinery-version 32→33.

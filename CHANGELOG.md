@@ -22,6 +22,7 @@ First public release of the template.
 - The public product name is **Pass the Parcel**; "Application Wiki" is retained only as the descriptor for the wiki knowledge layer.
 
 ## Earlier releases
+- **v0.7.5** (2026-09-12) — Plan settings promoted to a frozen top-of-file `## ⚙️ Plan Settings` block: `Mode`/`Agents` move out of the cache-anchored bottom `State & Gates` table (where resumed sessions and narrowly-prompted subagents sometimes missed them), leaving the bottom with only mutable state. Moved, not copied, across the plan template, `base-context.md` (prefix re-inlined ×7), agent steps, the `pass-the-parcel` skill, `plan-lifecycle.md`, HOW-TO, and the satellite seed.
 - **v0.7.4** (2026-09-11) — Encoding-hygiene fix: repaired CP437 mojibake in two portable skills (`app-vision-north-star`, `wiki-assessment`), quoted unquoted-colon skill descriptions and completed `caveman` frontmatter, and widened the UTF-8 guard (`check-utf8-agents.ps1`) to catch the CP437 corruption path it previously missed.
 - **v0.7.3** (2026-09-11) — Sync `-Check` exit-code honesty: `PRUNE` now counts as out-of-sync, and a retired file no longer masquerades as a parent-directory `DRIFT` ("locally customized"); `-SelfTest` asserts both.
 - **v0.7.2** (2026-09-11) — OKF round-trip parity: export skips navigation (`README`/`*-index`) exactly as import does, and CI asserts the two counts are equal.

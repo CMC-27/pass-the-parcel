@@ -58,7 +58,7 @@ Independently of the mode, a plan runs in one of two topologies — chosen by **
 - **`MULTI`** *(default — comprehensive plan)* — the orchestrator delegates each phase group to its `ptp-*` sub-agent; Group C runs as independent, context-isolated reviewers; 4 gates (A-D).
 - **`SINGLE`** *(fast plan)* — the orchestrator executes each group's persona inline (no sub-agent spawns); Group C is skipped and Gates B+C merge into one approval at Gate B (Gate C `N/A`); cheapest for local, low-risk changes.
 
-Gate A and Gate D always halt for the human in both topologies. Record the choice in the plan's **State & Gates** `Agents` row. Full contract: `@pass-the-parcel` § Agent Topology.
+Gate A and Gate D always halt for the human in both topologies. Record the choice in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen config — never the bottom State & Gates). Full contract: `@pass-the-parcel` § Agent Topology.
 
 ---
 

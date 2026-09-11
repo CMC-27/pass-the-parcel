@@ -25,7 +25,7 @@ claims:
 ## Quick Reference — Top 10 Rules
 | # | Rule | Theme | Pitfall? |
 |---|------|-------|----------|
-| 1 | State & Gates live at the BOTTOM of a plan; everything above stays byte-stable (LLM prefix cache) | Parcel | ❌ |
+| 1 | Plan Settings (`Mode`/`Agents`) freeze at the TOP; mutable State & Gates sits at the BOTTOM; the rest stays byte-stable (LLM prefix cache) | Parcel | ❌ |
 | 2 | SKILL.md is canonical; agents embed it verbatim — regenerate with `check-parcel-prefix.ps1 -Sync`, never hand-edit | Parcel | ❌ |
 | 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production | Sync | ❌ |
 | 4 | Portable machinery carries no absolute paths or machine-specific config | Sync | ✅ |
@@ -54,7 +54,7 @@ _(Stable rules derived from prior decisions. Grouped by theme.)_
 - **Post-sync bookkeeping self-heals**: sync stamps the target manifest's `machinery-version:` in place; `-Check` hashes only agent-unique content (frontmatter stripped), so per-repo prefix regeneration never reports phantom DRIFT. *(2026-09-06)*
 
 ### Parcel Pipeline
-- **Cache-anchored plans**: the State & Gates section sits last and holds the only mutable state rows; content above stays byte-stable across the whole lifecycle. *(2026-08-19)*
+- **Split plan config from state**: `Mode`/`Agents` are frozen in a **Plan Settings** block at the TOP; the State & Gates section sits last and holds only mutable state rows; everything else stays byte-stable across the lifecycle. *(2026-08-19, revised 2026-09-12)*
 - **Single execution source**: the plan file is the only thing the code-surgeon reads — no versioned snapshots (the `v1.0 → v2.0_approved` pipeline is retired). *(2026-09-06)*
 - **One state machine, five mirrors**: the 4-gate model (A Scope / B Spec & Plan / C Peer Reviews / D Implementation) is stated identically in the orchestrator skill, base-context, parcel agent, template, and rules doc. *(2026-09-07)*
 

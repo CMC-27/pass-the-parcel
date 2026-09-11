@@ -23,6 +23,7 @@ This index serves as the master queue of all proposed, deferred, or future featu
 
 | Plan | Status | Description |
 | :--- | :--- | :--- |
+| ~~promote-plan-settings-header~~ | `COMPLETE` | Resolved 2026-09-12 (v0.7.5, SINGLE/AUTO): `Mode`/`Agents` promoted from the cache-anchored bottom `State & Gates` table to a frozen top-of-file `## ⚙️ Plan Settings` block; bottom now holds only mutable state. Archived to `.devops/archive/promote-plan-settings-header-plan.md`. |
 | _(queue clear)_ | — | T1-E2.01 completed 2026-09-11 and archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`. |
 
 ## T2 — Wiki System & Knowledge Layer

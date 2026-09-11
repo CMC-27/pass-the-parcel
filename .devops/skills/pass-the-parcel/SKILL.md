@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 7
-updated: 2026-09-11
+version: 8
+updated: 2026-09-12
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -24,6 +24,7 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 
 Every plan file **MUST** have:
 - The full template scaffold with phases, gates, and checks.
+- Its **Plan Settings** block (top of the file) recording `Mode` + `Agents`, set once at plan start and read before any phase.
 - Its **State & Gates** section (bottom of the file) updated at each transition. 
 
 The table below defines the only valid states. An AI agent reading the plan determines exactly where it is in the workflow from these two fields.
@@ -56,13 +57,13 @@ The table below defines the only valid states. An AI agent reading the plan dete
 - **Gate flips only after a verdict:** gate rows flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO-mode verification's) decision, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 - **Topology changes the gate set:** `MULTI` forces 4 hard stops (A-D). `SINGLE` merges B+C into one plan-approval at Gate B and records Gate C as `N/A`. Gate A and Gate D are topology-invariant. See § Agent Topology.
 
-> **🔒 Cache-anchor rule:** The State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; phase content above stays byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
+> **🔒 Cache-anchor rule:** The **Plan Settings** block at the TOP of the plan file is frozen config (`Mode` + `Agents`, written once at plan start); the State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; the frozen settings block and phase content above stay byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
 
 ---
 
 ## Agent Topology (SINGLE vs MULTI — fast plan vs comprehensive plan)
 
-Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start. Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`).
+Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start. Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file.
 
 | | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** |
 |---|---|---|
@@ -100,7 +101,7 @@ The orchestrator **recommends** a topology from these signals; the **user confir
 - **`MULTI`:** `Group A (ptp-context-hunter)` -> Gate A -> `Group B (ptp-high-visionary)` -> Gate B -> `Group C (ptp-grumpy-architect + ptp-smooth-operator)` -> Gate C -> `Group D (ptp-code-surgeon)` -> Gate D -> Group E/F.
 - **`SINGLE`:** `Group A (orchestrator as Scoper)` -> Gate A -> `Group B (orchestrator as High-Visionary)` -> **Gate B** (spec + plan + inline self-review, one approval) -> `Group D (orchestrator as Executor)` -> Gate D -> Group E/F. Phase 4 folds into Phase 5 unless a wiki delta applies; Phases 6-7 render as `N/A — SINGLE topology; self-review logged`.
 
-Record the chosen topology in the plan's **State & Gates** `Agents` row.
+Record the chosen topology in the plan's **Plan Settings** `Agents` row at the **TOP** of the plan file (frozen config — never the bottom State & Gates).
 
 ---
 
