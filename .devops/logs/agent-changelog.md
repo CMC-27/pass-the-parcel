@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - Agent topology: SINGLE (fast plan) vs MULTI (comprehensive plan) (v0.3.16)
 
 **Why:** Added the parcel pipeline's second, orthogonal axis — `Agents: MULTI` (comprehensive plan: `ptp-*` delegation, independent Group C reviewers, 4 gates) / `Agents: SINGLE` (fast plan: inline personas, Group C skipped, Gates B+C merged into one approval at Gate B with Gate C `N/A`) — chosen by task complexity and user-confirmed at plan start; closes the gap where "single agent mode" had leaked in ad-hoc. Gate A + Gate D stay human in both. Mirrored across skill, base-context (+ seed template), template-plan, agents, `plan-lifecycle`, and HOW-TO. No backlog items resolved; no KC entry (the axis is canonically documented in `@pass-the-parcel`), consolidation skipped — nothing new surfaced. machinery-version 22→23.
-**Ref:** `pending`
+**Ref:** `1c98239`
 
 ## 2026-09-11 - Wrap-up + deploy skill streamlining (v0.3.15)
 
