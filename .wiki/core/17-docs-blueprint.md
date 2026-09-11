@@ -3,11 +3,11 @@ title: "🗺️ @docs Architecture Blueprint"
 type: "core"
 name: "Documentation Architecture Blueprint"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "The universal blueprint for the @docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
 ---
-
 # Documentation Architecture Blueprint
 
 This document defines the **Documentation Standard** for the application. It is designed to turn a codebase from a "black box" into a transparent, agent-ready intelligence hub.
@@ -22,15 +22,12 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 ## 2. Folder Taxonomy (The Library Structure)
 
-All documentation lives under a **`docs/`** root:
+Three roots: **`.wiki/`** holds architecture knowledge, **`.devops/`** holds operational state, and **`docs/`** holds generated exports.
 
 ```
-docs/
-+-- wiki/       <- Architecture Knowledge Base
-+-- backlog/    <- Product backlog
-+-- plans/      <- Active implementation plans
-+-- archive/    <- Completed plans
-+-- logs/       <- Development history
+.wiki/          <- Architecture Knowledge Base
+.devops/        <- Operational state (backlog / plans / archive / logs)
+docs/           <- Generated visualizer export (not authored)
 ```
 
 ### .wiki/ - Architecture Knowledge Base
@@ -46,7 +43,7 @@ docs/
 | `.wiki/integrations` | The Connections | `integrations-index.md` | External service and API integrations. |
 | `.wiki/testing` | The Test Lab | `testing-index.md` | Test patterns, mocking, performance budgets. |
 
-### docs/ - Operational Process Tooling
+### .devops/ - Operational Process Tooling
 
 | Directory | Role | Index File | Description |
 |---|---|---|---|
@@ -54,6 +51,10 @@ docs/
 | `.devops/backlog` | The Queue | `backlog-index.md` | Backlog index and individual plan files. |
 | `.devops/plans` | The Future | (User Managed) | Active implementation plans. |
 | `.devops/archive` | The Archive | (User Managed) | Completed plans moved from `plans/`. |
+
+### docs/ - Generated Visualizer Export
+
+`docs/` is **generated**, never authored. `scripts/wiki_visualize.py` writes `docs/wiki-graph.md` — a mermaid hub-and-spoke graph plus a linked catalog. Regenerate with `python scripts/wiki_visualize.py`.
 
 ---
 
@@ -80,16 +81,23 @@ docs/
 Every `.md` file in the library should adhere to this structure:
 
 ### A. YAML Frontmatter
+
+One schema (see [frontmatter.md](../rules/frontmatter.md)). Required keys: `name`, `type`, `status`, `format-version`. Everything else is optional.
+
 ```yaml
 ---
-type: "feature" | "component" | "database" | "logic" | "core"
-name: "Human Readable Name"
-status: "stable" | "in-progress" | "deprecated"
-dependencies: ["feat-auth", "db-projects"]
-db_relations: ["projects", "assemblies"]
+name: "doc-slug"
+type: "feature" | "component" | "database" | "logic" | "core" | "rule"
+status: "stable" | "in-progress" | "deprecated" | "template" | "approved"
+format-version: 1
+title: "Human Readable Title"
 description: "Brief summary of the document purpose."
+dependencies: ["../features/feat-auth.md"]
+related-to: ["../database/db-projects.md"]
 ---
 ```
+
+A doc whose prose makes a material factual claim may also carry a `claims:` block binding the claim to its source. See [claims.md](../rules/claims.md).
 
 ### B. Header & Summary
 A clear H1 followed by a 2-3 sentence overview of the subject.
@@ -117,8 +125,10 @@ Links to related database tables, parent indices, or sibling features.
 
 1. **Planning:** A `<slug>-plan.md` is created in `.devops/plans/`.
 2. **Execution:** The agent performs the work and logs it in `.devops/logs/agent-changelog.md`.
-3. **Sync:** As code is committed, corresponding wiki docs are updated to reflect the new truth.
-4. **Archiving:** Completed plans are moved from `.devops/plans/` to `.devops/archive/`. Deprecated features are marked with `status: "deprecated"` in frontmatter.
+3. **Generate:** `@wiki-generate` drafts index rows and doc skeletons from the codebase; `@wiki-bootstrap` verifies them question-by-question.
+4. **Sync:** `@wiki-update` maps `git diff` since the last verified sha to the docs it invalidated, revises only those, and stamps `last-reviewed`.
+5. **Drift:** `scripts/wiki_claims.py check` fails the build when a doc's grounded claim points at source that changed.
+6. **Archiving:** Completed plans are moved from `.devops/plans/` to `.devops/archive/`. Deprecated features are marked with `status: "deprecated"` in frontmatter.
 
 ---
 

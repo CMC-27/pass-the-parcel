@@ -34,7 +34,8 @@ MANIFEST = ROOT / ".wiki" / "rules" / "structure.md"
 HUB = WIKI / "core" / "00-system-index.md"
 
 VALID_STATUS = {"stable", "in-progress", "deprecated", "template", "approved"}
-REQUIRED_FIELDS = ["name", "type", "status"]
+VALID_FORMAT_VERSION = {"1"}
+REQUIRED_FIELDS = ["name", "type", "status", "format-version"]
 
 # README/index files are exempt from the required-fields check (they may be plain headers).
 # Pattern-based so a new *-index.md needs no edit here.
@@ -48,7 +49,6 @@ FM_EXEMPT_PREFIXES = (
     str(ROOT / ".devops" / "skills" / "ptp-"),
     str(ROOT / ".devops" / "skills" / "pass-the-parcel"),
     str(ROOT / ".devops" / "rules"),
-    str(ROOT / ".wiki" / "rules"),
     str(ROOT / ".opencode"),
 )
 
@@ -290,6 +290,8 @@ def main() -> int:
                     break
             if "status" in fm and fm["status"] not in VALID_STATUS:
                 hard(f"{rel(f)}: invalid status `{fm['status']}`")
+            if "format-version" in fm and fm["format-version"] not in VALID_FORMAT_VERSION:
+                hard(f"{rel(f)}: unknown format-version `{fm['format-version']}`")
 
         # Links resolve.
         for link in extract_links(body):
@@ -313,6 +315,24 @@ def main() -> int:
                 for token in list_field(block, key):
                     if is_path_token(token) and resolve_link(token, f) is None:
                         hard(f"{r}: broken frontmatter link `{token}`")
+
+    # 3b. Grounded claims structure. The parser is owned by wiki_claims.py —
+    #     import it lazily so the module-level wiki_claims -> wiki_lint import
+    #     never forms a cycle.
+    from wiki_claims import claims as parse_claims  # noqa: PLC0415
+    for f in sorted(WIKI.rglob("*.md")):
+        if str(f.resolve()) in bad_encoding:
+            continue
+        block = frontmatter_block(f.read_text(encoding="utf-8"))
+        for claim in parse_claims(block):
+            cid = claim.get("id", "<no-id>")
+            absent = [k for k in ("id", "source", "hash") if k not in claim]
+            if absent:
+                hard(f"{rel(f)}: claim `{cid}` missing key(s): {', '.join(absent)}")
+                continue
+            src = claim["source"].split("#", 1)[0].strip()
+            if src and not (ROOT / src).exists():
+                hard(f"{rel(f)}: claim `{cid}` source not found `{src}`")
 
     # 4. Hub -> spoke links (every category index that exists).
     hub_targets: set[str] = set()

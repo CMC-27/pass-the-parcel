@@ -1,12 +1,14 @@
 ---
+name: human-rules
+type: rule
 title: Human Rules
 tags: [language, human, writing, editing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./voice-and-tone.md, ./prohibited-language.md]
 ---
-
 # Human Rules
 
 > Practical writing and editing checklist for people. The AI rules (`.wiki/rules/language/ai-rules.md`) extend these; they never replace them.

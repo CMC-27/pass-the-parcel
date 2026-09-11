@@ -3,10 +3,10 @@ title: "CSS Class Naming Conventions"
 type: "convention"
 name: "CSS Class Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "CSS class naming and organization standards."
 ---
-
 # CSS Class Naming Convention
 
 ## Rules

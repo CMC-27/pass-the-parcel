@@ -3,10 +3,10 @@ title: "JavaScript Naming Conventions"
 type: "convention"
 name: "JavaScript/TypeScript Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Naming conventions for JavaScript and TypeScript code."
 ---
-
 # JavaScript/TypeScript Naming Convention
 
 ## Rules

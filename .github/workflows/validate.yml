@@ -35,6 +35,9 @@ jobs:
       - name: Wiki coverage gate (graceful no-op until src/ exists)
         run: python scripts/wiki_coverage_check.py
 
+      - name: Claims drift check (grounded evidence)
+        run: python scripts/wiki_claims.py check
+
       - name: JSON config parses (tracked JSON only)
         run: |
           # .opencode/package.json is gitignored local runtime — never assert untracked files.

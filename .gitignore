@@ -13,3 +13,7 @@ Thumbs.db
 .idea/
 .opencode/plans/run-*/
 .ptp-source
+
+# Python bytecode from scripts/ cross-imports (wiki_claims imports wiki_lint).
+__pycache__/
+*.pyc

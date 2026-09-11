@@ -3,11 +3,11 @@ title: "AI Integration & Agentic Workflows"
 type: "core"
 name: "AI Features & Pipelines"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Documents the in-app AI capabilities, model integrations, prompt architectures, and human-in-the-loop patterns."
 ---
-
 # AI Integration & Agentic Workflows
 
 **AI Engine:** [AI Provider & Model]

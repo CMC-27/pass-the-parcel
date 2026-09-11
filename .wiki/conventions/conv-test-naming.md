@@ -3,10 +3,10 @@ title: "Test File Naming Conventions"
 type: "convention"
 name: "Test Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Test file and test case naming conventions."
 ---
-
 # Test Naming Convention
 
 ## Rules

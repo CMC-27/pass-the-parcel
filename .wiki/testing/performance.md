@@ -3,10 +3,10 @@ title: "Test Performance Budget"
 type: "testing"
 name: "Test Performance Budgets"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Per-file test performance budgets and hard limits."
 ---
-
 # Test Performance Budgets
 
 ## Hard Limits

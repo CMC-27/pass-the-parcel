@@ -2,13 +2,15 @@
 type: "core"
 name: "wiki-bootstrap"
 status: "stable"
-description: "Bootstraps the wiki by walking each of the 19 core docs one by one, asking 5-8 targeted questions per doc to elicit correct content. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
-references: "references/0X-*.md — 19 scaffold templates (one per core doc) to copy as starting points. references/qa-0X-*.md — 19 question sets (one per doc) to drive the per-doc Q&A workflow."
-version: 1
-updated: 2026-09-03
+description: "Verification pass over the wiki: walks each of the 19 core docs one by one, asking 5-8 targeted questions per doc to confirm the content against reality. Use after @wiki-generate drafts docs, when re-bootstrapping a stale doc, or when a wiki needs to be proven correct rather than authored. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
+references: "references/0X-*.md — 19 scaffold templates (one per core doc). references/qa-0X-*.md — 19 question sets (one per doc) that drive the verification Q&A."
+version: 2
+updated: 2026-09-11
 ---
 
 # wiki-bootstrap
+
+> **Role (v2): the verification pass.** `@wiki-generate` now drafts structure, index rows, and doc skeletons. This skill's job is to **prove** a doc correct — question by question, against reality — and to fill a gap only where verification finds one. Author-by-interview still applies when no draft exists (cold start, empty slot).
 
 This skill bootstraps a project's documentation library by walking through each of the 19 core wiki docs **one at a time** and asking the user 5–8 targeted questions per doc to fill it in correctly.
 
@@ -42,7 +44,7 @@ The wiki library is organized into two top-level structures:
 | `.wiki/database/` | **The Skeleton** — schema breakdowns | `database-index.md` |
 | `.wiki/logic/` | **The Internal Organs** — utilities, hooks, services, engines | `logic-index.md` |
 
-Operational tooling lives in `docs/`: `docs/{backlog,logs,plans,archive}/`.
+Operational tooling lives in `.devops/`: `.devops/{backlog,logs,plans,archive}/`.
 
 > **Note:** Your project may nest these under `docs/` (e.g., `.wiki/`). The internal structure stays consistent.
 
@@ -189,11 +191,12 @@ For full slot definitions, see the Q&A files above and the scaffold templates. O
 
 ## 9. When to Use This Skill
 
-- **Setting up a brand-new project's wiki** (cold start).
+- **Verifying docs drafted by `@wiki-generate`** (the primary path).
+- **Setting up a brand-new project's wiki** (cold start — no draft exists, so author by interview).
 - **Filling in a previously-stubbed slot** in an existing wiki.
-- **Re-bootstrapping a doc** that's known to be wrong or stale (paired with `wiki-assessment` for verification).
+- **Re-bootstrapping a doc** that's known to be wrong or stale (paired with `wiki-assessment`).
 
-For ongoing audits, drift detection, and gap-finding on an existing wiki, use the companion skill: **`wiki-assessment`**. For writing or rewriting prose in any already-bootstrapped doc (integration, consolidation, rebalancing), use **`wiki-writer`** — this skill only creates the initial scaffold content.
+For drafting structure and index rows from the codebase, use **`@wiki-generate`**. For ongoing audits and gap-finding on an existing wiki, use **`wiki-assessment`**. For writing or rewriting prose in any already-bootstrapped doc (integration, consolidation, rebalancing), use **`wiki-writer`**.
 
 ---
 

@@ -1,12 +1,14 @@
 ---
+name: numbering
+type: rule
 title: Numbering Scheme
 tags: [wiki, rules, numbering, lifecycle]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-09-11
 related-to: [./structure.md, ./naming.md]
 ---
-
 # Numbering Scheme
 
 > The single ordering principle for every numbered folder in this wiki. Numbering reflects **lifecycle + relevance** — the order in which content is produced and consumed by the product team.

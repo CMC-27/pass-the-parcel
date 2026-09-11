@@ -3,11 +3,11 @@ title: "Product Requirements & Context"
 type: "core"
 name: "Product Context"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Executive summary, user personas, core hierarchy, and success metrics for the application."
 ---
-
 # Product Requirements & Context
 
 **Application:** [APP_NAME]

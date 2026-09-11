@@ -1,12 +1,18 @@
 ---
+name: structure
+type: rule
 title: Structure Manifest
 tags: [wiki, rules, structure, anchors, governance]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-22
 related-to: [./naming.md, ./numbering.md, ./link-hygiene.md, ../../scripts/wiki_lint.py]
+claims:
+  - id: manifest-enforced-by-linter
+    source: scripts/wiki_lint.py#MANIFEST
+    hash: sha256:ac2f6280180c50edb1998b6d1134831f56c5863d902613e820c70d0dd6dec91e
 ---
-
 # Structure Manifest
 
 > Machine-readable registry of every **immutable anchor path** in the wiki. Loaded by the `wiki-lint` skill and enforced by `wiki_lint.py` — a missing anchor is a hard failure (exit 1), not a lint warning.
@@ -61,17 +67,20 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 | 11 | Dev Rules | area | `.devops/rules/` | Dev governance layer — agents, skills, plans |
 | 12 | Dev Ops State | area | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
 | 13 | Opencode Config | area | `.opencode/` | opencode configuration |
+| 14 | Visualizer Export | area | `docs/` | Generated wiki graph + catalog (not authored) |
 
 ### Canonical Authority Files (type: `file`)
 
 | # | Anchor | Type | Path | Note |
 |---|---|---|---|---|
-| 14 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
-| 15 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
-| 16 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
-| 17 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
-| 18 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
-| 19 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
+| 15 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
+| 16 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
+| 17 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
+| 18 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
+| 19 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
+| 20 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
+| 21 | Grounded Claims Rule | file | `.wiki/rules/claims.md` | Claim shape + drift semantics |
+| 22 | Claims Checker | file | `scripts/wiki_claims.py` | Owns the claims parser |
 
 ## See Also
 

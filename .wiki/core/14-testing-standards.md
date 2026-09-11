@@ -3,11 +3,11 @@ title: "Testing Standards"
 type: "core"
 name: "Testing Standards"
 status: "in-progress"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Gateway to the testing documentation subtree. Defines test patterns, mocking standards, performance budgets, and PR checklist."
 ---
-
 # Testing Standards
 
 This document is the gateway to the testing documentation subtree. It defines the high-level testing architecture and links to detailed standards.

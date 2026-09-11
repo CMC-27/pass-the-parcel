@@ -3,11 +3,11 @@ title: "Physical Directory Structure"
 type: "core"
 name: "Directory Structure"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Physical source directory layout, mapping folders to their functional purpose."
 ---
-
 # Physical Directory Structure
 
 This document provides a fast mental model of the physical `/src` codebase to help locate implementation assets without running recursive terminal searches.

@@ -3,10 +3,10 @@ title: "Directory Naming Conventions"
 type: "convention"
 name: "Directory Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Folder and directory naming standards."
 ---
-
 # Directory Naming Convention
 
 ## Rules

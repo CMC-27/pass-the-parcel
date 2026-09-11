@@ -3,10 +3,10 @@ title: "Testing Pattern"
 type: "testing"
 name: "Test Pattern"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Canonical test patterns for the project."
 ---
-
 # Test Pattern
 
 ## Test Taxonomy

@@ -3,10 +3,10 @@ title: "AI Provider Integration (Example)"
 type: "integration"
 name: "AI Provider Integration"
 status: "template"
+format-version: 1
 dependencies: []
 description: "Provider-neutral example of an LLM/AI model integration pattern."
 ---
-
 # AI Provider Integration (Example)
 
 > **Template doc** — this is a provider-neutral pattern example, not a record of a live integration. Replace the placeholders with your chosen provider, model, and deployment region.

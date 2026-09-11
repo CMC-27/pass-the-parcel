@@ -22,3 +22,24 @@ This index serves as the master queue of all proposed, deferred, or future featu
 | Plan | Status | Description |
 | :--- | :--- | :--- |
 | _(queue clear)_ | — | T1-E2.01 completed 2026-09-11 and archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`. |
+
+## T2 — Wiki System & Knowledge Layer
+
+> Close the gap between this repo's **curated** wiki and an OpenWiki-class **self-maintaining** wiki. Governance is the moat; generation is borrowed via OKF interop.
+
+### T2-E1: Wiki Self-Maintenance & Interop
+
+| Plan | Status | Description |
+| :--- | :--- | :--- |
+| ~~T2-E1.01-wiki-self-maintenance-parity-plan.md~~ | `COMPLETE` | Resolved 2026-09-11: unified `format-version: 1` schema, Grounded Claims layer + secret-free CI drift gate, `@wiki-update` / `@wiki-generate` (bootstrap demoted to verification), OKF v0.2 export, `docs/` visualizer. Archived to `.devops/archive/t2-e1.01-wiki-self-maintenance-parity-plan.md`. |
+| [T2-E1.03-coverage-gate-symbol-evidence-backlog.md](t2-e1.03-coverage-gate-symbol-evidence-backlog.md) | `BACKLOG` | Strengthen `wiki_coverage_check.py` from filename-substring to symbol/evidence anchors (carry-over from T2-E1.01 Gate A Q6). |
+
+## T3 — Template Distribution & Onboarding
+
+> Make the repo credible and self-explanatory as a public GitHub template: legal + community files, a README that sells the parcel pipeline, a release/CHANGELOG surface, and one complete worked example.
+
+### T3-E1: Repository Hygiene & Presentation
+
+| Plan | Status | Description |
+| :--- | :--- | :--- |
+| [T3-E1.01-template-repo-hygiene-backlog.md](T3-E1.01-template-repo-hygiene-backlog.md) | `BACKLOG` | LICENSE + CONTRIBUTING/SECURITY/CoC + root CHANGELOG + release tag + README product-page rewrite + issue/PR templates/CODEOWNERS + worked example in `.wiki/examples/`. |

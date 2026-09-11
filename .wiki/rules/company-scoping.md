@@ -1,12 +1,14 @@
 ---
+name: company-scoping
+type: rule
 title: Content-vs-State Principle
 tags: [wiki, rules, scope, governance]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./link-hygiene.md, ../../AGENTS.md]
 ---
-
 # Content-vs-State Principle
 
 > The wiki is **portable**. Everything under `.wiki/` is reference knowledge that could be lifted and shifted to another repo or team. Operational and development state — plans, backlog, archives, changelogs — lives in the unnumbered `.devops/` layer. Skills and agents live in `.devops/` too, so the whole machinery layer can be synced between repos without dragging local state.

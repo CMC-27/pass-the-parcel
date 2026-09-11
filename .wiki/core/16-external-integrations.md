@@ -3,11 +3,11 @@ title: "External Integrations"
 type: "core"
 name: "External Integrations"
 status: "in-progress"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Documents all external data exchange points, field mapping tables, import/export specs, and integration protocols."
 ---
-
 # External Integrations
 
 This document centralizes data mapping and exchange points between the application and external systems.

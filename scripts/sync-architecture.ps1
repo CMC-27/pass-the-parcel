@@ -160,6 +160,14 @@ if ($SelfTest) {
         # unstamped manifest and the eternal agents DRIFT from the regenerated prefix.
         & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
         if ($LASTEXITCODE -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
+        # Claims checker smoke: the ported script must execute in a satellite against
+        # the synced .wiki/rules corpus and report clean (imports wiki_lint, same dir).
+        if (Test-Path (Join-Path $tmp 'scripts/wiki_claims.py')) {
+            & python (Join-Path $tmp 'scripts/wiki_claims.py') check --quiet | Out-Null
+            if ($LASTEXITCODE -ne 0) { $fail += "wiki_claims.py check failed in target (exit $LASTEXITCODE)" }
+        } else {
+            $fail += "wiki_claims.py missing from target scripts/"
+        }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"
             $fail | ForEach-Object { Write-Output "  $_" }

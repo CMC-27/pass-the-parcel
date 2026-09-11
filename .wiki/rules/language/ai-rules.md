@@ -1,12 +1,14 @@
 ---
+name: ai-rules
+type: rule
 title: AI Rules
 tags: [language, ai, guardrails, writing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./voice-and-tone.md, ../README.md]
 ---
-
 # AI Rules
 
 > Mandatory guardrails for every AI agent writing in this repository. These extend and automate the human rules — what a human must not write, an agent must not write either.

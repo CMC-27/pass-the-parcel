@@ -3,10 +3,10 @@ title: "File Naming Conventions"
 type: "convention"
 name: "File Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "File naming conventions across the codebase."
 ---
-
 # File Naming Convention
 
 ## Rules

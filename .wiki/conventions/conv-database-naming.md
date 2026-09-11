@@ -3,10 +3,10 @@ title: "Database Naming Conventions"
 type: "convention"
 name: "Database Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Table, column, and index naming conventions."
 ---
-
 # Database Naming Convention
 
 ## Rules

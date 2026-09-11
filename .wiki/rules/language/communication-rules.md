@@ -1,12 +1,14 @@
 ---
+name: communication-rules
+type: rule
 title: Communication Rules
 tags: [language, communication, audience, writing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./voice-and-tone.md]
 ---
-
 # Communication Rules
 
 > How writing differs by audience and channel. Internal writing is direct and unceremonious; external writing protects information and reads professionally.

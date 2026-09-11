@@ -3,10 +3,10 @@ title: "Wording & Grammar Naming Conventions"
 type: "convention"
 name: "Wording and Terminology Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "Standards for UI labels, error messages, and domain terminology."
 ---
-
 # Wording and Terminology Convention
 
 ## Rules

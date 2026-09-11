@@ -95,6 +95,9 @@ graph TD
 |---|---|
 | `@wiki-query` | Read-only lookup and synthesis from wiki docs |
 | `@wiki-lint` | Check wiki health, detect broken links, index drift |
+| `@wiki-generate` | Draft index rows and doc skeletons from the codebase (structure) + ingest an `openwiki/` OKF bundle |
+| `@wiki-update` | Refresh only the docs a `git diff` invalidated; stamp `last-reviewed` |
+| `@wiki-bootstrap` | Verification pass over the wiki, one doc at a time (v2) |
 | `@design-audit` | Audit UI compliance against design system |
 | `@karpathy-guidelines` | Code writing and review best practices |
 | `@backlog` | Create and manage backlog items |
@@ -158,5 +161,11 @@ in its own `opencode.json` (`agent.<name>.model`). Swapping providers is a confi
 machinery sync. CI (`.github/workflows/validate.yml`) enforces the prefix, encoding, wiki, JSON,
 SelfTest, and coverage gates on every push; `scripts/sync-architecture.ps1 -SelfTest` smoke-tests
 the transport engine itself on `ubuntu-latest`.
+
+**Wiki evidence layer.** Docs may carry Grounded Claims (`claims:` frontmatter, `source: path#symbol`
++ a content hash). `scripts/wiki_claims.py check` fails CI when a claimed source changed; `affected`
+lists the docs a diff invalidated; `update` re-stamps. `@wiki-generate` drafts structure and
+`@wiki-update` refreshes incrementally. `scripts/wiki_okf.py export` projects the wiki into an
+OpenWiki/OKF v0.2 bundle, and `scripts/wiki_visualize.py` writes the static graph into `docs/`.
 
 This framework ensures that any app built on top of this scaffold remains clean, well-documented, and safe to deploy.

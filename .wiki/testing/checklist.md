@@ -3,10 +3,10 @@ title: "Test Authoring Checklist"
 type: "testing"
 name: "Test PR Checklist"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "PR review checklist for test file compliance."
 ---
-
 # Test PR Checklist
 
 ## Pre-Merge Gates

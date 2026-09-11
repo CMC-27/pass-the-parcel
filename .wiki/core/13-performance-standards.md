@@ -3,11 +3,11 @@ title: "⚡ Performance Standards"
 type: "core"
 name: "Performance Standards"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Architectural guardrails for maintaining a 95+ Lighthouse Performance Score, passing Core Web Vitals, and ensuring a frictionless user experience."
 ---
-
 # Performance Standards
 
 This document establishes the architectural guardrails for maintaining a **95+ Lighthouse Performance Score** and ensuring a snappy, responsive user experience. We optimize for **Core Web Vitals**: LCP, INP, and CLS.

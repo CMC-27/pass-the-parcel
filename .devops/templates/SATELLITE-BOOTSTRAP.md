@@ -87,6 +87,21 @@ Expect `VERIFIED` (exit 0). `[FAIL]` rows name exactly what is missing or mis-wi
 (`AGENTS.md` machinery markers, `opencode.json` keys, `base-context.md`, the wiki anchor,
 missing machinery); `[WARN]` rows are advisory (e.g. `.ptp-source` not yet recorded).
 
+## 5. Wiki evidence layer (optional)
+
+The wiki surface ships four portable scripts beyond the linter:
+
+| Script | Purpose |
+|---|---|
+| `scripts/wiki_claims.py` | `check` grounded claims for drift, `affected <sha>` for docs a diff hit, `update` to re-stamp |
+| `scripts/wiki_okf.py` | `export` the wiki as an OpenWiki/OKF v0.2 bundle |
+| `scripts/wiki_visualize.py` | Write the static hub-spoke graph + catalog into `docs/` |
+| `scripts/wiki_coverage_check.py` | No-op until `src/` exists (unchanged) |
+
+`check` runs in CI with no secret. Two skills scaffold the workflow: `@wiki-generate` drafts
+structure, `@wiki-bootstrap` verifies it, `@wiki-update` refreshes incrementally. Nothing here
+requires a model API key.
+
 ## Done
 
 Ongoing updates: say "sync architecture" (the `@sync-architecture` skill) or run

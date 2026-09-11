@@ -5,6 +5,10 @@ status: "stable"
 dependencies: []
 db_relations: []
 description: "Master gateway - the hub in a hub-and-spoke documentation architecture"
+claims:
+  - id: hub-links-every-spoke
+    source: scripts/wiki_lint.py#category_indexes
+    hash: sha256:ac2f6280180c50edb1998b6d1134831f56c5863d902613e820c70d0dd6dec91e
 ---
 
 # System Index (Developer Onboarding Hub)
@@ -15,7 +19,7 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 
 | Slot | Doc | Theme | Description | Last Verified |
 |---|---|---|---|---|
-| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index | 2026-09-10 |
+| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index | 2026-09-11 |
 | 01 | Vision & North Star | Strategy | Strategic vision, North Star metric, anti-goals | — |
 | 02 | Product Context | Strategy | User personas, use cases, data hierarchy, roadmap | — |
 | 03 | Glossary of Terms | Strategy | Domain terms, data hierarchy, abbreviations | — |
@@ -32,10 +36,12 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 | 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | — |
 | 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |
 | 16 | External Integrations | Features | Third-party API integrations, import/export mappings | — |
-| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | — |
+| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | 2026-09-11 |
 | 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | 2026-09-11 |
 
 > `Last Verified`: date the doc was last verified against reality by wrap-up or an assessment pass. `—` = never verified under this workflow.
+>
+> A doc may also carry **Grounded Claims** — `claims:` frontmatter binding a material fact to its source file and a content hash. `python scripts/wiki_claims.py check` reports stale claims when that source changes. See [claims.md](../rules/claims.md).
 
 ## 1. Strategy - Vision, Context & Vocabulary
 - [Vision & North Star](./01-vision-north-star.md) - Strategic vision, North Star metric, anti-goals

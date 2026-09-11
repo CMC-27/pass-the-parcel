@@ -1,12 +1,14 @@
 ---
+name: naming
+type: rule
 title: Naming Conventions
 tags: [wiki, rules, naming, conventions]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./numbering.md, ./frontmatter.md]
 ---
-
 # Naming Conventions
 
 > Consistent naming keeps the wiki navigable for humans and AI. Every file and folder name must follow these rules.

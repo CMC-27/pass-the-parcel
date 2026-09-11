@@ -3,11 +3,11 @@ title: "Design System: Architectural Precision & Technical Blueprint Clarity"
 type: "core"
 name: "Design System"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "The single source of truth for visual design decisions: tokens, typography, components, and interaction states."
 ---
-
 # Design System
 
 ## 1. Overview & Creative North Star

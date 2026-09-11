@@ -1,12 +1,14 @@
 ---
+name: link-hygiene
+type: rule
 title: Link Hygiene
 tags: [wiki, rules, links, cross-referencing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../../AGENTS.md]
 ---
-
 # Link Hygiene
 
 > The wiki is a connected web, not isolated pages. These rules keep every link resolvable, every claim sourced, and every document in its canonical location.

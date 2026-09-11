@@ -3,11 +3,11 @@ title: "User Journey & Data Hierarchy"
 type: "core"
 name: "User Journey & Data Hierarchy"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "End-to-end user journey across all roles, with the definitive data hierarchy reference."
 ---
-
 # User Journey & Data Hierarchy
 
 **Application:** [APP_NAME]

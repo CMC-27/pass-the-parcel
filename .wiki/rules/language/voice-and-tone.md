@@ -1,12 +1,14 @@
 ---
+name: voice-and-tone
+type: rule
 title: Voice & Tone
 tags: [language, voice, tone, writing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./ai-rules.md]
 ---
-
 # Voice & Tone
 
 > The house voice: professional and plain, confident without overclaiming. Applies to everything written in this repository — docs, commits, skills, agent prompts, correspondence.

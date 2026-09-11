@@ -3,11 +3,11 @@ title: "Core Architecture Concepts"
 type: "core"
 name: "Core Architecture Concepts"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Key architectural decisions, core engines, technical guardrails, and data management strategies."
 ---
-
 # Core Architecture Concepts
 
 **Application:** [APP_NAME]

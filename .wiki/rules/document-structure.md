@@ -1,12 +1,14 @@
 ---
+name: document-structure
+type: rule
 title: Document Structure Pattern
 tags: [wiki, rules, structure, front-loading]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./frontmatter.md, ./naming.md, ../../AGENTS.md]
 ---
-
 # Document Structure Pattern
 
 > Every knowledge and reference document opens with the same three front-loaded sections — document info, purpose & context, and a summary — before any procedural detail. The opening is a **human-facing abstract**: a reader familiar with the product gets everything they need in the first page, while the detail sections carry the step-by-step for the agent and deeper investigation.

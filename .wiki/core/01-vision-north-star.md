@@ -3,11 +3,11 @@ title: "🌟 Vision & North Star"
 type: "core"
 name: "Vision & North Star"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "The high-level strategic vision, guiding principles, and North Star for the application."
 ---
-
 # Vision & North Star
 
 ## The Vision

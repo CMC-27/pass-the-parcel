@@ -3,11 +3,11 @@ title: "Validation Standards"
 type: "core"
 name: "Validation Standards"
 status: "in-progress"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "Core validation engine specification, data integrity tiers, and finalization guardrails."
 ---
-
 # Validation Standards
 
 This document defines the validation tiers and data integrity rules governing the application.

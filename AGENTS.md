@@ -52,6 +52,9 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Viewing audit results (T/F, Q&A, UI inventories) | `.devops/audits/README.md` | Originating skill doc |
 | Adding or editing form fields | `.wiki/core/09-design-system.md` §5c | `.wiki/core/10-validation-standards.md` |
 | Checking wiki health / link integrity | `@wiki-lint` skill | stdout report (soft, never blocks deploy) |
+| Checking wiki evidence / claim drift | `scripts/wiki_claims.py check` | `.wiki/rules/claims.md` |
+| Syncing the wiki after a code change | `@wiki-update` skill | `.wiki/rules/claims.md` |
+| Generating wiki structure from code | `@wiki-generate` skill | `.wiki/core/17-docs-blueprint.md` |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` + `ref/` |
 | Recording a knowledge-capture decision | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 | Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |

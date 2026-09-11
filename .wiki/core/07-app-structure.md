@@ -3,11 +3,11 @@ title: "Application Shell Architecture"
 type: "core"
 name: "App Structure Shell"
 status: "stable"
+format-version: 1
 dependencies: []
 db_relations: []
 description: "The outermost application shell — router, layout wrappers, context mounting, and navigation architecture."
 ---
-
 # Application Shell
 
 **Path:** `src/[App].jsx`

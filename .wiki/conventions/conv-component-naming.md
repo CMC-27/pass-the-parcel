@@ -3,10 +3,10 @@ title: "Component Naming Conventions"
 type: "convention"
 name: "Component Naming Convention"
 status: "in-progress"
+format-version: 1
 dependencies: []
 description: "React component naming patterns and conventions."
 ---
-
 # Component Naming Convention
 
 ## Rules

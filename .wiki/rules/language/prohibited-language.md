@@ -1,12 +1,14 @@
 ---
+name: prohibited-language
+type: rule
 title: Prohibited Language
 tags: [language, prohibited, writing]
 status: stable
+format-version: 1
 owner: Wiki Owner
 last-reviewed: 2026-08-19
 related-to: [./README.md, ./voice-and-tone.md]
 ---
-
 # Prohibited Language
 
 > Words and phrases to avoid, with replacements. Scan every draft against this list.
