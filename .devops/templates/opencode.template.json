@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "type: template | version: 3 | updated: 2026-09-11",
+    "type: template | version: 4 | updated: 2026-09-12",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
     "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
     "The 'agent' block below ships the parcel/ptp agents pre-wired so a bootstrapped satellite",
@@ -33,6 +33,7 @@
         "task": {
           "*": "deny",
           "ptp-*": "allow",
+          "wiki-writer": "allow",
           "wiki-verifier": "allow"
         },
         "todowrite": "allow",
@@ -43,7 +44,7 @@
     },
     "wiki-writer": {
       "description": "Write and rewrite wiki documents in plain, even, front-loaded prose. Use when: writing, editing, rewriting, cleaning up, rebalancing, refreshing or restructuring any document in .wiki/ or a knowledge base.",
-      "mode": "primary",
+      "mode": "all",
       "model": "<your provider/model>",
       "prompt": "{file:.devops/agents/wiki-writer.agent.md}",
       "permission": {

@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-12 - wiki-writer runs as a subagent on demand (machinery 35)
+
+**Why:** `wiki-writer` was configured `mode: primary`, so only a user could select it and no orchestrator could delegate wiki prose to it via the Task tool. It is now bound `mode: all` in `opencode.json`: it stays selectable, and any primary agent may invoke it as a subagent when required. `parcel`'s `task` allow-list gains `wiki-writer: allow` beside `wiki-verifier`. Mirrored in the seed `opencode.template.json` (v3→v4); agent-surface wording updated in `AGENTS.md`, `.devops/templates/AGENTS.template.md`, `.devops/README.md` and `.devops/rules/agents-and-skills.md`. machinery-version 34→35.
+**Ref:** working tree (uncommitted; baseline `68ddc50`).
+
+---
+
 ## 2026-09-12 - Plan Settings promoted to a frozen header block (machinery 34)
 
 **Why:** Plan-start settings (`Mode`/`Agents`) sat in the cache-anchored BOTTOM `State & Gates` table next to mutable gate state, so resumed sessions and narrowly-prompted subagents sometimes missed them. Split by mutability: `Mode`/`Agents` now sit in a frozen `## ⚙️ Plan Settings` block at the TOP (read before any phase); the bottom holds only mutable state. Moved (not copied) across `template-plan.md`, `base-context.md` (re-inlined ×7, prefix PASS), `parcel.agent.md` steps 2-3, `pass-the-parcel` v7→v8, `plan-lifecycle.md`, `HOW-TO.md`, seed `base-context.template.md` v5→v6, and the KC entry. machinery-version 33→34.

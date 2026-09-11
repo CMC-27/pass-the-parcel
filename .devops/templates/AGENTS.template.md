@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 6
-updated: 2026-09-11
+version: 7
+updated: 2026-09-12
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -25,7 +25,7 @@ user interfaces.
 - **`.devops/backlog/SPRINTS.md`** — **Sprints (optional).** Register seeds ship in `.devops/templates/`; a satellite creates its own `.devops/backlog/SPRINTS.md` + per-sprint folders only if it adopts the cycle
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer
 - **`.devops/rules/`** — Dev governance layer
 
