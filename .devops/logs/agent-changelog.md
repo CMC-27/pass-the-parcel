@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - T1-E2.01 review fixes (v0.3.14)
+
+**Why:** Closed the two real defects from the T1-E2.01 implementation review: MH-15 was only half-delivered (`.wiki/rules/numbering.md` area/sub-area tables covered 6 of 8 manifest areas) and the new hub-reachability check flagged all 12 `.wiki/rules/**` docs as unreachable on the template's own clean tree (suppressed by `--quiet` in CI). Also guarded the reachability BFS read against non-UTF-8 files and converted residual sync/pull usage text to forward-slash paths.
+**Ref:** (working tree — pending commit)
+
+---
+
 ## 2026-09-11 - T1-E2.01 Machinery Integrity & Portability Hardening (v0.3.13)
 
 **Why:** Made the template's own guarantees true. W1 linter truth & power (`wiki_lint.py`: frontmatter `related-to`/`dependencies` link checks, hub→spoke, `[UNINDEXED]`/`[MISSING]`, hub BFS reachability; `--fix` implemented; pattern-based exemptions); W2 7 broken frontmatter links repaired + `Last Verified` column; W3 transport engine Linux parity (single `Read-Manifest`, `$shellExe`, forward-slash paths) + `-SelfTest` in CI + manifest completeness; W4 seeds reconciled (`opencode.template.json` ships the 9-agent block); W5 doc truth sweep; W6 version/log discipline + failing CI version check; W7 residue removed (Gemini genericised, sprint registers parked, `theme-linguistics` refs deleted); W8 `opencode.json`↔registry validation + uniform rebind to DeepSeek V4.1 Flash. Gates: prefix PASS ×7 + `OC-MODEL`, UTF-8 ALL CLEAN (167), `wiki_lint` exit 0, coverage no-op exit 0, `-SelfTest` OK. machinery-version 19→20.

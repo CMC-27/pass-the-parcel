@@ -13,7 +13,7 @@ param(
 .DESCRIPTION
     Thin wrapper over the template repo's sync-architecture.ps1 (the push engine). Resolves a
     source (explicit -Source param > .ptp-source file in this repo root), caches git URLs under
-    $env:USERPROFILE\.ptp\template, validates the source, then invokes sync-architecture.ps1
+    $env:USERPROFILE/.ptp/template, validates the source, then invokes sync-architecture.ps1
     with -Source <template> -Target <this repo>. Switches pass through: -Check (drift report,
     never writes), -DryRun (preview), -Verify (structural + gate verification, never writes),
     -NoVerify (skip post-sync verification).
@@ -23,10 +23,10 @@ param(
 
 .NOTES
     Usage:
-        powershell -File scripts\pull-architecture.ps1 -Source https://github.com/you/template.git
-        powershell -File scripts\pull-architecture.ps1 -Check
-        powershell -File scripts\pull-architecture.ps1 -Verify
-        powershell -File scripts\pull-architecture.ps1
+        powershell -File scripts/pull-architecture.ps1 -Source https://github.com/you/template.git
+        powershell -File scripts/pull-architecture.ps1 -Check
+        powershell -File scripts/pull-architecture.ps1 -Verify
+        powershell -File scripts/pull-architecture.ps1
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -45,14 +45,14 @@ if (-not $Source -and (Test-Path $sourceFile)) {
 if (-not $Source) {
     Write-Output "No source configured for this workspace."
     Write-Output "Run once with -Source <path-or-git-url>; it will be remembered in .ptp-source."
-    Write-Output "Example: powershell -NoProfile -File scripts\pull-architecture.ps1 -Source https://github.com/you/pass-the-parcel.git"
+    Write-Output "Example: powershell -NoProfile -File scripts/pull-architecture.ps1 -Source https://github.com/you/pass-the-parcel.git"
     exit 2
 }
 
 $resolved = $Source
 $isGitUrl = ($Source -match '^https?://' -or $Source -match '^git@' -or $Source -match '\.git$' -or $Source -match '://')
 
-# 2. Git URLs -> cache under %USERPROFILE%\.ptp\template; local paths used directly.
+# 2. Git URLs -> cache under %USERPROFILE%/.ptp/template; local paths used directly.
 if ($isGitUrl) {
     $cacheDir = Join-Path $env:USERPROFILE '.ptp/template'
     if (-not (Test-Path (Join-Path $cacheDir '.git'))) {

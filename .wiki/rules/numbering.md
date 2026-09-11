@@ -3,7 +3,7 @@ title: Numbering Scheme
 tags: [wiki, rules, numbering, lifecycle]
 status: stable
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-11
 related-to: [./structure.md, ./naming.md]
 ---
 
@@ -21,6 +21,8 @@ related-to: [./structure.md, ./naming.md]
 | `.wiki/database/` | DATA | Schema, queries, data flow |
 | `.wiki/logic/` | LOGIC | Utilities, hooks, business logic |
 | `.wiki/integrations/` | CONNECTIONS | External systems and APIs |
+| `.wiki/conventions/` | CONVENTIONS | Naming and coding standards |
+| `.wiki/testing/` | TESTING | Test patterns, mocking, performance budgets |
 
 > **Numbered folders are wiki-only.** Operational and development state — completed plans, archived briefs and changelogs (`.devops/archive/`, `.devops/logs/`), and planned work and active change plans (`.devops/backlog/`, `.devops/plans/`) — lives in the unnumbered [`.devops/`](../../.devops/README.md) layer, never in a numbered area.
 
@@ -30,11 +32,18 @@ related-to: [./structure.md, ./naming.md]
 
 ## Sub-Area Numbering
 
-Each numbered area's sub-folders are numbered **by their own internal lifecycle**:
+Each area's sub-folders are numbered — where a numbering exists — **by their own internal lifecycle**:
 
 | Area | Sub-area numbering |
 |---|---|
-| `.wiki/core/` | 00 system index → 01 vision → 02 product context → 03 glossary → 04 state → 05 architecture → 06 directory → 07 app structure → 08 user journey → 09 design system → 10 validation → 11 utilities → 12 security → 13 performance → 14 testing → 15 AI features → 16 integrations → 17 docs blueprint → 18 knowledge capture |
+| `.wiki/core/` | `00`–`18` — numeric (`NN-slug.md`), ordered by lifecycle |
+| `.wiki/components/` | none — flat docs (`ui-*.md`), catalogued in `components-index.md` |
+| `.wiki/features/` | none — flat docs (`feat-*.md`), catalogued in `features-index.md` |
+| `.wiki/database/` | none — flat docs (`db-*.md`), catalogued in `database-index.md` |
+| `.wiki/logic/` | none — flat docs (`util-*` / `hook-*` / `schemas-*.md`), catalogued in `logic-index.md` |
+| `.wiki/integrations/` | none — flat docs, catalogued in `integrations-index.md` |
+| `.wiki/conventions/` | none — flat docs (`conv-*.md`), catalogued in `conventions-index.md` |
+| `.wiki/testing/` | none — flat docs (`pattern.md`, `mocking.md`, …), catalogued in `testing-index.md` |
 
 ## Unnumbered Directories (Meta / Tooling)
 
@@ -59,4 +68,4 @@ These sit **above** the numbered areas and are never numbered:
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-11. Changes to these rules require human sign-off.*

@@ -1,7 +1,7 @@
 ---
 name: wiki-lint
 description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing index drift and hub reachability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
-version: 3
+version: 4
 updated: 2026-09-11
 ---
 
@@ -25,10 +25,10 @@ Severity contract: **exit 1 only on HARD**. WARN and INFO never block a commit o
 | 7 | Hub links to every category index that exists | HARD | `[HUB MISSING SPOKE]` |
 | 8 | Category index catalogues every sibling doc | WARN | `[UNINDEXED]` |
 | 9 | Index rows point at existing files | WARN | `[MISSING]` |
-| 10 | Every content doc reachable from `00-system-index.md` (BFS) | WARN | `unreachable from hub` |
+| 10 | Every content doc reachable from `00-system-index.md` (BFS; governance/meta areas excluded) | WARN | `unreachable from hub` |
 | 11 | Orphan pages (no inbound links anywhere) | INFO | `orphan` |
 
-Exemptions baked into the script: `.wiki/rules/**` and `.devops/**` skip frontmatter-**field** checks (their links are still resolved); `README.md`, `index.md`, `*-index.md` skip the field check and the orphan/reachability reports; `ref/`, `templates/`, `examples/` and `knowledge-capture.md` skip orphan/reachability reporting; non-`.md` / non-path dependency tokens (npm packages, component names, table names) are informational only; `.devops/plans/**`, `.devops/archive/**`, `.devops/logs/**` are historical records and are excluded from the frontmatter-link scan.
+Exemptions baked into the script: `.wiki/rules/**` and `.devops/**` skip frontmatter-**field** checks (their links are still resolved); `README.md`, `index.md`, `*-index.md` skip the field check and the orphan/reachability reports; `ref/`, `templates/`, `examples/`, `.wiki/rules/` and `knowledge-capture.md` skip orphan/reachability reporting; non-`.md` / non-path dependency tokens (npm packages, component names, table names) are informational only; `.devops/plans/**`, `.devops/archive/**`, `.devops/logs/**` are historical records and are excluded from the frontmatter-link scan.
 
 ## Workflow
 

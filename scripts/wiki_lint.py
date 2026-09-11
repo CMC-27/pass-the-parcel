@@ -11,7 +11,7 @@ Enforces the rules in .wiki/rules/:
   - Hub links to every existing category index (HARD)
   - Category index catalogues every sibling doc (WARN  [UNINDEXED])
   - Index rows point at existing files (WARN  [MISSING])
-  - Every content doc reachable from the hub (WARN  unreachable from hub)
+  - Every content doc reachable from the hub (WARN  unreachable from hub; rules/ excluded)
   - Orphans detected (INFO)
 
 Usage:
@@ -348,7 +348,8 @@ def main() -> int:
                 findings.append(f"WARN  {rel(idx)}: [UNINDEXED] {rel(sib)}")
                 unindexed.append((idx, sib))
 
-    # 6. Reachability from the hub (WARN). Reuses the orphan exemptions.
+    # 6. Reachability from the hub (WARN). Governance/meta areas sit above or
+    #    beside the hub-and-spoke graph, so rules/ joins the orphan exemptions.
     if HUB.exists():
         reachable = set(hub_targets)
         frontier = set(hub_targets)
@@ -357,6 +358,8 @@ def main() -> int:
             for target in frontier:
                 p = Path(target)
                 if not p.exists() or p.suffix != ".md":
+                    continue
+                if str(p.resolve()) in bad_encoding:
                     continue
                 _, body = parse_frontmatter(p.read_text(encoding="utf-8"))
                 for link in extract_links(body):
@@ -369,7 +372,7 @@ def main() -> int:
             if is_fm_exempt_name(f.name) or f.name == "knowledge-capture.md":
                 continue
             r = f.relative_to(WIKI).as_posix()
-            if r.startswith(("ref/", "templates/", "examples/")):
+            if r.startswith(("ref/", "templates/", "examples/", "rules/")):
                 continue
             if str(f.resolve()) not in reachable:
                 findings.append(f"WARN  {rel(f)}: unreachable from hub")

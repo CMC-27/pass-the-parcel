@@ -55,10 +55,10 @@ param(
 
 .NOTES
     Usage:
-        powershell -File scripts\sync-architecture.ps1 -Target C:\path\to\satellite
-        powershell -File scripts\sync-architecture.ps1 -Target C:\path\ -DryRun
-        powershell -File scripts\sync-architecture.ps1 -Target C:\path\to\satellite -Verify
-        powershell -File scripts\sync-architecture.ps1 -SelfTest
+        powershell -File scripts/sync-architecture.ps1 -Target C:/path/to/satellite
+        powershell -File scripts/sync-architecture.ps1 -Target C:/path/ -DryRun
+        powershell -File scripts/sync-architecture.ps1 -Target C:/path/to/satellite -Verify
+        powershell -File scripts/sync-architecture.ps1 -SelfTest
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -622,7 +622,7 @@ if ($structure.Fail -gt 0) {
     # until step 2 of SATELLITE-BOOTSTRAP); -Verify is the strict gate after authoring.
     Write-Output ""
     Write-Output "STRUCTURE: $($structure.Fail) item(s) need authoring/fixing (see [FAIL] rows above)."
-    Write-Output "After authoring, run: powershell -NoProfile -File scripts\pull-architecture.ps1 -Verify"
+    Write-Output "After authoring, run: powershell -NoProfile -File scripts/pull-architecture.ps1 -Verify"
 }
 
 Write-Output ""
