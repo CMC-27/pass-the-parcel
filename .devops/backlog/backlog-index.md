@@ -42,4 +42,4 @@ This index serves as the master queue of all proposed, deferred, or future featu
 
 | Plan | Status | Description |
 | :--- | :--- | :--- |
-| [T3-E1.01-template-repo-hygiene-backlog.md](T3-E1.01-template-repo-hygiene-backlog.md) | `BACKLOG` | LICENSE + CONTRIBUTING/SECURITY/CoC + root CHANGELOG + release tag + README product-page rewrite + issue/PR templates/CODEOWNERS + worked example in `.wiki/examples/`. |
+| ~~T3-E1.01-template-repo-hygiene~~ | `COMPLETE` | Resolved 2026-09-11 (v1.0.0): `LICENSE` (MIT) + `CONTRIBUTING`/`SECURITY`/CoC + root `CHANGELOG` + README product-page rewrite + `.github` issue/PR templates/`CODEOWNERS`/`release.yml` + worked example in `.wiki/examples/`. `v1.0.0` tag left to the owner. Archived to `.devops/archive/t3-e1.01-template-repo-hygiene-plan.md`. |

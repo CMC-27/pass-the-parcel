@@ -1,6 +1,6 @@
 # How-To: Agentic Development & Documentation Lifecycle
 
-Welcome to this base-agnostic template library. This guide details the logical workflow and methodologies for building apps and managing documentation using the agentic skills provided in this workspace.
+Welcome to **Pass the Parcel** — a base-agnostic template library. This guide details the logical workflow and methodologies for building apps and managing documentation using the agentic skills provided in this workspace.
 
 ---
 

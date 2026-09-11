@@ -31,6 +31,7 @@ _(Mistakes that cost time or broke things. Read these first when starting simila
 
 - **UTF-8 mojibake in machinery files**: corruption propagates through sync and silently degrades every agent that reads the file. *Do instead:* repair to clean UTF-8 (no BOM); never re-copy a corrupted file wholesale.
 - **Editing a truncated line**: `read_file` truncates long lines (~2000 chars); an edit that trusts the tail writes literal `[truncated]` text mid-file. *Do instead:* re-read or rewrite the whole entry; for giant-line appends, write a temp file and append via `[IO.File]::AppendAllText` with UTF8-no-BOM (PowerShell `Set-Content -Encoding UTF8` writes a BOM and breaks `wiki_lint.py` frontmatter checks).
+- **Publishing links into gitignored run workspaces**: `.opencode/plans/run-*/` is gitignored, so a wiki/example doc that links a review or decision log breaks for every clone. *Do instead:* quote the run artefact (e.g. a `**REJECTED:**` verdict line) inline and link only tracked paths (`.devops/archive/…`).
 
 
 ## Rules & Constraints

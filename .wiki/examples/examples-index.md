@@ -16,7 +16,7 @@ This index catalogs worked examples in `examples/` — sample wiki documents, sa
 
 | Example | Demonstrates | Pattern Source |
 |---|---|---|
-| _(one row per example)_ | [what convention it illustrates] | [rule/doc it follows] |
+| [parcel-walkthrough-machinery-hardening.md](parcel-walkthrough-machinery-hardening.md) | A complete parcel run end to end — group-by-group output, a halted gate, an independent review `REJECTED`, and the revision loop | [17-docs-blueprint.md](../core/17-docs-blueprint.md), [link-hygiene.md](../rules/link-hygiene.md) |
 
 ---
 

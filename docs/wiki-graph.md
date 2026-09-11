@@ -101,6 +101,7 @@ flowchart TD
 | [Knowledge Capture & Decision Log 🧠](../.wiki/core/18-knowledge-capture.md) | core | Canonical log of core engineering decisions, tribal knowledge, and architectural strategies. |
 | [Database Index](../.wiki/database/database-index.md) | database | Catalog of all database schema documentation. |
 | [Examples Index](../.wiki/examples/examples-index.md) | examples | Catalog of worked examples demonstrating wiki conventions. |
+| [Worked Example: A Full Parcel Run (T1-E2.01)](../.wiki/examples/parcel-walkthrough-machinery-hardening.md) | examples | End-to-end walkthrough of the T1-E2.01 machinery-hardening parcel — scoping, gates, an independent review rejection, a revision loop, and verification. |
 | [Features Index](../.wiki/features/features-index.md) | features | Catalog of all application views, screens, and feature workflows. |
 | [Hooks Index](../.wiki/hooks/hooks-index.md) | hooks | Catalog of custom React hooks and their wiki docs. |
 | [AI Provider Integration (Example)](../.wiki/integrations/ai-provider-integration.md) | integration | Provider-neutral example of an LLM/AI model integration pattern. |
