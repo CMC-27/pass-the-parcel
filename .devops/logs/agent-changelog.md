@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - Wiki self-maintenance: grounded claims + generate/update split (v0.4.0)
 
 **Why:** The wiki was governance-strong but truth-weak — two frontmatter schemas across the corpus, no evidence behind factual claims, no incremental refresh from code changes, no generator, no portable format. Unified the schema (`format-version: 1`, `.wiki/rules/**` now linted), added a Grounded Claims layer (`claims:` + `scripts/wiki_claims.py` + a secret-free CI drift gate), split generation (`@wiki-generate` drafts, `@wiki-bootstrap` verifies v2) from refresh (`@wiki-update`), and added OKF v0.2 export plus a static `docs/` visualizer. `machinery-version: 25`.
-**Ref:** (uncommitted) T2-E1.01 working tree — commit pending
+**Ref:** `6992665`
 
 ---
 
