@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - Template repo hygiene & onboarding (v1.0.0)
+
+**Why:** The template's flagship asset — the 10-phase parcel pipeline — was invisible from the front door: a 40-line README titled "Application Wiki", no `LICENSE`, no community files, no release surface, no worked example. Added MIT `LICENSE` + `CONTRIBUTING`/`SECURITY`/CoC, a root `CHANGELOG.md` (human-facing releases; `version-history.md` stays the machinery log), `.github` issue/PR templates + `CODEOWNERS` + `release.yml`, a README product-page rewrite (badge, reused pipeline diagram, 5-minute quickstart), and a worked example in `.wiki/examples/`. Two gotchas recorded to KC/changelog: `pull-architecture.ps1 -Verify` exits `2` inside the template (source == target — verify from a satellite), and gitignored run workspaces must be quoted, never linked, from publishable docs. No portable surface changed (`machinery-version` stays 26).
+**Ref:** `d873390`
+
+---
+
 ## 2026-09-11 - Coverage gate: symbol/claims evidence (v0.5.0)
 
 **Why:** `wiki_coverage_check.py` passed a file on a bare filename-substring mention — a renamed symbol inside an unchanged file was invisible to CI, so the wiki could drift while staying green. Replaced the weak anchor with a four-route evidence OR (filename, parent folder, index-cited exported symbol, `claims: source` binding); symbol discovery is a stdlib regex export scan (documented `ponytail:` ceiling), and coverage now consumes `wiki_claims.py` (single parser owner) via a lazy import after the `src/`-absent no-op guard. Additive — satellites do not regress. Closes the T2-E1.01 Q6 carry-over. `machinery-version: 26`.
