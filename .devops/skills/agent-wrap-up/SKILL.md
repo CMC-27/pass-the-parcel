@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 8
+version: 9
 updated: 2026-09-11
 ---
 
@@ -129,7 +129,7 @@ Sweep the session for unfinished business, then reconcile it against the open ba
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
 1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
-2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must be referenced in its domain index. On gaps: add an index row (preferred) or add to the script's `ALLOWLIST` with an explicit reason. Never skip silently.
+2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must carry wiki evidence: its domain index cites a real exported symbol (preferred), OR a wiki doc claims-binds its path, OR the retained filename/folder match. On gaps: add an index row citing a real exported symbol, add a `claims: source:` binding, or add to the script's `ALLOWLIST` with an explicit reason. The script docstring is canonical. Never skip silently.
 
 On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 

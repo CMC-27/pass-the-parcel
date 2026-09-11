@@ -32,7 +32,7 @@ This index serves as the master queue of all proposed, deferred, or future featu
 | Plan | Status | Description |
 | :--- | :--- | :--- |
 | ~~T2-E1.01-wiki-self-maintenance-parity-plan.md~~ | `COMPLETE` | Resolved 2026-09-11: unified `format-version: 1` schema, Grounded Claims layer + secret-free CI drift gate, `@wiki-update` / `@wiki-generate` (bootstrap demoted to verification), OKF v0.2 export, `docs/` visualizer. Archived to `.devops/archive/t2-e1.01-wiki-self-maintenance-parity-plan.md`. |
-| [T2-E1.03-coverage-gate-symbol-evidence-backlog.md](t2-e1.03-coverage-gate-symbol-evidence-backlog.md) | `BACKLOG` | Strengthen `wiki_coverage_check.py` from filename-substring to symbol/evidence anchors (carry-over from T2-E1.01 Gate A Q6). |
+| ~~T2-E1.03-coverage-gate-symbol-evidence~~ | `COMPLETE` | Resolved 2026-09-11 (v0.5.0): `wiki_coverage_check.py` now uses a four-route evidence OR — filename, parent folder, index-cited exported symbol, and `claims: source` binding — with a stdlib regex export scan and a lazy `wiki_claims.py` import. Additive (no satellite regression). Archived to `.devops/archive/t2-e1.03-coverage-gate-symbol-evidence-plan.md`. |
 
 ## T3 — Template Distribution & Onboarding
 
