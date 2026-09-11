@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - T1-E2.01 review fixes (v0.3.14)
 
 **Why:** Closed the two real defects from the T1-E2.01 implementation review: MH-15 was only half-delivered (`.wiki/rules/numbering.md` area/sub-area tables covered 6 of 8 manifest areas) and the new hub-reachability check flagged all 12 `.wiki/rules/**` docs as unreachable on the template's own clean tree (suppressed by `--quiet` in CI). Also guarded the reachability BFS read against non-UTF-8 files and converted residual sync/pull usage text to forward-slash paths.
-**Ref:** (working tree — pending commit)
+**Ref:** `aa33291`
 
 ---
 
