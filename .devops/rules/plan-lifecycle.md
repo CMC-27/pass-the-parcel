@@ -3,7 +3,7 @@ title: Plan Lifecycle
 tags: [dev, rules, plans, parcel, lifecycle]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-11
 related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 ---
 
@@ -33,6 +33,8 @@ related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 
 **Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
 
+**Agents (topology axis — orthogonal to Modes):** `MULTI` (default — **comprehensive plan**: full `ptp-*` delegation, independent Group C reviewers, 4 gates) / `SINGLE` (**fast plan**: the orchestrator executes each group's persona inline with no `task` spawns, Group C is skipped, and Gates B+C merge into one approval at Gate B with Gate C `N/A`). Chosen by task complexity at plan start (blast radius / contract change / risk / ambiguity / novelty) and confirmed by the user. Gate A and Gate D always halt for the human in both. See `@pass-the-parcel` § Agent Topology.
+
 ## Cache-Anchored State & Gates
 
 - The State Dashboard + Gate Log are the **last section** of every plan file (`## 📍 State & Gates`).
@@ -43,7 +45,7 @@ related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md]
 
 1. **The plan is the only state.** Never carry workflow state in conversation; always read the plan first and update it before halting.
 2. **One phase-group per session.** Never skip ahead after a gate. Save the plan and halt.
-3. **No gate is skippable.** Gates A–D are hard stops requiring the human — except in `AUTO` mode, where the orchestrator auto-clears Gates A–C after mechanical verification; Gate D always requires the human.
+3. **No gate is skippable.** Gates A–D are hard stops requiring the human — except in `AUTO` mode, where the orchestrator auto-clears Gates A–C after mechanical verification; Gate D always requires the human. In `SINGLE` topology Gate C is `N/A` — the plan is approved once at Gate B (spec + plan + inline self-review).
 4. **Single flight.** Only one plan executes against the working tree at a time. Two concurrent executors collide — serialize with the user.
 5. **Gate C precedes all edits.** No file is touched until the plan has passed peer review and been approved for execution.
 6. **Archive on completion.** A complete plan left in the plans folder is not done. `git mv` it to `.devops/archive/` — no stub.

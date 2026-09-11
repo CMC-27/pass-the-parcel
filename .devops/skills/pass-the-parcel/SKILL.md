@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
-description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/.
-version: 6
-updated: 2026-09-09
+description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
+version: 7
+updated: 2026-09-11
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -16,6 +16,7 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 * User invokes the `/parcel` command or mentions "pass the parcel" or "parcel mode".
 * User requests a complex feature that requires multiple design, review, coding, and testing steps, while demanding token-efficiency.
 * Agent detects a long-running or multi-agent task and wants to structure it to avoid context inflation and conversation memory creep.
+* User wants a **fast plan** (`SINGLE` topology) for a low-complexity task, or a **comprehensive plan** (`MULTI` topology) for a high-complexity one — see § Agent Topology for how the choice is made.
 
 ---
 
@@ -53,8 +54,53 @@ The table below defines the only valid states. An AI agent reading the plan dete
 - **DO NOT use `PROPOSED` or `Architect`** — these are legacy defaults from the raw template. Always overwrite them with a valid state from the table above.
 - **No amount of urgency allows skipping gates:** Each gate is a hard stop. Agents **MUST** halt and wait for user approval before proceeding to the next phase grouping.
 - **Gate flips only after a verdict:** gate rows flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO-mode verification's) decision, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
+- **Topology changes the gate set:** `MULTI` forces 4 hard stops (A-D). `SINGLE` merges B+C into one plan-approval at Gate B and records Gate C as `N/A`. Gate A and Gate D are topology-invariant. See § Agent Topology.
 
 > **🔒 Cache-anchor rule:** The State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; phase content above stays byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
+
+---
+
+## Agent Topology (SINGLE vs MULTI — fast plan vs comprehensive plan)
+
+Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start. Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`).
+
+| | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** |
+|---|---|---|
+| Who works | Orchestrator delegates each phase group to its `ptp-*` sub-agent | Orchestrator executes each phase group inline, playing the persona itself |
+| Sub-agent spawns | Yes (`task` per group) | None |
+| Group C reviews | Independent, context-isolated reviewers (grumpy-architect + smooth-operator) | **Skipped** -> inline self-review checkpoint logged in the Phase 6 section |
+| Phase 4 | Dedicated wiki spec | Folded into Phase 5 (or conditional skip) |
+| Gates | A -> B -> C -> D (4 hard stops) | A -> B (spec + plan + self-review, one approval) -> D; Gate C `N/A` |
+| Token cost | High (each sub-agent cold-starts and re-reads the plan) | Low (no sub-agent cold-starts) |
+| Best for | Wide blast radius, contract/schema change, ambiguity, irreversibility, novel patterns | Local, low-risk, <= 3 files, existing patterns reused |
+| Field value | `Agents: MULTI` | `Agents: SINGLE` |
+
+**Non-negotiables in BOTH topologies:**
+- Same plan file (`.devops/plans/[slug]-plan.md`), same lifecycle states, same State & Gates section.
+- **Gate A (Scope) and Gate D (Implementation) always halt for the human.** `Mode`/`AUTO` never bypasses these.
+- One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded.
+- `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
+
+### Complexity Triage (topology selection)
+
+Score these signals; **all low -> `SINGLE`; any high -> `MULTI`**:
+
+| Signal | Low (-> SINGLE) | High (-> MULTI) |
+|---|---|---|
+| Blast radius | <= 3 files, one domain | cross-cutting, multi-domain |
+| Contract change | none | schema / API / wiki-facing behavior |
+| Risk & reversibility | easy to undo | destructive, migrational, irreversible |
+| Ambiguity | intent clear | unknowns needing deep Q&A |
+| Novelty | reuse existing pattern | new pattern / new subsystem |
+
+The orchestrator **recommends** a topology from these signals; the **user confirms** (or overrides) at plan start, exactly like `Mode`.
+
+### Per-topology phase flow
+
+- **`MULTI`:** `Group A (ptp-context-hunter)` -> Gate A -> `Group B (ptp-high-visionary)` -> Gate B -> `Group C (ptp-grumpy-architect + ptp-smooth-operator)` -> Gate C -> `Group D (ptp-code-surgeon)` -> Gate D -> Group E/F.
+- **`SINGLE`:** `Group A (orchestrator as Scoper)` -> Gate A -> `Group B (orchestrator as High-Visionary)` -> **Gate B** (spec + plan + inline self-review, one approval) -> `Group D (orchestrator as Executor)` -> Gate D -> Group E/F. Phase 4 folds into Phase 5 unless a wiki delta applies; Phases 6-7 render as `N/A — SINGLE topology; self-review logged`.
+
+Record the chosen topology in the plan's **State & Gates** `Agents` row.
 
 ---
 
@@ -107,6 +153,7 @@ To prevent context inflation and ensure complete control over design and executi
    - **Gate C (Peer Reviews):** Stop after completing **Phases 6-7** (Grumpy Architect Spec & Logic Audit + Product Owner review). Present findings and required fixes. **If a review failed, set `PHASE_5_REVISION` and return to Group B — do not proceed to execution.** Wait for approval before proceeding to execution.
    - **Gate D (Implementation):** Stop after completing **Phases 8-9** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off. **On rollback:** Status → `PHASE_8_FAILED`; the orchestrator routes retry / revision / user decision.
    - **AUTO mode:** the orchestrator auto-clears Gates A-C after mechanical verification (outputs present, no `REJECTED` verdict line, no `Unresolvable:` entries). **Gate D always requires the human.**
+   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). Gate A and Gate D still halt for the human. See § Agent Topology.
 
 ---
 
@@ -121,6 +168,8 @@ To maximize token-savings during interaction and within the plan updates, agents
 ---
 
 ## Execution Steps
+
+> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology).
 
 ### Backlog Pick-up Flow (Pre-Phase 1)
 If the requested feature exists as a backlog item:
@@ -162,6 +211,7 @@ If the requested feature exists as a backlog item:
 
 ### GROUP C: Peer Reviews (Phases 6-7)
 * **Goal:** Peer-review the text-based architecture for logical completeness, edge cases, and UX alignment. **Phase 6 audits the SPEC — the plan contains no code, so no code-level scans (DRY/WET, line checks) are performed.**
+* **Topology gate:** `MULTI` only. In `SINGLE`, skip the independent reviewers — the orchestrator performs an inline self-review after Group B and presents it together with the spec + plan at the single Gate B approval (Gate C recorded `N/A`). See § Agent Topology.
 * **Steps:**
   * **Phase 6 (Grumpy Architect Spec & Logic Audit):**
     * **Capability class:** adversarial review (see Model Registry)

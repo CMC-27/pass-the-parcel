@@ -11,6 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - Agent topology: SINGLE (fast plan) vs MULTI (comprehensive plan) (v0.3.16)
+
+**Why:** Added the parcel pipeline's second, orthogonal axis — `Agents: MULTI` (comprehensive plan: `ptp-*` delegation, independent Group C reviewers, 4 gates) / `Agents: SINGLE` (fast plan: inline personas, Group C skipped, Gates B+C merged into one approval at Gate B with Gate C `N/A`) — chosen by task complexity and user-confirmed at plan start; closes the gap where "single agent mode" had leaked in ad-hoc. Gate A + Gate D stay human in both. Mirrored across skill, base-context (+ seed template), template-plan, agents, `plan-lifecycle`, and HOW-TO. No backlog items resolved; no KC entry (the axis is canonically documented in `@pass-the-parcel`), consolidation skipped — nothing new surfaced. machinery-version 22→23.
+**Ref:** `pending`
+
 ## 2026-09-11 - Wrap-up + deploy skill streamlining (v0.3.15)
 
 **Why:** `agent-wrap-up` (v7→v8, 161→145 lines): dropped the dead "Mandatory Tools" section and the phase-restating "Non-Negotiable Rules", merged Phases 5–6 into one Backlog Reconciliation phase (renumbering KC→6, gates→7), and split the gate phase into 7a hard-stop coverage vs 7b state stamps. `test-and-deploy` (v2→v3): added a no-`package.json` applicability guard and the missing AGENTS.md rule 9 pre-push checks (`check-parcel-prefix` + `check-utf8-agents`), folded the build step into the concurrent block. Cross-refs updated (`knowledge-consolidation`, `wiki-verifier.subagent`, `18-knowledge-capture`); `machinery-version` 21→22.

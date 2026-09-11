@@ -27,7 +27,7 @@ graph TD
 
 ## 2. The Parcel Pipeline
 
-Every multi-step task runs through the same stateless parcel pipeline: a single markdown plan file (`.devops/plans/[slug]-plan.md`) carries all state, and each phase group is executed by one specialized sub-agent that reads the plan, does its job, updates the plan, and exits.
+Every multi-step task runs through the same stateless parcel pipeline: a single markdown plan file (`.devops/plans/[slug]-plan.md`) carries all state. In the default `MULTI` topology each phase group is executed by one specialized sub-agent that reads the plan, does its job, updates the plan, and exits; in `SINGLE` topology (fast plan) the orchestrator plays those personas inline — see [§ Agent Topology](#agent-topology).
 
 ```mermaid
 flowchart LR
@@ -42,7 +42,7 @@ flowchart LR
 3.  **`ptp-high-visionary`** — Group B (Phases 4-5): writes the wiki requirements spec + acceptance criteria, then the implementation plan (Simplicity Ladder; no code snippets except exact string literals), halts at Gate B. Also owns `PHASE_5_REVISION` fix rounds.
 4.  **`ptp-grumpy-architect`** — Phase 6: **Spec & Logic Audit** of the text-based architecture (the plan contains no code). Evaluates logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Rejection sets `PHASE_5_REVISION`.
 5.  **`ptp-smooth-operator`** — Phase 7: product review of vision alignment, user journey, and scope containment. Rejection sets `PHASE_5_REVISION`.
-6.  **`ptp-code-surgeon`** — Group D (Phases 8-9): **triggers only after Gate C is cleared by explicit user input**. Executes the approved plan single-pass direct-to-disk (no intermediate Markdown code blocks), runs QA verification, halts at Gate D for user sign-off.
+6.  **`ptp-code-surgeon`** — Group D (Phases 8-9): **triggers only after the plan is approved** (Gate C in `MULTI`; Gate B in `SINGLE`). Executes the approved plan single-pass direct-to-disk (no intermediate Markdown code blocks), runs QA verification, halts at Gate D for user sign-off.
 
 **Deterministic rejection loop (Gate C):** if Phase 6 or 7 fails review, the plan's status is set to `PHASE_5_REVISION` and returned to Group B (High-Visionary) before Gate C is re-evaluated. **An unapproved plan never advances to execution.**
 
@@ -52,6 +52,13 @@ flowchart LR
 Plans support two operational modes:
 - **`USER-MANAGED`** *(default)* — the orchestrator halts at every gate (A, B, C, D) for explicit user approval.
 - **`AUTO`** — Gates A-C auto-clear after mechanical verification; **Gate D always halts for the human**. Hard halts still fire for destructive actions, build failures, and unresolvable blockers.
+
+### Agent Topology
+Independently of the mode, a plan runs in one of two topologies — chosen by **task complexity** (blast radius, contract change, risk, ambiguity, novelty) and confirmed by the user at plan start:
+- **`MULTI`** *(default — comprehensive plan)* — the orchestrator delegates each phase group to its `ptp-*` sub-agent; Group C runs as independent, context-isolated reviewers; 4 gates (A-D).
+- **`SINGLE`** *(fast plan)* — the orchestrator executes each group's persona inline (no sub-agent spawns); Group C is skipped and Gates B+C merge into one approval at Gate B (Gate C `N/A`); cheapest for local, low-risk changes.
+
+Gate A and Gate D always halt for the human in both topologies. Record the choice in the plan's **State & Gates** `Agents` row. Full contract: `@pass-the-parcel` § Agent Topology.
 
 ---
 

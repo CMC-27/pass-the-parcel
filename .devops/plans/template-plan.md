@@ -7,6 +7,7 @@
 > - Full skeleton required - ALL 10 phases + Wrap Up MUST be present.
 > - Halt points are HARD STOPS - each gate blocks all subsequent phases.
 > - Persona matches Status - use the State Lifecycle table in pass-the-parcel skill.
+> - **Topology:** `Agents: MULTI` (default — full `ptp-*` delegation, 4 gates) or `Agents: SINGLE` (fast plan — orchestrator plays personas inline, Group C skipped, Gates B+C merged into one approval at Gate B; Gate C recorded `N/A`). The full skeleton stays present in both. See `@pass-the-parcel` § Agent Topology.
 >
 > **🔒 CACHE-ANCHORED:** State Dashboard + Gate Log live in the **last section** of this file (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
 
@@ -129,7 +130,9 @@
 ---
 
 ## 6 Phase 6: Grumpy Architect Spec & Logic Audit
-**Skill Executed:** `ptp-grumpy-architect`
+**Skill Executed:** `ptp-grumpy-architect` (`SINGLE`: orchestrator inline)
+
+> **`SINGLE` topology:** no independent reviewer. The orchestrator logs an inline self-review checkpoint here and records **Verdict** `N/A — SINGLE self-review`.
 
 **Verdict:** `PASS` / `REJECTED`
 
@@ -159,7 +162,9 @@
 ---
 
 ## 7 Phase 7: Smooth Operator Product Review
-**Skill Executed:** `ptp-smooth-operator`
+**Skill Executed:** `ptp-smooth-operator` (`SINGLE`: orchestrator inline)
+
+> **`SINGLE` topology:** no independent reviewer. Record **`N/A — SINGLE self-review`**; the self-review is presented at Gate B.
 
 > **Rejection Rule:** If plan introduces unnecessary complexity or scope expansion, do not check boxes. Reject and force rewrite.
 
@@ -178,6 +183,8 @@
 > - **PASS:** Phase 6 log clean -> set Status `PHASE_7`, Active Persona `Reviewer`. Do not proceed to execution until user approves Gate C.
 > - **FAIL:** Phase 6 or 7 flagged blocking flaws -> set Status `PHASE_5_REVISION`, Active Persona `High-Visionary`. Return to Group B for plan adjustments, then re-run Phases 6-7. **Never advance an unapproved plan to execution.**
 > The orchestrator records Gate C -> `APPROVED`/`REJECTED` only after the user's verdict.
+>
+> **`SINGLE` topology:** Gate C is `N/A` — the plan approval happens once at Gate B (spec + plan + inline self-review). Update the State & Gates `Gate C` row to `N/A (SINGLE)`.
 
 ---
 
@@ -275,6 +282,7 @@
 | **Status** | `BACKLOG` |
 | **Version** | `v0.1.0` |
 | **Mode** | `USER-MANAGED` (set to `AUTO` only when the user explicitly selects it at plan start) |
+| **Agents** | `MULTI` (comprehensive plan — full `ptp-*` delegation; set `SINGLE` for a fast plan — inline personas, Group C skipped, Gates B+C merged) |
 | **Active Persona** | `Planner` |
 | **Depends On** | none |
 | **Blocks** | none |
