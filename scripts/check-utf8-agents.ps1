@@ -1,8 +1,10 @@
 # Encoding guard: detect UTF-8 mojibake and replacement chars in machinery files.
 # Scans agent files (.devops/agents/*.agent.md + *.subagent.md), all skill sources
-# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs), AND
-# the full wiki (.wiki/**/*.md) — the wiki scan closes the guard gap where corrupted
-# glyphs in documentation prose (which wiki_lint never inspects) survived unchecked.
+# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs),
+# the full wiki (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus
+# generated `docs/` and `.github/` markdown — the wiki scan closes the guard gap
+# where corrupted glyphs in documentation prose (which wiki_lint never inspects)
+# survived unchecked.
 # Markers: C3 A2 (double-encoded em-dash lead, "â€"), C3 B0 C2 (double-encoded emoji lead, "ðŸ"),
 # EF BF BD (U+FFFD replacement).
 $ErrorActionPreference = 'Stop'
@@ -18,6 +20,11 @@ foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devo
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to
 # wiki_lint, so the byte guard is the only mojibake detector for .wiki content.
 $targets += Get-ChildItem -Path (Join-Path $root '.wiki') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+# Root docs + generated/github markdown — also agent-read surfaces. `docs/` is
+# generated (visualizer export) but committed, so it must stay clean too.
+$targets += Get-ChildItem -Path $root -Filter '*.md' -File -ErrorAction SilentlyContinue
+$targets += Get-ChildItem -Path (Join-Path $root 'docs') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+$targets += Get-ChildItem -Path (Join-Path $root '.github') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 
 $bad = @()
 foreach ($file in $targets) {

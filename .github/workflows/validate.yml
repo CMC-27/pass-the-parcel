@@ -38,6 +38,36 @@ jobs:
       - name: Claims drift check (grounded evidence)
         run: python scripts/wiki_claims.py check
 
+      - name: Wiki visualizer freshness (docs/wiki-graph.md)
+        run: python scripts/wiki_visualize.py --check
+
+      - name: OKF interop (export frontmatter parses as YAML; import round-trip)
+        run: |
+          pip install --quiet pyyaml
+          python scripts/wiki_okf.py export --out /tmp/okf-src --quiet
+          python - <<'EOF'
+          import glob, sys, yaml
+          bad = 0
+          for f in sorted(glob.glob('/tmp/okf-src/**/*.md', recursive=True)):
+              txt = open(f, encoding='utf-8').read()
+              if not txt.startswith('---'):
+                  continue
+              try:
+                  yaml.safe_load(txt.split('---', 2)[1])
+              except yaml.YAMLError as e:
+                  print(f'INVALID-YAML {f}: {e}')
+                  bad += 1
+          if bad:
+              sys.exit(1)
+          print('OKF export: every frontmatter block parses as YAML')
+          EOF
+          python scripts/wiki_okf.py import --from /tmp/okf-src --out /tmp/okf-dst --quiet
+          src=$(find /tmp/okf-src -name '*.md' -not -name index.md | wc -l)
+          dst=$(find /tmp/okf-dst -name '*.md' | wc -l)
+          test "$src" -gt 0
+          test "$src" -eq "$dst"
+          echo "OKF round-trip parity: $src exported concepts == $dst imported"
+
       - name: JSON config parses (tracked JSON only)
         run: |
           # .opencode/package.json is gitignored local runtime — never assert untracked files.

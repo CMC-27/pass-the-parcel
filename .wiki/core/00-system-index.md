@@ -8,7 +8,7 @@ description: "Master gateway - the hub in a hub-and-spoke documentation architec
 claims:
   - id: hub-links-every-spoke
     source: scripts/wiki_lint.py#category_indexes
-    hash: sha256:ac2f6280180c50edb1998b6d1134831f56c5863d902613e820c70d0dd6dec91e
+    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
 ---
 
 # System Index (Developer Onboarding Hub)
@@ -28,12 +28,12 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 | 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming | — |
 | 07 | App Structure | Architecture | Application shell, router, context providers | — |
 | 08 | User Journey | Workflow | End-to-end workflow, user roles, phases | — |
-| 09 | Design System | Design | Color tokens, typography, components, interaction states | — |
+| 09 | Design System | Design | Color tokens, typography, components, interaction states | 2026-09-11 |
 | 10 | Validation Standards | Standards | Field/entity validation, data integrity rules | — |
 | 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol | — |
-| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | — |
+| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | 2026-09-11 |
 | 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization | — |
-| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | — |
+| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | 2026-09-11 |
 | 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |
 | 16 | External Integrations | Features | Third-party API integrations, import/export mappings | — |
 | 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | 2026-09-11 |

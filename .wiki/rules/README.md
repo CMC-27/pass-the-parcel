@@ -3,7 +3,7 @@ title: Wiki Rules & Patterns
 tags: [wiki, rules, governance, index]
 status: stable
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-11
 related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_lint.py]
 ---
 
@@ -21,6 +21,7 @@ related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_
 | Structuring a document's sections | [document-structure.md](document-structure.md) |
 | Linking documents, moving content | [link-hygiene.md](link-hygiene.md) |
 | Adding a doc and cataloguing it in an index | [link-hygiene.md](link-hygiene.md) §Maintenance Rules |
+| Grounding a factual claim / reading a drift report | [claims.md](claims.md) — claim shape, `#symbol` resolution, `UNRESOLVED-SYMBOL` |
 | Declaring an immutable anchor / numbered folder | [structure.md](structure.md) — the structure manifest, enforced by the linter |
 | Deciding what belongs in wiki content vs operational state | [company-scoping.md](company-scoping.md) — the content-vs-state split |
 | Agents, skills, plan lifecycle, dev/ops state | [.devops/rules/](../../.devops/rules/README.md) — the dev governance layer |
@@ -33,11 +34,12 @@ related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_
 | [numbering.md](numbering.md) | Lifecycle numbering scheme for all areas and sub-areas |
 | [naming.md](naming.md) | File, folder and slug naming conventions |
 | [frontmatter.md](frontmatter.md) | YAML frontmatter standard for every document |
+| [claims.md](claims.md) | Grounded Claims — binds a material fact to `source: path#symbol` + a file hash; defines drift and `UNRESOLVED-SYMBOL` semantics, enforced by `wiki_claims.py` |
 | [document-structure.md](document-structure.md) | Front-loaded document pattern — purpose & context, summary, then detail |
 | [link-hygiene.md](link-hygiene.md) | Cross-referencing, no-duplication and link maintenance |
 | [structure.md](structure.md) | Structure manifest — machine-readable registry of every immutable anchor path (numbered areas, sub-areas, canonical files); a missing anchor is a hard lint failure |
 | [company-scoping.md](company-scoping.md) | Content-vs-state principle — what lives in wiki content vs the unnumbered operational layer |
-| [wiki_lint.py](../../scripts/wiki_lint.py) | Deterministic linter that enforces the rules above — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, and orphans. Run `python scripts/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
+| [wiki_lint.py](../../scripts/wiki_lint.py) | Deterministic linter that enforces the rules above — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), rules-index cataloguing (`[UNCATALOGUED]`), hub reachability, and orphans. Run `python scripts/wiki_lint.py --fix` (wrapped by the `wiki-lint` skill). |
 
 ---
 
@@ -51,4 +53,4 @@ related-to: [../../AGENTS.md, ../../.devops/rules/README.md, ../../scripts/wiki_
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-11. Changes to these rules require human sign-off.*

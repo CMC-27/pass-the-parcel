@@ -3,8 +3,8 @@ type: "skill"
 name: "wiki-update"
 status: "stable"
 description: "Refreshes only the wiki docs a code change actually touched. Use after a commit/merge, before wrapping up, when a claims check reports drift, or when asked to sync the wiki with recent changes. Maps git diff since the last verified sha to affected docs via their grounded claims and links, revises those, and stamps last-verified. Incremental — never a full-wiki rewrite."
-references: "scripts/wiki_claims.py — affected/update modes. .wiki/rules/claims.md — claim shape and drift semantics."
-version: 1
+references: "scripts/wiki_claims.py — affected/update modes. .wiki/rules/claims.md — claim shape and drift semantics. .github/workflows/wiki-refresh.yml — scheduled drift-issue job."
+version: 2
 updated: 2026-09-11
 ---
 
@@ -48,6 +48,8 @@ python scripts/wiki_claims.py affected <sha>
 A doc is affected when one of its `claims`/`dependencies`/`related-to` targets changed. Exit `2` means the ref is unknown or the workspace is not a git repo — stop and report; do not guess a baseline.
 
 Also run `python scripts/wiki_claims.py check`. A `STALE` row is the same signal for a claim whose source changed without the baseline being known.
+
+> **Scheduled drift issue.** `.github/workflows/wiki-refresh.yml` runs the same checker weekly and raises (or updates) a `wiki-drift` issue when it exits `1`; when the wiki is clean again the job closes that issue. Fixing the drift here is what makes the issue close on the next run.
 
 ---
 

@@ -11,7 +11,7 @@ related-to: [./naming.md, ./document-structure.md, ./claims.md]
 claims:
   - id: lint-required-fields
     source: scripts/wiki_lint.py#REQUIRED_FIELDS
-    hash: sha256:ac2f6280180c50edb1998b6d1134831f56c5863d902613e820c70d0dd6dec91e
+    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
 ---
 
 # Frontmatter Standard

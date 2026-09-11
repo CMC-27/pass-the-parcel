@@ -7,6 +7,13 @@ format-version: 1
 dependencies: []
 db_relations: []
 description: "Core security boundary definitions, data isolation, role-based access, agentic governance, and row-level policies."
+claims:
+  - id: agents-read-operating-rules
+    source: AGENTS.md#Core Development Rules
+    hash: sha256:5f75211cb981aff72cfe130d53941ec8a754cb89d6ef4f86848c3f461e858da7
+  - id: env-vars-excluded-from-git
+    source: .gitignore#.env
+    hash: sha256:5ac7f6640c04da066f021c3f8bdc2f9d901ee1b93d0bdd22243a937908f627d3
 ---
 # Security Standards: Core Security Principles
 

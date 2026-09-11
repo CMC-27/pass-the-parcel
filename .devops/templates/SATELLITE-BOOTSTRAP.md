@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 7
+version: 8
 updated: 2026-09-11
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -94,13 +94,14 @@ The wiki surface ships four portable scripts beyond the linter:
 | Script | Purpose |
 |---|---|
 | `scripts/wiki_claims.py` | `check` grounded claims for drift, `affected <sha>` for docs a diff hit, `update` to re-stamp |
-| `scripts/wiki_okf.py` | `export` the wiki as an OpenWiki/OKF v0.2 bundle |
+| `scripts/wiki_okf.py` | `export` the wiki as an OpenWiki/OKF v0.2 bundle, `import` one back as `in-progress` drafts (index-registered, existing docs skipped) |
 | `scripts/wiki_visualize.py` | Write the static hub-spoke graph + catalog into `docs/` |
 | `scripts/wiki_coverage_check.py` | Coverage gate — a non-test source file is evidenced by an index-cited exported symbol, a `claims: source:` binding, or the retained filename/folder match; no-op until `src/` exists |
 
 `check` runs in CI with no secret. Two skills scaffold the workflow: `@wiki-generate` drafts
-structure, `@wiki-bootstrap` verifies it, `@wiki-update` refreshes incrementally. Nothing here
-requires a model API key.
+structure, `@wiki-bootstrap` verifies it, `@wiki-update` refreshes incrementally. A scheduled
+`.github/workflows/wiki-refresh.yml` (synced as a portable file) runs `check` weekly and raises a
+`wiki-drift` issue when claims go stale, closing it once clean. Nothing here requires a model API key.
 
 ## Done
 

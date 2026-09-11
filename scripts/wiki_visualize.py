@@ -6,6 +6,7 @@ relative links). No hosting, no builder — the artifact is the deliverable.
 
 Usage:
     python scripts/wiki_visualize.py [--out docs] [--quiet]
+    python scripts/wiki_visualize.py --check   # fail if docs/wiki-graph.md is stale (no write)
 """
 
 import argparse
@@ -30,11 +31,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Wiki graph + catalog export")
     parser.add_argument("--out", default="docs")
     parser.add_argument("--quiet", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail when the on-disk graph is stale; never write",
+    )
     args = parser.parse_args()
     out_dir = Path(args.out)
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     docs: list[tuple[Path, dict]] = []
     for f in sorted(WIKI.rglob("*.md")):
@@ -91,8 +96,21 @@ def main() -> int:
         return 1
 
     dest = out_dir / "wiki-graph.md"
+    content = "\n".join(body)
+    if args.check:
+        if not dest.exists():
+            print(f"STALE   {rel(dest)}: missing (run: python scripts/wiki_visualize.py)")
+            return 1
+        if dest.read_text(encoding="utf-8") != content:
+            print(f"STALE   {rel(dest)}: out of date (run: python scripts/wiki_visualize.py)")
+            return 1
+        if not args.quiet:
+            print(f"visualizer OK: {len(docs)} docs, {len(edges)} edges - {rel(dest)} up to date")
+        return 0
+
+    out_dir.mkdir(parents=True, exist_ok=True)
     with open(dest, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write("\n".join(body))
+        fh.write(content)
     if not args.quiet:
         print(f"visualizer OK: {len(docs)} docs, {len(edges)} edges -> {rel(dest)}")
     return 0

@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 26
+machinery-version: 31
 
 portable_dirs:
   - .wiki/rules
@@ -40,6 +40,7 @@ portable_files:
   - scripts/wiki_okf.py
   - scripts/wiki_visualize.py
   - scripts/spaghetti-monster-scan.cjs
+  - .github/workflows/wiki-refresh.yml
 
 # Old parcel-* runbooks retired by the VS Code .agent.md migration (v0.3.2).
 prune_files:

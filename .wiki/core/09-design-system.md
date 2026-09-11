@@ -7,6 +7,10 @@ format-version: 1
 dependencies: []
 db_relations: []
 description: "The single source of truth for visual design decisions: tokens, typography, components, and interaction states."
+claims:
+  - id: design-system-is-authority
+    source: AGENTS.md#Design & Scope Notes
+    hash: sha256:5f75211cb981aff72cfe130d53941ec8a754cb89d6ef4f86848c3f461e858da7
 ---
 # Design System
 

@@ -7,6 +7,10 @@ format-version: 1
 dependencies: []
 db_relations: []
 description: "Gateway to the testing documentation subtree. Defines test patterns, mocking standards, performance budgets, and PR checklist."
+claims:
+  - id: testing-subtree-registered
+    source: .wiki/testing/testing-index.md#Testing Index
+    hash: sha256:ba3542b4f854dba99a12c9c41a33913555ac1a3cac338cad8c630d9696b41575
 ---
 # Testing Standards
 

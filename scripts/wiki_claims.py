@@ -4,6 +4,9 @@
 A claim binds a material fact in a wiki doc to the source file that makes it
 true, plus a sha256 of that file's bytes. When the source changes, the claim is
 reported stale — the wiki reports its own drift instead of silently rotting.
+`check` also resolves the `#symbol` fragment against its source file: a claim
+that names a symbol the source does not contain is a false fact, reported as
+`UNRESOLVED-SYMBOL` (a file-level claim with no `#symbol` is still legal).
 
 Owns the claims-block parser (see .wiki/rules/claims.md). wiki_lint.py imports
 it lazily; never re-implement claims parsing elsewhere.
@@ -88,6 +91,31 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+# Identifier-shaped symbols (function/class/constant names) must match on a word
+# boundary; anything else (e.g. a Markdown section title) is matched as a
+# case-insensitive substring.
+_IDENT_SYMBOL = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def symbol_resolves(path: Path, symbol: str) -> bool:
+    """True when `symbol` is present in the source file at `path`.
+
+    ponytail: word/substring matching, not real symbol extraction — a name that
+    only appears in a comment or string still resolves. Catches the lie this gate
+    targets (a symbol that exists nowhere) with zero dependencies; upgrade path is
+    per-language extraction (AST for Python, heading regex for Markdown).
+    """
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return False
+    if _IDENT_SYMBOL.match(symbol):
+        return re.search(
+            rf"(?<![A-Za-z0-9_]){re.escape(symbol)}(?![A-Za-z0-9_])", text
+        ) is not None
+    return symbol.lower() in text.lower()
+
+
 # ---------------------------------------------------------------------------
 # Corpus walk
 # ---------------------------------------------------------------------------
@@ -135,6 +163,14 @@ def cmd_check(quiet: bool) -> int:
             if not target.exists():
                 rows.append(f"MISSING {rel(doc)}: claim `{cid}` -> `{src}` not found")
                 continue
+            fragment = c.get("source", "").split("#", 1)
+            symbol = fragment[1].strip() if len(fragment) > 1 else ""
+            if symbol and not symbol_resolves(target, symbol):
+                rows.append(
+                    f"UNRESOLVED-SYMBOL {rel(doc)}: claim `{cid}` -> "
+                    f"`{src}#{symbol}` not found in source"
+                )
+                continue
             stored = c.get("hash", "")
             now = "sha256:" + digest(target)
             if stored != now:
@@ -145,7 +181,12 @@ def cmd_check(quiet: bool) -> int:
     if rows:
         for r in rows:
             print(r)
-        print(f"---\n{len(rows)} stale/missing claim(s). Run: python scripts/wiki_claims.py update")
+        kinds = {r.split(" ", 1)[0] for r in rows}
+        print(f"---\n{len(rows)} claim finding(s).")
+        if "STALE" in kinds:
+            print("    stale hash     -> python scripts/wiki_claims.py update")
+        if kinds & {"MISSING", "UNRESOLVED-SYMBOL", "BROKEN"}:
+            print("    fix source     -> correct the claim's `source` (path#symbol) in the doc; see .wiki/rules/claims.md")
         return 1
     if not quiet:
         print("claims OK: 0 stale, all grounded sources present.")

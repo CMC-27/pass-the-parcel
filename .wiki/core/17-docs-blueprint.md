@@ -7,6 +7,19 @@ format-version: 1
 dependencies: []
 db_relations: []
 description: "The universal blueprint for the @docs library architecture, establishing patterns for folder structures, naming conventions, and cross-linking strategies."
+claims:
+  - id: required-frontmatter-fields
+    source: scripts/wiki_lint.py#REQUIRED_FIELDS
+    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
+  - id: visualizer-generates-docs
+    source: scripts/wiki_visualize.py#main
+    hash: sha256:57d2fa4d6991275cc809f5c3433f4d6032f29aafb043894eeee8c32a4d669d03
+  - id: claims-drift-gate
+    source: scripts/wiki_claims.py#cmd_check
+    hash: sha256:bc7edd793b71fcfa3744730b9083eaab09d58f4ab4c3d4a3ac476cf0c5b21750
+  - id: hub-spoke-enforced
+    source: scripts/wiki_lint.py#category_indexes
+    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
 ---
 # Documentation Architecture Blueprint
 

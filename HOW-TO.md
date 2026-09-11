@@ -166,6 +166,9 @@ the transport engine itself on `ubuntu-latest`.
 + a content hash). `scripts/wiki_claims.py check` fails CI when a claimed source changed; `affected`
 lists the docs a diff invalidated; `update` re-stamps. `@wiki-generate` drafts structure and
 `@wiki-update` refreshes incrementally. `scripts/wiki_okf.py export` projects the wiki into an
-OpenWiki/OKF v0.2 bundle, and `scripts/wiki_visualize.py` writes the static graph into `docs/`.
+OpenWiki/OKF v0.2 bundle and `import` ingests one back as `in-progress` drafts (registered in the
+area index, existing docs skipped); `scripts/wiki_visualize.py` writes the static graph into `docs/`.
+A secret-free scheduled job (`.github/workflows/wiki-refresh.yml`, weekly cron + manual dispatch)
+runs the claims checker and raises a `wiki-drift` issue when docs drift, closing it again once clean.
 
 This framework ensures that any app built on top of this scaffold remains clean, well-documented, and safe to deploy.

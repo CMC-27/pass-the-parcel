@@ -3,8 +3,8 @@ type: "skill"
 name: "wiki-generate"
 status: "stable"
 description: "Drafts wiki structure from the codebase: hub/spoke index rows, doc skeletons, and a linked catalog. Use when bootstrapping docs for new code, refreshing index rows after new files land, or ingesting an OpenWiki/OKF bundle. Drafts only — the wiki-bootstrap verification pass confirms accuracy before docs go stable. Native generation for structure; OpenWiki interop for prose."
-references: "references/ — optional per-domain scaffolds. scripts/wiki_okf.py — OKF v0.2 export projection."
-version: 1
+references: "references/ — optional per-domain scaffolds. scripts/wiki_okf.py — OKF v0.2 import/export bridge."
+version: 2
 updated: 2026-09-11
 ---
 
@@ -47,8 +47,8 @@ Inputs: `.wiki/*-index.md` (the authoritative catalogs) and the source tree.
 
 A satellite may bring its own generator. When an `openwiki/` bundle is present:
 
-1. Ingest the bundle's concept docs (`type:`-bearing Markdown files) as **drafts** under the matching `.wiki/` domain.
-2. Preserve the bundle's `description`/`tags` when they map cleanly; otherwise fall back to the unified schema and record the gap.
+1. Run the bridge: `python scripts/wiki_okf.py import [--from openwiki] [--out .wiki]`. It translates each `type:`-bearing concept doc to the local `format-version: 1` schema as a `status: in-progress` draft, records provenance (`okf_version: "0.2"`), and registers the doc in its area spoke index. An existing target path is **skipped**, never overwritten.
+2. Preserve the bundle's `description`/`tags` when they map cleanly; otherwise fall back to the unified schema and record the gap. (The bridge preserves both.)
 3. Treat the bundle as a claim source, not as truth — run `@wiki-bootstrap` verification before promoting anything.
 4. To go the other way, use `python scripts/wiki_okf.py export` to project this wiki into an OKF v0.2 bundle for an OKF-aware consumer.
 

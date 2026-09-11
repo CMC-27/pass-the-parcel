@@ -11,7 +11,7 @@ related-to: [./frontmatter.md, ./link-hygiene.md, ../../scripts/wiki_claims.py]
 claims:
   - id: claims-parser-owner
     source: scripts/wiki_claims.py#claims
-    hash: sha256:b836720441b59aa265d5b19ce5de77775f61bfb684118657bfda5441fa61f36e
+    hash: sha256:bc7edd793b71fcfa3744730b9083eaab09d58f4ab4c3d4a3ac476cf0c5b21750
 ---
 
 # Grounded Claims
@@ -35,6 +35,8 @@ claims:
 | `source` | Repo-relative POSIX path, plus `#symbol` naming the function, class, constant, or section that carries the fact |
 | `hash` | `sha256:` prefix + hex digest of the **whole source file's bytes** |
 
+A claim whose `source` carries no `#symbol` is legal — it binds the fact to the whole file. When a `#symbol` **is** present, `check` resolves it against the named source file (see [Drift Semantics](#drift-semantics)).
+
 ## Hash Definition
 
 The digest is `sha256` of the entire source file. Any edit to that file marks every claim pointing at it stale.
@@ -44,9 +46,12 @@ The digest is `sha256` of the entire source file. Any edit to that file marks ev
 ## Drift Semantics
 
 - `source` file missing on disk → **hard** lint failure (`wiki_lint.py`) and a `MISSING` row from the checker.
+- `#symbol` present but absent from the source file → `UNRESOLVED-SYMBOL` row; the checker exits `1`. A claim that names a symbol the source does not contain is a false fact, so this is a deterministic failure, not a warning (one row per claim — the stale check is skipped for it).
 - Recomputed hash ≠ stored hash → `STALE` row; the checker exits `1`.
 - Claim present but a required key absent (`id`/`source`/`hash`) → **hard** lint failure.
-- No `claims:` block → legal. Claims are opt-in per doc, not mandatory wiki-wide.
+- No `#symbol` in `source`, or no `claims:` block at all → legal. File-level claims are allowed and claims are opt-in per doc, not mandatory wiki-wide.
+
+**Symbol matching (`ponytail:` ceiling):** identifier-shaped symbols (`^[A-Za-z_][A-Za-z0-9_]*$`) match on a word boundary, so `main` does not match `mainframe`. Any other symbol (e.g. a Markdown section title) matches case-insensitively as a substring. This is a text lookup, not language parsing — a name that appears only in a comment still resolves. Upgrade path: per-language symbol extraction.
 
 ## Coverage Evidence
 
@@ -58,7 +63,7 @@ The claim shape, the hash definition, and the `#symbol` semantics above are unch
 
 | Command | Behaviour |
 |---|---|
-| `python scripts/wiki_claims.py check` | Walk `.wiki/**`, verify every claim, print `STALE`/`MISSING` rows, exit `1` on any |
+| `python scripts/wiki_claims.py check` | Walk `.wiki/**`, verify every claim, print `STALE`/`MISSING`/`UNRESOLVED-SYMBOL` rows, exit `1` on any |
 | `python scripts/wiki_claims.py affected <sha>` | List docs whose `claims` / `dependencies` / `related-to` reference files changed in `<sha>..HEAD` |
 | `python scripts/wiki_claims.py update` | Rewrite every claim's `hash` to the current source digest; print `STAMPED` rows |
 | `--quiet` | Suppress output when clean (exit code still authoritative) |

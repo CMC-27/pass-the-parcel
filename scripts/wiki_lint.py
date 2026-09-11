@@ -11,6 +11,7 @@ Enforces the rules in .wiki/rules/:
   - Hub links to every existing category index (HARD)
   - Category index catalogues every sibling doc (WARN  [UNINDEXED])
   - Index rows point at existing files (WARN  [MISSING])
+  - Every top-level `.wiki/rules/*.md` is catalogued in `.wiki/rules/README.md` (HARD  [UNCATALOGUED])
   - Every content doc reachable from the hub (WARN  unreachable from hub; rules/ excluded)
   - Orphans detected (INFO)
 
@@ -205,7 +206,7 @@ def _last_table_bounds(lines: list[str]) -> tuple[int, int] | None:
     return bounds if bounds[1] > bounds[0] else None
 
 
-def _fix_unindexed(index_path: Path, doc_path: Path) -> str | None:
+def fix_unindexed(index_path: Path, doc_path: Path) -> str | None:
     lines = index_path.read_text(encoding="utf-8").splitlines()
     bounds = _last_table_bounds(lines)
     if not bounds:
@@ -334,6 +335,25 @@ def main() -> int:
             if src and not (ROOT / src).exists():
                 hard(f"{rel(f)}: claim `{cid}` source not found `{src}`")
 
+    # 3c. Rules-index completeness: every top-level `.wiki/rules/*.md` must be
+    #     catalogued in `.wiki/rules/README.md` (the `language/` subtree carries
+    #     its own README and is out of scope). Closes the drift class where a
+    #     rule file ships unlisted and the linter cannot otherwise see it.
+    rules_dir = WIKI / "rules"
+    rules_readme = rules_dir / "README.md"
+    if rules_readme.exists() and str(rules_readme.resolve()) not in bad_encoding:
+        _, readme_body = parse_frontmatter(rules_readme.read_text(encoding="utf-8"))
+        catalogued: set[str] = set()
+        for link in extract_links(readme_body):
+            t = resolve_link(link, rules_readme)
+            if t:
+                catalogued.add(str(t.resolve()))
+        for rule_file in sorted(rules_dir.glob("*.md")):
+            if rule_file.name == "README.md":
+                continue
+            if str(rule_file.resolve()) not in catalogued:
+                hard(f"{rel(rules_readme)}: [UNCATALOGUED] {rel(rule_file)}")
+
     # 4. Hub -> spoke links (every category index that exists).
     hub_targets: set[str] = set()
     if HUB.exists():
@@ -429,7 +449,7 @@ def main() -> int:
     ]
     if args.fix and not blockers:
         for idx, doc in unindexed:
-            line = _fix_unindexed(idx, doc)
+            line = fix_unindexed(idx, doc)
             if line:
                 findings.append(line)
                 applied += 1

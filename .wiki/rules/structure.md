@@ -11,7 +11,7 @@ related-to: [./naming.md, ./numbering.md, ./link-hygiene.md, ../../scripts/wiki_
 claims:
   - id: manifest-enforced-by-linter
     source: scripts/wiki_lint.py#MANIFEST
-    hash: sha256:ac2f6280180c50edb1998b6d1134831f56c5863d902613e820c70d0dd6dec91e
+    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
 ---
 # Structure Manifest
 

@@ -11,6 +11,41 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-11 - OKF round-trip parity (v0.7.2)
+
+**Why:** Post-review F4. `wiki_okf.py export` counted 56 "concepts" (any doc with a `type`) while `import` ingested 45 — the 11 `*-index.md` navigation docs were exported but skipped on ingest, so the round-trip was lossy and CI's count read like parity. Export now applies the same `is_fm_exempt_name` predicate as import, and CI asserts `exported concepts == imported`.
+**Ref:** working tree (uncommitted; baseline `d4c3400`); machinery-version 30->31.
+
+---
+
+## 2026-09-11 - OKF interop hardening after v0.7.0 review (v0.7.1)
+
+**Why:** Post-review F1/F2/F3/F5. `wiki_okf.py` dropped the local schema's quoting, so export emitted unquoted `title:`/`description:` scalars — a title containing `: ` (Design System, Security Standards, Worked Example) produced YAML no real parser accepts, making the OKF bridge nominally interop. Fixed with a `yaml_scalar` helper (double-quoted, backslash-escaped) applied in both directions. CI's OKF smoke was a file-count check that could not catch it — upgraded to PyYAML-parse every exported frontmatter block. Import into the live wiki now runs `wiki_lint.py` and fails if lint-dirty. Promoted `wiki_lint._fix_unindexed` -> public `fix_unindexed` (removed the private cross-module import).
+**Ref:** working tree (uncommitted; baseline `d4c3400`); machinery-version 29->30; re-stamped 7 claims invalidated by the `wiki_lint.py` rename.
+
+---
+
+## 2026-09-11 - Wiki refresh automation: OKF ingest + secret-free CI drift issue (v0.7.0)
+
+**Why:** Closed T2-E2.02 (G3/G5). `wiki_okf.py` gained an `import` mode (OKF v0.2 bundle → local `in-progress` drafts, index-registered, skip-on-collision); a secret-free scheduled `wiki-refresh.yml` raises/closes a `wiki-drift` issue from `wiki_claims.py check`. The docs-PR path was dropped — the portable surface stays secret-free by design. KC gained one pitfall (auto-cataloguer ignores index column semantics) + one Decision Archive entry. `machinery-version` 28→29.
+**Ref:** working tree (uncommitted; baseline `d4c3400`); plan `.devops/archive/t2-e2.02-wiki-refresh-automation-plan.md`.
+
+---
+
+## 2026-09-11 - Residual hygiene after T2-E2.01 review (v0.6.1)
+
+**Why:** Post-review residuals R1-R4. `scripts/wiki_claims.py check` misdirected every failure to `update`, which cannot repair an `UNRESOLVED-SYMBOL`/`MISSING`/`BROKEN` claim — now emits a per-class hint. Root `CHANGELOG.md` was one release behind (v0.6.0 absent) and the product↔machinery version tracks were unmapped. T2-E2.02 had a backlog row but no parked plan. Product `v1.0.0` was untagged.
+**Ref:** working tree (uncommitted; baseline `d4c3400`); tag `v1.0.0` -> `d4c3400`; `machinery-version` 27->28.
+
+---
+
+## 2026-09-11 - Wiki grounding & guard hardening (v0.6.0)
+
+**Why:** v0.4/v0.5 shipped the claims engine but it had no teeth — the rules index left `claims.md` unlisted (drift the linter could not see), only 4 claims existed so `check` passed trivially, and three guards had holes. Closed G1 (rules-index completeness hard-fail `[UNCATALOGUED]`), G2 (12 grounded claims across core slots 00/09/12/14/17/18), G4 (`UNRESOLVED-SYMBOL` `#symbol` resolution), G6 (`wiki_visualize.py --check` + CI freshness/OKF-smoke steps), G7 (UTF-8 guard now scans root `*.md`/`docs/`/`.github/`). G3/G5 deferred to T2-E2.02; `machinery-version` 26->27.
+**Ref:** working tree (uncommitted at wrap-up; baseline `d4c3400`)
+
+---
+
 ## 2026-09-11 - Template repo hygiene & onboarding (v1.0.0)
 
 **Why:** The template's flagship asset — the 10-phase parcel pipeline — was invisible from the front door: a 40-line README titled "Application Wiki", no `LICENSE`, no community files, no release surface, no worked example. Added MIT `LICENSE` + `CONTRIBUTING`/`SECURITY`/CoC, a root `CHANGELOG.md` (human-facing releases; `version-history.md` stays the machinery log), `.github` issue/PR templates + `CODEOWNERS` + `release.yml`, a README product-page rewrite (badge, reused pipeline diagram, 5-minute quickstart), and a worked example in `.wiki/examples/`. Two gotchas recorded to KC/changelog: `pull-architecture.ps1 -Verify` exits `2` inside the template (source == target — verify from a satellite), and gitignored run workspaces must be quoted, never linked, from publishable docs. No portable surface changed (`machinery-version` stays 26).

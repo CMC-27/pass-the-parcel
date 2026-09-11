@@ -34,6 +34,13 @@ This index serves as the master queue of all proposed, deferred, or future featu
 | ~~T2-E1.01-wiki-self-maintenance-parity-plan.md~~ | `COMPLETE` | Resolved 2026-09-11: unified `format-version: 1` schema, Grounded Claims layer + secret-free CI drift gate, `@wiki-update` / `@wiki-generate` (bootstrap demoted to verification), OKF v0.2 export, `docs/` visualizer. Archived to `.devops/archive/t2-e1.01-wiki-self-maintenance-parity-plan.md`. |
 | ~~T2-E1.03-coverage-gate-symbol-evidence~~ | `COMPLETE` | Resolved 2026-09-11 (v0.5.0): `wiki_coverage_check.py` now uses a four-route evidence OR — filename, parent folder, index-cited exported symbol, and `claims: source` binding — with a stdlib regex export scan and a lazy `wiki_claims.py` import. Additive (no satellite regression). Archived to `.devops/archive/t2-e1.03-coverage-gate-symbol-evidence-plan.md`. |
 
+### T2-E2: Grounding & Guard Hardening
+
+| Plan | Status | Description |
+| :--- | :--- | :--- |
+| ~~T2-E2.01-wiki-grounding-hardening~~ | `COMPLETE` | Resolved 2026-09-11 (v0.6.0): rules-index completeness gate (`[UNCATALOGUED]` in `wiki_lint.py`), 12 grounded claims across core slots 00/09/12/14/17/18, `UNRESOLVED-SYMBOL` `#symbol` resolution in `wiki_claims.py`, `wiki_visualize.py --check` freshness mode + CI visualizer/OKF-smoke steps, UTF-8 guard extended to root `*.md`/`docs/`/`.github/`. Archived to `.devops/archive/t2-e2.01-wiki-grounding-hardening-plan.md`. |
+| ~~T2-E2.02-wiki-refresh-automation~~ | `COMPLETE` | Resolved 2026-09-11 (v0.7.0, SINGLE/AUTO): **G3** `wiki_okf.py import` OKF v0.2 ingest → `in-progress` drafts, index-registered, skip-on-collision; **G5** secret-free scheduled `.github/workflows/wiki-refresh.yml` raises/closes a `wiki-drift` issue. Docs-PR path deferred (no-secret principle). Trust boundary resolved. Archived to `.devops/archive/t2-e2.02-wiki-refresh-automation-plan.md`. |
+
 ## T3 — Template Distribution & Onboarding
 
 > Make the repo credible and self-explanatory as a public GitHub template: legal + community files, a README that sells the parcel pipeline, a release/CHANGELOG surface, and one complete worked example.

@@ -1,0 +1,69 @@
+name: Wiki Drift Refresh
+
+# Secret-free drift job. Runs the grounded-claims checker on a schedule (and on
+# demand) and raises a `wiki-drift` tracking issue when a claim goes stale or a
+# claimed source/symbol no longer resolves. When the wiki is clean again it
+# closes the open issue. No model API key is required — this job only reports;
+# it never writes docs or opens a PR.
+#
+# Satellites receive this file via the portable surface (sync-manifest.yaml).
+# A workspace with no `.wiki/` claims exits 0 and the job is a no-op.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Check grounded claims for drift
+        id: drift
+        continue-on-error: true
+        run: python scripts/wiki_claims.py check > drift.txt 2>&1
+
+      - name: Publish drift issue
+        if: steps.drift.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          {
+            echo "The scheduled wiki drift job found stale or unresolved grounded claims."
+            echo
+            echo '```'
+            cat drift.txt
+            echo '```'
+            echo
+            echo "Refresh: run the \`@wiki-update\` skill, then \`python scripts/wiki_claims.py update\`, and commit. See \`.wiki/rules/claims.md\`."
+          } > body.md
+          gh label create wiki-drift --color FBCA04 --description "Automated wiki drift report" 2>/dev/null || true
+          existing=$(gh issue list --label wiki-drift --state open --limit 1 --json number --jq '.[].number')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --body-file body.md
+            gh issue comment "$existing" --body "Drift still present as of $(date -u +'%Y-%m-%dT%H:%M:%SZ')."
+          else
+            gh issue create --title "Wiki claims drift detected" --label wiki-drift --body-file body.md
+          fi
+
+      - name: Close resolved drift issue
+        if: steps.drift.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          existing=$(gh issue list --label wiki-drift --state open --limit 1 --json number --jq '.[].number')
+          if [ -n "$existing" ]; then
+            gh issue close "$existing" --comment "Claims are clean again — closing automatically."
+          fi
