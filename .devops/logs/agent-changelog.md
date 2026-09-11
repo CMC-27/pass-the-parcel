@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-11 - CI self-test hotfix: Unix hidden `.vscode` (v0.3.17)
 
 **Why:** The `SelfTest sync engine (transport contract)` CI step added in v0.3.13 had been red on every push since. Root cause: on Unix, dot-prefixed names are hidden and `Get-Item`/`Get-ChildItem` ignore hidden items by default (`Test-Path` does not), so `Get-ItemHashes` (`scripts/sync-architecture.ps1:278`) threw `Could not find item .../.vscode` during `-Check` and killed the child process under `$ErrorActionPreference='Stop'`. `.vscode` is the only portable-surface leaf that is dot-prefixed — `.wiki/rules`, `.devops/agents`, skill slugs and script filenames all end in visible names — which is why only it tripped, and why the Windows run stayed green (dot-names are not hidden on Windows). Fix: `-Force` on the `Get-Item`/`Get-ChildItem` calls in `Get-ItemHashes` and on the `-SelfTest` mirror + nested-copy guards. Verified locally: `-SelfTest` OK, `check-parcel-prefix` PASS ×7, `check-utf8-agents` ALL CLEAN, `wiki_lint` exit 0, coverage no-op, JSON parses, version discipline OK. machinery-version 23→24.
-**Ref:** (pending commit)
+**Ref:** `af7ddf6`
 
 ---
 
