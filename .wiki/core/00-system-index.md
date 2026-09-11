@@ -33,7 +33,7 @@ This document is the **hub** in a hub-and-spoke architecture (see [9 Hub & Spoke
 | 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |
 | 16 | External Integrations | Features | Third-party API integrations, import/export mappings | — |
 | 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | — |
-| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | 2026-09-10 |
+| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | 2026-09-11 |
 
 > `Last Verified`: date the doc was last verified against reality by wrap-up or an assessment pass. `—` = never verified under this workflow.
 

@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 7
+version: 8
 updated: 2026-09-11
 ---
 
@@ -26,21 +26,21 @@ Wrap-up's token cost is concentrated in *reads* (wiki docs, backlog index), not 
 Immediately after Phase 0, triage the diff and declare skips explicitly:
 - Diff touches no `src/` files (docs/process-only session) → skip Phases 2–3.
 - No plan in `.devops/plans/` was followed this session → skip Phase 4.
-- Nothing new surfaced (orphans, debt, backlog matches, tribal knowledge) → skip Phases 5–7 with a one-line declaration in the changelog Why line.
-- Phases 0, 1, and 8 are always mandatory.
+- Nothing new surfaced (orphans, debt, backlog matches, tribal knowledge) → skip Phases 5–6 with a one-line declaration in the changelog Why line.
+- Phases 0, 1, and 7 are always mandatory.
 
-### Subagent Delegation (Phases 2–7)
-Phases 2–7 are read-heavy and parallelizable. On feature-scale sessions, dispatch two subagents **concurrently** after Phase 0. Each prompt must carry the wiki-first mandate (AGENTS.md rule 6) and the agent's exclusive write scope to prevent collisions:
+### Subagent Delegation (Phases 2–6)
+Phases 2–6 are read-heavy and parallelizable. On feature-scale sessions, dispatch two subagents **concurrently** after Phase 0. Each prompt must carry the wiki-first mandate (AGENTS.md rule 6) and the agent's exclusive write scope to prevent collisions:
 
 | Agent | Owns (exclusive write scope) | Phases | Returns (summary only — never file contents) |
 |-------|------------------------------|--------|----------------------------------------------|
-| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 7 knowledge-capture | One-line-per-doc summary: created/updated/promoted + stale refs fixed + deviations logged |
-| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows), 6 | Counts only: plans archived, backlog entries created/resolved/annotated |
+| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 6 knowledge-capture | One-line-per-doc summary: created/updated/promoted + stale refs fixed + deviations logged |
+| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows) | Counts only: plans archived, backlog entries created/resolved/annotated |
 
 Delegation rules:
-- Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 8.
+- Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 7.
 - Both subagents must follow the `@wiki-writer` discipline for any prose edits they make.
-- On small sessions (a handful of files, no plan), running Phases 2–7 inline is acceptable — delegation pays off only when the read surface is large.
+- On small sessions (a handful of files, no plan), running Phases 2–6 inline is acceptable — delegation pays off only when the read surface is large.
 
 ---
 
@@ -106,56 +106,40 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
 
 > **Archival is mandatory, not optional.** A plan that is done but still sitting in `.devops/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
 
-### Phase 5: Scan for Unfinished Business
-Review the session for discoveries that need their own follow-up work. Do not let discovered issues disappear into the archive.
+### Phase 5: Backlog Reconciliation (`.devops/backlog/`)
+Sweep the session for unfinished business, then reconcile it against the open backlog. Both halves own the same surface — one read pass, one mental model. Do not let discovered issues disappear into the archive.
 
-1. **Orphan files / dead code**: If the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{slug}-backlog.md` with affected file paths and a terse description. Follow the backlog plan template from the pass-the-parcel skill.
-2. **Spaghetti Triage rows**: If the session identified complexity targets (spaghetti smells), dispose each row:
-   - `escalate-monster` — flag for the user to invoke `spaghetti-monster` directly
-   - `new-parcel` — one backlog plan per row (use same format as step 1)
-   - `defer` — log to `.wiki/core/18-knowledge-capture.md` (a `.wiki/` write — Agent A's scope under the Delegation Model)
-   - `inline-minor` — confirm resolved in execution trace
-3. **Known issues / tech debt**: If any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
+**5a — Capture new discoveries**
+1. **Orphan files / dead code**: if the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{slug}-backlog.md` with affected file paths and a terse description. Follow the backlog plan template from the pass-the-parcel skill.
+2. **Spaghetti Triage rows**: dispose each row — `escalate-monster` (flag for the user to invoke `spaghetti-monster` directly), `new-parcel` (one backlog plan per row, same format as step 1), `defer` (log to `.wiki/core/18-knowledge-capture.md` — a `.wiki/` write, Agent A's scope under the Delegation Model), `inline-minor` (confirm resolved in the execution trace).
+3. **Known issues / tech debt**: if any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
 
-### Phase 6: Backlog Triage (`.devops/backlog/backlog-index.md`)
-Completed work may resolve one or more open backlog items. Do not skip this phase.
+**5b — Reconcile the open backlog** (`.devops/backlog/backlog-index.md`)
+1. **Read the Backlog**: always read the full index before deciding nothing applies — items may be worded differently than the task; match by intent, not exact name.
+2. **Match Against Completed Work**: an item qualifies for removal if the work fully implemented it, or explicitly superseded or made it irrelevant.
+3. **Take Action**: **Remove** fully-resolved items (delete the entry entirely — no comment or strike-through); append `> Partially addressed by [task name] — remaining: [what's left]` to partials; leave unrelated items untouched.
+4. **If no matches found**: state "No backlog items resolved by this session" and move on.
 
-1. **Read the Backlog**: Read `.devops/backlog/backlog-index.md` to see all current entries.
-2. **Match Against Completed Work**: Compare each backlog item against what was implemented in this session. An item qualifies for removal if:
-   - The feature, fix, or improvement it describes was fully implemented, OR
-   - It was explicitly superseded or made irrelevant by the work done.
-3. **Take Action**:
-   - **Remove** any backlog item that is fully resolved. Delete the entry entirely — do not leave it as a comment or strike-through.
-   - **Partially completed** items should have a note appended (e.g., `> Partially addressed by [task name] — remaining: [what's left]`).
-   - **Unrelated** items are left untouched.
-4. **If no matches found**: State "No backlog items resolved by this session" and move on.
-
-> Always read the full `backlog-index.md` before deciding nothing applies. Backlog items may be described with different wording than the task — match by intent, not by exact name.
-
-### Phase 7: Knowledge Capture & Consolidation
+### Phase 6: Knowledge Capture & Consolidation
 1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered. Apply the `@knowledge-capture` **Admission Gate strictly** — only real deviations and valuable tribal knowledge qualify; everything else stays in the plan's Phase 10 log and Completion Note.
 2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
 3. **Consolidate (mandatory)**: Run `@knowledge-consolidation` in **tidy mode** (see its Modes table for scope). This is the step that keeps the log lean — skipping it makes KC growth one-way. Full audits are NOT part of wrap-up; they fire only on the consolidation skill's own triggers.
 
-### Phase 8: Coverage Gate (Hard Verification)
+### Phase 7a: Coverage Gate (Hard Stop — both must exit 0)
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
 1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
 2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must be referenced in its domain index. On gaps: add an index row (preferred) or add to the script's `ALLOWLIST` with an explicit reason. Never skip silently.
-3. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
-4. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`.
-5. **Record the wrap-up ref**: note the current commit hash in the changelog entry so the next Phase 0 diff has a clean baseline.
+
+On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
+
+### Phase 7b: State Stamps (Checklist — easy to forget, not gated)
+Mutations that keep downstream tooling honest. Do all three, then close out.
+1. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
+2. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`.
+3. **Record the wrap-up ref**: note the current commit hash in the changelog entry so the next Phase 0 diff has a clean baseline.
 
 ---
 
-## Mandatory Tools for this Skill
-- `grep`: Essential for Phase 3 (finding stale docs).
-- Subagent spawn (e.g. `task` / `runSubagent`): required for the Delegation Model on feature-scale sessions.
-- `read`: To read existing docs before editing.
-- `edit`: For precise updates.
-
-## Non-Negotiable Rules
-- **No Placeholders**: Do not say "Update this later". Do it now.
-- **Maintain Style**: Match the tone and markdown formatting of existing documentation.
-- **Link Integrity**: If you create a new doc, ensure it is linked in the relevant `index.md` (e.g., `.wiki/features/features-index.md`).
-- **Coverage Gate is a Hard Stop**: Phase 8 must exit 0 on both scripts before wrap-up is declared complete. A green lint with red coverage is a failed wrap-up.
+## Hard Stop
+**Coverage Gate is a hard stop**: Phase 7a must exit 0 on both scripts before wrap-up is declared complete. A green lint with red coverage is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.

@@ -53,7 +53,7 @@ _(Stable rules derived from prior decisions. Grouped by theme.)_
 - **Measure, then optimize**: measure a gate's real cost/output before restructuring around an estimated token claim. *(2026-09-03)*
 
 ### Knowledge System
-- **Consolidation closes the loop**: `agent-wrap-up` Phase 7 captures AND runs `@knowledge-consolidation` (tidy mode). Capture is append-lean (≤3 lines); tidy prunes. Full audit fires only on its own triggers or when this file exceeds 200 lines. *(2026-09-09)*
+- **Consolidation closes the loop**: `agent-wrap-up` Phase 6 captures AND runs `@knowledge-consolidation` (tidy mode). Capture is append-lean (≤3 lines); tidy prunes. Full audit fires only on its own triggers or when this file exceeds 200 lines. *(2026-09-09)*
 
 ## Decision Archive
 _(Only decisions whose full story prevents a specific repeat mistake. Most recent 5 max.)_

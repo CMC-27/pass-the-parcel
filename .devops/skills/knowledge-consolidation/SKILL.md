@@ -1,8 +1,8 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 6
-updated: 2026-09-09
+version: 7
+updated: 2026-09-11
 ---
 
 # Knowledge Consolidation Skill
@@ -36,7 +36,7 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 
 | Mode | When it fires | What runs |
 |---|---|---|
-| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 7, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (stdout-only counts summary) |
+| **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 6, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (stdout-only counts summary) |
 | **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
 
 **Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. Tidy mode must keep the file well under the **hard 500-line ceiling**; if a tidy run leaves the file above 200 lines, say so and recommend a full audit.
