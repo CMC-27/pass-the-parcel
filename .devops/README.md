@@ -17,9 +17,10 @@ related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 |---|---|---|
 | `.devops/skills/` | machinery | All skills (`<slug>/SKILL.md`), loaded via `opencode.json` `skills.paths` |
 | `.devops/agents/` | machinery | VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents) |
-| `.devops/plans/` | state | Active parcel plans + `template-plan.md` |
-| `.devops/backlog/` | state | Roadmap, backlog items, the maturity register (`MATURITY.md`) and pre-prepared plans |
-| `.devops/archive/` | state | Completed / archived plans (moved via `git mv`, no stub) |
+| `.devops/plans/` | state | Claimed / active parcel plans + `template-plan.md` |
+| `.devops/sprints/` | state | Active sprint records — `sprint-{n}-<slug>/sprint.md` + committed plan queues |
+| `.devops/backlog/` | state | Master queue (`backlog-index.md`), theme registers (`t{n}-<slug>-backlog.md`), parked plans, the maturity register (`MATURITY.md`) |
+| `.devops/archive/` | state | Completed / archived plans (`git mv`, no stub) + closed sprint records under `sprints/` |
 | `.devops/audits/` | state | Audit session artifacts: true-or-false logs, Q&A logs, UI inventory reports |
 | `.devops/logs/` | state | Agent changelog, version history |
 

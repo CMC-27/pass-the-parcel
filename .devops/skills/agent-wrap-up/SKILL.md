@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 9
-updated: 2026-09-11
+version: 10
+updated: 2026-09-13
 ---
 
 # Agent Wrap-Up Skill
@@ -100,24 +100,27 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
 
 ### Phase 4: Plan Finalization
 1.  **Update Implementation Plans**: If you were following a plan in `.devops/plans/`, finalize it in this strict order:
-    - **Step 1 — Mark Complete:** Open the plan file and update its **State Dashboard** to set `Status` to `COMPLETE`. Do this **before** moving the file.
+    - **Step 1 — Mark Complete:** Open the plan file and set **both** `claim_status: COMPLETE` (front-matter) and the bottom State Dashboard `Status` to `COMPLETE`. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
-    - **Step 3 — Archive:** Move the completed plan with `git mv` from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md` — no stub is left at the old location.
+    - **Step 3 — Archive:** Move the completed plan with `git mv` from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md` — no stub is left at the old location. The plan stays at the archive **root**; its `sprint:` front-matter field is what links it to a sprint. The sprint's `sprint.md` archives separately to `.devops/archive/sprints/sprint-{n}-<slug>/` at sprint close (see `.devops/rules/plan-lifecycle.md`).
+    - **Step 4 — Return the branch (concurrent runs):** commit, merge `plan/<code>-<slug>` back to the workspace trunk, and prune the worktree. Do not leave an unmerged plan branch behind.
 
 > **Archival is mandatory, not optional.** A plan that is done but still sitting in `.devops/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
 
 ### Phase 5: Backlog Reconciliation (`.devops/backlog/`)
 Sweep the session for unfinished business, then reconcile it against the open backlog. Both halves own the same surface — one read pass, one mental model. Do not let discovered issues disappear into the archive.
 
+Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-index.md` holds the Themes table + Triage Panel. Reconcile both.
+
 **5a — Capture new discoveries**
-1. **Orphan files / dead code**: if the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{slug}-backlog.md` with affected file paths and a terse description. Follow the backlog plan template from the pass-the-parcel skill.
+1. **Orphan files / dead code**: if the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{code}-{slug}-backlog.md` (`type: backlog`, `claim_status: QUEUED`) with affected file paths and a terse description, and add a row to the matching `t{n}-<slug>-backlog.md` theme register. Follow the `@backlog` skill.
 2. **Spaghetti Triage rows**: dispose each row — `escalate-monster` (flag for the user to invoke `spaghetti-monster` directly), `new-parcel` (one backlog plan per row, same format as step 1), `defer` (log to `.wiki/core/18-knowledge-capture.md` — a `.wiki/` write, Agent A's scope under the Delegation Model), `inline-minor` (confirm resolved in the execution trace).
 3. **Known issues / tech debt**: if any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
 
-**5b — Reconcile the open backlog** (`.devops/backlog/backlog-index.md`)
-1. **Read the Backlog**: always read the full index before deciding nothing applies — items may be worded differently than the task; match by intent, not exact name.
+**5b — Reconcile the open backlog** (theme registers + `.devops/backlog/backlog-index.md`)
+1. **Read the registers**: always read the full index and the theme registers before deciding nothing applies — items may be worded differently than the task; match by intent, not exact name.
 2. **Match Against Completed Work**: an item qualifies for removal if the work fully implemented it, or explicitly superseded or made it irrelevant.
-3. **Take Action**: **Remove** fully-resolved items (delete the entry entirely — no comment or strike-through); append `> Partially addressed by [task name] — remaining: [what's left]` to partials; leave unrelated items untouched.
+3. **Take Action**: **Move** fully-resolved items from the theme register's open table to its Completed table (no strike-through left behind); append `> Partially addressed by [task name] — remaining: [what's left]` to partials; leave unrelated items untouched.
 4. **If no matches found**: state "No backlog items resolved by this session" and move on.
 
 ### Phase 6: Knowledge Capture & Consolidation

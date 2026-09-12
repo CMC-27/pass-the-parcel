@@ -9,6 +9,8 @@ description: "End-to-end walkthrough of the T1-E2.01 machinery-hardening parcel 
 # Worked Example: A Full Parcel Run (T1-E2.01)
 
 > **What this is.** A narrated transcript of one real parcel, from backlog pickup to archive. It exists so a newcomer can see what the ten phases actually produce — especially the parts that are easy to describe and hard to picture: what a gate looks like when it halts, what an independent review rejection looks like, and how a revision loop closes.
+>
+> **Note (2026-09-13):** this run predates the claim/worktree protocol. Pickup is now backlog → sprint queue → claim (`git mv` into `.devops/plans/` + `git worktree add`), and the pipeline statuses begin at `QUEUED`/`CLAIMED`. The ten phases, gates, and revision loop shown below are unchanged.
 
 The run shown here is **T1-E2.01 — Machinery Integrity & Portability Hardening**. The archived plan is the primary artefact: [`t1-e2.01-machinery-hardening-plan.md`](../../.devops/archive/t1-e2.01-machinery-hardening-plan.md). Reviewers ran in isolated contexts; their verdicts are quoted below rather than linked, because per-run workspaces (`.opencode/plans/run-*/`) are gitignored and never published.
 

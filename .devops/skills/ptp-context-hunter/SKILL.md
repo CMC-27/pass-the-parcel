@@ -1,8 +1,8 @@
 ---
 name: ptp-context-hunter
 description: 'Activate this persona during Phases 1, 2, and 3 (Scoping, Context Gathering, and User Clarification) of a parcel plan to lock down boundaries and eliminate ambiguity. Model slot: planning.'
-version: 4
-updated: 2026-09-11
+version: 5
+updated: 2026-09-13
 ---
 
 # SKILL: The Context Hunter (`ptp-context-hunter`)
@@ -22,7 +22,7 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 ## Core Operational Directives
 
 ### 1. Initialization & Backlog Hydration Safeguard
-* **File Check:** Before doing anything, check if `.devops/plans/[feature-slug]-plan.md` already exists.
+* **File Check:** Before doing anything, check if `.devops/plans/[code]-[slug]-plan.md` already exists.
 * **The Template Rule:** If the file **does not** exist, copy `.devops/plans/template-plan.md` to create it. Initialize the **State & Gates** section (bottom) to `PHASE_1`.
 * **The Backlog Safe-Hydration Rule:** If the file **already exists** (moved from the backlog directory), **do not overwrite it**. Read the file immediately. It contains early-prepared context that you must preserve and build upon.
 

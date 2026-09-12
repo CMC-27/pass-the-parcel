@@ -34,7 +34,7 @@ model: DeepSeek V4.1 Flash
 | Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Lifecycle (canonical — 4 gates)
-`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
+`QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
 **Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
@@ -55,12 +55,20 @@ model: DeepSeek V4.1 Flash
 **Where they live:** both settings are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start, read before any phase). They are NOT in the bottom `## 📍 State & Gates` section, which holds only mutable runtime state (Status / Active Persona / gates).
 
 ## Workspace Layout
-- Active plans: `.devops/plans/[slug]-plan.md`
+- Active (claimed) plans: `.devops/plans/[code]-[slug]-plan.md`
+- Sprint queue: `.devops/sprints/sprint-{n}-<slug>/` (`sprint.md` + committed-but-unclaimed plans)
 - Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/` (created by the orchestrator at plan start; reviews live here)
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
 - Audit log: `run-[slug]/decision_log.md`
-- Archived plans: `.devops/archive/`
+- Archived plans: `.devops/archive/`; closed sprint records: `.devops/archive/sprints/sprint-{n}-<slug>/`
+
+## Concurrency & Claims (local, in-workspace)
+- Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
+- Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
+- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>`.
+- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited ONLY on the trunk, never inside a plan branch.
+- Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 ## PTP Delegation Map (canonical)
 | Phase(s) | Sub-agent | Capability Class | Output |
@@ -100,9 +108,9 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 1. **Load the `pass-the-parcel` skill** for the canonical phase table, lifecycle states, gate semantics, and template reference.
 2. **Mode Selection (mandatory, before any plan work).** Call the `vscode_askQuestions` tool: `USER-MANAGED` (Recommended) or `AUTO`. Record in the plan's **Plan Settings** block at the **TOP** of the plan file — never the bottom State & Gates.
 3. **Agent Topology Selection (mandatory, before any plan work).** Classify task complexity (blast radius, contract change, risk/reversibility, ambiguity, novelty) and **recommend** a topology via `vscode_askQuestions`: `MULTI` (comprehensive plan — full `ptp-*` delegation, independent Group C reviewers, 4 gates) or `SINGLE` (fast plan — orchestrator plays every persona inline, no `task` spawns, Group C skipped, Gates B+C merge into one approval at Gate B with Gate C `N/A`). Record in the plan's **Plan Settings** `Agents` row at the **TOP** of the plan file. Orthogonal to `Mode`. **Gate A and Gate D always halt** in both topologies. See `pass-the-parcel` § Agent Topology.
-4. **Plan Instantiation.** Derive a kebab-case slug from the description. If a parcel with this slug already exists at `.devops/plans/[slug]-plan.md`, pick it up instead of creating. If creating fresh, copy the template from `.devops/plans/template-plan.md` to `.devops/plans/[slug]-plan.md`. Confirm the slug + plan path + mode + topology with the user before proceeding.
+4. **Plan Instantiation / Pick-up.** Prefer picking up a committed plan from the active sprint queue (`.devops/sprints/sprint-{n}-<slug>/<code>-<slug>-plan.md`). If a parcel already exists claimed at `.devops/plans/<code>-<slug>-plan.md`, pick it up instead of creating. If creating fresh, copy the template from `.devops/plans/template-plan.md`, assign the stable code, and add the claim front-matter. Confirm the code + plan path + mode + topology with the user before proceeding.
 5. **Workspace Initialization (mandatory, once per plan).** Create `.opencode/plans/run-[slug]/` with a `reviews/` subdirectory. Initialize `decision_log.md`.
-6. **Pick up the plan** at `.devops/plans/[slug]-plan.md`. Hydrate **State & Gates** (bottom) to `PHASE_1`.
+6. **Claim & pick up the plan (mandatory — local, in-workspace).** At `.devops/plans/<code>-<slug>-plan.md`, verify no unmet `depends_on` and no `touches` overlap with active plans; fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; commit `claim: <code>` on the workspace trunk; then `git worktree add` on branch `plan/<code>-<slug>`. Hydrate **State & Gates** (bottom) to `PHASE_1`. Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited only on the trunk. See `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 7. **Group A — Phases 1-3:** `MULTI`: spawn `ptp-context-hunter`. `SINGLE`: execute the scoper persona inline. Either way it drafts Phase 3 questions into the plan. **You relay them to the user ONE AT A TIME via `vscode_askQuestions` — never batch multiple questions into one prompt.** Record each answer in the plan. After the final validation question is answered Yes, set Status -> `PHASE_3`.
 8. **Phase 3.5 (AUTO only):** Spawn `ptp-phase3-answerer` (`MULTI`) or execute the answerer persona inline (`SINGLE`). Check for `Unresolvable:` entries — if any, fall back to asking the user directly, one at a time.
 9. **Gate A (Scope):** Present the scope perimeter + Phase 3 Q&A record (+ auto-resolutions in AUTO). Halt for the user's verdict. **Approved:** flip Gate A -> `APPROVED`, proceed to Group B. **Rejected:** Gate A -> `REJECTED`, Status -> `PHASE_1`, append rejection reasons, re-run the affected questions.

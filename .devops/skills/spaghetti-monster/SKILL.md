@@ -1,8 +1,8 @@
 ---
 name: spaghetti-monster
 description: Make sure to use this skill whenever the user mentions "spaghetti", "spaghetti-monster", "god object", "find tangled code", "scan for complexity", "refactor opportunities", "codebase audit", "what needs refactoring", or asks to detect, untangle, or audit high-entropy, highly coupled, non-cohesive code. The monster is a Hunter — it scans the codebase, quantifies the spaghetti, and packages each high-value target into a backlog parcel plan with Phase 1 and Phase 2 pre-populated, ready for the user to pick up Phase 3 (user clarification) in a new conversation. It does NOT execute refactors from this skill — that work happens later via pass-the-parcel execution, with the monster optionally re-invoked as a Group D sub-skill.
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-13
 ---
 
 # Spaghetti Monster — The Hunter
@@ -45,8 +45,8 @@ Before invoking the skill, both human and agent MUST verify their respective ite
 
 **What you get back:**
 1. A ranked kill list of every function/module breaching the Sensor Matrix.
-2. A backlog parcel plan per high-value target at `.devops/plans/<code>-<slug>-plan.md`, with Phases 1 + 2 fully pre-populated.
-3. An entry added to `.devops/backlog/backlog-index.md` for each plan.
+2. A parked backlog parcel plan per high-value target at `.devops/backlog/<code>-<slug>-backlog.md` (`type: backlog`, `claim_status: QUEUED`), with Phases 1 + 2 fully pre-populated.
+3. A row added to the matching `t{n}-<slug>-backlog.md` theme register for each plan.
 
 ---
 
@@ -129,8 +129,8 @@ For each target the user accepts at Gate A:
     * The user must explicitly override to choose differently — reducing the cognitive load of blank questions.
     * Example format:
       > [★] Q1: Should X be extracted to Y or stay in Z? <recommendation: Y — already has precedent in csvParser.js >
- 6. **State Dashboard:** Status `BACKLOG`, Active Persona `Planner`.
- 7. **Append to `.devops/backlog/backlog-index.md`** under the appropriate theme/epic, with a one-line Goal statement.
+ 6. **State Dashboard:** Status `QUEUED`, Active Persona `Planner`; claim front-matter `claim_status: QUEUED`.
+ 7. **Append to the theme register `t{n}-<slug>-backlog.md`** under the appropriate epic, with a one-line Goal statement (the index Themes table links the register).
  8. **Append a changelog entry** to `.devops/logs/agent-changelog.md` describing the scan: scope, kill list size, number of plans created.
 
 The user can now open any plan file in a fresh conversation, review Phases 1-2, and proceed to Phase 3 (User Clarification) — the rest is normal pass-the-parcel execution.
@@ -178,8 +178,8 @@ The monster is done when every item is checked:
 * [ ] Gate A (kill list review) completed with user sign-off on which targets become plans
  * [ ] One backlog parcel plan created per accepted target, with Phases 1 and 2 fully pre-populated
  * [ ] Every Phase 3 question uses the Default-And-Justify format (`[★] recommended answer` + rationale)
- * [ ] State Dashboard on every plan set to `BACKLOG` with `Planner` persona
-* [ ] `.devops/backlog/backlog-index.md` updated with one row per new plan
+ * [ ] State Dashboard on every plan set to `QUEUED` with `Planner` persona, claim front-matter `claim_status: QUEUED`
+* [ ] The matching `t{n}-<slug>-backlog.md` theme register updated with one row per new plan
 * [ ] Changelog entry written to `.devops/logs/agent-changelog.md`
 * [ ] User briefed on the next-step workflow ("open a plan in a new conversation, review Phases 1-2, proceed to Phase 3")
 
@@ -239,10 +239,10 @@ You MUST:
 3. **Use a real complexity analyzer** as the primary score. The LLM heuristic is a sanity check only.
 4. **Halt at Gate A** after the kill list. Do not create plans without user sign-off.
 5. **One plan per accepted target, no batching.** No plan that covers two unrelated targets.
- 6. **Pre-populate Phases 1 AND 2** on every plan. Use `.devops/plans/template-plan.md` as the canonical scaffold.
+ 6. **Pre-populate Phases 1 AND 2** on every plan. Use `.devops/plans/template-plan.md` as the canonical scaffold, and place the parked plan at `.devops/backlog/<code>-<slug>-backlog.md` (`type: backlog`).
  7. **Apply Default-And-Justify to Phase 3** on every plan. Every question MUST have a `[★] recommended answer` with rationale. Never leave a question bare.
  8. **Use the project's existing Theme-Epic numbering** when assigning plan codes. Propose a new theme/epic only if needed.
-8. **Update `.devops/backlog/backlog-index.md`** with a row per new plan.
+9. **Update the `t{n}-<slug>-backlog.md` theme register** with a row per new plan.
 9. **Do not execute a refactor.** Output is a kill list and plans, never a code change.
 10. **Do not offer execution options** at invocation time. There is one mode: Hunter.
 11. **Never silently average** heuristic and analyzer scores when they disagree by > 30%. Ask the user.

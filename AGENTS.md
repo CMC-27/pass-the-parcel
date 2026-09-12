@@ -6,10 +6,10 @@ This repository is configured with a structured documentation library in **`.wik
 
 ### Documentation Structure
 - **`.wiki/`** — Architecture knowledge, design system, features, and technical specs
-- **`.devops/plans/`** — **Plans.** In-flight `*-plan.md` only (`PHASE_1`+); template at `template-plan.md`
-- **`.devops/archive/`** — Completed plans
-- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` + parked `<slug>-backlog.md` plans (`BACKLOG`); pick up by `git mv` to `.devops/plans/<slug>-plan.md`
-- **`.devops/backlog/SPRINTS.md`** — **Sprints (optional).** Register seeds ship in `.devops/templates/`; a satellite creates its own `.devops/backlog/SPRINTS.md` + per-sprint folders only if it adopts the cycle
+- **`.devops/plans/`** — **Plans.** Claimed / in-flight `*-plan.md` only (`PHASE_1`+); template at `template-plan.md`
+- **`.devops/sprints/`** — **Sprints (optional).** Active `sprint-{n}-<slug>/sprint.md` + the committed plan queue; indexed by `.devops/backlog/SPRINTS.md`; seeds ship in `.devops/templates/`; adopted by running `@sprint-plan`
+- **`.devops/archive/`** — Completed plans (`*-plan.md` at root) + closed sprint records (`sprints/sprint-{n}-<slug>/sprint.md`)
+- **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` (Themes table + Triage Panel), theme registers `t{n}-<slug>-backlog.md`, and parked `<code>-<slug>-backlog.md` plans (`claim_status: QUEUED`); commit via `@sprint-plan`, claim into `.devops/plans/`
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
@@ -60,7 +60,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Generating wiki structure from code | `@wiki-generate` skill | `.wiki/core/17-docs-blueprint.md` |
 | Asking a question about the codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` + `ref/` |
 | Recording a knowledge-capture decision | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
-| Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` |
+| Adding to the backlog | `@backlog` skill | `.devops/backlog/backlog-index.md` + theme register |
 | Auditing UI compliance | `@design-audit` skill | `.wiki/core/09-design-system.md` |
 | Checking cross-view pattern consistency | `.wiki/core/18-knowledge-capture.md` (Domain Index) | `ptp-context-hunter` skill §2 + `ptp-grumpy-architect` skill §11 |
 | Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |

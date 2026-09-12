@@ -1,11 +1,14 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-09
+version: 2
+updated: 2026-09-13
 
 SPRINTS.template.md — seed for a satellite's sprint register.
 Copy to .devops/backlog/SPRINTS.md and fill the Sprint Index from your triaged backlog.
 The @sprint-plan / @sprint-status / @sprint-close skills read and write this file.
+A sprint is a time-boxed container of parcel plans drawn from the triaged backlog,
+closed by a retrospective + spaghetti scan. The sprint's own record is a single
+sprint.md; there is no separate retro.md.
 -->
 ---
 type: "process"
@@ -25,34 +28,35 @@ last_sprint: "none"
 ```mermaid
 graph LR
     A["Backlog (triaged)"] --> B["Sprint Planning<br/>sprint-plan"]
-    B --> C["Execute parcels<br/>pass-the-parcel"]
-    C --> D{"All plans done?"}
-    D -->|No| C
-    D -->|Yes| E["Sprint Close<br/>sprint-close"]
-    E --> F["Retro + Spaghetti Scan"]
-    F --> G["Next Sprint"]
-    G --> B
+    B --> C["Queue: sprint.md + plans"]
+    C --> D["Claim + worktree<br/>pass-the-parcel"]
+    D --> E{"All plans done?"}
+    E -->|No| C
+    E -->|Yes| F["Sprint Close<br/>sprint-close"]
+    F --> G["Retro appended to sprint.md<br/>+ Spaghetti Scan"]
+    G --> H["Next Sprint"]
+    H --> B
 ```
 
 | Phase | Skill | Output | When |
 |-------|-------|--------|------|
-| **Plan** | `@sprint-plan` | `sprints/sprint-{n}/plan.md` + SPRINTS.md row | Start of cycle |
-| **Execute** | `@pass-the-parcel` (per plan) | Completed parcel plans → archive | During cycle |
-| **Close** | `@sprint-close` | `sprints/sprint-{n}/retro.md` + REFACTORING.md update | End of cycle |
+| **Plan** | `@sprint-plan` | `.devops/sprints/sprint-{n}-<slug>/sprint.md` + sprint plan queue + SPRINTS.md row | Start of cycle |
+| **Claim & Execute** | `@pass-the-parcel` (per plan) | Plan claimed → `.devops/plans/` → COMPLETE → `.devops/archive/` | During cycle |
+| **Close** | `@sprint-close` | Retro appended to `sprint.md`; `sprint.md` archived to `.devops/archive/sprints/`; REFACTORING.md update | End of cycle |
 | **Status** | `@sprint-status` | Burn-up readout, no file writes | Anytime mid-cycle |
 
 ---
 
 ## Sprint Structure
 
-Each sprint lives in `.devops/backlog/sprints/sprint-{n}/`:
+Each sprint lives in `.devops/sprints/sprint-{n}-<slug>/`:
 
 | File | Purpose |
 |------|---------|
-| `plan.md` | Committed scope, goal, capacity, out-of-scope list |
-| `retro.md` | What shipped, metrics before→after, lessons, carry-forward |
+| `sprint.md` | Single record: goal, capacity, committed scope (queue), out-of-scope, open/close state, retro |
+| `<code>-<slug>-plan.md` | Committed-but-unclaimed plans — the **queue**. A claim moves one to `.devops/plans/`. |
 
-The canonical templates are embedded in the `@sprint-plan` and `@sprint-close` skills.
+On completion a plan moves straight to `.devops/archive/` (root) and is linked back to the sprint by its `sprint:` front-matter field. At close, only `sprint.md` moves to `.devops/archive/sprints/sprint-{n}-<slug>/`. The canonical templates are embedded in the `@sprint-plan` / `@sprint-close` skills and seeded at `.devops/templates/sprint.template.md`.
 
 ---
 
@@ -85,16 +89,17 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 
 ## Sprint Index
 
-| # | Name | Goal | Plans | Status | Retro |
-|---|------|------|-------|--------|-------|
+| # | Name | Goal | Status | Sprint | Retro |
+|---|------|------|--------|--------|-------|
 | — | *(no sprints yet)* | Run `@sprint-plan` to open the first one | — | — | — |
 
 ---
 
 ## Conventions
 
-- **Numbering:** Sequential integers (`sprint-1`, `sprint-2`…). No skipping.
-- **Naming:** Short human name capturing the theme.
-- **One active sprint at a time.** You don't open sprint N+1 until sprint N's retro is written.
-- **Plans stay independent.** A sprint references parcel plans by code; it does not absorb them. A plan can be carried from one sprint to the next without editing the plan itself — only the sprint's `plan.md`/`retro.md` change.
-- **Completed sprints stay in place** (don't archive the folder) so the retro history is a continuous record of how the project was run.
+- **Numbering:** Sequential integers (`sprint-1`, `sprint-2`…). No skipping. The integer is the tooling key; the slug is the human theme — `sprint-{n}-<slug>`.
+- **Single record:** One `sprint.md` per sprint; the retrospective is appended to it at close (no `retro.md`).
+- **One active sprint at a time.** You don't open sprint N+1 until sprint N is closed.
+- **Stable code is the link.** A plan keeps its `T{theme}-E{epic}.{impl}` code for life; physical moves (backlog → sprint queue → plans → archive) are signals, and the `sprint:` front-matter field links a shipped plan back to its sprint.
+- **Claim before execution.** Only one claim may cover a given file — see [`.devops/rules/plan-lifecycle.md`](../rules/plan-lifecycle.md) § Claim Protocol.
+- **Completed sprints are archived** to `.devops/archive/sprints/sprint-{n}-<slug>/` at close, so the retro history is a continuous record of how the project was run.

@@ -1,0 +1,77 @@
+{
+  // Runs automatically when this folder opens (requires "task.allowAutomaticTasks": "on").
+  // See https://code.visualstudio.com/docs/debugtest/tasks for the tasks.json format.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Parcel: Check Architecture Sync",
+      "detail": "Reports CURRENT / UPGRADE / DRIFT / MISSING for the synced machinery against the pass-the-parcel template recorded in .ptp-source.",
+      "type": "shell",
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/pull-architecture.ps1",
+        "-Check"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Dev Server (hidden)",
+      "detail": "Runs `npm run dev` in a hidden, dedicated terminal.",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "never",
+        "focus": false,
+        "panel": "dedicated",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "opencode2",
+      "detail": "Launches the opencode2 CLI in a full-page editor-area terminal.",
+      "type": "shell",
+      "command": "opencode2",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "echo": false,
+        "panel": "new",
+        "clear": true,
+        "showReuseMessage": false
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    }
+  ]
+}

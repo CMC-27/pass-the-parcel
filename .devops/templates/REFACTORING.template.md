@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-09
+version: 2
+updated: 2026-09-13
 
 REFACTORING.template.md — seed for a satellite's code-quality register.
 Copy to .devops/backlog/REFACTORING.md. The scan tables start empty; they are populated
@@ -101,14 +101,14 @@ When a file crosses a threshold, add it to the Kill List below with a one-line n
 
 ## 📋 Stabilisation Sprint
 
-*When the Kill List grows large enough to warrant a dedicated cycle, run it as a **stabilisation sprint** via the normal agile rhythm: `@sprint-plan` (declare it a stabilisation sprint so Kill-List items are allowed to drive scope) → execute the top-N refactors as parcels → `@sprint-close` (retro + re-scan). The sprint's `plan.md`/`retro.md` capture the before→after metrics. See [SPRINTS.md](./SPRINTS.md).*
+*When the Kill List grows large enough to warrant a dedicated cycle, run it as a **stabilisation sprint** via the normal agile rhythm: `@sprint-plan` (declare it a stabilisation sprint so Kill-List items are allowed to drive scope) → claim and execute the top-N refactors as parcels → `@sprint-close` (retro appended to `sprint.md` + re-scan). The sprint's single `sprint.md` captures the before→after metrics. See [SPRINTS.md](./SPRINTS.md).*
 
 ---
 
 ## 📐 Structural Notes
 
 - **This file is process-driven, not roadmap-driven.** Items appear here because code got complex, not because someone planned a feature.
-- **Plans stay in `.devops/plans/`** until executed, then move to archive. This register tracks them but doesn't duplicate their content.
+- **Plans move backlog → sprint queue → `.devops/plans/` → archive.** This register tracks them but doesn't duplicate their content.
 - **The Kill List is ranked by risk × effort.** High-risk files users touch daily get priority over rarely-touched internals.
 - **Full scans run at sprint close** via `@sprint-close`, which invokes `scripts/spaghetti-monster-scan.cjs` across the sprint's touched scope. Output feeds directly into the Current Scan Results section.
 - **When in doubt about whether something belongs here vs the backlog:** if it changes user-visible behavior, it's a feature (backlog). If it only changes internal structure, it's refactoring (here).

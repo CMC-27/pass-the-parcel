@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 8
-updated: 2026-09-11
+version: 9
+updated: 2026-09-13
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -43,6 +43,7 @@ Copy and customize (the sync never overwrites these):
 | `opencode.template.json` | `opencode.json` | fill every `agent.<name>.model` placeholder — `-Verify` fails visibly until you do; delete the `_comment` array |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 | `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
+| `sprint.template.md` | *(no copy)* | reference seed for the single `sprint.md`; `@sprint-plan` writes it into `.devops/sprints/sprint-{n}-<slug>/` |
 | `TRIAGE.template.md` | `.devops/backlog/TRIAGE.md` | triage framework — process doc, edit only if your tiers differ |
 | `REFACTORING.template.md` | `.devops/backlog/REFACTORING.md` | code-quality register — scan tables populate via `@spaghetti-monster` / `@sprint-close` |
 

@@ -1,8 +1,8 @@
 ---
 name: build-roadmap
 description: Make sure to use this skill whenever the user mentions building a product roadmap, creating a roadmap, defining themes or epics, /build-roadmap, planning strategic phases, or wants to map out the future of a product at a high level above the backlog. Use it to create or update a product-roadmap.md file and optionally scaffold aligned epics and implementation plans.
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-13
 ---
 
 # Build Roadmap — Product Roadmap Builder
@@ -104,10 +104,10 @@ After the interview, write `.devops/backlog/product-roadmap.md` using the gather
 - Keep each theme and epic self-contained.
 - Increment `Document Version` on every meaningful update (1.0 → 1.1; major restructure → 2.0).
 
-### Update backlog-index.md
-After writing/updating the roadmap, sync `.devops/backlog/backlog-index.md`:
-- If new themes were added, add theme headings (e.g., `## T{n} — [Theme Name]`)
-- If new epics were added, add epic subheadings (e.g., `### T{n}-E{n}: [Epic Name]`)
+### Update the backlog index & theme registers
+After writing/updating the roadmap, sync the backlog:
+- Add/refresh the theme's row in the `backlog-index.md` **Themes** table, linking its register `t{n}-<slug>-backlog.md`.
+- Create/update the register `t{n}-<slug>-backlog.md` (`type: theme`) with the theme's epics and their impl plans. Epic/feature detail lives in the register, not the index.
 
 ---
 
@@ -123,12 +123,12 @@ Collect a list of plan titles and intents from the user.
 
 For each implementation plan, apply the **backlog** skill workflow:
 
-1. Determine the next available implementation number by scanning `.devops/plans/` for existing plans with the same `T{n}-E{n}.` prefix.
-2. Create the plan at `.devops/plans/{code}-{slug}-plan.md` using the Pass-the-Parcel template.
-3. Set State Dashboard: `Status: BACKLOG`, `Active Persona: Planner`.
+1. Determine the next available implementation number by scanning the theme register and `.devops/backlog/` for existing plans with the same `T{n}-E{n}.` prefix.
+2. Create the parked plan at `.devops/backlog/{code}-{slug}-backlog.md` (`type: backlog`) using the Pass-the-Parcel template and its claim front-matter (`code`, `sprint: ""`, `claim_status: QUEUED`).
+3. Set State Dashboard: `Status: QUEUED`, `Active Persona: Planner`.
 4. Populate Phase 1 with the epic's scope, key features, and technical goals from the roadmap.
 5. Populate Phase 2 with relevant docs and code context discovered during research.
-6. Add a table entry to `.devops/backlog/backlog-index.md` under the correct Theme/Epic section.
+6. Add a row to the theme register `t{n}-<slug>-backlog.md` under the correct epic.
 7. Include the epic's acceptance criteria in Phase 3 as pre-seeded questions.
 8. Add a `Roadmap Theme: T{n} — [Theme Name]` metadata line in the plan header.
 

@@ -1,3 +1,13 @@
+---
+code: T{theme}-E{epic}.{impl}
+sprint: sprint-{n}-<slug>
+claim_status: QUEUED        # QUEUED | CLAIMED | IN_PROGRESS | COMPLETE
+owner: ""
+claimed_at: ""
+last_touch: "{YYYY-MM-DD}"
+touches: ["{path/glob}", "..."]
+depends_on: ["{code}", "..."]
+---
 # Parcel Plan: T{theme}-E{epic}.{impl} - [Title]
 ## Theme-Epic: T{theme} - {Theme Name}, E{epic} - {Epic Name}
 
@@ -13,6 +23,7 @@
 > **Skill Architecture:** This template is consumed by the `pass-the-parcel` skill. Each phase delegates to a specialized sub-skill. See the parcel skill's Skill Delegation Map.
 >
 > **RULES:**
+> - **Claim front-matter** at the very top (`code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`) governs claiming. See `.devops/rules/plan-lifecycle.md` § Claim Protocol. `claim_status` is NOT the bottom `Status` (pipeline phase).
 > - Full skeleton required - ALL 10 phases + Wrap Up MUST be present.
 > - Halt points are HARD STOPS - each gate blocks all subsequent phases.
 > - Persona matches Status - use the State Lifecycle table in pass-the-parcel skill.
@@ -276,7 +287,7 @@
 
 **Wiki Updates:** [List wiki docs updated]
 
-**Plan Archiving:** Plan archived to `.devops/archive/[slug]-plan.md` (via `git mv`, no stub)
+**Plan Archiving:** Plan archived to `.devops/archive/{code}-{slug}-plan.md` (via `git mv`, no stub)
 
 **Backlog Review:** [Backlog items reviewed / updated]
 
@@ -288,15 +299,15 @@
 
 | Metric | Value |
 |---|---|
-| **Status** | `BACKLOG` |
+| **Status** | `QUEUED` |
 | **Version** | `v0.1.0` |
 | **Active Persona** | `Planner` |
-| **Depends On** | none |
+| **Depends On** | none (canonical: claim front-matter `depends_on`) |
 | **Blocks** | none |
 
 > **Settings pointer:** `Mode` and `Agents` live in the frozen **Plan Settings** block at the TOP of this file — read them there before any phase. Never duplicate them here.
 
-> Valid states: `BACKLOG`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
+> Valid states: `QUEUED`, `CLAIMED`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
 
 | Gate | Requirement | Status |
 |---|---|---|

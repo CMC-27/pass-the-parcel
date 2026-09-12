@@ -24,7 +24,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 | File | Covers |
 |---|---|
 | [agents-and-skills.md](agents-and-skills.md) | How agents and skills are defined, named, published and synced |
-| [plan-lifecycle.md](plan-lifecycle.md) | Parcel plan lifecycle — backlog to archive, gates, single-flight |
+| [plan-lifecycle.md](plan-lifecycle.md) | Parcel plan lifecycle — backlog → sprint queue → plans → archive, gates, claim protocol + worktrees |
 
 ## Core Principles
 

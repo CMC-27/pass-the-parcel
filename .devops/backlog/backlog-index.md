@@ -2,54 +2,35 @@
 type: "backlog"
 name: "Backlog Index"
 status: "stable"
-description: "Master queue of all pending, parked, and roadmap features."
+description: "Master queue of all pending, parked, and roadmap features. Triage Panel + Themes table."
 ---
 
 # 📋 Backlog Index
 
-This index serves as the master queue of all proposed, deferred, or future feature requests and roadmap items. Each item points to a detailed plan file containing scoping, requirements, and design context. **Parked** plans live in `.devops/backlog/<slug>-backlog.md`; pick-up renames the file to `.devops/plans/<slug>-plan.md` (the `git mv` is the signal that it is now in flight).
+This index is the master queue of all proposed, deferred, or future work. It holds two things: the **Triage Panel** (what to do next) and the **Themes** table (where each theme's detail lives). Item detail — epics, features, completed rows — lives in the per-theme registers `t{n}-<slug>-backlog.md`; this index links out rather than duplicating it.
+
+**Parked** plans live at `.devops/backlog/<code>-<slug>-backlog.md` (`type: backlog`, `claim_status: QUEUED`). Commitment into a sprint is `@sprint-plan`; the claim protocol in [`.devops/rules/plan-lifecycle.md`](../rules/plan-lifecycle.md) § Claim Protocol moves a committed plan into `.devops/plans/`. The `-backlog.md` suffix is shared with the theme registers — the front-matter `type` (`theme` vs `backlog`) is the discriminator.
 
 > **Maturity, not queue.** Per-axis template maturity and next levers live in [`MATURITY.md`](MATURITY.md) — this index tracks work items; that register tracks how healthy each axis is.
 
-## T1 — Parcel Pipeline Machinery
+---
 
-### T1-E1: Model & Config Integrity
+## Triage Panel
 
-| Plan | Status | Description |
-| :--- | :--- | :--- |
-| ~~T1-E1.01-reconcile-model-registry-plan.md~~ | `COMPLETE` | Resolved 2026-09-03: Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is now satellite configuration in `opencode.json`. Archived to `.devops/archive/`. |
+| Tier | Code | Title | Size | Note |
+|------|------|-------|------|------|
+| — | *(queue clear)* | No open triaged items. Add work via `@backlog`. | — | — |
 
-### T1-E2: Governance & Transport Integrity
+Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in `TRIAGE.md` (seed: `.devops/templates/TRIAGE.template.md`).
 
-| Plan | Status | Description |
-| :--- | :--- | :--- |
-| ~~promote-plan-settings-header~~ | `COMPLETE` | Resolved 2026-09-12 (v0.7.5, SINGLE/AUTO): `Mode`/`Agents` promoted from the cache-anchored bottom `State & Gates` table to a frozen top-of-file `## ⚙️ Plan Settings` block; bottom now holds only mutable state. Archived to `.devops/archive/promote-plan-settings-header-plan.md`. |
-| _(queue clear)_ | — | T1-E2.01 completed 2026-09-11 and archived to `.devops/archive/t1-e2.01-machinery-hardening-plan.md`. |
+---
 
-## T2 — Wiki System & Knowledge Layer
+## Themes
 
-> Close the gap between this repo's **curated** wiki and an OpenWiki-class **self-maintaining** wiki. Governance is the moat; generation is borrowed via OKF interop.
+| Theme | Name | Register |
+|-------|------|----------|
+| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) |
+| T2 | Wiki System & Knowledge Layer | [t2-wiki-system-backlog.md](./t2-wiki-system-backlog.md) |
+| T3 | Template Distribution & Onboarding | [t3-template-distribution-backlog.md](./t3-template-distribution-backlog.md) |
 
-### T2-E1: Wiki Self-Maintenance & Interop
-
-| Plan | Status | Description |
-| :--- | :--- | :--- |
-| ~~T2-E1.01-wiki-self-maintenance-parity-plan.md~~ | `COMPLETE` | Resolved 2026-09-11: unified `format-version: 1` schema, Grounded Claims layer + secret-free CI drift gate, `@wiki-update` / `@wiki-generate` (bootstrap demoted to verification), OKF v0.2 export, `docs/` visualizer. Archived to `.devops/archive/t2-e1.01-wiki-self-maintenance-parity-plan.md`. |
-| ~~T2-E1.03-coverage-gate-symbol-evidence~~ | `COMPLETE` | Resolved 2026-09-11 (v0.5.0): `wiki_coverage_check.py` now uses a four-route evidence OR — filename, parent folder, index-cited exported symbol, and `claims: source` binding — with a stdlib regex export scan and a lazy `wiki_claims.py` import. Additive (no satellite regression). Archived to `.devops/archive/t2-e1.03-coverage-gate-symbol-evidence-plan.md`. |
-
-### T2-E2: Grounding & Guard Hardening
-
-| Plan | Status | Description |
-| :--- | :--- | :--- |
-| ~~T2-E2.01-wiki-grounding-hardening~~ | `COMPLETE` | Resolved 2026-09-11 (v0.6.0): rules-index completeness gate (`[UNCATALOGUED]` in `wiki_lint.py`), 12 grounded claims across core slots 00/09/12/14/17/18, `UNRESOLVED-SYMBOL` `#symbol` resolution in `wiki_claims.py`, `wiki_visualize.py --check` freshness mode + CI visualizer/OKF-smoke steps, UTF-8 guard extended to root `*.md`/`docs/`/`.github/`. Archived to `.devops/archive/t2-e2.01-wiki-grounding-hardening-plan.md`. |
-| ~~T2-E2.02-wiki-refresh-automation~~ | `COMPLETE` | Resolved 2026-09-11 (v0.7.0, SINGLE/AUTO): **G3** `wiki_okf.py import` OKF v0.2 ingest → `in-progress` drafts, index-registered, skip-on-collision; **G5** secret-free scheduled `.github/workflows/wiki-refresh.yml` raises/closes a `wiki-drift` issue. Docs-PR path deferred (no-secret principle). Trust boundary resolved. Archived to `.devops/archive/t2-e2.02-wiki-refresh-automation-plan.md`. |
-
-## T3 — Template Distribution & Onboarding
-
-> Make the repo credible and self-explanatory as a public GitHub template: legal + community files, a README that sells the parcel pipeline, a release/CHANGELOG surface, and one complete worked example.
-
-### T3-E1: Repository Hygiene & Presentation
-
-| Plan | Status | Description |
-| :--- | :--- | :--- |
-| ~~T3-E1.01-template-repo-hygiene~~ | `COMPLETE` | Resolved 2026-09-11 (v1.0.0): `LICENSE` (MIT) + `CONTRIBUTING`/`SECURITY`/CoC + root `CHANGELOG` + README product-page rewrite + `.github` issue/PR templates/`CODEOWNERS`/`release.yml` + worked example in `.wiki/examples/`. `v1.0.0` tag left to the owner. Archived to `.devops/archive/t3-e1.01-template-repo-hygiene-plan.md`. |
+A theme register (`t{n}-<slug>-backlog.md`, front-matter `type: theme`) is the stable home for that theme's epics and features, both open and completed. The register is created when a new theme is first needed.

@@ -61,9 +61,10 @@ docs/           <- Generated visualizer export (not authored)
 | Directory | Role | Index File | Description |
 |---|---|---|---|
 | `.devops/logs` | The Memory | `agent-changelog.md` | Chronological agent actions, audits, hygiene. |
-| `.devops/backlog` | The Queue | `backlog-index.md` | Backlog index and individual plan files. |
-| `.devops/plans` | The Future | (User Managed) | Active implementation plans. |
-| `.devops/archive` | The Archive | (User Managed) | Completed plans moved from `plans/`. |
+| `.devops/backlog` | The Queue | `backlog-index.md` | Triage Panel + Themes table, theme registers `t{n}-<slug>-backlog.md`, parked `<code>-<slug>-backlog.md` plans. |
+| `.devops/sprints` | The Rhythm | `sprint-{n}-<slug>/sprint.md` | Active sprint records + committed plan queues. |
+| `.devops/plans` | The Future | (User Managed) | Claimed implementation plans. |
+| `.devops/archive` | The Archive | (User Managed) | Completed plans at root + closed sprint records under `sprints/`. |
 
 ### docs/ - Generated Visualizer Export
 
@@ -83,9 +84,10 @@ docs/           <- Generated visualizer export (not authored)
 | `.wiki/conventions/` | `conv-category-name.md` | `conv-file-naming.md` |
 | `.wiki/testing/` | `topic.md` | `pattern.md`, `mocking.md` |
 | `.devops/logs/` | `agent-changelog.md` | (single file, append-only) |
-| `.devops/backlog/` | `backlog-index.md` or `<slug>-backlog.md` | `backlog-index.md` |
-| `.devops/plans/` | `<slug>-plan.md` | `feat-dashboard-plan.md` |
-| `.devops/archive/` | `<slug>-plan.md` | (moved from .devops/plans/ when complete) |
+| `.devops/backlog/` | `backlog-index.md`, `t{n}-<slug>-backlog.md`, or `<code>-<slug>-backlog.md` | `backlog-index.md`, `t1-parcel-pipeline-machinery-backlog.md` |
+| `.devops/sprints/` | `sprint-{n}-<slug>/sprint.md` | `sprint-1-import-hardening/sprint.md` |
+| `.devops/plans/` | `<code>-<slug>-plan.md` | `T1-E1.04-dashboard-plan.md` |
+| `.devops/archive/` | `<code>-<slug>-plan.md` or `sprints/sprint-{n}-<slug>/sprint.md` | (moved when complete/closed) |
 
 ---
 

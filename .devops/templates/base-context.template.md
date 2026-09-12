@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 6
-updated: 2026-09-12
+version: 7
+updated: 2026-09-13
 
 SEED TEMPLATE — copy to <satellite root>/.opencode/plans/base-context.md and customize.
 
@@ -35,7 +35,7 @@ normalize model aliases inconsistently.
 | Asking question about codebase | `@wiki-query` skill | Cites `[Title](path)` from `.wiki/` |
 
 ## PTP Lifecycle (canonical — 4 gates)
-`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
+`QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
 **Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
@@ -57,12 +57,20 @@ normalize model aliases inconsistently.
 
 ## Workspace Layout
 <!-- CUSTOMIZE: your plan/archive/run directories if they differ from the blueprint defaults. -->
-- Active plans: `.devops/plans/[slug]-plan.md`
+- Active (claimed) plans: `.devops/plans/[code]-[slug]-plan.md`
+- Sprint queue: `.devops/sprints/sprint-{n}-<slug>/` (`sprint.md` + committed-but-unclaimed plans)
 - Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/` (created by the orchestrator at plan start; reviews live here)
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
 - Audit log: `run-[slug]/decision_log.md`
-- Archived plans: `.devops/archive/`
+- Archived plans: `.devops/archive/`; closed sprint records: `.devops/archive/sprints/sprint-{n}-<slug>/`
+
+## Concurrency & Claims (local, in-workspace)
+- Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
+- Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
+- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>`.
+- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited ONLY on the trunk, never inside a plan branch.
+- Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 <!-- ORCHESTRATOR-ONLY:START (inlined into parcel.agent.md only — not the ptp-* subagents) -->
 ## PTP Delegation Map (canonical)

@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 8
-updated: 2026-09-12
+version: 9
+updated: 2026-09-13
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -23,16 +23,18 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 ## Plan State Lifecycle (Canonical Reference)
 
 Every plan file **MUST** have:
+- The **claim front-matter** block at the very top — `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 - The full template scaffold with phases, gates, and checks.
 - Its **Plan Settings** block (top of the file) recording `Mode` + `Agents`, set once at plan start and read before any phase.
 - Its **State & Gates** section (bottom of the file) updated at each transition. 
 
-The table below defines the only valid states. An AI agent reading the plan determines exactly where it is in the workflow from these two fields.
+Two fields locate a plan: its **physical location** (parked / sprint queue / active / archive) and the pipeline **Status** in the bottom State & Gates. Pre-pipeline plans carry `claim_status`; once claimed, they enter the pipeline at `PHASE_1` and the table below governs. The table defines the only valid states.
 
 | Status | Active Persona | Directory | File Suffix | Gate | Meaning |
 |---|---|---|---|---|---|
-| `BACKLOG` | `Planner` | `.devops/backlog/` | `-backlog.md` | — | Early-prepared; not yet picked up for execution. Created by **backlog** skill. |
-| `PHASE_1` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Picked up from backlog. Scoping & context gathering in progress. |
+| `QUEUED` | `Planner` | `.devops/backlog/` or `.devops/sprints/sprint-{n}-<slug>/` | `-backlog.md` / `-plan.md` | — | Parked in the backlog, or committed to a sprint queue but not yet claimed (`claim_status: QUEUED`). Created by **backlog** / **sprint-plan**. |
+| `CLAIMED` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Claim written (`claim_status: CLAIMED`) on the trunk and a worktree created; the pipeline begins at `PHASE_1`. |
+| `PHASE_1` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Scoping & context gathering in progress. |
 | `PHASE_3` | `Scoper` | `.devops/plans/` | `-plan.md` | Gate A | User clarifications complete (+ Phase 3.5 auto-resolutions in AUTO mode). Awaiting scope approval at Gate A. |
 | `PHASE_5` | `High-Visionary` | `.devops/plans/` | `-plan.md` | Gate B | Wiki spec + standard implementation plan written. Awaiting spec & plan approval at Gate B. |
 | `PHASE_5_REVISION` | `High-Visionary` | `.devops/plans/` | `-plan.md` | Gate B/C | Gate B or C rejected (review failed or user rejected). Plan returned to Group B for fixes. |
@@ -41,7 +43,7 @@ The table below defines the only valid states. An AI agent reading the plan dete
 | `PHASE_9` | `Executor` | `.devops/plans/` | `-plan.md` | Gate D | Implementation done, verified. Awaiting user sign-off at Gate D. |
 | `COMPLETE` | — | `.devops/archive/` | `-plan.md` | — | Plan archived. No further action. All gates `APPROVED`. |
 
-**Lifecycle flow:** `BACKLOG` → *(pickup)* → `PHASE_1` → `PHASE_3` → `PHASE_5` → `PHASE_7` → `PHASE_9` → `COMPLETE`
+**Lifecycle flow:** `QUEUED` → *(claim)* → `CLAIMED`/`PHASE_1` → `PHASE_3` → `PHASE_5` → `PHASE_7` → `PHASE_9` → `COMPLETE`
 
 **Revision loop (deterministic rejection):** `PHASE_7` → *(Phase 6 or 7 fails)* → `PHASE_5_REVISION` → *(Group B fixes)* → `PHASE_5` → *(Phases 6-7 re-run)* → `PHASE_7` → Gate C
 
@@ -56,6 +58,7 @@ The table below defines the only valid states. An AI agent reading the plan dete
 - **No amount of urgency allows skipping gates:** Each gate is a hard stop. Agents **MUST** halt and wait for user approval before proceeding to the next phase grouping.
 - **Gate flips only after a verdict:** gate rows flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO-mode verification's) decision, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 - **Topology changes the gate set:** `MULTI` forces 4 hard stops (A-D). `SINGLE` merges B+C into one plan-approval at Gate B and records Gate C as `N/A`. Gate A and Gate D are topology-invariant. See § Agent Topology.
+- **Claim before edits:** A plan may not execute until it is claimed (front-matter + worktree) with no `touches` overlap against active plans. See `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 > **🔒 Cache-anchor rule:** The **Plan Settings** block at the TOP of the plan file is frozen config (`Mode` + `Agents`, written once at plan start); the State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; the frozen settings block and phase content above stay byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
 
@@ -77,7 +80,7 @@ Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity**
 | Field value | `Agents: MULTI` | `Agents: SINGLE` |
 
 **Non-negotiables in BOTH topologies:**
-- Same plan file (`.devops/plans/[slug]-plan.md`), same lifecycle states, same State & Gates section.
+- Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
 - **Gate A (Scope) and Gate D (Implementation) always halt for the human.** `Mode`/`AUTO` never bypasses these.
 - One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded.
 - `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
@@ -172,21 +175,23 @@ To maximize token-savings during interaction and within the plan updates, agents
 
 > **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology).
 
-### Backlog Pick-up Flow (Pre-Phase 1)
-If the requested feature exists as a backlog item:
-1. Locate its early-prepared backlog plan file at `.devops/backlog/<feature-slug>-backlog.md` (suffixed with `-backlog`, Status `BACKLOG`, Persona `Planner`).
-2. Move (rename) this file to `.devops/plans/<feature-slug>-plan.md` (suffixed with `-plan`). **This file rename is the signal that the item is now active — `-backlog` means parked, `-plan` means in flight.**
-3. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
+### Claim & Pick-up Flow (Pre-Phase 1)
+Work enters the pipeline from a sprint queue. Do not start a plan that is neither committed to a sprint nor claimed.
+
+1. Locate the plan in the active sprint folder `.devops/sprints/sprint-{n}-<slug>/<code>-<slug>-plan.md` (`claim_status: QUEUED`). If the item is still parked at `.devops/backlog/<code>-<slug>-backlog.md`, it is **not committed** — run `@sprint-plan` first.
+2. **Check eligibility:** no unmet `depends_on` (every dependency present in `.devops/archive/`) and no `touches` overlap with any plan in `.devops/plans/`. If either fails, STOP and report the blocker.
+3. **Claim on the trunk:** fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint folder to `.devops/plans/<code>-<slug>-plan.md`; commit `claim: <code>`.
+4. **Isolate:** `git worktree add <path> -b plan/<code>-<slug>` from the claim commit.
+5. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
    - **Status** → `PHASE_1`
    - **Active Persona** → `Scoper`
    - **Gate A** → `OPEN`.
-4. Remove the item from the active checklist in `.devops/backlog/backlog-index.md`.
-5. Proceed to **Group A** (Phases 1-3). The backlog plan contains pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the Fresh Context Rule in the `ptp-context-hunter` skill. The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
+6. Proceed to **Group A** (Phases 1-3). A committed plan may carry pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the Fresh Context Rule in the `ptp-context-hunter` skill. The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
 
 ### GROUP A: Scoping & Context (Phases 1-3)
 * **Capability class:** per delegation map row (Model Registry in base-context)
 * **Goal:** Understand intent, locate context, resolve ambiguities.
-* **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `.devops/plans/<feature-slug>-plan.md` from the [canonical template](../../plans/template-plan.md). This gives the plan the **full scaffold** (Phases 1-10 + State & Gates at bottom) from the start — all downstream agents rely on this structure. If this item was picked up from the backlog, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial **State & Gates** section (bottom): **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
+* **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `.devops/plans/<code>-<slug>-plan.md` from the [canonical template](../../plans/template-plan.md) and add the claim front-matter block (`.devops/rules/plan-lifecycle.md` § Claim Front-Matter). This gives the plan the **full scaffold** (Phases 1-10 + State & Gates at bottom) from the start — all downstream agents rely on this structure. If this item was committed to a sprint, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial **State & Gates** section (bottom): **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
   * **Phase 1 (Expansion & Scoping):**
     * **CRITICAL:** Initialize and execute the **`ptp-context-hunter`** skill to hydrate the plan, expand the request, and lock the In-Scope / Out-of-Scope perimeter.
@@ -250,7 +255,7 @@ If the requested feature exists as a backlog item:
 * **Goal:** Document all tweaks from Phase 10, promote captured lessons to the knowledge log, reconcile the wiki against what was actually built, and close out the plan.
 * **Steps:**
   * **Wrap Up:**
-     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 10 tweaks, sync captured lessons (per Phase 10 `Capture Flag`, strict-admission only) to the project's knowledge capture log, reconcile code against the Phase 4 spec, **promote `status: in-progress` wiki docs to `stable`** (or log the deviation), update wiki docs, archive the plan to `.devops/archive/`, review backlog items, and set the **State & Gates** section (bottom) → `COMPLETE` (all gates `APPROVED`). **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `.devops/backlog/<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
+     * **CRITICAL:** Initialize and execute the **`agent-wrap-up`** skill (global) to log Phase 10 tweaks, sync captured lessons (per Phase 10 `Capture Flag`, strict-admission only) to the project's knowledge capture log, reconcile code against the Phase 4 spec, **promote `status: in-progress` wiki docs to `stable`** (or log the deviation), update wiki docs, archive the plan to `.devops/archive/`, review backlog items, and set the **State & Gates** section (bottom) → `COMPLETE` (all gates `APPROVED`). **If Phase 6 flagged any dead code or orphans, create a backlog entry** at `.devops/backlog/<code>-<slug>-backlog.md` with a terse description, affected file paths, and a reference to the original plan.
 * **END:** All phases complete. Plan archived. Session ended.
 
 ---

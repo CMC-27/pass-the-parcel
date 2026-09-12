@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-09
+version: 2
+updated: 2026-09-13
 
 TRIAGE.template.md — seed for a satellite's backlog triage framework.
 Copy to .devops/backlog/TRIAGE.md. This is process, not data — it rarely needs editing
@@ -16,7 +16,7 @@ description: "Rules for prioritising and ordering backlog items. Read this befor
 ---
 # 🎯 Backlog Triage Framework
 
-This document defines how items get prioritised in the Triage Panel at the top of [backlog-index.md](./backlog-index.md). It exists so any agent or human can re-triage consistently without needing tribal knowledge.
+This document defines how items get prioritised in the Triage Panel at the top of [backlog-index.md](./backlog-index.md). Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; the index holds the Themes table + the panel. It exists so any agent or human can re-triage consistently without needing tribal knowledge.
 
 ---
 
@@ -48,9 +48,9 @@ This document defines how items get prioritised in the Triage Panel at the top o
 
 ### At session start (pickup)
 1. Read the Triage Panel and check `SPRINTS.md` for an active sprint.
-2. **If a sprint is active:** run `@sprint-status` to see what's committed, then continue executing a committed plan via `@pass-the-parcel`. Do NOT pull new items ad-hoc — that's scope creep.
-3. **If no sprint is active:** run `@sprint-plan` to commit a batch of triaged items into a sprint first, THEN execute.
-4. Once an item is committed to a sprint, remove it from the Triage Panel (it's tracked by the sprint now).
+2. **If a sprint is active:** run `@sprint-status` to see the queue and active claims, then claim the next eligible plan (`.devops/rules/plan-lifecycle.md` § Claim Protocol) and execute it via `@pass-the-parcel`. Do NOT pull new items ad-hoc — that's scope creep.
+3. **If no sprint is active:** run `@sprint-plan` to commit a batch of triaged items into a sprint queue first, THEN execute.
+4. Once an item is committed to a sprint, remove it from the Triage Panel (the sprint queue + theme register track it now).
 
 ### At session end (wrap-up)
 1. If the last committed sprint plan just finished, run `@sprint-close` (retro + spaghetti scan). It handles moving completed items to ✅ Recently Completed and refreshing REFACTORING.md.
@@ -83,7 +83,7 @@ Within a tier, prefer S→M→L→XL unless dependencies force otherwise. Quick 
 - **❌ Hoarding detail in the index.** This file is a register, not a spec. Keep descriptions to one-liners. Full context lives in plan files or wiki docs.
 - **❌ Status drift.** An item marked COMPLETE here must have a matching entry in `agent-changelog.md`. If they disagree, the changelog wins.
 - **❌ Silent promotion.** Don't move something from ❄️ DEFERRED to 🟡 NEXT without recording *why* the deferral reason changed.
-- **❌ Duplicate tracking.** If an item has a plan file in `.devops/plans/`, it should NOT also appear in the Triage Panel. Active work is tracked by its plan, not here.
+- **❌ Duplicate tracking.** If an item is committed to a sprint queue or claimed in `.devops/plans/`, it should NOT also appear in the Triage Panel. Active work is tracked by its plan + sprint, not here.
 - **❌ Stale deadlines.** If a deadline passes without action, escalate the item to 🔴 NOW immediately and flag it in the next session.
 
 ---
@@ -94,10 +94,12 @@ Within a tier, prefer S→M→L→XL unless dependencies force otherwise. Quick 
 |----------|------|
 | [product-roadmap.md](./product-roadmap.md) | Defines themes and epics (*what*). Doesn't schedule. |
 | [backlog-index.md](./backlog-index.md) | Registers all open items with triage (*when*). |
-| [SPRINTS.md](./SPRINTS.md) | The agile rhythm — time-boxed cycles that consume triaged backlog. |
+| [SPRINTS.md](./SPRINTS.md) | The agile rhythm — time-boxed cycles that consume triaged backlog. Indexes `.devops/sprints/sprint-{n}-<slug>/`. |
 | [REFACTORING.md](./REFACTORING.md) | Code quality register. Process-driven maintenance, not feature work. |
-| `.devops/plans/` | Active implementation plans (in-progress work). |
-| `.devops/archive/` | Completed plans (historical record). |
+| `t{n}-<slug>-backlog.md` | Theme registers — the detail home for epics, features, and completed rows. |
+| `.devops/sprints/` | Sprint queues — `sprint.md` + committed-but-unclaimed plans. |
+| `.devops/plans/` | Claimed implementation plans (in-progress work). |
+| `.devops/archive/` | Completed plans (historical record) + closed sprint records. |
 | `.devops/logs/agent-changelog.md` | Session-by-session log of what shipped. |
 | `.wiki/core/00-system-index.md` | Architecture truth. Backlog items reference wiki docs, not vice versa. |
 
@@ -109,7 +111,7 @@ The Triage Panel is the **input** to sprint planning. The flow:
 
 1. Items live in the Triage Panel at their tier (🔴 NOW / 🟡 NEXT / 🟢 LATER / ⚪ PARKED / ❄️ DEFERRED).
 2. `@sprint-plan` pulls 🔴 + 🟡 (plus carry-forward, plus Kill-List top-N if capacity allows) into a committed sprint.
-3. Once an item is committed to a sprint, it moves OUT of the Triage Panel into the sprint's `plan.md` — active work is tracked by its sprint + plan, not here (see Anti-Pattern: Duplicate tracking).
+3. Once an item is committed to a sprint, its plan file moves into the sprint folder (`.devops/sprints/sprint-{n}-<slug>/`) and its row moves into the theme register — active work is tracked by its sprint + plan, not here (see Anti-Pattern: Duplicate tracking).
 4. If a sprint carries an item forward, it re-enters the Triage Panel at its original tier for the next planning pass.
 
 **Rule:** An item should never appear in BOTH the Triage Panel and an ACTIVE sprint's committed scope simultaneously. When you commit it, remove it from the panel; when it carries forward, put it back.

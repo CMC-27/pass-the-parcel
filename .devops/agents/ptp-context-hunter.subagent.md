@@ -33,7 +33,7 @@ user-invocable: false
 | Recording knowledge-capture | `@knowledge-capture` skill | `.wiki/core/18-knowledge-capture.md` |
 
 ## PTP Lifecycle (canonical — 4 gates)
-`BACKLOG` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
+`QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
 **Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
@@ -54,12 +54,20 @@ user-invocable: false
 **Where they live:** both settings are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start, read before any phase). They are NOT in the bottom `## 📍 State & Gates` section, which holds only mutable runtime state (Status / Active Persona / gates).
 
 ## Workspace Layout
-- Active plans: `.devops/plans/[slug]-plan.md`
+- Active (claimed) plans: `.devops/plans/[code]-[slug]-plan.md`
+- Sprint queue: `.devops/sprints/sprint-{n}-<slug>/` (`sprint.md` + committed-but-unclaimed plans)
 - Plan template: `.devops/plans/template-plan.md`
 - Per-run workspace: `.opencode/plans/run-[slug]/` (created by the orchestrator at plan start; reviews live here)
 - Reviews: `run-[slug]/reviews/product_review.md`, `run-[slug]/reviews/arch_review.md`
 - Audit log: `run-[slug]/decision_log.md`
-- Archived plans: `.devops/archive/`
+- Archived plans: `.devops/archive/`; closed sprint records: `.devops/archive/sprints/sprint-{n}-<slug>/`
+
+## Concurrency & Claims (local, in-workspace)
+- Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
+- Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
+- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>`.
+- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited ONLY on the trunk, never inside a plan branch.
+- Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 ## Delegated Skill: ptp-context-hunter
 
@@ -81,7 +89,7 @@ This skill owns **Group A: Scoping & Context (Phases 1-3)** of the `pass-the-par
 ## Core Operational Directives
 
 ### 1. Initialization & Backlog Hydration Safeguard
-* **File Check:** Before doing anything, check if `.devops/plans/[feature-slug]-plan.md` already exists.
+* **File Check:** Before doing anything, check if `.devops/plans/[code]-[slug]-plan.md` already exists.
 * **The Template Rule:** If the file **does not** exist, copy `.devops/plans/template-plan.md` to create it. Initialize the **State & Gates** section (bottom) to `PHASE_1`.
 * **The Backlog Safe-Hydration Rule:** If the file **already exists** (moved from the backlog directory), **do not overwrite it**. Read the file immediately. It contains early-prepared context that you must preserve and build upon.
 

@@ -38,9 +38,10 @@ The library is organized into **two top-level libraries** based on functional pu
 | Directory | Role | Index File | Description |
 | :--- | :--- | :--- | :--- |
 | `.devops/logs` | **The Memory** | `agent-changelog.md` | Chronological records of agent actions, audits, and hygiene checks. |
-| `.devops/backlog` | **The Queue** | `backlog-index.md` | Project backlog index and individual backlog plan files. |
-| `.devops/plans` | **The Vision** | *(User Managed)* | Implementation plans, architectural RFCs, and feature roadmaps. |
-| `.devops/archive` | **The Archive** | `README.md` | Completed and closed implementation plans. |
+| `.devops/backlog` | **The Queue** | `backlog-index.md` | Triage Panel + Themes table, theme registers, and parked plan files. |
+| `.devops/sprints` | **The Rhythm** | `sprint-{n}-<slug>/sprint.md` | Active sprint records + committed plan queues. |
+| `.devops/plans` | **The Vision** | *(User Managed)* | Claimed implementation plans. |
+| `.devops/archive` | **The Archive** | `README.md` | Completed plans at root + closed sprint records under `sprints/`. |
 | `docs/prompts` | **The Voice** | *(User Managed)* | Standardized LLM prompts and persona definitions for consistency. |
 
 ---

@@ -27,7 +27,7 @@ graph TD
 
 ## 2. The Parcel Pipeline
 
-Every multi-step task runs through the same stateless parcel pipeline: a single markdown plan file (`.devops/plans/[slug]-plan.md`) carries all state. In the default `MULTI` topology each phase group is executed by one specialized sub-agent that reads the plan, does its job, updates the plan, and exits; in `SINGLE` topology (fast plan) the orchestrator plays those personas inline — see [§ Agent Topology](#agent-topology).
+Every multi-step task runs through the same stateless parcel pipeline: a single markdown plan file (`.devops/plans/[code]-[slug]-plan.md`) carries all state. In the default `MULTI` topology each phase group is executed by one specialized sub-agent that reads the plan, does its job, updates the plan, and exits; in `SINGLE` topology (fast plan) the orchestrator plays those personas inline — see [§ Agent Topology](#agent-topology).
 
 ```mermaid
 flowchart LR
