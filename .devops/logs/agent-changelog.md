@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-13 - Concurrency + sprint lifecycle rewrite (machinery 36)
 
 **Why:** The sprint model assumed one serial executor and a separate `plan.md`/`retro.md` per cycle. Reworked to concurrent, claimed execution with local-only git: a plan is committed into `.devops/sprints/sprint-{n}-<slug>/` (single `sprint.md`, no `retro.md`), claimed via claim front-matter (`code`/`sprint`/`claim_status`/`owner`/`claimed_at`/`last_touch`/`touches`/`depends_on`) + `git mv` into `.devops/plans/` + `git worktree add` on `plan/<code>-<slug>`; completed plans archive to `.devops/archive/` root, and the sprint record moves to `.devops/archive/sprints/`. Backlog detail moved into `t{n}-<slug>-backlog.md` theme registers (front-matter `type` discriminates them from parked `-backlog.md` plans); `backlog-index.md` is now Triage Panel + Themes table. Updated `plan-lifecycle` (rules 4/6 + Claim Protocol), `sprint-plan`/`sprint-status`/`sprint-close`, `pass-the-parcel`, `backlog`, `agent-wrap-up`, `spaghetti-monster`, `build-roadmap`, all seeds (`SPRINTS` + new `sprint`/`AGENTS`/`TRIAGE`/`REFACTORING`/`SATELLITE-BOOTSTRAP`/`base-context`), `base-context.md` (re-inlined ×7, prefix PASS), `parcel.agent.md`, `AGENTS.md`, `.devops/README.md`, `.devops/rules/README.md`, `template-plan.md`, and wiki docs `17-docs-blueprint`/`18-knowledge-capture`/`00-system-index` + the worked example. AGENTS.md claim hashes re-stamped. Re-adopted `.vscode/tasks.json` and dropped its stale `prune_files` entry so `sync-architecture.ps1 -SelfTest` is green. machinery-version 35→36.
-**Ref:** working tree (uncommitted; baseline `0739c50`).
+**Ref:** `4364a55`.
 
 ---
 
