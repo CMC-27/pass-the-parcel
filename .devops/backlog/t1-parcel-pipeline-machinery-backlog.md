@@ -53,3 +53,4 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Resolved | Note | Archive |
 |------|-------|----------|------|---------|
 | T1-E3.01 | Concurrency & sprint lifecycle rewrite | 2026-09-13 | Worktree-per-plan + claim protocol; `.devops/sprints/sprint-{n}-<slug>/` with a single `sprint.md`; theme registers; shipped plans archive at root. Executed as a direct SINGLE session with the design locked interactively — see `.devops/logs/agent-changelog.md`. | — (no plan file) |
+| T1-E3.02 | Sprint batch runner (`@sprint-run` + `parcel-sprint` + `ptp-parcel-fast`) | 2026-09-13 | Unattended batch execution of the committed sprint queue: new selectable host `parcel-sprint` spawning one hidden `ptp-parcel-fast` per plan (locked `AUTO`+`SINGLE`, fresh context), trunk-sequential claim, batched Gate D. Three deviations mirrored into the shared prefix + `plan-lifecycle.md`. | [plan](../archive/t1-e3.02-sprint-batch-runner-plan.md) |

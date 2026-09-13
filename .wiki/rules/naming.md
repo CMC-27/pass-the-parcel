@@ -6,7 +6,7 @@ tags: [wiki, rules, naming, conventions]
 status: stable
 format-version: 1
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-13
 related-to: [./numbering.md, ./frontmatter.md]
 ---
 # Naming Conventions
@@ -25,7 +25,7 @@ related-to: [./numbering.md, ./frontmatter.md]
 | `kebab-case.md` | `data-flow.md` | Knowledge docs, work instructions |
 | `NN-slug.md` | `09-design-system.md` | Indexed core docs, sequenced standards |
 | `<slug>/SKILL.md` | `wiki-query/SKILL.md` | Skills (in `.devops/skills/`) |
-| `<slug>.agent.md` | `parcel.agent.md`, `parcel-fast.agent.md` | Selectable agents (in `.devops/agents/`) |
+| `<slug>.agent.md` | `parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md` | Selectable agents (in `.devops/agents/`) |
 | `ptp-<slug>.subagent.md` | `ptp-context-hunter.subagent.md` | Subagents (in `.devops/agents/`) |
 
 ## Naming Rules
@@ -42,4 +42,4 @@ related-to: [./numbering.md, ./frontmatter.md]
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-13. Changes to these rules require human sign-off.*

@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 2
+version: 3
 updated: 2026-09-13
 
 SPRINTS.template.md — seed for a satellite's sprint register.
@@ -42,6 +42,7 @@ graph LR
 |-------|-------|--------|------|
 | **Plan** | `@sprint-plan` | `.devops/sprints/sprint-{n}-<slug>/sprint.md` + sprint plan queue + SPRINTS.md row | Start of cycle |
 | **Claim & Execute** | `@pass-the-parcel` (per plan) | Plan claimed → `.devops/plans/` → COMPLETE → `.devops/archive/` | During cycle |
+| **Batch Run** | `@sprint-run` | Every eligible queued plan run Phases 1–9 in one pass, each claimed on the trunk and left at `PHASE_9` Gate D `OPEN` → one consolidated Gate D report | During cycle (optional, unattended) |
 | **Close** | `@sprint-close` | Retro appended to `sprint.md`; `sprint.md` archived to `.devops/archive/sprints/`; REFACTORING.md update | End of cycle |
 | **Status** | `@sprint-status` | Burn-up readout, no file writes | Anytime mid-cycle |
 

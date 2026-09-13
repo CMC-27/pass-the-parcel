@@ -5,7 +5,7 @@ argument-hint: "<feature description>"
 tools: [read, edit, search, execute, agent, web, todo, vscode_askQuestions]
 model: DeepSeek V4.1 Flash
 ---
-> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-fast.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-fast.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-fast.agent.md`, `.devops/agents/parcel-sprint.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -48,7 +48,7 @@ model: DeepSeek V4.1 Flash
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
-- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same one-phase-grouping-per-session bound, same Gate D human sign-off.
+- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same one-phase-grouping-per-session bound, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single fresh per-plan context (see `.devops/rules/plan-lifecycle.md` § Deviations).
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start — unless the orchestrator runs a **locked preset** that fixes one or both axes (see **Orchestrator Presets** in the orchestrator prefix). Full contract: `@pass-the-parcel` § Agent Topology.
 
@@ -66,8 +66,8 @@ model: DeepSeek V4.1 Flash
 ## Concurrency & Claims (local, in-workspace)
 - Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
 - Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
-- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>`.
-- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited ONLY on the trunk, never inside a plan branch.
+- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, `.devops/logs/version-history.md`) are edited ONLY on the trunk, never inside a plan branch.
 - Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 ## PTP Delegation Map (canonical)
@@ -79,6 +79,7 @@ model: DeepSeek V4.1 Flash
 | 6 | `ptp-grumpy-architect` | adversarial review | `reviews/arch_review.md` (`PASS` / `**REJECTED:**` first line) |
 | 7 | `ptp-smooth-operator` | product review | `reviews/product_review.md` (`PASS` / `**REJECTED:**` first line) |
 | 8-9 | `ptp-code-surgeon` | execution | Executed code + verification proof |
+| batch (sprint queue) | `ptp-parcel-fast` (spawned by `parcel-sprint` only) | execution | One plan run Phases 1-9 -> `PHASE_9`, Gate D `OPEN` |
 
 ## Model Registry (per-subagent bindings — no hardcoded model names in prose)
 Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
@@ -95,6 +96,8 @@ Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code
 | ptp-grumpy-architect | adversarial review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-smooth-operator | product review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-code-surgeon | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| parcel-sprint | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| ptp-parcel-fast | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 
 **Binding rule:** every parcel/ptp agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime). Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (frontmatter + registry row + `-Sync` + validation).
 
@@ -107,6 +110,7 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 |---|---|---|---|
 | `parcel` | USER-MANAGED | MULTI | `ask` |
 | `parcel-fast` | AUTO | SINGLE | `locked` |
+| `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
 `parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. Gate A and Gate D always halt for the human in every preset; `AUTO` only auto-clears Gates A-C. Full contract: `@pass-the-parcel` § Agent Topology.
 

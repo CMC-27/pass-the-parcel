@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "type: template | version: 5 | updated: 2026-09-13",
+    "type: template | version: 6 | updated: 2026-09-13",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
     "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
     "The 'agent' block below ships the parcel/ptp agents pre-wired so a bootstrapped satellite",
@@ -33,6 +33,7 @@
         "task": {
           "*": "deny",
           "ptp-*": "allow",
+          "ptp-parcel-fast": "deny",
           "wiki-writer": "allow",
           "wiki-verifier": "allow"
         },
@@ -55,6 +56,28 @@
         "list": "allow",
         "bash": "allow",
         "task": "deny",
+        "todowrite": "allow",
+        "webfetch": "allow",
+        "websearch": "allow",
+        "question": "allow"
+      }
+    },
+    "parcel-sprint": {
+      "description": "Parcel-Sprint batch host. Walks the ACTIVE sprint queue and runs each eligible plan through the parcel pipeline one at a time in a fresh context per plan, spawning the ptp-parcel-fast subagent (locked AUTO + SINGLE), then emits one consolidated Gate D report. Use when: 'parcel-sprint', '/parcel-sprint', 'run the sprint', 'batch the sprint queue', '@sprint-run'.",
+      "mode": "primary",
+      "model": "<your provider/model>",
+      "prompt": "{file:.devops/agents/parcel-sprint.agent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": {
+          "*": "deny",
+          "ptp-parcel-fast": "allow"
+        },
         "todowrite": "allow",
         "webfetch": "allow",
         "websearch": "allow",
@@ -180,6 +203,25 @@
       "hidden": true,
       "model": "<your provider/model>",
       "prompt": "{file:.devops/agents/ptp-code-surgeon.subagent.md}",
+      "permission": {
+        "read": "allow",
+        "edit": "allow",
+        "glob": "allow",
+        "grep": "allow",
+        "list": "allow",
+        "bash": "allow",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny",
+        "question": "deny"
+      }
+    },
+    "ptp-parcel-fast": {
+      "description": "Per-plan fast runner sub-agent. Runs ONE committed parcel plan through Phases 1-9 under the locked AUTO + SINGLE preset (Gates A/B auto-cleared, Gate C N/A), terminating at PHASE_9 with Gate D OPEN. Spawned only by the parcel-sprint batch host.",
+      "mode": "subagent",
+      "hidden": true,
+      "model": "<your provider/model>",
+      "prompt": "{file:.devops/agents/ptp-parcel-fast.subagent.md}",
       "permission": {
         "read": "allow",
         "edit": "allow",

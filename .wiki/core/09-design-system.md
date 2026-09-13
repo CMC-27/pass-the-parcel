@@ -10,7 +10,7 @@ description: "The single source of truth for visual design decisions: tokens, ty
 claims:
   - id: design-system-is-authority
     source: AGENTS.md#Design & Scope Notes
-    hash: sha256:adb9f46aaea497323f9ee2ed69a1a1bdc4d5e0b6177eaf65a178a6d37bf8de25
+    hash: sha256:7832f7384508a9ef138a78fa9c19b08d68a7a6f460061c47cde9d25885cdfd23
 ---
 # Design System
 

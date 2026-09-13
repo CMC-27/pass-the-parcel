@@ -16,7 +16,7 @@ related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 | Path | Type | Contents |
 |---|---|---|
 | `.devops/skills/` | machinery | All skills (`<slug>/SKILL.md`), loaded via `opencode.json` `skills.paths` |
-| `.devops/agents/` | machinery | VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents) |
+| `.devops/agents/` | machinery | VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `parcel-sprint.agent.md` (batch host for `@sprint-run`) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan runner spawned only by `parcel-sprint` — one prefix apart from the selectable `parcel-fast`) |
 | `.devops/plans/` | state | Claimed / active parcel plans + `template-plan.md` |
 | `.devops/sprints/` | state | Active sprint records — `sprint-{n}-<slug>/sprint.md` + committed plan queues |
 | `.devops/backlog/` | state | Master queue (`backlog-index.md`), theme registers (`t{n}-<slug>-backlog.md`), parked plans, the maturity register (`MATURITY.md`) |

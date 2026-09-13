@@ -40,7 +40,7 @@ Copy and customize (the sync never overwrites these):
 | Seed (in `.devops/templates/`) | Copy to | Then |
 |---|---|---|
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
-| `opencode.template.json` | `opencode.json` | fill every `agent.<name>.model` placeholder — `-Verify` fails visibly until you do; delete the `_comment` array. Ships both orchestrators (`parcel`, `parcel-fast`) + the `ptp-*` subagents |
+| `opencode.template.json` | `opencode.json` | fill every `agent.<name>.model` placeholder — `-Verify` fails visibly until you do; delete the `_comment` array. Ships both orchestrators (`parcel`, `parcel-fast`) plus the `parcel-sprint` batch host + the `ptp-*` subagents (including the hidden `ptp-parcel-fast` per-plan runner spawned only by `parcel-sprint`) |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 | `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
 | `sprint.template.md` | *(no copy)* | reference seed for the single `sprint.md`; `@sprint-plan` writes it into `.devops/sprints/sprint-{n}-<slug>/` |

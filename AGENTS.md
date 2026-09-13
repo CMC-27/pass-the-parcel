@@ -12,7 +12,7 @@ This repository is configured with a structured documentation library in **`.wik
 - **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` (Themes table + Triage Panel), theme registers `t{n}-<slug>-backlog.md`, and parked `<code>-<slug>-backlog.md` plans (`claim_status: QUEUED`); commit via `@sprint-plan`, claim into `.devops/plans/`
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `parcel-sprint.agent.md` (batch host for `@sprint-run`) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `parcel-fast` is the selectable orchestrator while `ptp-parcel-fast` is the hidden per-plan subagent spawned only by `parcel-sprint` — one prefix apart)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
 - **`.wiki/rules/language/`** — Language governance layer — voice & tone, AI rules, publication rules
 - **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle
@@ -65,6 +65,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Checking cross-view pattern consistency | `.wiki/core/18-knowledge-capture.md` (Domain Index) | `ptp-context-hunter` skill §2 + `ptp-grumpy-architect` skill §11 |
 | Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |
 | Multi-step planning | `@pass-the-parcel` skill | Parcel template at `.devops/plans/template-plan.md` |
+| Running a whole sprint queue | `@sprint-run` skill | `.devops/skills/sprint-run/SKILL.md` |
 | Choosing/editing subagent model bindings | `@model-routing` skill | `.opencode/plans/base-context.md` (Model Registry) |
 | Pre-push validation (lint/test/build/push) | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/README.md` (Transportability) + HOW-TO.md §6 |

@@ -27,7 +27,7 @@ param(
     byte-identical to the SKILL.md body (frontmatter stripped). -Sync regenerates it.
 
     Agents physically live in .devops/agents/ as VS Code custom agent files
-    (parcel.agent.md / parcel-fast.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
+    (parcel.agent.md / parcel-fast.agent.md / parcel-sprint.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
     YAML frontmatter (description/tools/model/user-invocable) followed by the
     PREFIX-LOCKED prefix and the agent-unique content (everything from the first
     "## Delegated Skill:" heading, or "You are the" for the orchestrator).
@@ -65,7 +65,7 @@ $canonical = $canonical.TrimEnd("`n")
 
 # --- Split the canonical prefix at the ORCHESTRATOR-ONLY block (if present) ---
 # shared = content above the START marker (inlined into ALL locked agents).
-# full   = whole file with the two marker lines stripped (inlined into parcel.agent.md only).
+# full   = whole file with the two marker lines stripped (inlined into parcel.agent.md / parcel-fast.agent.md / parcel-sprint.agent.md only).
 # No markers -> shared == full == canonical (backward compatible with pre-split satellites).
 $canonicalLines = $canonical -split "`n"
 $orchStartIdx = -1; $orchEndIdx = -1

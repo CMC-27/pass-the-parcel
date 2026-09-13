@@ -63,6 +63,9 @@ Gate A and Gate D always halt for the human in both topologies. Record the choic
 #### Parcel-Fast (locked preset)
 `parcel-fast` is a second selectable orchestrator that ships the two axes pre-set to **`AUTO` + `SINGLE`**. It skips the Mode and Topology questions and, because `opencode.json` binds it `task: deny`, it **cannot** spawn a sub-agent. It runs the same pipeline, plan file, lifecycle, and gates as `parcel`; only the selection questions and the `MULTI` dispatch differ. Gate A and Gate D still halt. Presets are declared in the `## Orchestrator Presets` table of `.opencode/plans/base-context.md`.
 
+#### Sprint Batch Runner (`@sprint-run`)
+When a sprint is open and its queue is committed, `@sprint-run` (host agent `parcel-sprint`) runs the whole eligible queue in one unattended pass. It evaluates the eligibility predicate (no unmet `depends_on`; no `touches` overlap with any plan in `.devops/plans/`, including plans already batched to `PHASE_9`) **immediately before each claim**, presents an informed **run preview** (eligible plans, skip list with reasons, orphan re-adoptions, a blast radius) labelled a **forecast**, then for each plan claims it on the trunk and spawns one `ptp-parcel-fast` subagent (locked `AUTO` + `SINGLE`, one fresh context per plan, Phases 1→9). Plans terminate at `PHASE_9` with **Gate D `OPEN`**; the batch emits one consolidated report and one human verdict covers the whole batch — Gate D is deferred, never skipped. Two deviations from the default protocol apply: **batched Gate D** and a **trunk-sequential** claim (no `git worktree`). Hard failures stop the line immediately and emit a partial report. Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.
+
 ---
 
 ## 3. Knowledge Retention & Wrap-Up

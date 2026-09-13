@@ -4,7 +4,7 @@ tools: [read, edit, search]
 model: DeepSeek V4.1 Flash
 user-invocable: false
 ---
-> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-fast.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-fast.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-fast.agent.md`, `.devops/agents/parcel-sprint.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -47,7 +47,7 @@ user-invocable: false
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
-- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same one-phase-grouping-per-session bound, same Gate D human sign-off.
+- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same one-phase-grouping-per-session bound, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single fresh per-plan context (see `.devops/rules/plan-lifecycle.md` § Deviations).
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start — unless the orchestrator runs a **locked preset** that fixes one or both axes (see **Orchestrator Presets** in the orchestrator prefix). Full contract: `@pass-the-parcel` § Agent Topology.
 
@@ -65,8 +65,8 @@ user-invocable: false
 ## Concurrency & Claims (local, in-workspace)
 - Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
 - Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
-- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>`.
-- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`) are edited ONLY on the trunk, never inside a plan branch.
+- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, `.devops/logs/version-history.md`) are edited ONLY on the trunk, never inside a plan branch.
 - Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 ## Delegated Skill: ptp-high-visionary

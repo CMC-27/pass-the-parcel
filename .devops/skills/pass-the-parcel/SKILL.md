@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 10
+version: 11
 updated: 2026-09-13
 ---
 
@@ -33,7 +33,7 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 | Status | Active Persona | Directory | File Suffix | Gate | Meaning |
 |---|---|---|---|---|---|
 | `QUEUED` | `Planner` | `.devops/backlog/` or `.devops/sprints/sprint-{n}-<slug>/` | `-backlog.md` / `-plan.md` | — | Parked in the backlog, or committed to a sprint queue but not yet claimed (`claim_status: QUEUED`). Created by **backlog** / **sprint-plan**. |
-| `CLAIMED` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Claim written (`claim_status: CLAIMED`) on the trunk and a worktree created; the pipeline begins at `PHASE_1`. |
+| `CLAIMED` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Claim written (`claim_status: CLAIMED`) on the trunk and a worktree created; the pipeline begins at `PHASE_1`. The `@sprint-run` batch path claims without a worktree (`trunk-sequential`; see § Batch Runner). |
 | `PHASE_1` | `Scoper` | `.devops/plans/` | `-plan.md` | — | Scoping & context gathering in progress. |
 | `PHASE_3` | `Scoper` | `.devops/plans/` | `-plan.md` | Gate A | User clarifications complete (+ Phase 3.5 auto-resolutions in AUTO mode). Awaiting scope approval at Gate A. |
 | `PHASE_5` | `High-Visionary` | `.devops/plans/` | `-plan.md` | Gate B | Wiki spec + standard implementation plan written. Awaiting spec & plan approval at Gate B. |
@@ -58,7 +58,7 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 - **No amount of urgency allows skipping gates:** Each gate is a hard stop. Agents **MUST** halt and wait for user approval before proceeding to the next phase grouping.
 - **Gate flips only after a verdict:** gate rows flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO-mode verification's) decision, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 - **Topology changes the gate set:** `MULTI` forces 4 hard stops (A-D). `SINGLE` merges B+C into one plan-approval at Gate B and records Gate C as `N/A`. Gate A and Gate D are topology-invariant. See § Agent Topology.
-- **Claim before edits:** A plan may not execute until it is claimed (front-matter + worktree) with no `touches` overlap against active plans. See `.devops/rules/plan-lifecycle.md` § Claim Protocol.
+- **Claim before edits:** A plan may not execute until it is claimed (front-matter + worktree) with no `touches` overlap against active plans. See `.devops/rules/plan-lifecycle.md` § Claim Protocol. — **except** the `@sprint-run` batch path, which is `trunk-sequential` and skips the worktree (§ Batch Runner).
 
 > **🔒 Cache-anchor rule:** The **Plan Settings** block at the TOP of the plan file is frozen config (`Mode` + `Agents`, written once at plan start); the State Dashboard + Gate Log are the **last section** (`## 📍 State & Gates`) of every plan file. Gate transitions mutate ONLY those bottom rows; the frozen settings block and phase content above stay byte-stable to preserve LLM prefix-cache hits. Every instruction below that says "Update State Dashboard" means "update the bottom State & Gates section".
 
@@ -82,7 +82,7 @@ Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity**
 **Non-negotiables in BOTH topologies:**
 - Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
 - **Gate A (Scope) and Gate D (Implementation) always halt for the human.** `Mode`/`AUTO` never bypasses these.
-- One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded.
+- One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context (§ Batch Runner).
 - `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
 
 ### Complexity Triage (topology selection)
@@ -134,6 +134,7 @@ Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a spec
 | D | 9 | `Executor` | `ptp-code-surgeon` | execution | ptp sub-skill | D |
 | E | 10 | `Reviewer` | `knowledge-capture` (on demand) | — | global | — |
 | F | Wrap Up | `Lead Context Architect` | `agent-wrap-up` | orchestration | global | — |
+| — | batch (sprint queue) | `Batch Host` | `ptp-parcel-fast` | execution | per-plan runner (spawned by `parcel-sprint`) | D |
 
 **Model Registry (declarative, per-agent):**
 Model routing is declarative and owned by the **Model Registry** in `.opencode/plans/base-context.md` (inlined into every parcel/ptp agent via the PREFIX-LOCKED prefix). Capability classes: `orchestration`, `retrieval/inventory`, `retrieval/Q&A`, `deep planning/authoring`, `adversarial review`, `product review`, `execution`. Each agent's `model:` binding lives in its own frontmatter and MUST equal its registry row — use the `@model-routing` skill to (re)bind. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
@@ -148,6 +149,17 @@ Model routing is declarative and owned by the **Model Registry** in `.opencode/p
 
 
 **Plan trace:** Every phase in the parcel template records the executed skill and model in its `Skill Executed` field for auditability.
+
+
+### Batch Runner (`@sprint-run`)
+
+A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, fresh context each), then emits one consolidated Gate D report.
+
+- **`trunk-sequential`** — keeps the `git mv` + `claim: <code>` commit, drops `git worktree add`.
+- **Batched Gate D** — plans terminate at `PHASE_9` and a single human verdict covers the whole batch; Gate D is deferred, never skipped.
+- **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
+
+Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.
 
 
 ---
@@ -190,7 +202,7 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
 1. Locate the plan in the active sprint folder `.devops/sprints/sprint-{n}-<slug>/<code>-<slug>-plan.md` (`claim_status: QUEUED`). If the item is still parked at `.devops/backlog/<code>-<slug>-backlog.md`, it is **not committed** — run `@sprint-plan` first.
 2. **Check eligibility:** no unmet `depends_on` (every dependency present in `.devops/archive/`) and no `touches` overlap with any plan in `.devops/plans/`. If either fails, STOP and report the blocker.
 3. **Claim on the trunk:** fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint folder to `.devops/plans/<code>-<slug>-plan.md`; commit `claim: <code>`.
-4. **Isolate:** `git worktree add <path> -b plan/<code>-<slug>` from the claim commit.
+4. **Isolate:** `git worktree add <path> -b plan/<code>-<slug>` from the claim commit. — **except** the `@sprint-run` batch path, which is `trunk-sequential` and skips the worktree (§ Batch Runner).
 5. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
    - **Status** → `PHASE_1`
    - **Active Persona** → `Scoper`

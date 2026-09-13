@@ -19,7 +19,7 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 
 ## Agent Home
 
-- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators — the latter a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
+- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators — the latter a locked `AUTO`+`SINGLE` preset) + `parcel-sprint.agent.md` (the batch host for `@sprint-run`, a locked batch preset that spawns one per-plan subagent) + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan runner spawned only by `parcel-sprint` — one prefix apart from the selectable `parcel-fast` orchestrator). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
 - Each file carries YAML frontmatter (description, tools, model, user-invocable) followed by the PREFIX-LOCKED prefix and the agent-unique content.
 - The PREFIX-LOCKED prefix must be byte-identical to `.opencode/plans/base-context.md` — enforced by `scripts/check-parcel-prefix.ps1`.
 
@@ -35,8 +35,18 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 ## Naming
 
 - Skills: `kebab-case` folder + matching frontmatter `name`, e.g. `.devops/skills/wiki-query/SKILL.md` with `name: wiki-query`.
-- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent. Mark an orchestrator's locked preset in the `## Orchestrator Presets` table of `base-context.md` (Mode/Agents), never in a plan file.
+- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`, `ptp-parcel-fast.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent. Mark an orchestrator's locked preset in the `## Orchestrator Presets` table of `base-context.md` (Mode/Agents), never in a plan file.
 - Skill descriptions must state **when to trigger** the skill (the `description` frontmatter is what agents read).
+
+## The "Batch Host" Pattern
+
+A **batch host** is a primary agent whose whole job is to run a *series* of per-plan runs unattended. It is the one legitimate case where a `SINGLE`-style orchestrator **does** spawn — and its `task` allow-list is narrowed to exactly one target.
+
+- **Bounded spawning.** `parcel-sprint`'s `opencode.json` `permission.task` maps `"*"` → `"deny"` and `"ptp-parcel-fast"` → `"allow"` — nothing else. The host can spawn its per-plan runner and nothing more.
+- **Deny-after-glob in a plain orchestrator.** `parcel`'s `task` block allows the `"ptp-*"` glob, which would also admit the batch runner; an exact `"ptp-parcel-fast": "deny"` placed **after** the glob overrides it (an exact key is the most specific match and, placed last, also the last match).
+- **One fresh context per plan.** Each spawned `ptp-parcel-fast` owns one plan's Phases 1→9 and returns a terse `DONE`/`SKIP`/`HALT`. The host writes no code itself.
+
+Presets for a batch host are declared in the `## Orchestrator Presets` table of `base-context.md`, with the key **backticked** so the Model Registry parser does not mis-read it as a model binding.
 
 ## Sync Protocol
 

@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 9
+version: 10
 updated: 2026-09-13
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
@@ -26,7 +26,7 @@ user interfaces.
 - **`.devops/backlog/SPRINTS.md`** — Sprint register (index of every sprint); created from `SPRINTS.template.md` when the cycle is adopted
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `parcel-sprint.agent.md` (batch host for `@sprint-run`) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `parcel-fast` is the selectable orchestrator while `ptp-parcel-fast` is the hidden per-plan subagent spawned only by `parcel-sprint` — one prefix apart)
 - **`.wiki/rules/`** — Wiki governance layer
 - **`.devops/rules/`** — Dev governance layer
 
@@ -57,6 +57,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Checking sprint progress / "where are we" | `@sprint-status` skill | Active `sprints/sprint-{n}-<slug>/sprint.md` + claims in `.devops/plans/` |
 | Closing a sprint / retrospective | `@sprint-close` skill | `sprints/sprint-{n}-<slug>/sprint.md` (retro) + REFACTORING.md scan |
 | Multi-step planning | `@pass-the-parcel` skill | Template at `.devops/plans/template-plan.md` |
+| Running a whole sprint queue | `@sprint-run` skill | `.devops/skills/sprint-run/SKILL.md` |
 | Pre-push validation | `@test-and-deploy` skill | `.devops/logs/version-history.md` |
 | Syncing machinery / pulling template updates | `@sync-architecture` skill | `.devops/templates/SATELLITE-BOOTSTRAP.md` |
 | Closing out a task | `@agent-wrap-up` skill | `.devops/logs/agent-changelog.md` |
