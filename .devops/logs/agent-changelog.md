@@ -15,7 +15,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Why:** A satellite (GRID-Link) had added a local delta to this portable skill — step 4 now mandates `git commit -F <message-file>` over `git commit -m "<message>"`. The host shell re-parses embedded double quotes in `-m` as argument boundaries and shreds a multi-line body into pathspecs (`error: pathspec 'depth' did not match any file(s) known to git`), and an inline here-string is precisely the text that gets re-parsed, so a dropped non-ASCII character can collapse a pattern to empty and then match every line. Because the skill is portable and `excluded_skills: []`, a plain satellite sync would silently overwrite the delta; ported it here (v3→v4) so it is shared machinery rather than permanent DRIFT. No body changes beyond step 4.
 
-**Ref:** `PENDING`
+**Ref:** `0ee80ff`
 
 ## 2026-09-13 - Pre-satellite-sync audit tidy-up (machinery 40)
 
