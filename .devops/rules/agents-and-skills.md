@@ -19,7 +19,7 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 
 ## Agent Home
 
-- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
+- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators — the latter a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
 - Each file carries YAML frontmatter (description, tools, model, user-invocable) followed by the PREFIX-LOCKED prefix and the agent-unique content.
 - The PREFIX-LOCKED prefix must be byte-identical to `.opencode/plans/base-context.md` — enforced by `scripts/check-parcel-prefix.ps1`.
 
@@ -35,7 +35,7 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 ## Naming
 
 - Skills: `kebab-case` folder + matching frontmatter `name`, e.g. `.devops/skills/wiki-query/SKILL.md` with `name: wiki-query`.
-- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent.
+- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent. Mark an orchestrator's locked preset in the `## Orchestrator Presets` table of `base-context.md` (Mode/Agents), never in a plan file.
 - Skill descriptions must state **when to trigger** the skill (the `description` frontmatter is what agents read).
 
 ## Sync Protocol

@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 8
+version: 9
 updated: 2026-09-13
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
@@ -26,7 +26,7 @@ user interfaces.
 - **`.devops/backlog/SPRINTS.md`** — Sprint register (index of every sprint); created from `SPRINTS.template.md` when the cycle is adopted
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer
 - **`.devops/rules/`** — Dev governance layer
 

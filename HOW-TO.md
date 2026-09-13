@@ -60,6 +60,9 @@ Independently of the mode, a plan runs in one of two topologies — chosen by **
 
 Gate A and Gate D always halt for the human in both topologies. Record the choice in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen config — never the bottom State & Gates). Full contract: `@pass-the-parcel` § Agent Topology.
 
+#### Parcel-Fast (locked preset)
+`parcel-fast` is a second selectable orchestrator that ships the two axes pre-set to **`AUTO` + `SINGLE`**. It skips the Mode and Topology questions and, because `opencode.json` binds it `task: deny`, it **cannot** spawn a sub-agent. It runs the same pipeline, plan file, lifecycle, and gates as `parcel`; only the selection questions and the `MULTI` dispatch differ. Gate A and Gate D still halt. Presets are declared in the `## Orchestrator Presets` table of `.opencode/plans/base-context.md`.
+
 ---
 
 ## 3. Knowledge Retention & Wrap-Up

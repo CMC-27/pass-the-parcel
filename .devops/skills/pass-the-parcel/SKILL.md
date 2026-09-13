@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 9
+version: 10
 updated: 2026-09-13
 ---
 
@@ -66,7 +66,7 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 
 ## Agent Topology (SINGLE vs MULTI — fast plan vs comprehensive plan)
 
-Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start. Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file.
+Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start — unless the orchestrator runs a **locked preset** that fixes it (see § Orchestrator Presets). Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file.
 
 | | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** |
 |---|---|---|
@@ -97,7 +97,16 @@ Score these signals; **all low -> `SINGLE`; any high -> `MULTI`**:
 | Ambiguity | intent clear | unknowns needing deep Q&A |
 | Novelty | reuse existing pattern | new pattern / new subsystem |
 
-The orchestrator **recommends** a topology from these signals; the **user confirms** (or overrides) at plan start, exactly like `Mode`.
+The orchestrator **recommends** a topology from these signals; the **user confirms** (or overrides) at plan start, exactly like `Mode` — unless a **locked preset** supplies it (see § Orchestrator Presets).
+
+### Orchestrator Presets (locked Mode/Topology)
+
+An orchestrator agent may carry a **locked preset** that fixes `Mode` and/or `Agents` — the `Orchestrator Presets` table in the orchestrator prefix. Read **your own row** at plan start:
+
+- `ask` -> run the normal selection step (recommend, user confirms), exactly as above.
+- `locked` -> the selection step is **already satisfied**: write the preset values into the plan's **Plan Settings** block and do **not** ask. `parcel-fast` is the canonical example (`Mode = AUTO`, `Agents = SINGLE`).
+
+A locked `SINGLE` preset is normally paired with the runtime `task: deny` permission, so the no-subagent rule is enforced **structurally** rather than by the model's restraint. Presets change *who executes* and *which questions are asked* — never the hard halts: **Gate A and Gate D always halt for the human**, and `AUTO` auto-clears only Gates A-C.
 
 ### Per-topology phase flow
 
@@ -173,7 +182,7 @@ To maximize token-savings during interaction and within the plan updates, agents
 
 ## Execution Steps
 
-> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology).
+> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology). If a **locked preset** fixes `SINGLE`, that dispatch is mandatory (the runtime `task: deny` enforces it).
 
 ### Claim & Pick-up Flow (Pre-Phase 1)
 Work enters the pipeline from a sprint queue. Do not start a plan that is neither committed to a sprint nor claimed.

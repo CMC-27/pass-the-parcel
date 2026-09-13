@@ -1,8 +1,8 @@
 ---
 name: model-routing
 description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, rebinding a ptp-* subagent, "which model for", or editing the Model Registry in base-context.md. Guides the per-subagent model choice for the parcel architecture and applies the binding edit safely (frontmatter + registry + prefix sync + validation).
-version: 4
-updated: 2026-09-11
+version: 5
+updated: 2026-09-13
 ---
 
 # SKILL: Model Routing (per-subagent model binding)
@@ -15,7 +15,7 @@ There are exactly two places a model binding lives, and they must always agree:
 
 | Layer | File | Format | Example |
 |---|---|---|---|
-| **Runtime binding** | `.devops/agents/parcel.agent.md`, `ptp-*.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
+| **Runtime binding** | `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `ptp-*.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
 | **Runtime binding** | `opencode.json` → `agent.<key>.model` (opencode) | provider ID | `"opencode-go/qwen3.8-flash"` |
 | **Canonical registry** | `.opencode/plans/base-context.md` → `## Model Registry` table | both columns | one row per agent |
 
@@ -39,7 +39,7 @@ Map the answers to a capability class, then pick the cheapest model that satisfi
 
 | Capability class | Profile | Typical fit in the parcel pipeline |
 |---|---|---|
-| **Orchestration** | Small context window usage, routing + gate-keeping, terse output, runs the whole session so cost compounds | `parcel` orchestrator |
+| **Orchestration** | Small context window usage, routing + gate-keeping, terse output, runs the whole session so cost compounds | `parcel` / `parcel-fast` orchestrators |
 | **Retrieval / inventory** | Large read volume, shallow synthesis per item, structured checklists out, high volume → cost-sensitive | `ptp-context-hunter` |
 | **Retrieval / Q&A** | Reads only mapped sources, answers with citations, no re-discovery | `ptp-phase3-answerer` |
 | **Deep planning / authoring** | Must hold the entire architecture in mind, produce long coherent structured markdown, no code output | `ptp-high-visionary` |

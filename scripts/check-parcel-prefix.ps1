@@ -6,7 +6,7 @@ param(
 .SYNOPSIS
     Verifies (and optionally repairs) the PREFIX-LOCKED byte-for-byte contract
     between .opencode/plans/base-context.md and every PREFIX-LOCKED agent file
-    (.devops/agents/parcel.agent.md + .devops/agents/ptp-*.subagent.md), the
+    (.devops/agents/parcel*.agent.md + .devops/agents/ptp-*.subagent.md), the
     verbatim skill-embed contract inside each ptp-* agent file, and the
     opencode.json <-> Model Registry model-binding agreement.
 
@@ -19,7 +19,7 @@ param(
     base-context.md carries an optional ORCHESTRATOR-ONLY block (delegation map +
     model registry). Content ABOVE that block is the shared prefix (inlined into all
     locked agents); the full file (markers stripped) is the orchestrator prefix (inlined
-    into parcel.agent.md only). If the markers are absent, every agent gets the full
+    into the orchestrator agents only). If the markers are absent, every agent gets the full
     canonical prefix (backward compatible).
 
     Each ptp-* agent also embeds its delegated skill VERBATIM between
@@ -27,7 +27,7 @@ param(
     byte-identical to the SKILL.md body (frontmatter stripped). -Sync regenerates it.
 
     Agents physically live in .devops/agents/ as VS Code custom agent files
-    (parcel.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
+    (parcel.agent.md / parcel-fast.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
     YAML frontmatter (description/tools/model/user-invocable) followed by the
     PREFIX-LOCKED prefix and the agent-unique content (everything from the first
     "## Delegated Skill:" heading, or "You are the" for the orchestrator).
@@ -81,14 +81,14 @@ if ($orchStartIdx -ge 0 -and $orchEndIdx -gt $orchStartIdx) {
     $fullPrefix = $canonical
 }
 
-# PREFIX-LOCKED set: the selectable parcel agent + the ptp-* subagents.
+# PREFIX-LOCKED set: the selectable orchestrator agents + the ptp-* subagents.
 # All agents are VS Code custom agent files in .devops/agents/ (no .opencode/agents/
 # mirror exists; the opencode runtime is configured in opencode.json, validated below).
 $agentFiles = @()
-$agentFiles += @(Get-ChildItem -Path $agentsDir -Filter 'parcel.agent.md' -ErrorAction SilentlyContinue)
+$agentFiles += @(Get-ChildItem -Path $agentsDir -Filter 'parcel*.agent.md' -ErrorAction SilentlyContinue)
 $agentFiles += @(Get-ChildItem -Path $agentsDir -Filter 'ptp-*.subagent.md' -ErrorAction SilentlyContinue)
 $agentFiles = @($agentFiles | Where-Object { $_ }) | Sort-Object Name
-if (-not $agentFiles) { throw "No PREFIX-LOCKED agent files found (parcel.agent.md / ptp-*.subagent.md in $agentsDir)" }
+if (-not $agentFiles) { throw "No PREFIX-LOCKED agent files found (parcel*.agent.md / ptp-*.subagent.md in $agentsDir)" }
 
 $failures = @()
 
@@ -97,7 +97,7 @@ $failures = @()
 # Each agent file's frontmatter `model:` must equal the value in the column matching its runtime.
 $modelBindings = @{}
 foreach ($line in ($canonical -split "`n")) {
-    if ($line -match '^\|\s*(parcel|ptp-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
+    if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
         $modelBindings[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
     }
 }
@@ -173,7 +173,8 @@ foreach ($file in $agentFiles) {
     }
 
     # Rebuild expected content: frontmatter + prefix (shared or full) + blank line + unique.
-    $prefixForFile = if ($key -eq 'parcel') { $fullPrefix } else { $sharedPrefix }
+    # Orchestrator agents (parcel*, keyed) get the full prefix incl. the ORCHESTRATOR-ONLY block.
+    $prefixForFile = if ($key -like 'parcel*') { $fullPrefix } else { $sharedPrefix }
     $expected = $frontmatter + $prefixForFile + "`n`n" + $unique
 
     if ($raw.TrimEnd("`n") -eq $expected.TrimEnd("`n")) {

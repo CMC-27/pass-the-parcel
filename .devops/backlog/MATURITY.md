@@ -38,7 +38,7 @@ Grades are judgement, not measurement — but every one is accountable to the **
 
 | # | Axis | Grade | Evidence | Next lever |
 |---|---|---|---|---|
-| 1 | **Planning & execution** | A− | 10-phase parcel pipeline; Gates A–D; `MULTI`/`SINGLE` topology; `AUTO`/`USER-MANAGED` modes; deterministic `PHASE_5_REVISION` loop; skill-enforced agent embeds | No known gap; keep. Any change is scope, not maturity. |
+| 1 | **Planning & execution** | A− | 10-phase parcel pipeline; Gates A–D; `MULTI`/`SINGLE` topology; `AUTO`/`USER-MANAGED` modes; **locked orchestrator presets** (`parcel-fast` = `AUTO`+`SINGLE`, `task: deny`); deterministic `PHASE_5_REVISION` loop; skill-enforced agent embeds | No known gap; keep. Any change is scope, not maturity. |
 | 2 | **Deterministic governance** | A+ | `check-parcel-prefix` (PREFIX-LOCKED), `check-utf8-agents`, `wiki_lint`, `wiki_claims` (symbol resolution), `wiki_coverage_check`, `wiki_visualize --check`, machinery-version discipline, sync `-SelfTest`, CI + OKF PyYAML parse, `wiki-refresh` drift job | Nothing known. |
 | 3 | **Transportability** | A | `sync-manifest.yaml` + push/pull + per-item `CURRENT`/`UPGRADE`/`DRIFT`/`MISSING`/`PRUNE` verdicts + `machinery-version`; `wiki-refresh.yml` is transportable | Satellite-side adoption is unproven in the field. |
 | 4 | **Wiki structure & rules** | A− | Hub-and-spoke; unified `format-version: 1`; `.wiki/rules` governance (incl. `claims.md`); `[UNCATALOGUED]`/`[UNINDEXED]` gates; OKF v0.2 export/import | Ground the remaining core slots that describe real artefacts (`06-directory-structure`). |
@@ -52,6 +52,7 @@ Grades are judgement, not measurement — but every one is accountable to the **
 | 2026-09-11 (baseline) | A− | A | A− | B+ | D | D | Initial template review |
 | 2026-09-11 (after hygiene) | A− | A | A− | A− | C | B+ | T2-E1 / T3-E1 hygiene & wiki-parity work |
 | 2026-09-11 (now) | A− | A+ | A | A− | B− | B+ | T2-E2.01 grounding + T2-E2.02 refresh automation + OKF hardening (machinery 31) |
+| 2026-09-13 (now) | A− | A+ | A | A− | B− | B+ | Parcel-Fast locked preset — second orchestrator, structurally single-agent (machinery 37) |
 
 ## Method
 

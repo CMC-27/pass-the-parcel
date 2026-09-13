@@ -12,7 +12,7 @@ This repository is configured with a structured documentation library in **`.wik
 - **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` (Themes table + Triage Panel), theme registers `t{n}-<slug>-backlog.md`, and parked `<code>-<slug>-backlog.md` plans (`claim_status: QUEUED`); commit via `@sprint-plan`, claim into `.devops/plans/`
 - **`.devops/logs/`** — Agent changelog, version history
 - **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
-- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
+- **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators; `parcel-fast` is a locked `AUTO`+`SINGLE` preset) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
 - **`.wiki/rules/language/`** — Language governance layer — voice & tone, AI rules, publication rules
 - **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle

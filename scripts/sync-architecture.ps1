@@ -30,7 +30,7 @@ param(
     non-CURRENT verdict it makes -Check exit 1. Prune files are excluded from their parent
     directory's comparison, so a lingering retired file surfaces as PRUNE rather than a
     misleading parent-dir DRIFT ("locally customized") when the live content matches upstream.
-    For the PREFIX-LOCKED agents (.devops/agents/parcel.agent.md + ptp-*.subagent.md) only
+    For the PREFIX-LOCKED agents (.devops/agents/parcel*.agent.md + ptp-*.subagent.md) only
     the agent-unique content is hashed: the prefix region is regenerated from each repo's
     own base-context.md after every sync, so it legitimately differs between source and
     target and must never mask a CURRENT verdict.
@@ -268,7 +268,7 @@ function Get-ItemHashes {
         # eol=lf in .gitattributes) materialize LF blobs as CRLF on Windows, so raw
         # byte hashes would report false DRIFT after any checkout.
         #
-        # PREFIX-LOCKED agents (.devops/agents/parcel.agent.md + ptp-*.subagent.md):
+        # PREFIX-LOCKED agents (.devops/agents/parcel*.agent.md + ptp-*.subagent.md):
         # the prefix region is regenerated from each repo's own base-context.md after
         # every sync, so it legitimately differs between source and target. Hash only
         # the agent-unique content (everything from the first "## Delegated Skill:" /
@@ -277,7 +277,7 @@ function Get-ItemHashes {
         # still reports DRIFT/UPGRADE as normal.
         $name = Split-Path -Leaf $File
         $text = $null
-        if (($name -eq 'parcel.agent.md' -or $name -like 'ptp-*.subagent.md') -and $File.Replace('\','/') -like '*/.devops/agents/*') {
+        if (($name -like 'parcel*.agent.md' -or $name -like 'ptp-*.subagent.md') -and $File.Replace('\','/') -like '*/.devops/agents/*') {
             $raw = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($File)) -replace "`r`n", "`n"
             $body = $raw
             if ($raw.StartsWith("---`n")) {

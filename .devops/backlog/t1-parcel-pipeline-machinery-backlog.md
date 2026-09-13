@@ -23,6 +23,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Resolved | Note | Archive |
 |------|-------|----------|------|---------|
 | T1-E1.01 | Reconcile model registry | 2026-09-03 | Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is satellite configuration in `opencode.json`. | [plan](../archive/t1-e1.01-reconcile-model-registry-plan.md) |
+| T1-E1.02 | Parcel-Fast locked preset | 2026-09-13 | New selectable orchestrator `parcel-fast` ships a **locked preset** (`Mode=AUTO`, `Agents=SINGLE`): it skips the Mode/Topology questions, runs inline personas, and is bound `task: deny` so `SINGLE` is enforced structurally. Preset declared in the `## Orchestrator Presets` table of `base-context.md`; executed as a direct machinery session. | — (no plan file) |
 
 ## E2 — Governance & Transport Integrity
 
