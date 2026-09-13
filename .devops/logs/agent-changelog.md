@@ -11,6 +11,12 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-13 - test-and-deploy v4: commit `-F` guidance ported from GRID-Link
+
+**Why:** A satellite (GRID-Link) had added a local delta to this portable skill — step 4 now mandates `git commit -F <message-file>` over `git commit -m "<message>"`. The host shell re-parses embedded double quotes in `-m` as argument boundaries and shreds a multi-line body into pathspecs (`error: pathspec 'depth' did not match any file(s) known to git`), and an inline here-string is precisely the text that gets re-parsed, so a dropped non-ASCII character can collapse a pattern to empty and then match every line. Because the skill is portable and `excluded_skills: []`, a plain satellite sync would silently overwrite the delta; ported it here (v3→v4) so it is shared machinery rather than permanent DRIFT. No body changes beyond step 4.
+
+**Ref:** `PENDING`
+
 ## 2026-09-13 - Pre-satellite-sync audit tidy-up (machinery 40)
 
 **Why:** A pre-satellite-sync architecture audit ran every deterministic gate (all green: prefix PASS ×10 + 12 model bindings, UTF-8 ALL CLEAN 202 files, `-SelfTest` OK, wiki lint/claims/coverage/visualizer exit 0) and then hunted for what the gates do *not* cover. Six issues plus one contradiction surfaced. **F1** — `Update-TargetModelBindings` only rewrote registry rows whose key the target already had, so v39's new `wiki-writer`/`wiki-verifier` rows never reached a pre-v39 satellite; reproduced on a throwaway target (`TARGET_CHECK_EXIT=1`, `no Model Registry row for 'wiki-writer'`), and sync would exit 1 with no automated repair. Fixed by inserting missing rows after the last existing row (`Get-RegistryBindings` now carries the capability-class cell), documented in `SATELLITE-BOOTSTRAP` + `model-routing` + the `sync-architecture` skill. **F2** — `parcel-compactor.md` (retired 2026-08-22) was absent from `prune_files`; added. **F3** — `check-utf8-agents.ps1` never scanned `.devops/rules` or `.devops/templates`; both added. **F4** — T1 register lacked the completed `T1-E1.03` row; backfilled. **F5** — MATURITY reassessed for machinery 38–40. **F6** — root CHANGELOG "Earlier releases" backfilled. **F7** — the Gate-A-in-`AUTO` contradiction that T1-E3.02 recorded as CW2 was resolved: `AUTO` auto-clears Gates A–C, only Gate D always halts — reconciled across `base-context.md` (re-inlined ×10, prefix PASS), the seed, `pass-the-parcel` v13, `plan-lifecycle.md`, `HOW-TO.md`, and the two orchestrator agent bodies. machinery-version 39→40.

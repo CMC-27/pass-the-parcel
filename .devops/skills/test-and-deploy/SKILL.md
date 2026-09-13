@@ -1,8 +1,8 @@
 ---
 name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
-version: 3
-updated: 2026-09-11
+version: 4
+updated: 2026-09-13
 ---
 
 # NPM Test, Lint, and GitHub Deployment Pipeline
@@ -54,7 +54,7 @@ Only proceed to Git staging and committing after a 100% clean pass of linting, t
 1. Run `git status` to identify modified, deleted, or untracked files.
 2. Stage appropriate changes using selective staging (`git add <file>`) or full directory staging (`git add .`) depending on the context of modifications. Ensure the modified `package.json` and `.devops/logs/version-history.md` are staged!
 3. Formulate a highly informative, structured commit message summarizing the changes (following any workspace-specific logging rules, such as `AGENTS.md` guidelines or standard conventional commits) and include the updated version.
-4. Run `git commit -m "<message>"`.
+4. Write the commit message to a temp file and run `git commit -F <message-file>`. **Never** pass a multi-line or quote-containing body through `-m "<message>"` — the host shell re-parses embedded double quotes as argument boundaries and shreds the message into pathspecs (`error: pathspec 'depth' did not match any file(s) known to git`). `-F` is quote-immune and preserves the multi-line body verbatim. Create that file with a file-writing tool, not an inline here-string: text embedded in the command string is precisely what gets re-parsed, and non-ASCII characters (em dashes, arrows) can be dropped in transport — a silently-dropped character collapses a pattern to empty and then matches every line.
 
 ## 5. GitHub Push
 Push the local verified commits to the active branch on the remote repository. **You MUST ask the user for explicit permission before pushing.** Never push automatically.
