@@ -22,7 +22,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Resolved | Note | Archive |
 |------|-------|----------|------|---------|
-| T1-E1.01 | Reconcile model registry | 2026-09-03 | Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is satellite configuration in `opencode.json`. | [plan](../archive/t1-e1.01-reconcile-model-registry-plan.md) |
+| T1-E1.01 | Reconcile model registry | 2026-09-03 | Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is satellite configuration in `opencode.json`. **Reversed 2026-09-13 by T1-E1.03** — the registry is now the single source and sync force-stamps the fleet. | [plan](../archive/t1-e1.01-reconcile-model-registry-plan.md) |
 | T1-E1.02 | Parcel-Fast locked preset | 2026-09-13 | New selectable orchestrator `parcel-fast` ships a **locked preset** (`Mode=AUTO`, `Agents=SINGLE`): it skips the Mode/Topology questions, runs inline personas, and is bound `task: deny` so `SINGLE` is enforced structurally. Preset declared in the `## Orchestrator Presets` table of `base-context.md`; executed as a direct machinery session. | — (no plan file) |
 
 ## E2 — Governance & Transport Integrity
@@ -31,7 +31,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T1-E2.02 | Split the `check-parcel-prefix.ps1` god-script | PARKED | Four unrelated concerns in one pass (registry, prefix integrity, skill embeds, binding integrity). Extract the binding checks to `scripts/check-model-bindings.ps1`; wire into `portable_files`, `validate.yml` and `-Verify`. Flagged by T1-E1.03's Phase 6 triage. | [parked](../t1-e2.02-check-parcel-prefix-split-backlog.md) |
 
 ### Completed
 

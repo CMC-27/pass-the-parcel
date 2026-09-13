@@ -1,7 +1,7 @@
 ---
 name: model-routing
 description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, rebinding a ptp-* subagent, "which model for", or editing the Model Registry in base-context.md. Guides the per-subagent model choice for the parcel architecture and applies the binding edit safely (frontmatter + registry + prefix sync + validation).
-version: 5
+version: 6
 updated: 2026-09-13
 ---
 
@@ -11,20 +11,22 @@ The parcel architecture uses **declarative model routing**: each agent and subag
 
 ## 1. Binding architecture (how models are attached)
 
-There are exactly two places a model binding lives, and they must always agree:
+There is exactly **one** source of a model binding, and **two derived runtime surfaces** that must always agree with it:
 
 | Layer | File | Format | Example |
 |---|---|---|---|
-| **Runtime binding** | `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `ptp-*.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
-| **Runtime binding** | `opencode.json` → `agent.<key>.model` (opencode) | provider ID | `"opencode-go/qwen3.8-flash"` |
-| **Canonical registry** | `.opencode/plans/base-context.md` → `## Model Registry` table | both columns | one row per agent |
+| **Canonical registry (the source)** | `.opencode/plans/base-context.md` → `## Model Registry` table | both columns | one row per binding file |
+| *derived* Runtime binding | `.devops/agents/<key>.agent.md` / `<key>.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
+| *derived* Runtime binding | `opencode.json` → `agent.<key>.model` (opencode) | provider ID | `"opencode-go/qwen3.8-flash"` |
+| *seed mirror* | `.devops/templates/base-context.template.md` + `.devops/templates/opencode.template.json` | same as the registry | cell-for-cell identical |
 
 Rules:
 
-1. **One `model:` line per file.** Never share, inherit, or template model values between subagents — each is chosen independently per §2.
-2. **The orchestrator never passes `model:` to `runSubagent`.** Passing a model imperatively violates the prefix's "no hardcoded model names" rule and creates a second source of truth.
-3. **The registry is documentation + validation target**, not a runtime lookup. It exists so `scripts/check-parcel-prefix.ps1` can verify every frontmatter binding hasn't drifted.
-4. **Naming convention:** VS Code frontmatter uses the model's display name (`Qwen3.8 Flash`); opencode mirrors use the provider-qualified ID (`opencode-go/qwen3.8-flash`). Both must reference the *same underlying model*.
+1. **Binding files are `parcel*`, `ptp-*` and `wiki-*` agent files** in `.devops/agents/` (`wiki-writer.agent.md`, `wiki-verifier.subagent.md` included). Each needs a registry row; each registry row needs a file. Both directions are a hard failure when violated.
+2. **Bindings are template-owned and force-propagated.** `@sync-architecture` stamps the source registry into every target's three surfaces on each sync — there is no preservation branch. A satellite-side edit is **transient**: the next sync reverts it. Rebind in the template (registry + seed mirror), not in the satellite.
+3. **The orchestrator never passes `model:` to `runSubagent`.** Passing a model imperatively violates the prefix's "no hardcoded model names" rule and creates a second source of truth.
+4. **The registry is the validation source**, not a runtime lookup: the runtimes read the two derived surfaces, and `scripts/check-parcel-prefix.ps1` proves all three agree (plus the seed mirror).
+5. **Naming convention:** VS Code frontmatter uses the model's display name (`Qwen3.8 Flash`); opencode mirrors use the provider-qualified ID (`opencode-go/qwen3.8-flash`). Both must reference the *same underlying model*.
 
 ## 2. Choosing a model for a subagent (decision matrix)
 
@@ -58,24 +60,23 @@ When every agent is deliberately routed to a single model (e.g., one provider mo
 
 ## 3. Editing a binding (the only safe procedure)
 
-To change the model for one agent/subagent, or the whole pipeline:
+Bindings are edited **in the template**, never in a satellite — a satellite-side edit is reverted by the next sync (§1 rule 2).
 
 1. **Decide per subagent** using §2 — record the rationale (one line) in the plan's `decision_log.md` if this happens mid-parcel-run.
-2. **Edit the frontmatter** of the agent file(s):
-   - `.devops/agents/<name>.agent.md` or `<name>.subagent.md` → `model: <display name>`
-   - `opencode.json` → `agent.<name>.model` (opencode runtime) → `"<provider>/<model>"`
-   - Never touch the PREFIX-LOCKED body of these files.
-3. **Update the `## Model Registry` table** in `.opencode/plans/base-context.md` so the row matches the new frontmatter value.
-4. **Re-sync the prefix** so the updated registry is inlined byte-for-byte into every agent file:
+2. **Edit the source registry** — `.opencode/plans/base-context.md` → the `## Model Registry` row (VS Code column + opencode column). Then mirror it in `.devops/templates/base-context.template.md` and `.devops/templates/opencode.template.json`; `check-parcel-prefix.ps1` fails if the seed mirror disagrees.
+3. **Never** hand-edit the binding surfaces in a satellite. In the template workspace the derived files are updated by the two commands below.
+4. **Re-sync the prefix** so the updated registry is inlined byte-for-byte into every orchestrator agent file:
    `powershell -File scripts\check-parcel-prefix.ps1 -Sync`
-5. **Verify:** run `powershell -File scripts\check-parcel-prefix.ps1` — all files must PASS *and* report no model-binding mismatches. Non-zero exit = fix before commit.
-6. **No orchestrator changes.** `parcel.agent.md`'s workflow text never mentions concrete models; if it does, that is drift — remove it.
+5. **Verify:** run `powershell -File scripts\check-parcel-prefix.ps1` — all files must PASS *and* report a `MODEL` line for every binding file (12 today) plus `SEED-OC-MODEL` for every registry key. Non-zero exit = fix before commit.
+6. **Propagate:** `powershell -File scripts\sync-architecture.ps1 -Target <satellite>` (or `pull-architecture.ps1` from the satellite) stamps the registry, the agent frontmatter and `opencode.json` in the target. Keys absent from the target's `agent` block are reported as `BINDING-SKIP` and fail that target's own check — sync never restructures the repo-specific `opencode.json`.
+7. **No orchestrator changes.** `parcel.agent.md`'s workflow text never mentions concrete models; if it does, that is drift — remove it.
 
 ## 4. Validation contract
 
-`scripts/check-parcel-prefix.ps1` checks two things per agent file:
+`scripts/check-parcel-prefix.ps1` validates **six surfaces**: the live registry, the seed registry, each binding file's frontmatter, `opencode.json`, the seed opencode config, and (separately) prefix integrity for the PREFIX-LOCKED agents.
 
-- **Prefix integrity** — the inlined prefix matches `base-context.md` byte-for-byte (existing check).
-- **Model binding** — each agent's frontmatter `model:` (VS Code column) equals its registry row, **and** `opencode.json` `agent.<key>.model` equals the registry's opencode column. A present agent block fails on a missing key, a mismatch, or the unresolved `<your provider/model>` placeholder; an absent `opencode.json` or absent/empty agent block is a documented SKIP for VS Code-only satellites.
+- **Prefix integrity** — the inlined prefix matches `base-context.md` byte-for-byte, and each `ptp-*` agent's embedded skill matches its `SKILL.md`. `wiki-*` files carry no prefix and never enter this pass.
+- **Model binding** — every registry key resolves to an agent file and vice versa; each file's frontmatter `model:` equals the registry VS Code column; `opencode.json` `agent.<key>.model` equals the registry opencode column; the seed registry agrees cell-for-cell with the live registry; the seed opencode config carries the same models. A missing/empty `agent` block (or a missing `opencode.json`) is a **FAIL**, not a SKIP — the pre-v20 VS Code-only opt-out is retired.
+- **Placeholders are fatal** — `<your provider/model>` anywhere in a seed or live config fails the check. There is no legal unbound state.
 
-If validation fails after a manual edit, the registry row and the frontmatter disagree — fix whichever one reflects the intended binding (usually the frontmatter was edited without step 3, or `-Sync` was skipped).
+If validation fails after a manual edit, the registry row and a derived surface disagree — fix whichever one reflects the intended binding (usually the derived file was edited instead of the registry, or `-Sync` was skipped).

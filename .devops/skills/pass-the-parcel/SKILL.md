@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 11
+version: 12
 updated: 2026-09-13
 ---
 
@@ -136,8 +136,8 @@ Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a spec
 | F | Wrap Up | `Lead Context Architect` | `agent-wrap-up` | orchestration | global | — |
 | — | batch (sprint queue) | `Batch Host` | `ptp-parcel-fast` | execution | per-plan runner (spawned by `parcel-sprint`) | D |
 
-**Model Registry (declarative, per-agent):**
-Model routing is declarative and owned by the **Model Registry** in `.opencode/plans/base-context.md` (inlined into every parcel/ptp agent via the PREFIX-LOCKED prefix). Capability classes: `orchestration`, `retrieval/inventory`, `retrieval/Q&A`, `deep planning/authoring`, `adversarial review`, `product review`, `execution`. Each agent's `model:` binding lives in its own frontmatter and MUST equal its registry row — use the `@model-routing` skill to (re)bind. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
+**Model Registry (registry-canonical, template-owned):**
+Model routing is owned by the **Model Registry** in `.opencode/plans/base-context.md` (inlined into every orchestrator agent via the PREFIX-LOCKED ORCHESTRATOR-ONLY block). The registry is the single source; each binding file's frontmatter `model:` and `opencode.json` `agent.<key>.model` are **derived** and force-stamped into satellites by `@sync-architecture` on every sync — a satellite-side rebind is transient and is reverted by the next sync. Capability classes: `orchestration`, `retrieval/inventory`, `retrieval/Q&A`, `deep planning/authoring`, `adversarial review`, `product review`, `execution`, `independent audit`. Binding files are the `parcel*` / `ptp-*` / `wiki-*` agents in `.devops/agents/`; use the `@model-routing` skill to (re)bind. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
 
 > **Canonical copy:** This delegation map + model registry is inlined into every parcel/ptp agent via the PREFIX-LOCKED header (`.opencode/plans/base-context.md`). When editing the map, update `base-context.md` and run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it — then mirror the change here.
 

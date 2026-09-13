@@ -1,15 +1,15 @@
 {
   "_comment": [
-    "type: template | version: 6 | updated: 2026-09-13",
+    "type: template | version: 7 | updated: 2026-09-13",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
     "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
     "The 'agent' block below ships the parcel/ptp agents pre-wired so a bootstrapped satellite",
     "gets a runnable parcel orchestrator in the opencode runtime. Prompt paths point at the",
     "VS Code agent files in .devops/agents/ (the single source of body text).",
-    "REQUIRED CUSTOMIZATION: replace every model value '<your provider/model>' with a real",
-    "model id, then delete this _comment array (JSON has no comments).",
-    "Satellites that use VS Code agents only may delete the 'agent' block — check-parcel-prefix",
-    "prints SKIP (documented opt-out) rather than failing."
+    "Model bindings are template-owned: they ship concrete here, and @sync-architecture",
+    "force-stamps the registry, agent frontmatter and these values on every sync. The 'agent'",
+    "block is REQUIRED — deleting it fails check-parcel-prefix.ps1 (no VS Code-only opt-out).",
+    "Delete this _comment array once copied (JSON has no comments)."
   ],
   "$schema": "https://opencode.ai/config.json",
   "instructions": ["AGENTS.md"],
@@ -21,7 +21,7 @@
     "parcel": {
       "description": "Parcel plan orchestrator. Start a new parcel plan for a feature description, walk the 10-phase pass-the-parcel workflow, and delegate to ptp-* sub-agents. Use when: 'parcel', '/parcel', 'pass the parcel', 'parcel mode', multi-agent planning, token-saving planning.",
       "mode": "primary",
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/parcel.agent.md}",
       "permission": {
         "read": "allow",
@@ -46,7 +46,7 @@
     "parcel-fast": {
       "description": "Parcel-Fast orchestrator. Locked AUTO + SINGLE ('fast plan') preset of the pass-the-parcel pipeline — no Mode/Topology questions, inline personas, no subagent spawns. Use when: 'parcel-fast', '/parcel-fast', 'fast parcel', 'quick parcel', 'single-agent parcel'.",
       "mode": "primary",
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/parcel-fast.agent.md}",
       "permission": {
         "read": "allow",
@@ -65,7 +65,7 @@
     "parcel-sprint": {
       "description": "Parcel-Sprint batch host. Walks the ACTIVE sprint queue and runs each eligible plan through the parcel pipeline one at a time in a fresh context per plan, spawning the ptp-parcel-fast subagent (locked AUTO + SINGLE), then emits one consolidated Gate D report. Use when: 'parcel-sprint', '/parcel-sprint', 'run the sprint', 'batch the sprint queue', '@sprint-run'.",
       "mode": "primary",
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/parcel-sprint.agent.md}",
       "permission": {
         "read": "allow",
@@ -87,7 +87,7 @@
     "wiki-writer": {
       "description": "Write and rewrite wiki documents in plain, even, front-loaded prose. Use when: writing, editing, rewriting, cleaning up, rebalancing, refreshing or restructuring any document in .wiki/ or a knowledge base.",
       "mode": "all",
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/wiki-writer.agent.md}",
       "permission": {
         "read": "allow",
@@ -106,7 +106,7 @@
       "description": "Parcel Context Hunter sub-agent. Executes Phases 1-3 of a parcel plan by loading the ptp-context-hunter skill, locking the scope perimeter, gathering wiki-first context, and producing Phase 3 user clarification questions.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-context-hunter.subagent.md}",
       "permission": {
         "read": "allow",
@@ -125,7 +125,7 @@
       "description": "Phase 3.5 AUTO-mode sub-agent. Auto-resolves Phase 3 user clarification questions from the Research Map populated by ptp-context-hunter, recording Unresolvable entries for genuinely blocked questions.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-phase3-answerer.subagent.md}",
       "permission": {
         "read": "allow",
@@ -144,7 +144,7 @@
       "description": "Phase 4-5 sub-agent. Writes the wiki requirements spec + acceptance criteria (Phase 4) and the standard implementation plan (Phase 5) into the parcel plan file, enforcing the Simplicity Ladder.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-high-visionary.subagent.md}",
       "permission": {
         "read": "allow",
@@ -163,7 +163,7 @@
       "description": "Phase 6 sub-agent. Ruthlessly audits the plan's spec and logic for completeness, edge cases, boundary collisions, YAGNI bloat, and architectural anti-patterns. Writes an isolated review file.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-grumpy-architect.subagent.md}",
       "permission": {
         "read": "allow",
@@ -182,7 +182,7 @@
       "description": "Phase 7 sub-agent. Reviews the plan's product vision, user journey, and UX for bloat and complexity. Writes an isolated review file.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-smooth-operator.subagent.md}",
       "permission": {
         "read": "allow",
@@ -201,7 +201,7 @@
       "description": "Parcel Executor sub-agent. Executes Phases 8-9 of a parcel plan by loading the ptp-code-surgeon skill, applying Phase 5 edits with single-pass direct-to-disk execution and ponytail coding style, and running build/lint/test verification. Only triggers after Gate B is cleared by explicit user input.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-code-surgeon.subagent.md}",
       "permission": {
         "read": "allow",
@@ -220,7 +220,7 @@
       "description": "Per-plan fast runner sub-agent. Runs ONE committed parcel plan through Phases 1-9 under the locked AUTO + SINGLE preset (Gates A/B auto-cleared, Gate C N/A), terminating at PHASE_9 with Gate D OPEN. Spawned only by the parcel-sprint batch host.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/ptp-parcel-fast.subagent.md}",
       "permission": {
         "read": "allow",
@@ -239,7 +239,7 @@
       "description": "Wiki verification sub-agent. Validates wiki documents against live codebase reality step-by-step, surfacing drift, gaps, and stale content for the true-or-false workflow.",
       "mode": "subagent",
       "hidden": true,
-      "model": "<your provider/model>",
+      "model": "opencode-go/deepseek-v4.1-flash",
       "prompt": "{file:.devops/agents/wiki-verifier.subagent.md}",
       "permission": {
         "read": "allow",

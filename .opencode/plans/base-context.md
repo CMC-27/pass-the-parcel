@@ -78,7 +78,7 @@
 ## Model Registry (per-subagent bindings — no hardcoded model names in prose)
 Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
 
-Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = the opencode runtime — `opencode.json` `agent.<key>.model`). **This seed table is an example binding, not a mandate** — each satellite authors its own `base-context.md` and rebinds per its available models. Current template routing: **all models route to DeepSeek V4.1 Flash** (uniform binding by user direction, 2026-09-11 — capability classes are retained for future rebinding):
+Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = the opencode runtime — `opencode.json` `agent.<key>.model`). **This table is the single source of truth** — the frontmatter and `opencode.json` bindings are derived from it, and `@sync-architecture` force-stamps all three surfaces into every satellite on each sync. To change a binding, edit this table (and its seed mirror), run `check-parcel-prefix.ps1 -Sync`, then sync: a satellite-side edit is transient and is reverted by the next sync. Current template routing: **all models route to DeepSeek V4.1 Flash** (uniform binding by user direction, 2026-09-11 — capability classes are retained for future rebinding):
 
 | Agent key | Capability class | VS Code model | opencode model |
 |---|---|---|---|
@@ -92,8 +92,10 @@ Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code
 | ptp-code-surgeon | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | parcel-sprint | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-parcel-fast | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| wiki-writer | deep planning/authoring | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| wiki-verifier | independent audit | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 
-**Binding rule:** every parcel/ptp agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime). Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (frontmatter + registry row + `-Sync` + validation).
+**Binding rule:** every binding agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime), and `opencode.json` `agent.<key>.model` MUST equal the opencode column. `scripts/check-parcel-prefix.ps1` fails on any mismatch, on a registry key with no agent file, on a binding file with no row, and on a seed registry or seed opencode config that disagrees with this table. Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (registry row + `-Sync` + validation; satellites receive it on their next sync).
 
 ## Orchestrator Presets (locked Mode / Topology)
 Each orchestrator agent declares its Plan Settings defaults here. At plan start, read **your own row**:

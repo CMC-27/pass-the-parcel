@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 9
+version: 10
 updated: 2026-09-13
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -40,7 +40,7 @@ Copy and customize (the sync never overwrites these):
 | Seed (in `.devops/templates/`) | Copy to | Then |
 |---|---|---|
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
-| `opencode.template.json` | `opencode.json` | fill every `agent.<name>.model` placeholder — `-Verify` fails visibly until you do; delete the `_comment` array. Ships both orchestrators (`parcel`, `parcel-fast`) plus the `parcel-sprint` batch host + the `ptp-*` subagents (including the hidden `ptp-parcel-fast` per-plan runner spawned only by `parcel-sprint`) |
+| `opencode.template.json` | `opencode.json` | delete the `_comment` array; **keep the `agent` block** — it ships pre-bound and `@sync-architecture` re-stamps the model values on every pull (a missing/empty block fails `check-parcel-prefix.ps1`) |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 | `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
 | `sprint.template.md` | *(no copy)* | reference seed for the single `sprint.md`; `@sprint-plan` writes it into `.devops/sprints/sprint-{n}-<slug>/` |
@@ -49,11 +49,12 @@ Copy and customize (the sync never overwrites these):
 
 > The three backlog seeds (`SPRINTS` / `TRIAGE` / `REFACTORING`) are optional but recommended — they wire up the agile cycle that the `@sprint-*` skills drive. A satellite without them still gets the parcel pipeline; it just plans work ad-hoc instead of in sprints.
 >
-> **v20 migration (opencode.json):** satellites created before machinery v20 were told to
-> delete the `agent` block. That layout is still supported — `check-parcel-prefix.ps1`
-> prints `SKIP  opencode.json: no agent block (VS Code-only satellite)` instead of failing.
-> To run the parcel orchestrator in the opencode runtime, re-copy `opencode.template.json`
-> and fill the model placeholders.
+> **Migration (opencode.json):** satellites created before machinery v39 may have deleted the
+> `agent` block (the old seed told them to). That layout is **no longer supported** —
+> `check-parcel-prefix.ps1` fails with `opencode.json: no 'agent' block`. Restore it by
+> re-copying `.devops/templates/opencode.template.json` to `opencode.json`, keeping your own
+> `permission` blocks, then delete the `_comment` array. Model values are re-stamped by sync,
+> so never hand-bind them here (`@model-routing` §3).
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 
@@ -87,6 +88,12 @@ powershell -NoProfile -File scripts\pull-architecture.ps1 -Verify
 Expect `VERIFIED` (exit 0). `[FAIL]` rows name exactly what is missing or mis-wired
 (`AGENTS.md` machinery markers, `opencode.json` keys, `base-context.md`, the wiki anchor,
 missing machinery); `[WARN]` rows are advisory (e.g. `.ptp-source` not yet recorded).
+
+> **Your CI is yours to wire.** `.github/workflows/validate.yml` is not on the portable surface —
+> only the template repo runs it. Copy its steps (or an equivalent subset) into a satellite
+> workflow; the checks themselves ride in the synced `scripts/check-parcel-prefix.ps1`, so
+> `powershell -NoProfile -File scripts\check-parcel-prefix.ps1` is the minimum gate to run on
+> every push. It now also validates the seed surfaces and fails on a missing `agent` block.
 
 ## 5. Wiki evidence layer (optional)
 

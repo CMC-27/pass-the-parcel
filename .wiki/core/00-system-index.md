@@ -28,10 +28,10 @@ This document is the **hub** in a hub-and-spoke architecture (see [14 Hub & Spok
 | 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming | — |
 | 07 | App Structure | Architecture | Application shell, router, context providers | — |
 | 08 | User Journey | Workflow | End-to-end workflow, user roles, phases | — |
-| 09 | Design System | Design | Color tokens, typography, components, interaction states | 2026-09-11 |
+| 09 | Design System | Design | Color tokens, typography, components, interaction states | 2026-09-13 |
 | 10 | Validation Standards | Standards | Field/entity validation, data integrity rules | — |
 | 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol | — |
-| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | 2026-09-11 |
+| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | 2026-09-13 |
 | 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization | — |
 | 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | 2026-09-11 |
 | 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |

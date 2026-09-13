@@ -40,6 +40,12 @@ param(
     this bookkeeping, -Check would report a phantom UPGRADE forever after every successful
     sync, because the manifest itself is not on the portable surface.
 
+    It also force-propagates the source Model Registry into the target's three binding
+    surfaces (registry rows in base-context.md, agent frontmatter `model:` lines, and
+    opencode.json agent.<key>.model values). Model bindings are template-owned: there is
+    no preservation branch, only a BINDING-SKIP report for a key the target's agent block
+    does not carry. This runs BEFORE prefix regeneration.
+
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
     content hashes and the target manifest version was stamped, then cleans up. Exit 0 =
@@ -52,7 +58,9 @@ param(
     Exit 0 = VERIFIED. Run after authoring the repo-specific files (bootstrap step 4).
 
     The repo-specific surface is NOT copied: base-context.md, opencode.json, AGENTS.md and the
-    wiki content itself embed the target's own layout, task lookup and permissions. After the
+    wiki content itself embed the target's own layout, task lookup and permissions. base-context.md
+    and opencode.json ARE edited in place, but only for model bindings (registry rows and
+    agent.<key>.model values) - never copied wholesale, never restructured. After the
     portable surface is copied, the script regenerates each agent's PREFIX-LOCKED prefix from
     the TARGET's own .opencode/plans/base-context.md so the cache anchor always matches the
     local workspace.
@@ -105,6 +113,108 @@ function Read-Manifest {
     return @{ Lists = $lists; Scalars = $scalars }
 }
 
+function Get-RegistryBindings {
+    # Parse a `## Model Registry` table out of a base-context file: key -> @{vscode;opencode}.
+    param([string]$Path)
+    $map = @{}
+    if (-not (Test-Path $Path)) { return $map }
+    $text = ([System.IO.File]::ReadAllText($Path)) -replace "`r`n", "`n"
+    foreach ($line in ($text -split "`n")) {
+        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
+            $map[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
+        }
+    }
+    return $map
+}
+
+function Update-TargetModelBindings {
+    # Force-propagate the SOURCE Model Registry into the target's binding surfaces:
+    # (1) the target's registry table rows, (2) each target agent file's frontmatter
+    # `model:` line, (3) each present target opencode.json `agent.<key>.model` value.
+    # There is no preservation branch: a satellite-side rebind is transient by contract.
+    # ponytail: naive 4-cell registry row rewrite keyed on the first cell - a reordered or
+    # 3-cell table is left alone and fails loudly in check-parcel-prefix instead.
+    # ponytail: only keys already present in the target's agent block are stamped - sync
+    # never adds or restructures the repo-specific opencode.json (permission blocks differ
+    # per satellite). Missing keys are reported; the validator FAILs on them.
+    param([string]$SrcRoot, [string]$TgtRoot, [switch]$DryRun)
+    $srcRegistry = Get-RegistryBindings (Join-Path $SrcRoot '.opencode/plans/base-context.md')
+    if ($srcRegistry.Count -eq 0) {
+        Write-Output 'BINDINGS: source registry empty or unreadable - nothing stamped'
+        return
+    }
+    if ($DryRun) {
+        Write-Output ("DRYRUN would stamp {0} model binding(s) into the target" -f $srcRegistry.Count)
+        return
+    }
+
+    # 1. Target registry table (repo-specific file: rows only, prose untouched).
+    $tgtBc = Join-Path $TgtRoot '.opencode/plans/base-context.md'
+    $rows = 0
+    if (Test-Path $tgtBc) {
+        $raw = [System.IO.File]::ReadAllText($tgtBc) -replace "`r`n", "`n"
+        $end = if ($raw.EndsWith("`n")) { "`n" } else { "" }
+        $lines = ($raw -split "`n")
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -notmatch '^\|\s*([a-z0-9-]+)\s*\|') { continue }
+            $rk = $Matches[1]
+            if (-not $srcRegistry.ContainsKey($rk)) { continue }
+            $cls = ([regex]::Match($lines[$i], '^\|\s*[a-z0-9-]+\s*\|\s*([^|]+?)\s*\|')).Groups[1].Value
+            $newRow = "| $rk | $cls | $($srcRegistry[$rk]['vscode']) | $($srcRegistry[$rk]['opencode']) |"
+            if ($lines[$i] -ne $newRow) { $lines[$i] = $newRow; $rows++ }
+        }
+        if ($rows -gt 0) {
+            [System.IO.File]::WriteAllText($tgtBc, (($lines -join "`n") + $end), (New-Object System.Text.UTF8Encoding($false)))
+        }
+    } else {
+        Write-Output 'BINDINGS: target has no base-context.md yet - registry not stamped'
+    }
+
+    # 2. Target agent frontmatter.
+    $files = 0
+    foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
+        $target = Join-Path $TgtRoot ".devops/agents/$key.agent.md"
+        if (-not (Test-Path $target)) { $target = Join-Path $TgtRoot ".devops/agents/$key.subagent.md" }
+        if (-not (Test-Path $target)) { Write-Output "BINDING-SKIP $key (no agent file in target)"; continue }
+        $fraw = [System.IO.File]::ReadAllText($target) -replace "`r`n", "`n"
+        $m = [regex]::Match($fraw, '(?m)^model:\s*(.+?)\s*$')
+        if (-not $m.Success) { Write-Output "BINDING-SKIP $key (no model: line in $key)"; continue }
+        $want = $srcRegistry[$key]['vscode']
+        if ($m.Groups[1].Value -ne $want) {
+            $fraw = $fraw.Remove($m.Index, $m.Length).Insert($m.Index, "model: $want")
+            [System.IO.File]::WriteAllText($target, $fraw, (New-Object System.Text.UTF8Encoding($false)))
+            $files++
+        }
+    }
+
+    # 3. Target opencode.json (repo-specific: model values only, structure untouched).
+    $ocTarget = Join-Path $TgtRoot 'opencode.json'
+    $ocCount = 0
+    if (Test-Path $ocTarget) {
+        $ocRaw = [System.IO.File]::ReadAllText($ocTarget)
+        $ocJson = $null
+        try { $ocJson = $ocRaw | ConvertFrom-Json } catch { $ocJson = $null }
+        if ($ocJson -and $ocJson.agent) {
+            foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
+                if (-not $ocJson.agent.PSObject.Properties[$key]) {
+                    Write-Output "BINDING-SKIP $key (no agent entry in target opencode.json)"
+                    continue
+                }
+                $wantOc = $srcRegistry[$key]['opencode']
+                $pattern = '("' + [regex]::Escape($key) + '"\s*:\s*\{[^}]*?"model"\s*:\s*")([^"]*)(")'
+                $hit = [regex]::Match($ocRaw, $pattern)
+                if (-not $hit.Success) { Write-Output "BINDING-SKIP $key (model value not locatable in target opencode.json)"; continue }
+                if ($hit.Groups[2].Value -ne $wantOc) {
+                    $ocRaw = $ocRaw.Remove($hit.Index, $hit.Length).Insert($hit.Index, $hit.Groups[1].Value + $wantOc + $hit.Groups[3].Value)
+                    $ocCount++
+                }
+            }
+            if ($ocCount -gt 0) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
+        }
+    }
+    Write-Output "BINDINGS: stamped $rows registry row(s), $files frontmatter line(s), $ocCount opencode model value(s)"
+}
+
 # --- self-test mode: build a throwaway satellite, sync into it, verify, tear down ---
 if ($SelfTest) {
     $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-selftest-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
@@ -149,6 +259,21 @@ if ($SelfTest) {
             foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
         }
         if ($stTgtV -ne $stSrcV) { $fail += "manifest stamp failed: target machinery-version '$stTgtV' vs source '$stSrcV'" }
+        # Model binding propagation: every source registry key's frontmatter binding must
+        # land in the target's agent file (guards the force-stamp / no-preservation contract).
+        $stSrcRegistry = Get-RegistryBindings (Join-Path $srcRoot '.opencode/plans/base-context.md')
+        if ($stSrcRegistry.Count -eq 0) { $fail += "selftest: source Model Registry parsed as empty" }
+        foreach ($bk in ($stSrcRegistry.Keys | Sort-Object)) {
+            $bTgt = Join-Path $tmp ".devops/agents/$bk.agent.md"
+            if (-not (Test-Path $bTgt)) { $bTgt = Join-Path $tmp ".devops/agents/$bk.subagent.md" }
+            if (-not (Test-Path $bTgt)) { $fail += "binding file missing in target: $bk"; continue }
+            $bm = [regex]::Match(([System.IO.File]::ReadAllText($bTgt) -replace "`r`n", "`n"), '(?m)^model:\s*(.+?)\s*$')
+            $bWant = $stSrcRegistry[$bk]['vscode']
+            if (-not $bm.Success -or $bm.Groups[1].Value -ne $bWant) {
+                $bGot = if ($bm.Success) { $bm.Groups[1].Value } else { '<no model: line>' }
+                $fail += "binding not propagated for $bk (target frontmatter '$bGot' != registry '$bWant')"
+            }
+        }
         # Prune test: plant a retired file, assert -Check reports PRUNE (not a parent-dir
         # DRIFT) and exits out-of-sync; re-sync, assert it is removed and Check is clean.
         # The planted file lives inside a portable dir, so this guards both the PRUNE
@@ -629,6 +754,12 @@ foreach ($pf in $manifest['prune_files']) {
 
 # 3c. Stamp the target's manifest with the source machinery-version (post-sync bookkeeping).
 Update-TargetManifestVersion -TgtRoot $tgtRoot -SrcRoot $srcRoot -Version $scalars['machinery-version'] -DryRun:$DryRun
+
+# 3d. Force-propagate the source Model Registry into the target's binding surfaces
+# (registry rows + agent frontmatter + opencode.json model values). Must run BEFORE the
+# PREFIX-LOCKED regeneration below, so the regenerated orchestrator prefixes inline the
+# stamped registry rather than a stale one.
+Update-TargetModelBindings -SrcRoot $srcRoot -TgtRoot $tgtRoot -DryRun:$DryRun
 
 if ($skipped.Count -gt 0) {
     Write-Output ""

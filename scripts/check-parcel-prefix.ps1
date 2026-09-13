@@ -7,8 +7,10 @@ param(
     Verifies (and optionally repairs) the PREFIX-LOCKED byte-for-byte contract
     between .opencode/plans/base-context.md and every PREFIX-LOCKED agent file
     (.devops/agents/parcel*.agent.md + .devops/agents/ptp-*.subagent.md), the
-    verbatim skill-embed contract inside each ptp-* agent file, and the
-    opencode.json <-> Model Registry model-binding agreement.
+    verbatim skill-embed contract inside each ptp-* agent file, and model-binding
+    agreement across every binding surface: the live Model Registry, the seed
+    registry, every binding file's frontmatter, opencode.json, and the seed
+    opencode config.
 
 .DESCRIPTION
     The pass-the-parcel pipeline relies on a byte-for-byte identical shared prefix
@@ -32,11 +34,21 @@ param(
     PREFIX-LOCKED prefix and the agent-unique content (everything from the first
     "## Delegated Skill:" heading, or "You are the" for the orchestrator).
 
-    The opencode runtime binding lives in opencode.json `agent.<key>.model` and is
-    validated against the Model Registry's opencode column. A present agent block
-    fails on a missing key, a mismatched model, or the unresolved
-    `<your provider/model>` placeholder. An absent opencode.json, or an absent/empty
-    agent block, is a documented opt-out for VS Code-only satellites -> SKIP.
+    Model bindings propagate one way: the Model Registry in base-context.md is the
+    only source, and agent frontmatter + opencode.json are derived projections
+    (force-stamped by sync-architecture.ps1 on every sync). Every binding surface is
+    validated: each registry key must resolve to a binding file and vice versa; each
+    binding file's frontmatter `model:` must equal the registry VS Code column;
+    opencode.json `agent.<key>.model` must equal the registry opencode column; the
+    seed registry (.devops/templates/base-context.template.md) must agree cell-for-cell
+    with the live registry; and the seed opencode config
+    (.devops/templates/opencode.template.json) must carry the same models — no
+    placeholders. A missing/empty opencode `agent` block is a FAIL (the pre-v20
+    VS Code-only opt-out is retired).
+
+    Binding files (parcel* / ptp-* / wiki-*) are resolved from registry keys, NOT from
+    the PREFIX-LOCKED file list: wiki-writer.agent.md and wiki-verifier.subagent.md
+    carry bindings but no shared prefix, so they must never enter the prefix pass.
 
     Without -Sync:  prints PASS/FAIL per agent file and exits non-zero if any drift.
     With -Sync:     rebuilds each agent file's prefix from base-context.md and refreshes
@@ -97,7 +109,7 @@ $failures = @()
 # Each agent file's frontmatter `model:` must equal the value in the column matching its runtime.
 $modelBindings = @{}
 foreach ($line in ($canonical -split "`n")) {
-    if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
+    if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
         $modelBindings[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
     }
 }
@@ -191,28 +203,118 @@ foreach ($file in $agentFiles) {
         }
     }
 
-    # --- Model binding check (declarative routing; see model-routing skill) ---
-    if ($frontmatter -and $modelBindings.Count -gt 0) {
-        # Derive registry key: strip .agent.md / .subagent.md / .md.
-        if (-not $key) { $key = $file.BaseName -replace '\.(agent|subagent)$', '' }
-        if (-not $modelBindings.ContainsKey($key)) {
-            Write-Output "SKIP  $($file.Name): no Model Registry row for '$key' (non-parcel agent)"
+}
+
+# --- Model binding pass (declarative routing; see model-routing skill) ---
+# Decoupled from the prefix pass on purpose: binding files include the wiki-* agents,
+# which carry `model:` frontmatter but NOT the shared PREFIX-LOCKED prefix.
+$bindingFiles = @{}
+foreach ($bf in @(Get-ChildItem -Path $agentsDir -File -ErrorAction SilentlyContinue)) {
+    if ($bf.Name -notmatch '\.(agent|subagent)\.md$') { continue }
+    $bKey = $bf.Name -replace '\.(agent|subagent)\.md$', ''
+    if ($bKey -notlike 'parcel*' -and $bKey -notlike 'ptp-*' -and $bKey -notlike 'wiki-*') { continue }
+    $bindingFiles[$bKey] = $bf
+}
+
+foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+    if (-not $bindingFiles.ContainsKey($key)) {
+        $failures += "Model Registry key '$key' has no agent file in .devops/agents/ ($key.agent.md or $key.subagent.md)"
+        continue
+    }
+    $bfile = $bindingFiles[$key]
+    $braw = [System.IO.File]::ReadAllText($bfile.FullName) -replace "`r`n", "`n"
+    $bfm = ""
+    if ($braw.StartsWith("---`n")) {
+        $bclose = $braw.IndexOf("`n---`n", 4)
+        if ($bclose -ge 0) { $bfm = $braw.Substring(0, $bclose + 5) }
+    }
+    $bModelMatch = [regex]::Match($bfm, '(?m)^model:\s*(.+?)\s*$')
+    if (-not $bModelMatch.Success) {
+        $failures += "$($bfile.Name): frontmatter has no 'model:' line but a registry row exists"
+    } else {
+        $bActual = $bModelMatch.Groups[1].Value.Trim('`', ' ')
+        $bExpected = $modelBindings[$key]['vscode']
+        if ($bActual -ne $bExpected) {
+            $failures += "$($bfile.Name): model binding mismatch - frontmatter '$bActual' != registry '$bExpected' (vscode). See model-routing skill section 3."
         } else {
-            $modelMatch = [regex]::Match($frontmatter, '(?m)^model:\s*(.+?)\s*$')
-            if (-not $modelMatch.Success) {
-                $failures += "$($file.Name): frontmatter has no 'model:' line but a registry row exists"
-            } else {
-                # All PREFIX-LOCKED agents are VS Code files now (.devops/agents/).
-                $runtime = 'vscode'
-                $actual = $modelMatch.Groups[1].Value.Trim('`', ' ')
-                $expectedModel = $modelBindings[$key][$runtime]
-                if ($actual -ne $expectedModel) {
-                    $failures += "$($file.Name): model binding mismatch - frontmatter '$actual' != registry '$expectedModel' ($runtime). See model-routing skill section 3."
+            Write-Output "MODEL $bActual  $($bfile.Name)"
+        }
+    }
+}
+foreach ($key in ($bindingFiles.Keys | Sort-Object)) {
+    if (-not $modelBindings.ContainsKey($key)) {
+        $failures += "$($bindingFiles[$key].Name): no Model Registry row for '$key' - every binding file needs a row in base-context.md"
+    }
+}
+
+# --- Seed registry <-> live registry alignment ---
+# The seed a satellite authors from must describe the same bindings the template runs,
+# otherwise a bootstrapped satellite starts misaligned. Blank cells are a FAIL: there is
+# no legal "unbound seed".
+$seedRegistryPath = Join-Path $root '.devops\templates\base-context.template.md'
+if (-not (Test-Path $seedRegistryPath)) {
+    $failures += "seed registry not found: .devops/templates/base-context.template.md"
+} else {
+    $seedText = ([System.IO.File]::ReadAllText($seedRegistryPath)) -replace "`r`n", "`n"
+    $seedBindings = @{}
+    foreach ($line in ($seedText -split "`n")) {
+        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
+            $seedBindings[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
+        }
+    }
+    foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+        if (-not $seedBindings.ContainsKey($key)) {
+            $failures += "seed base-context.template.md: no registry row for '$key'"
+            continue
+        }
+        foreach ($col in @('vscode', 'opencode')) {
+            $sv = $seedBindings[$key][$col]
+            $lv = $modelBindings[$key][$col]
+            if ([string]::IsNullOrWhiteSpace($sv)) {
+                $failures += "seed base-context.template.md: registry row '$key' has a blank $col model"
+            } elseif ($sv -ne $lv) {
+                $failures += "seed base-context.template.md: registry row '$key' $col '$sv' != live registry '$lv'"
+            }
+        }
+    }
+    foreach ($key in ($seedBindings.Keys | Sort-Object)) {
+        if (-not $modelBindings.ContainsKey($key)) {
+            $failures += "seed base-context.template.md: registry row '$key' has no live registry row"
+        }
+    }
+}
+
+# --- Seed opencode config must carry the same bindings (no placeholders) ---
+$seedOcPath = Join-Path $root '.devops\templates\opencode.template.json'
+if (-not (Test-Path $seedOcPath)) {
+    $failures += "seed opencode config not found: .devops/templates/opencode.template.json"
+} else {
+    try {
+        $seedOc = (Get-Content -Raw $seedOcPath | ConvertFrom-Json).agent
+        if (-not $seedOc) {
+            $failures += "seed opencode.template.json: no agent block"
+        } else {
+            foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+                $seedProp = $seedOc.PSObject.Properties[$key]
+                $seedExpected = $modelBindings[$key]['opencode']
+                if (-not $seedProp) {
+                    $failures += "seed opencode.template.json: no agent entry for '$key'"
+                    continue
+                }
+                $seedVal = [string]$seedProp.Value.model
+                if (-not $seedVal) {
+                    $failures += "seed opencode.template.json: agent '$key' has no model (registry expects '$seedExpected')"
+                } elseif ($seedVal -eq '<your provider/model>') {
+                    $failures += "seed opencode.template.json: agent '$key' still has the placeholder model '<your provider/model>'"
+                } elseif ($seedVal -ne $seedExpected) {
+                    $failures += "seed opencode.template.json: agent '$key' model '$seedVal' != registry '$seedExpected'"
                 } else {
-                    Write-Output "MODEL $actual  $($file.Name)"
+                    Write-Output "SEED-OC-MODEL $seedVal  agent.$key"
                 }
             }
         }
+    } catch {
+        $failures += "seed opencode.template.json: not valid JSON ($($_.Exception.Message))"
     }
 }
 
@@ -220,21 +322,20 @@ Write-Output "---"
 Write-Output ("Canonical source: " + $canonicalPath)
 
 # --- opencode.json <-> Model Registry validation ---
-# Present agent block: every registry key must exist, with a model matching the registry's
-# opencode column and not the unresolved `<your provider/model>` placeholder.
-# Absent opencode.json, or an absent/empty `agent` block, is a documented opt-out for
-# VS Code-only satellites -> SKIP, no failure (the pre-v20 seed instructed satellites to
-# delete the block, so it must stay valid).
+# Every registry key must exist in the target's agent block with a model matching the
+# registry's opencode column and not the unresolved `<your provider/model>` placeholder.
+# An absent opencode.json, or an absent/empty `agent` block, is a FAIL: the pre-v20
+# VS Code-only opt-out is retired (bindings propagate to all three surfaces).
 $ocPath = Join-Path $root 'opencode.json'
 if (-not (Test-Path $ocPath)) {
-    Write-Output 'SKIP  opencode.json: not present (VS Code-only satellite)'
+    $failures += "opencode.json: not present - every satellite carries it (seed: .devops/templates/opencode.template.json)"
 } else {
     try {
         $oc = Get-Content -Raw $ocPath | ConvertFrom-Json
         $ocAgents = $oc.agent
         $agentProps = if ($ocAgents) { @($ocAgents.PSObject.Properties) } else { @() }
         if ($agentProps.Count -eq 0) {
-            Write-Output 'SKIP  opencode.json: no agent block (VS Code-only satellite)'
+            $failures += "opencode.json: no 'agent' block - model binding requires it (seed: .devops/templates/opencode.template.json)"
         } else {
             foreach ($key in ($modelBindings.Keys | Sort-Object)) {
                 $prop = $ocAgents.PSObject.Properties[$key]
@@ -265,4 +366,4 @@ if ($failures.Count -gt 0) {
     $failures | ForEach-Object { Write-Output "  $_" }
     exit 1
 }
-Write-Output "OK: all PREFIX-LOCKED agents share a byte-identical prefix."
+Write-Output "OK: all PREFIX-LOCKED agents share a byte-identical prefix, every binding surface agrees, and the seed surfaces match the live registry."

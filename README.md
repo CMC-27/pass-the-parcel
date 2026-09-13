@@ -54,7 +54,7 @@ The plan moves through ten phases in six groups. Groups A and B **plan**, Group 
 
 1. Click **Use this template** on GitHub, then clone your new repository.
 2. Open it in your agent runtime of choice (VS Code with the custom agents, or the `opencode` runtime).
-3. Bind your models — copy the seed from [`.devops/templates/opencode.template.json`](.devops/templates/opencode.template.json) and fill the placeholders, or edit `opencode.json` directly.
+3. Copy the seed from [`.devops/templates/opencode.template.json`](.devops/templates/opencode.template.json) to `opencode.json` (delete its `_comment` array). Model bindings ship concrete and are owned by the template — the registry in `.opencode/plans/base-context.md` is the single source and `@sync-architecture` force-stamps the registry, agent frontmatter and `opencode.json` on every sync. Rebind in the template, not in a satellite (`@model-routing` §3).
 4. Ask your agent to run `/parcel <feature description>`. It walks Group A, halts at **Gate A**, and hands the scope back to you for approval.
 
 **Add it to an existing repository**

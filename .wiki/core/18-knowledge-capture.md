@@ -27,11 +27,11 @@ claims:
 |---|------|-------|----------|
 | 1 | Plan Settings (`Mode`/`Agents`) freeze at the TOP; mutable State & Gates sits at the BOTTOM; the rest stays byte-stable (LLM prefix cache) | Parcel | ❌ |
 | 2 | SKILL.md is canonical; agents embed it verbatim — regenerate with `check-parcel-prefix.ps1 -Sync`, never hand-edit | Parcel | ❌ |
-| 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production | Sync | ❌ |
+| 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production (**model bindings are the exception** — template-owned, force-stamped) | Sync | ❌ |
 | 4 | Portable machinery carries no absolute paths or machine-specific config | Sync | ✅ |
 | 5 | Normalize CRLF→LF before hashing files across git boundaries on Windows | Sync | ✅ |
 | 6 | Versioning = integer counters only; portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
-| 7 | Never edit PREFIX-LOCKED surfaces directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync` | Parcel | ✅ |
+| 7 | Never edit PREFIX-LOCKED surfaces or model bindings directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync`; sync force-stamps the fleet | Parcel | ✅ |
 | 8 | Phase 3 clarification questions go to the user one at a time | Parcel | ❌ |
 | 9 | Measure a gate's actual cost before optimizing agent token spend around it | Process | ✅ |
 | 10 | KC entries land ≤3 lines at capture; superseded entries are cut, never struck through | Knowledge | ✅ |
@@ -44,13 +44,14 @@ _(Mistakes that cost time or broke things. Read these first when starting simila
 - **Publishing links into gitignored run workspaces**: `.opencode/plans/run-*/` is gitignored, so a wiki/example doc that links a review or decision log breaks for every clone. *Do instead:* quote the run artefact (e.g. a `**REJECTED:**` verdict line) inline and link only tracked paths (`.devops/archive/…`).
 - **Claims sourced from claim-carrying docs restamp late**: `scripts/wiki_claims.py update` stamps docs in walk order, so a claim whose `source` is another doc that also carries claims records the source's *pre-restamp* bytes and reports `STALE` right after one `update`. *Do instead:* source the claim from a non-claim file, or run `update` a second time.
 - **Auto-cataloguing ignores index column semantics**: `wiki_lint._fix_unindexed` (used by lint `--fix` and `wiki_okf.py import`) inserts `[name, description]` into the first two data columns, so on an index whose columns are not `Doc | Description` (e.g. integrations' `Doc | Service | Description`) the description lands under the wrong header. *Do instead:* add the row by hand for non-standard indexes.
+- **Editing a claim source invalidates other docs**: claims bind by whole-file sha256, so touching a widely-claimed file (`AGENTS.md` is claimed by 09 and 12) flips those docs to `STALE` even though they did not change — CI is the only signal. *Do instead:* after editing such a file, run `python scripts/wiki_claims.py update` before the coverage gate.
 
 
 ## Rules & Constraints
 _(Stable rules derived from prior decisions. Grouped by theme.)_
 
 ### Sync & Versioning
-- **Farthest-evolved consumer wins**: when template and satellite diverge, port the satellite's battle-tested machinery back; app-specific content stays in the consumer. *(2026-09-03)*
+- **Farthest-evolved consumer wins**: when template and satellite diverge, port the satellite's battle-tested machinery back; app-specific content stays in the consumer. *(2026-09-03)* — **exception: model bindings**, which are template-owned and force-stamped over a satellite's local choice (see § Agents & Models).
 - **Post-sync bookkeeping self-heals**: sync stamps the target manifest's `machinery-version:` in place; `-Check` hashes only agent-unique content (frontmatter stripped), so per-repo prefix regeneration never reports phantom DRIFT. *(2026-09-06)*
 
 ### Parcel Pipeline
@@ -61,7 +62,7 @@ _(Stable rules derived from prior decisions. Grouped by theme.)_
 - **One state machine, five mirrors**: the 4-gate model (A Scope / B Spec & Plan / C Peer Reviews / D Implementation) is stated identically in the orchestrator skill, base-context, parcel agent, template, and rules doc. *(2026-09-07)*
 
 ### Agents & Models
-- **Dual-surface agent binding**: agents live once in `.devops/agents/*.agent.md`; VS Code reads per-file frontmatter, opencode reads `opencode.json`. Per-file binding means the orchestrator cannot mis-spawn a model; use the provider's exact picker casing. *(2026-09-06)*
+- **Registry-canonical model binding** (supersedes *Dual-surface agent binding*, 2026-09-06; reverses T1-E1.01's "concrete model binding is satellite configuration"): the `## Model Registry` table in `.opencode/plans/base-context.md` is the **single source**; each binding file's frontmatter `model:` and `opencode.json` `agent.<key>.model` are **derived** projections, which `sync-architecture.ps1` **force-stamps** into every satellite on each sync (registry rows → frontmatter → `opencode.json`, before PREFIX-LOCKED regeneration; no preservation branch — a satellite-side rebind is transient). Binding files are `parcel*` / `ptp-*` / `wiki-*`; each needs a registry row and vice versa. The seed registry and seed opencode config must agree cell-for-cell with the live table, and a missing/empty `opencode.json` `agent` block is a FAIL — the VS Code-only opt-out is retired. *(2026-09-13)*
 - **Set-level agent versioning**: agents are versioned as a coordinated set via `machinery-version:` — no per-file `version:`; only skills carry per-file versions, because the sync drift checker reads those from `SKILL.md`. *(2026-09-04)*
 
 ### Product & Process
