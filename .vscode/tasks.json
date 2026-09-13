@@ -1,5 +1,5 @@
 {
-  // Runs automatically when this folder opens (requires "task.allowAutomaticTasks": "on").
+  // Manual tasks for this workspace — nothing runs automatically on folder open.
   // See https://code.visualstudio.com/docs/debugtest/tasks for the tasks.json format.
   "version": "2.0.0",
   "tasks": [
@@ -26,14 +26,11 @@
         "panel": "dedicated",
         "clear": true,
         "showReuseMessage": false
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
       }
     },
     {
       "label": "Dev Server (hidden)",
-      "detail": "Runs `npm run dev` in a hidden, dedicated terminal.",
+      "detail": "Runs `npm run dev` in a hidden, dedicated terminal. Only applies in workspaces that contain a package.json.",
       "type": "shell",
       "command": "npm",
       "args": ["run", "dev"],
@@ -47,9 +44,6 @@
         "panel": "dedicated",
         "clear": true,
         "showReuseMessage": false
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
       }
     },
     {
@@ -68,9 +62,6 @@
         "panel": "new",
         "clear": true,
         "showReuseMessage": false
-      },
-      "runOptions": {
-        "runOn": "folderOpen"
       }
     }
   ]
