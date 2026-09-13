@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 39
+machinery-version: 40
 
 portable_dirs:
   - .wiki/rules
@@ -42,7 +42,10 @@ portable_files:
   - scripts/spaghetti-monster-scan.cjs
   - .github/workflows/wiki-refresh.yml
 
-# Old parcel-* runbooks retired by the VS Code .agent.md migration (v0.3.2).
+# Retired portable files. The parcel-* / wiki-verifier runbooks went in the VS Code
+# .agent.md migration (v0.3.2); parcel-compactor.md was retired earlier (2026-08-22)
+# while .devops/agents/ was already portable, so any satellite that materialised it
+# since then keeps an orphan unless it is listed here.
 prune_files:
   - .devops/agents/parcel-orchestrator.md
   - .devops/agents/parcel-context-hunter.md
@@ -51,6 +54,7 @@ prune_files:
   - .devops/agents/parcel-grumpy-architect.md
   - .devops/agents/parcel-code-surgeon.md
   - .devops/agents/parcel-phase3-answerer.md
+  - .devops/agents/parcel-compactor.md
   - .devops/agents/wiki-verifier.md
 
 excluded_skills: []

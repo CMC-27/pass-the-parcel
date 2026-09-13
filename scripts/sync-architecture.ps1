@@ -43,8 +43,11 @@ param(
     It also force-propagates the source Model Registry into the target's three binding
     surfaces (registry rows in base-context.md, agent frontmatter `model:` lines, and
     opencode.json agent.<key>.model values). Model bindings are template-owned: there is
-    no preservation branch, only a BINDING-SKIP report for a key the target's agent block
-    does not carry. This runs BEFORE prefix regeneration.
+    no preservation branch. The target's registry table is REWRITTEN for keys it already
+    carries and rows are INSERTED for keys it lacks, so a template-side registry growth
+    reaches an already-bootstrapped satellite. Only the opencode.json surface can report
+    a BINDING-SKIP (a key absent from the target's agent block - sync never restructures
+    the repo-specific opencode.json). This runs BEFORE prefix regeneration.
 
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
@@ -114,14 +117,16 @@ function Read-Manifest {
 }
 
 function Get-RegistryBindings {
-    # Parse a `## Model Registry` table out of a base-context file: key -> @{vscode;opencode}.
+    # Parse a `## Model Registry` table out of a base-context file:
+    # key -> @{class;vscode;opencode} (class is the capability-class cell, used when
+    # INSERTING a row for a key the target registry does not carry yet).
     param([string]$Path)
     $map = @{}
     if (-not (Test-Path $Path)) { return $map }
     $text = ([System.IO.File]::ReadAllText($Path)) -replace "`r`n", "`n"
     foreach ($line in ($text -split "`n")) {
         if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
-            $map[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
+            $map[$Matches[1]] = @{ class = $Matches[2]; vscode = $Matches[3]; opencode = $Matches[4] }
         }
     }
     return $map
@@ -129,8 +134,10 @@ function Get-RegistryBindings {
 
 function Update-TargetModelBindings {
     # Force-propagate the SOURCE Model Registry into the target's binding surfaces:
-    # (1) the target's registry table rows, (2) each target agent file's frontmatter
-    # `model:` line, (3) each present target opencode.json `agent.<key>.model` value.
+    # (1) the target's registry table rows (rewritten, plus rows INSERTED for keys the
+    # target lacks - registry growth must reach an existing satellite), (2) each target
+    # agent file's frontmatter `model:` line, (3) each present target opencode.json
+    # `agent.<key>.model` value.
     # There is no preservation branch: a satellite-side rebind is transient by contract.
     # ponytail: naive 4-cell registry row rewrite keyed on the first cell - a reordered or
     # 3-cell table is left alone and fails loudly in check-parcel-prefix instead.
@@ -149,19 +156,41 @@ function Update-TargetModelBindings {
     }
 
     # 1. Target registry table (repo-specific file: rows only, prose untouched).
+    #    Existing rows are REWRITTEN to the source binding; rows for keys the target
+    #    does not carry are INSERTED after the last existing registry row, so a
+    #    template-side registry growth (e.g. v39's 10 -> 12 rows) reaches an
+    #    already-bootstrapped satellite instead of leaving the target's own
+    #    check-parcel-prefix.ps1 permanently red (`no Model Registry row for '<key>'`).
     $tgtBc = Join-Path $TgtRoot '.opencode/plans/base-context.md'
     $rows = 0
     if (Test-Path $tgtBc) {
         $raw = [System.IO.File]::ReadAllText($tgtBc) -replace "`r`n", "`n"
         $end = if ($raw.EndsWith("`n")) { "`n" } else { "" }
-        $lines = ($raw -split "`n")
+        $lines = [System.Collections.Generic.List[string]]($raw -split "`n")
+        $present = @{}
+        $lastRowIdx = -1
         for ($i = 0; $i -lt $lines.Count; $i++) {
             if ($lines[$i] -notmatch '^\|\s*([a-z0-9-]+)\s*\|') { continue }
             $rk = $Matches[1]
+            $present[$rk] = $true
+            $lastRowIdx = $i
             if (-not $srcRegistry.ContainsKey($rk)) { continue }
             $cls = ([regex]::Match($lines[$i], '^\|\s*[a-z0-9-]+\s*\|\s*([^|]+?)\s*\|')).Groups[1].Value
             $newRow = "| $rk | $cls | $($srcRegistry[$rk]['vscode']) | $($srcRegistry[$rk]['opencode']) |"
             if ($lines[$i] -ne $newRow) { $lines[$i] = $newRow; $rows++ }
+        }
+        # Insert rows for keys the target registry is missing. ponytail: anchored on the
+        # last existing registry row; a re-laid-out table is not detected - the target's
+        # check-parcel-prefix fails loud instead of a row being silently misplaced.
+        $missing = @($srcRegistry.Keys | Where-Object { -not $present.ContainsKey($_) } | Sort-Object)
+        if ($lastRowIdx -ge 0 -and $missing.Count -gt 0) {
+            $insertAt = $lastRowIdx + 1
+            foreach ($mk in $missing) {
+                $lines.Insert($insertAt, "| $mk | $($srcRegistry[$mk]['class']) | $($srcRegistry[$mk]['vscode']) | $($srcRegistry[$mk]['opencode']) |")
+                $insertAt++
+                $rows++
+            }
+            Write-Output ("BINDINGS: inserted {0} new registry row(s): {1}" -f $missing.Count, ($missing -join ', '))
         }
         if ($rows -gt 0) {
             [System.IO.File]::WriteAllText($tgtBc, (($lines -join "`n") + $end), (New-Object System.Text.UTF8Encoding($false)))
@@ -212,7 +241,7 @@ function Update-TargetModelBindings {
             if ($ocCount -gt 0) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
         }
     }
-    Write-Output "BINDINGS: stamped $rows registry row(s), $files frontmatter line(s), $ocCount opencode model value(s)"
+    Write-Output "BINDINGS: stamped/inserted $rows registry row(s), $files frontmatter line(s), $ocCount opencode model value(s)"
 }
 
 # --- self-test mode: build a throwaway satellite, sync into it, verify, tear down ---

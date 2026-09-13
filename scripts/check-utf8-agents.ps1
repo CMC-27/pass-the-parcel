@@ -1,10 +1,11 @@
 # Encoding guard: detect UTF-8 mojibake and replacement chars in machinery files.
 # Scans agent files (.devops/agents/*.agent.md + *.subagent.md), all skill sources
-# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs),
-# the full wiki (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus
-# generated `docs/` and `.github/` markdown — the wiki scan closes the guard gap
-# where corrupted glyphs in documentation prose (which wiki_lint never inspects)
-# survived unchecked.
+# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs), the
+# dev-rules layer + seed templates (.devops/rules, .devops/templates — both portable
+# and agent-read, so mojibake there propagates to every satellite), the full wiki
+# (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus generated `docs/`
+# and `.github/` markdown — the wiki scan closes the guard gap where corrupted glyphs
+# in documentation prose (which wiki_lint never inspects) survived unchecked.
 # Markers: C3 A2 (CP1252 double-encoded em-dash lead, "â€"), C3 B0 C2 (CP1252 double-encoded emoji lead, "ðŸ"),
 # CE 93 + C2/C3 (CP437 double-encoded dash/emoji lead, "ΓÇ"), E2 89 A1 C6 92 (CP437 double-encoded
 # 4-byte emoji lead, "≡ƒ"), EF BF BD (U+FFFD replacement). The CP437 pair catches UTF-8 bytes misread
@@ -16,7 +17,7 @@ $targets = @()
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.agent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.subagent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
-foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs')) {
+foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates')) {
     $targets += Get-ChildItem -Path (Join-Path $root $dir) -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 }
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to

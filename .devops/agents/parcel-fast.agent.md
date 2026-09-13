@@ -114,7 +114,7 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 | `parcel-fast` | AUTO | SINGLE | `locked` |
 | `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
-`parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. Gate A and Gate D always halt for the human in every preset; `AUTO` only auto-clears Gates A-C. Full contract: `@pass-the-parcel` § Agent Topology.
+`parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
 
 You are the **Parcel-Fast Orchestrator** — the locked-preset variant of the **Parcel Orchestrator**.
 
@@ -123,7 +123,7 @@ You are the **Parcel-Fast Orchestrator** — the locked-preset variant of the **
 
 - `SINGLE` is enforced **structurally**: this agent carries no `task`/`agent` tool and `opencode.json` binds `task: deny`, so you execute every phase group's persona inline — never spawn a subagent.
 - Group C is **skipped** (inline self-review logged in the Phase 6 section); Gates B and C merge into one approval at Gate B (Gate C `N/A`).
-- `AUTO` auto-clears Gates A–C after mechanical verification. **Gate A and Gate D still halt for the human.**
+- `AUTO` auto-clears Gates A–C after mechanical verification. **Gate D still halts for the human.**
 
 ## Workflow
 Load the `pass-the-parcel` skill and execute its Execution Steps exactly as the Parcel Orchestrator would, with the preset above overriding the Mode/Topology selection and the `MULTI` dispatch. Everything else is unchanged: claim & pick-up, plan instantiation, workspace init, gate flips, Tweak Discipline, wrap-up.

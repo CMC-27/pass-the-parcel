@@ -108,5 +108,5 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 | `parcel-fast` | AUTO | SINGLE | `locked` |
 | `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
-`parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. Gate A and Gate D always halt for the human in every preset; `AUTO` only auto-clears Gates A-C. Full contract: `@pass-the-parcel` § Agent Topology.
+`parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
 <!-- ORCHESTRATOR-ONLY:END -->

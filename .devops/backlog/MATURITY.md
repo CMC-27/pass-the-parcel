@@ -3,7 +3,7 @@ title: Template Maturity
 tags: [devops, maturity, assessment, roadmap, governance]
 status: active
 owner: Wiki Owner
-last-reviewed: 2026-09-11
+last-reviewed: 2026-09-13
 related-to: [./backlog-index.md, ../README.md, ../logs/version-history.md, ../../README.md, ../../AGENTS.md]
 ---
 
@@ -34,13 +34,13 @@ Grades are judgement, not measurement — but every one is accountable to the **
 1. **A premier planning & execution framework** — one Markdown plan carries all state through a stateless, 10-phase, multi-agent pipeline with four hard gates and independent (context-isolated) review.
 2. **An inbuilt, agent-first wiki system** — a governed, grounded knowledge base (deterministic linter + Grounded Claims + drift automation) that keeps an agent's context cheap and honest, in the spirit of OpenWiki but differentiated by **governance**, not generation.
 
-## Scorecard (Now — 2026-09-11)
+## Scorecard (Now — 2026-09-13)
 
 | # | Axis | Grade | Evidence | Next lever |
 |---|---|---|---|---|
-| 1 | **Planning & execution** | A− | 10-phase parcel pipeline; Gates A–D; `MULTI`/`SINGLE` topology; `AUTO`/`USER-MANAGED` modes; **locked orchestrator presets** (`parcel-fast` = `AUTO`+`SINGLE`, `task: deny`); deterministic `PHASE_5_REVISION` loop; skill-enforced agent embeds | No known gap; keep. Any change is scope, not maturity. |
-| 2 | **Deterministic governance** | A+ | `check-parcel-prefix` (PREFIX-LOCKED), `check-utf8-agents`, `wiki_lint`, `wiki_claims` (symbol resolution), `wiki_coverage_check`, `wiki_visualize --check`, machinery-version discipline, sync `-SelfTest`, CI + OKF PyYAML parse, `wiki-refresh` drift job | Nothing known. |
-| 3 | **Transportability** | A | `sync-manifest.yaml` + push/pull + per-item `CURRENT`/`UPGRADE`/`DRIFT`/`MISSING`/`PRUNE` verdicts + `machinery-version`; `wiki-refresh.yml` is transportable | Satellite-side adoption is unproven in the field. |
+| 1 | **Planning & execution** | A− | 10-phase parcel pipeline; Gates A–D; `MULTI`/`SINGLE` topology; `AUTO`/`USER-MANAGED` modes; **locked orchestrator presets** (`parcel-fast` = `AUTO`+`SINGLE`, `task: deny`); a **batch host** (`parcel-sprint` / `@sprint-run` — trunk-sequential, batched Gate D, Strict Context Isolation exception); deterministic `PHASE_5_REVISION` loop; skill-enforced agent embeds | No known gap; keep. Any change is scope, not maturity. |
+| 2 | **Deterministic governance** | A+ | `check-parcel-prefix` (PREFIX-LOCKED; live + seed registry, seed config, binding-file coverage), `check-utf8-agents` (agents, skills, rules, seeds, wiki, docs), `wiki_lint`, `wiki_claims` (symbol resolution), `wiki_coverage_check`, `wiki_visualize --check`, machinery-version discipline, sync `-SelfTest`, CI + OKF PyYAML parse, `wiki-refresh` drift job | Nothing known. |
+| 3 | **Transportability** | A | `sync-manifest.yaml` + push/pull + per-item `CURRENT`/`UPGRADE`/`DRIFT`/`MISSING`/`PRUNE` verdicts + `machinery-version`; model bindings force-stamp **and missing registry rows insert** into existing satellites; `wiki-refresh.yml` is transportable | Satellite-side adoption is unproven in the field (no production satellite audited). |
 | 4 | **Wiki structure & rules** | A− | Hub-and-spoke; unified `format-version: 1`; `.wiki/rules` governance (incl. `claims.md`); `[UNCATALOGUED]`/`[UNINDEXED]` gates; OKF v0.2 export/import | Ground the remaining core slots that describe real artefacts (`06-directory-structure`). |
 | 5 | **Wiki self-maintenance** | B− | 16 Grounded Claims; `#symbol` resolution + drift semantics; `wiki_okf.py` import; secret-free scheduled `wiki-drift` issue | **No auto-refresh PR** (deliberate no-secret trade-off — see T2-E2.02); per-symbol hashing still a `ponytail:` ceiling. |
 | 6 | **Template hygiene** | B+ | `README` product page; `LICENSE` (MIT); `CHANGELOG` + track mapping; `CONTRIBUTING`/`SECURITY`/CoC; `.github` templates + `release.yml`; `v1.0.0` tag; worked example | History hygiene (commit/push cadence); optional GitHub Pages for the generated graph. |
@@ -51,8 +51,9 @@ Grades are judgement, not measurement — but every one is accountable to the **
 |---|---|---|---|---|---|---|---|
 | 2026-09-11 (baseline) | A− | A | A− | B+ | D | D | Initial template review |
 | 2026-09-11 (after hygiene) | A− | A | A− | A− | C | B+ | T2-E1 / T3-E1 hygiene & wiki-parity work |
-| 2026-09-11 (now) | A− | A+ | A | A− | B− | B+ | T2-E2.01 grounding + T2-E2.02 refresh automation + OKF hardening (machinery 31) |
-| 2026-09-13 (now) | A− | A+ | A | A− | B− | B+ | Parcel-Fast locked preset — second orchestrator, structurally single-agent (machinery 37) |
+| 2026-09-11 | A− | A+ | A | A− | B− | B+ | T2-E2.01 grounding + T2-E2.02 refresh automation + OKF hardening (machinery 31) |
+| 2026-09-13 | A− | A+ | A | A− | B− | B+ | Parcel-Fast locked preset — second orchestrator, structurally single-agent (machinery 37) |
+| 2026-09-13 (now) | A− | A+ | A | A− | B− | B+ | Sprint batch runner (38) + registry-canonical bindings (39) + pre-satellite-sync audit tidy-up: registry-row insertion, prune/UTF-8 guard coverage, gate-contract reconciliation (40) |
 
 ## Method
 
@@ -70,4 +71,4 @@ Grades are judgement, not measurement — but every one is accountable to the **
 
 ---
 
-*Last reviewed 2026-09-11.*
+*Last reviewed 2026-09-13.*

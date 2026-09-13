@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 10
+version: 11
 updated: 2026-09-13
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -55,6 +55,15 @@ Copy and customize (the sync never overwrites these):
 > re-copying `.devops/templates/opencode.template.json` to `opencode.json`, keeping your own
 > `permission` blocks, then delete the `_comment` array. Model values are re-stamped by sync,
 > so never hand-bind them here (`@model-routing` §3).
+>
+> **Migration (Model Registry rows, v40+):** a satellite bootstrapped before machinery v39
+> authored its `base-context.md` from the 10-row seed, so it lacks the `wiki-writer` /
+> `wiki-verifier` rows that the binding pass now requires (its own `check-parcel-prefix.ps1`
+> would fail `no Model Registry row for 'wiki-writer'`). Since machinery v40 the sync
+> **inserts** any registry row the target is missing, after the last existing row, so a
+> normal pull repairs it — no manual edit needed. Pulling with an older sync engine, add the
+> missing rows by hand (or copy the registry table from
+> `.devops/templates/base-context.template.md`) before the target's check will pass.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 

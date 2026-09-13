@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 12
+version: 13
 updated: 2026-09-13
 ---
 
@@ -81,7 +81,7 @@ Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity**
 
 **Non-negotiables in BOTH topologies:**
 - Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
-- **Gate A (Scope) and Gate D (Implementation) always halt for the human.** `Mode`/`AUTO` never bypasses these.
+- **Gate D (Implementation) always halts for the human.** `AUTO` auto-clears Gates A-C on mechanical verification, but that auto-clear never reaches Gate D.
 - One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context (§ Batch Runner).
 - `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
 
@@ -106,7 +106,7 @@ An orchestrator agent may carry a **locked preset** that fixes `Mode` and/or `Ag
 - `ask` -> run the normal selection step (recommend, user confirms), exactly as above.
 - `locked` -> the selection step is **already satisfied**: write the preset values into the plan's **Plan Settings** block and do **not** ask. `parcel-fast` is the canonical example (`Mode = AUTO`, `Agents = SINGLE`).
 
-A locked `SINGLE` preset is normally paired with the runtime `task: deny` permission, so the no-subagent rule is enforced **structurally** rather than by the model's restraint. Presets change *who executes* and *which questions are asked* — never the hard halts: **Gate A and Gate D always halt for the human**, and `AUTO` auto-clears only Gates A-C.
+A locked `SINGLE` preset is normally paired with the runtime `task: deny` permission, so the no-subagent rule is enforced **structurally** rather than by the model's restraint. Presets change *who executes* and *which questions are asked* — never the hard halt: **Gate D always halts for the human**, and `AUTO` auto-clears only Gates A-C.
 
 ### Per-topology phase flow
 
@@ -178,7 +178,7 @@ To prevent context inflation and ensure complete control over design and executi
    - **Gate C (Peer Reviews):** Stop after completing **Phases 6-7** (Grumpy Architect Spec & Logic Audit + Product Owner review). Present findings and required fixes. **If a review failed, set `PHASE_5_REVISION` and return to Group B — do not proceed to execution.** Wait for approval before proceeding to execution.
    - **Gate D (Implementation):** Stop after completing **Phases 8-9** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off. **On rollback:** Status → `PHASE_8_FAILED`; the orchestrator routes retry / revision / user decision.
    - **AUTO mode:** the orchestrator auto-clears Gates A-C after mechanical verification (outputs present, no `REJECTED` verdict line, no `Unresolvable:` entries). **Gate D always requires the human.**
-   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). Gate A and Gate D still halt for the human. See § Agent Topology.
+   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
 
 ---
 

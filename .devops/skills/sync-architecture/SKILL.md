@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 5
-updated: 2026-09-11
+version: 6
+updated: 2026-09-13
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -67,5 +67,10 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
 - A real sync regenerates PREFIX-LOCKED agent prefixes from *this* workspace's `base-context.md`
   and runs the verification gates (prefix, UTF-8, wiki lint). Report gate failures verbatim —
   never suppress them with `-NoVerify` unless the user insists.
+- **Registry propagation.** A sync rewrites the target's `opencode.json` model values and its
+  `base-context.md` registry rows, and **inserts** rows the target is missing (machinery v40+),
+  so a template-side Model Registry growth reaches an already-bootstrapped satellite with no
+  manual edit. A key absent from the target's `opencode.json` agent block is reported
+  `BINDING-SKIP` — sync never restructures that repo-specific file.
 - After any machinery edit in the template repo itself, the wrap-up discipline bumps per-skill
   `version` / `machinery-version`; this skill only consumes those numbers, never edits them.
