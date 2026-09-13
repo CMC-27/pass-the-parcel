@@ -1,7 +1,7 @@
 ---
 name: model-routing
 description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, rebinding a ptp-* subagent, "which model for", or editing the Model Registry in base-context.md. Guides the per-subagent model choice for the parcel architecture and applies the binding edit safely (frontmatter + registry + prefix sync + validation).
-version: 7
+version: 8
 updated: 2026-09-13
 ---
 
@@ -68,7 +68,7 @@ Bindings are edited **in the template**, never in a satellite — a satellite-si
 4. **Re-sync the prefix** so the updated registry is inlined byte-for-byte into every orchestrator agent file:
    `powershell -File scripts\check-parcel-prefix.ps1 -Sync`
 5. **Verify:** run `powershell -File scripts\check-parcel-prefix.ps1` — all files must PASS *and* report a `MODEL` line for every binding file (12 today) plus `SEED-OC-MODEL` for every registry key. Non-zero exit = fix before commit.
-6. **Propagate:** `powershell -File scripts\sync-architecture.ps1 -Target <satellite>` (or `pull-architecture.ps1` from the satellite) stamps the registry, the agent frontmatter and `opencode.json` in the target; registry rows the target lacks are **inserted** (machinery v40+). Keys absent from the target's `agent` block are reported as `BINDING-SKIP` and fail that target's own check — sync never restructures the repo-specific `opencode.json`.
+6. **Propagate:** `powershell -File scripts\sync-architecture.ps1 -Target <satellite>` (or `pull-architecture.ps1` from the satellite) stamps the registry, the agent frontmatter and `opencode.json` in the target; registry rows the target lacks are **inserted** (machinery v40+), and a registry key its `agent` block has **never carried** is **inserted** whole from the target's synced seed (machinery v41+) — an entry the satellite already authored is never restructured, only its `model` value is stamped. A key missing from both the target and the seed is reported as `BINDING-SKIP` and fails that target's own check.
 7. **No orchestrator changes.** `parcel.agent.md`'s workflow text never mentions concrete models; if it does, that is drift — remove it.
 
 ## 4. Validation contract

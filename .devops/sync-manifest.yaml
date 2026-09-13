@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 40
+machinery-version: 41
 
 portable_dirs:
   - .wiki/rules
@@ -41,6 +41,10 @@ portable_files:
   - scripts/wiki_visualize.py
   - scripts/spaghetti-monster-scan.cjs
   - .github/workflows/wiki-refresh.yml
+  # The canonical plan scaffold. Named by the shared prefix (.opencode/plans/base-context.md)
+  # and by five shipped skills, so it must ride with them; the only file under .devops/plans/
+  # that transports (active plans are repo-specific).
+  - .devops/plans/template-plan.md
 
 # Retired portable files. The parcel-* / wiki-verifier runbooks went in the VS Code
 # .agent.md migration (v0.3.2); parcel-compactor.md was retired earlier (2026-08-22)

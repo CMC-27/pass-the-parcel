@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 11
+version: 12
 updated: 2026-09-13
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -64,6 +64,17 @@ Copy and customize (the sync never overwrites these):
 > normal pull repairs it — no manual edit needed. Pulling with an older sync engine, add the
 > missing rows by hand (or copy the registry table from
 > `.devops/templates/base-context.template.md`) before the target's check will pass.
+>
+> **Migration (new agent keys, v41+):** a satellite that pulls with an engine older than v41
+> keeps the old binding behaviour — a registry key its `opencode.json` `agent` block has never
+> carried is reported `BINDING-SKIP` and its own `check-parcel-prefix.ps1` fails, so the pull
+> exits 1 even though the agent's file landed (the runtime mounts agents from `opencode.json`,
+> not by scanning `.devops/agents/`). Since machinery v41 the sync **inserts** that missing
+> entry whole, sourced from the target's own synced
+> `.devops/templates/opencode.template.json`, so a newly shipped agent arrives runnable on a
+> normal pull. An entry the satellite already authored is never restructured — only its `model`
+> value is re-stamped. Repairing by hand (older engine): copy the key's block out of the seed
+> into `opencode.json`.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 

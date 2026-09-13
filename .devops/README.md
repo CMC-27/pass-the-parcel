@@ -3,7 +3,7 @@ title: Dev Ops
 tags: [devops, operations, index]
 status: active
 owner: Wiki Owner
-last-reviewed: 2026-09-09
+last-reviewed: 2026-09-13
 related-to: [../AGENTS.md, ../.devops/rules/README.md, ../.wiki/rules/README.md]
 ---
 
@@ -41,8 +41,8 @@ This layer is the **transportable surface** of the repo. `.devops/skills/`, `.de
 - **Portable means no absolute paths:** committed machinery never carries machine-specific values (`git.path`, PATH overrides, folder-open side effects) — those live in user-level config (VS Code user settings, terminal profiles). Anything machine-specific in the portable surface silently breaks every other machine that opens the repo.
 - **Compare semantics, not encoding artifacts:** any tool that hashes or diffs files across git boundaries must normalize CRLF→LF first — `core.autocrlf=true` plus `eol=lf` materialize LF blobs as CRLF in the Windows working tree, so raw hashes false-report DRIFT. Same rule for encoding: never re-copy a mojibake file through sync; repair it to clean UTF-8 (no BOM) at the source.
 - **Gates must be reproducible from a fresh clone:** any check referencing a path outside `git ls-files` is a latent false failure — local-green is not CI-green. Assert tracked files only.
-- **Seeds:** `.devops/templates/` holds the repo-specific files a satellite authors itself (`AGENTS`, `opencode.json`, `base-context`) plus `SATELLITE-BOOTSTRAP.md`.
+- **Seeds:** `.devops/templates/` holds the repo-specific files a satellite authors itself (`AGENTS`, `opencode.json`, `base-context`) plus `SATELLITE-BOOTSTRAP.md`. The canonical parcel scaffold `.devops/plans/template-plan.md` is the one file under `.devops/plans/` that transports (active plans are repo-specific) — it is a `portable_files` entry because five shipped skills and the shared prefix name it.
 
 ---
 
-*Last reviewed 2026-09-09.*
+*Last reviewed 2026-09-13.*

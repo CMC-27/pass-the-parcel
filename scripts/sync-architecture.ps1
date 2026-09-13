@@ -45,9 +45,15 @@ param(
     opencode.json agent.<key>.model values). Model bindings are template-owned: there is
     no preservation branch. The target's registry table is REWRITTEN for keys it already
     carries and rows are INSERTED for keys it lacks, so a template-side registry growth
-    reaches an already-bootstrapped satellite. Only the opencode.json surface can report
-    a BINDING-SKIP (a key absent from the target's agent block - sync never restructures
-    the repo-specific opencode.json). This runs BEFORE prefix regeneration.
+    reaches an already-bootstrapped satellite. The opencode.json surface is treated the
+    same way: an entry the target already carries has only its `model` value rewritten
+    (permissions, key order and formatting stay as authored), while an entry for a registry
+    key the target has NEVER authored is INSERTED whole from the target's own synced seed
+    (.devops/templates/opencode.template.json) - so a newly shipped agent arrives runnable
+    instead of arriving as a file the runtime never mounts. A missing key therefore
+    self-heals on a normal pull. BINDING-SKIP now means only that neither the target nor
+    the seed could supply an entry - still a loud failure in the target's own
+    check-parcel-prefix.ps1 run. This runs BEFORE prefix regeneration.
 
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
@@ -132,6 +138,82 @@ function Get-RegistryBindings {
     return $map
 }
 
+function Find-MatchingBrace {
+    # Index of the '}' matching the '{' at $Open, ignoring braces inside JSON string
+    # literals and honouring backslash escapes. Returns -1 when unbalanced.
+    # ponytail: single-pass scanner - the only structural parse this script needs; a JSON
+    # library would re-serialize and destroy the target file's byte formatting, which is the
+    # whole point of the textual rewrite.
+    param([string]$Text, [int]$Open)
+    $depth = 0; $inStr = $false; $esc = $false
+    for ($i = $Open; $i -lt $Text.Length; $i++) {
+        $c = $Text[$i]
+        if ($inStr) {
+            if ($esc) { $esc = $false }
+            elseif ($c -eq '\') { $esc = $true }
+            elseif ($c -eq '"') { $inStr = $false }
+        } else {
+            if ($c -eq '"') { $inStr = $true }
+            elseif ($c -eq '{') { $depth++ }
+            elseif ($c -eq '}') { $depth--; if ($depth -eq 0) { return $i } }
+        }
+    }
+    return -1
+}
+
+function Get-SeedAgentEntry {
+    # Reads the TARGET's own synced seed config and returns agent.<Key> as
+    # @{ Body = '{...}'; Indent = '<leading whitespace of the entry line>' }.
+    # Body is sliced VERBATIM from the seed - never ConvertTo-Json, which would re-escape
+    # non-ASCII descriptions and change the seeded text. $null when the seed, the key, or a
+    # balanced object is absent. The seed is a portable file, so a target that has synced
+    # always carries it.
+    param([string]$TgtRoot, [string]$Key)
+    $seed = Join-Path $TgtRoot '.devops/templates/opencode.template.json'
+    if (-not (Test-Path $seed)) { return $null }
+    $raw = ([System.IO.File]::ReadAllText($seed)) -replace "`r`n", "`n"
+    $km = [regex]::Match($raw, '"' + [regex]::Escape($Key) + '"\s*:\s*\{')
+    if (-not $km.Success) { return $null }
+    $open = $raw.IndexOf('{', $km.Index)
+    $close = Find-MatchingBrace $raw $open
+    if ($open -lt 0 -or $close -lt 0) { return $null }
+    $lineStart = $raw.LastIndexOf("`n", $km.Index) + 1
+    $indent = $raw.Substring($lineStart, $km.Index - $lineStart)
+    return @{ Body = $raw.Substring($open, $close - $open + 1); Indent = $indent }
+}
+
+function Add-TargetAgentEntry {
+    # Appends a seed-shaped agent.<Key> entry to the END of the target's "agent" object
+    # (mirrors Update-TargetModelBindings step 1: anchor after the last existing entry).
+    # Returns @{ Text = '<new raw>'; Ok = $true } or @{ Ok = $false } when the agent object
+    # cannot be located. Emits the file's own EOL so a CRLF target is not left mixed.
+    param([string]$Raw, [string]$Key, [hashtable]$Seed)
+    $am = [regex]::Match($Raw, '"agent"\s*:\s*\{')
+    if (-not $am.Success) { return @{ Ok = $false } }
+    $open = $Raw.IndexOf('{', $am.Index)
+    $close = Find-MatchingBrace $Raw $open
+    if ($open -lt 0 -or $close -lt 0) { return @{ Ok = $false } }
+    $eol = if ($Raw -match "`r`n") { "`r`n" } else { "`n" }
+    $agentLineStart = $Raw.LastIndexOf("`n", $am.Index) + 1
+    $agentIndent = $Raw.Substring($agentLineStart, $am.Index - $agentLineStart)
+    $entryIndent = $agentIndent + '  '
+    $bodyLines = ($Seed.Body -replace "`r`n", "`n") -split "`n"
+    if ($Seed.Indent) {
+        for ($i = 1; $i -lt $bodyLines.Count; $i++) {
+            if ($bodyLines[$i].StartsWith($Seed.Indent)) {
+                $bodyLines[$i] = $entryIndent + $bodyLines[$i].Substring($Seed.Indent.Length)
+            }
+        }
+    }
+    $entry = $entryIndent + '"' + $Key + '": ' + ($bodyLines -join $eol)
+    $nl = $Raw.LastIndexOf("`n", $close - 1)
+    if ($nl -lt $open) { return @{ Ok = $false } }
+    $insertAt = if ($eol -eq "`r`n" -and $nl -ge 1 -and $Raw[$nl - 1] -eq "`r") { $nl - 1 } else { $nl }
+    $head = $Raw.Substring(0, $insertAt)
+    $tail = $Raw.Substring($insertAt + $eol.Length)
+    return @{ Text = $head + ',' + $eol + $entry + $eol + $tail; Ok = $true }
+}
+
 function Update-TargetModelBindings {
     # Force-propagate the SOURCE Model Registry into the target's binding surfaces:
     # (1) the target's registry table rows (rewritten, plus rows INSERTED for keys the
@@ -141,9 +223,10 @@ function Update-TargetModelBindings {
     # There is no preservation branch: a satellite-side rebind is transient by contract.
     # ponytail: naive 4-cell registry row rewrite keyed on the first cell - a reordered or
     # 3-cell table is left alone and fails loudly in check-parcel-prefix instead.
-    # ponytail: only keys already present in the target's agent block are stamped - sync
-    # never adds or restructures the repo-specific opencode.json (permission blocks differ
-    # per satellite). Missing keys are reported; the validator FAILs on them.
+    # ponytail: missing agent entries are inserted whole from the target's own synced seed;
+    # an entry the satellite already authored only ever has its `model` value rewritten.
+    # A target whose `agent` object cannot be located (empty object / hand-minified JSON) is
+    # still not repaired - it reports BINDING-SKIP and the validator FAILs loudly.
     param([string]$SrcRoot, [string]$TgtRoot, [switch]$DryRun)
     $srcRegistry = Get-RegistryBindings (Join-Path $SrcRoot '.opencode/plans/base-context.md')
     if ($srcRegistry.Count -eq 0) {
@@ -216,19 +299,39 @@ function Update-TargetModelBindings {
         }
     }
 
-    # 3. Target opencode.json (repo-specific: model values only, structure untouched).
+    # 3. Target opencode.json (repo-specific). Entries the target ALREADY carries: only the
+    #    `model` value is rewritten - permissions, key order and formatting stay as authored.
+    #    Entries for registry keys the target has NEVER authored: inserted whole from the
+    #    target's own synced seed, then stamped. A key the satellite never authored carries no
+    #    local intent to preserve, so the seed's permission block is the sanctioned default
+    #    (machinery v41 - the ponytail ceiling's own named upgrade path; the ceiling's
+    #    guarantee, "never restructure an entry the satellite authored", still holds).
     $ocTarget = Join-Path $TgtRoot 'opencode.json'
     $ocCount = 0
+    $ocInserted = @()
     if (Test-Path $ocTarget) {
         $ocRaw = [System.IO.File]::ReadAllText($ocTarget)
         $ocJson = $null
         try { $ocJson = $ocRaw | ConvertFrom-Json } catch { $ocJson = $null }
         if ($ocJson -and $ocJson.agent) {
+            $present = @{}
+            foreach ($p in $ocJson.agent.PSObject.Properties) { $present[$p.Name] = $true }
             foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
-                if (-not $ocJson.agent.PSObject.Properties[$key]) {
-                    Write-Output "BINDING-SKIP $key (no agent entry in target opencode.json)"
+                if ($present.ContainsKey($key)) { continue }
+                $seedEntry = Get-SeedAgentEntry -TgtRoot $TgtRoot -Key $key
+                if ($null -eq $seedEntry) {
+                    Write-Output "BINDING-SKIP $key (no agent entry in target opencode.json and no seed entry to insert)"
                     continue
                 }
+                $added = Add-TargetAgentEntry -Raw $ocRaw -Key $key -Seed $seedEntry
+                if (-not $added.Ok) {
+                    Write-Output "BINDING-SKIP $key (could not locate the target opencode.json 'agent' object to insert into)"
+                    continue
+                }
+                $ocRaw = $added.Text
+                $ocInserted += $key
+            }
+            foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
                 $wantOc = $srcRegistry[$key]['opencode']
                 $pattern = '("' + [regex]::Escape($key) + '"\s*:\s*\{[^}]*?"model"\s*:\s*")([^"]*)(")'
                 $hit = [regex]::Match($ocRaw, $pattern)
@@ -238,7 +341,8 @@ function Update-TargetModelBindings {
                     $ocCount++
                 }
             }
-            if ($ocCount -gt 0) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
+            if ($ocCount -gt 0 -or $ocInserted.Count -gt 0) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
+            if ($ocInserted.Count -gt 0) { Write-Output ("BINDINGS: inserted {0} missing agent entry/entries: {1}" -f $ocInserted.Count, ($ocInserted -join ', ')) }
         }
     }
     Write-Output "BINDINGS: stamped/inserted $rows registry row(s), $files frontmatter line(s), $ocCount opencode model value(s)"
@@ -250,8 +354,72 @@ if ($SelfTest) {
     try {
         New-Item -ItemType Directory -Force -Path $tmp | Out-Null
         Write-Output "SELFTEST: temp target = $tmp"
+        # Accumulate fixture findings from the very start so the F8/F9 assertions below
+        # survive into the final $fail check (the later `$fail = @()` is intentionally gone).
+        $fail = @()
+        # --- F8/F9 fixture: a satellite-shaped target BEFORE the first sync -----------------
+        # F8: simulate a satellite bootstrapped before a registry key existed - plant the seed
+        #     config minus one registry key, sync, then assert the sync inserts it whole.
+        # F9: the plan template is named by the shared prefix, so the target must receive it.
+        $stSrcRegistry = Get-RegistryBindings (Join-Path $srcRoot '.opencode/plans/base-context.md')
+        $stPick = $null; $stKeep = $null; $stKeepBefore = $null
+        if ($stSrcRegistry.Count -gt 0) {
+            $stPick = ($stSrcRegistry.Keys | Sort-Object)[-1]
+            $stKeep = ($stSrcRegistry.Keys | Sort-Object)[0]
+            $stSeedOc = Get-Content -Raw (Join-Path $srcRoot '.devops/templates/opencode.template.json') | ConvertFrom-Json
+            $stSeedOc.PSObject.Properties.Remove('_comment') | Out-Null
+            $stSeedOc.agent.PSObject.Properties.Remove($stPick) | Out-Null
+            $stPlantedRaw = ($stSeedOc | ConvertTo-Json -Depth 10)
+            [System.IO.File]::WriteAllText((Join-Path $tmp 'opencode.json'), $stPlantedRaw, (New-Object System.Text.UTF8Encoding($false)))
+            $k0 = [regex]::Match($stPlantedRaw, '"' + [regex]::Escape($stKeep) + '"\s*:\s*\{')
+            if ($k0.Success) {
+                $k0o = $stPlantedRaw.IndexOf('{', $k0.Index); $k0c = Find-MatchingBrace $stPlantedRaw $k0o
+                if ($k0o -ge 0 -and $k0c -ge 0) { $stKeepBefore = $stPlantedRaw.Substring($k0o, $k0c - $k0o + 1) }
+            }
+            Write-Output "SELFTEST fixture: opencode.json planted missing '$stPick' (sibling '$stKeep' must not move)"
+        } else {
+            Write-Output "SELFTEST fixture: skipped (source Model Registry empty)"
+        }
         & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
         if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
+        # --- F8 assertions: inserted key present + model stamped, sibling untouched, idempotent
+        if ($stPick) {
+            $stOcPath = Join-Path $tmp 'opencode.json'
+            $stOcRaw = [System.IO.File]::ReadAllText($stOcPath)
+            $stOcJson = $null
+            try { $stOcJson = $stOcRaw | ConvertFrom-Json } catch { $stOcJson = $null }
+            if (-not $stOcJson) {
+                $fail += "selftest F8: target opencode.json invalid after sync"
+            } else {
+                $stProp = $stOcJson.agent.PSObject.Properties[$stPick]
+                if (-not $stProp) {
+                    $fail += "selftest F8: '$stPick' was not inserted into the target opencode.json"
+                } else {
+                    $stWantModel = $stSrcRegistry[$stPick]['opencode']
+                    if ([string]$stProp.Value.model -ne $stWantModel) { $fail += "selftest F8: inserted '$stPick' model '$($stProp.Value.model)' != registry '$stWantModel'" }
+                }
+                $k1 = [regex]::Match($stOcRaw, '"' + [regex]::Escape($stKeep) + '"\s*:\s*\{')
+                if (-not $k1.Success) {
+                    $fail += "selftest F8: sibling '$stKeep' vanished from the target opencode.json"
+                } else {
+                    $k1o = $stOcRaw.IndexOf('{', $k1.Index); $k1c = Find-MatchingBrace $stOcRaw $k1o
+                    $stKeepAfter = if ($k1o -ge 0 -and $k1c -ge 0) { $stOcRaw.Substring($k1o, $k1c - $k1o + 1) } else { $null }
+                    if ($stKeepBefore -ne $stKeepAfter) { $fail += "selftest F8: existing entry '$stKeep' was restructured by sync" }
+                }
+                $stHash1 = (Get-FileHash $stOcPath -Algorithm SHA256).Hash
+                & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+                if ($LASTEXITCODE -ne 0) { throw "selftest F8: idempotence re-sync failed (exit $LASTEXITCODE)" }
+                $stHash2 = (Get-FileHash $stOcPath -Algorithm SHA256).Hash
+                if ($stHash1 -ne $stHash2) { $fail += "selftest F8: second sync changed opencode.json (insert is not idempotent)" }
+            }
+        }
+        # --- F9 assertion: the plan template the shared prefix names must reach the target ---
+        $stTmplMatch = [regex]::Match(([System.IO.File]::ReadAllText((Join-Path $srcRoot '.opencode/plans/base-context.md'))), 'Plan template:\s*`([^`]+)`')
+        if (-not $stTmplMatch.Success) {
+            $fail += "selftest F9: no 'Plan template: <path>' reference found in the source prefix"
+        } elseif (-not (Test-Path (Join-Path $tmp $stTmplMatch.Groups[1].Value.Trim()))) {
+            $fail += "selftest F9: referenced plan template '$($stTmplMatch.Groups[1].Value.Trim())' missing from the target"
+        }
         # Manifest must parse identically inside the test process — reuse Read-Manifest.
         $stManifestPath = Join-Path $srcRoot '.devops/sync-manifest.yaml'
         $stMan = Read-Manifest $stManifestPath
@@ -261,7 +429,7 @@ if ($SelfTest) {
         $stExcluded = @($stMan.Lists['excluded_skills'])
         $skillsRoot = Join-Path $srcRoot '.devops/skills'
         $stSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name } | Where-Object { $stExcluded -notcontains $_ })
-        $fail = @()
+        # $fail was initialised before the F8/F9 fixture above - do not reset it here.
         function Assert-Mirror {
             param([string]$Rel)
             $sp = Join-Path $srcRoot $Rel
