@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 11
-updated: 2026-09-13
+version: 12
+updated: 2026-09-14
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -78,8 +78,9 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 7. **Planning Protocol:** Multi-step tasks MUST use the `@pass-the-parcel` skill. <!-- MACHINERY -->
 8. <!-- CUSTOMIZE if your app has form-field/validation standards; otherwise delete. -->
 9. **PREFIX-LOCKED Integrity:** `.opencode/plans/base-context.md` is the canonical shared prefix for all parcel/ptp agents. NEVER edit the inline prefix inside `.devops/agents/parcel.agent.md` or `.devops/agents/ptp-*.subagent.md` directly — edit `base-context.md`, then run `scripts/check-parcel-prefix.ps1 -Sync` to re-inline it byte-for-byte into every agent. Run `scripts/check-parcel-prefix.ps1` (and `scripts/check-utf8-agents.ps1`) before any push to verify no drift or encoding corruption. See `.opencode/plans/base-context.md`. **Model bindings are template-owned:** the `## Model Registry` table in `base-context.md` is the single source and the agent frontmatter + `opencode.json` are derived — `@sync-architecture` force-stamps all three into every satellite on each sync, so never rebind a model inside a satellite (the next sync reverts it). Rebind per `@model-routing` §3. The check also fails on a registry key with no agent file, a binding file with no row, a seed registry/seed config that disagrees with the live table, and a missing or empty `opencode.json` `agent` block. <!-- MACHINERY: keep verbatim -->
-10. **Sprint Discipline (Agile Cycle, optional):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in the `backlog-index.md` Triage Panel and theme registers, committed into a sprint queue via `@sprint-plan`, claimed into a `git worktree` via the claim protocol, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close` (retro appended to `sprint.md`). One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives in `REFACTORING.md` (sprint-close scan), not the backlog. Claim protocol: `.devops/rules/plan-lifecycle.md`. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
-11. <!-- CUSTOMIZE if your app has additional repo-specific rules; otherwise delete. -->
+10. **Chunked Write Discipline (large files):** Never materialise a large file in a single `write`/`edit` call — the editor runs a synchronous diff over the whole payload before the permission prompt and the TUI stalls on "Preparing write…". Create a skeleton first (frontmatter + section headings, each with a unique placeholder such as `<!-- FILL:goal -->`) in one small `write`; then fill each section with its own small `edit` that replaces that placeholder. Cap each call at roughly 60–100 lines and split larger sections beneath a sub-placeholder. `write` overwrites — it does not append — so never re-issue the whole payload; after a stall, `read` what landed and continue with the next section. This applies to every agent and subagent, including plan/sprint/doc authoring. <!-- MACHINERY: keep verbatim -->
+11. **Sprint Discipline (Agile Cycle, optional):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in the `backlog-index.md` Triage Panel and theme registers, committed into a sprint queue via `@sprint-plan`, claimed into a `git worktree` via the claim protocol, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close` (retro appended to `sprint.md`). One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives in `REFACTORING.md` (sprint-close scan), not the backlog. Claim protocol: `.devops/rules/plan-lifecycle.md`. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
+12. <!-- CUSTOMIZE if your app has additional repo-specific rules; otherwise delete. -->
 
 ---
 

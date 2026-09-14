@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 11
-updated: 2026-09-13
+version: 12
+updated: 2026-09-14
 
 SEED TEMPLATE — copy to <satellite root>/.opencode/plans/base-context.md and customize.
 
@@ -30,6 +30,7 @@ normalize model aliases inconsistently.
 1.
 2.
 3.
+4. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
 
 ## Task Lookup
 <!-- CUSTOMIZE: the rows agents need mid-execution (a subset of AGENTS.md's table is fine). -->

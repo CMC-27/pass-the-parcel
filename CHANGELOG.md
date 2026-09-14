@@ -22,6 +22,7 @@ First public release of the template.
 - The public product name is **Pass the Parcel**; "Application Wiki" is retained only as the descriptor for the wiki knowledge layer.
 
 ## Earlier releases
+- **v0.7.13** (2026-09-14) — Chunked Write Discipline: a universal large-file authoring rule (skeleton `write` → section `edit`s) so subagents stop stalling on OpenCode's `write` tool; lands in the `base-context.md` shared prefix → all locked agents, `AGENTS.md` rule 10, both seed templates, and `@sprint-plan` §5. machinery-version: 42.
 - **v0.7.11** (2026-09-13) — Pre-satellite-sync audit tidy-up: sync now **inserts** Model Registry rows a satellite is missing, so a template-side registry growth reaches an already-bootstrapped satellite; `prune_files` gains the retired `parcel-compactor.md`; the UTF-8 guard covers `.devops/rules` + `.devops/templates`; the T1 / MATURITY / CHANGELOG registers are backfilled; and the Gate-A-in-`AUTO` contradiction is reconciled (`AUTO` auto-clears A–C; only Gate D always halts).
 - **v0.7.10** (2026-09-13) — Model bindings become **registry-canonical and template-owned**: the `## Model Registry` is the single source, agent frontmatter + `opencode.json` are derived and force-stamped by sync, seeds ship concrete bindings, and the VS Code-only opt-out is retired.
 - **v0.7.9** (2026-09-13) — Sprint batch runner: a selectable `parcel-sprint` host + `@sprint-run` walk the committed sprint queue and run each eligible plan Phases 1→9 in one unattended pass (fresh context per plan, trunk-sequential, batched Gate D).

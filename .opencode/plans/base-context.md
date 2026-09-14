@@ -10,6 +10,7 @@
 6. **Subagent Wiki-First Mandate:** Subagent prompts MUST include wiki-first directive.
 7. **Planning Protocol:** Multi-step tasks use `@pass-the-parcel`.
 8. **Form Field Hygiene:** Every input/select/textarea has `id` + matching `<label htmlFor>`.
+9. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
 
 ## Task Lookup
 | Task | Read first | Then drill into |

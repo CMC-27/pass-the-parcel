@@ -1,8 +1,8 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 2
-updated: 2026-09-13
+version: 3
+updated: 2026-09-14
 ---
 
 # Sprint Planning
@@ -55,6 +55,8 @@ Flag any misfiled item and ask the user before committing it.
 ## 5. Write sprint.md
 
 Create `.devops/sprints/sprint-{n}-<slug>/sprint.md` from the template below. Fill every placeholder. The out-of-scope section is mandatory — it is what prevents mid-sprint scope creep. The Committed Scope table is the **queue**: it lists what is committed, and each row links to the plan file that now lives in this folder.
+
+**Chunked write (mandatory):** `sprint.md` is large — do NOT send it in one `write`. Create it with a small skeleton `write` (frontmatter + the `##`/`###` section headings, each with a unique placeholder such as `<!-- FILL:goal -->`), then fill each placeholder with its own small `edit`. Cap each call at ~60–100 lines; split a long section with sub-placeholders if needed. `write` overwrites, so never re-issue the whole file — after a stall, `read` what landed and continue with the next section. See AGENTS.md, Chunked Write Discipline.
 
 ### Template: `.devops/sprints/sprint-{n}-<slug>/sprint.md`
 
