@@ -1,8 +1,8 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 7
-updated: 2026-09-11
+version: 8
+updated: 2026-09-14
 ---
 
 # Knowledge Consolidation Skill
@@ -30,6 +30,8 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 
 **Repetition is a promotion signal:** When the same rule appears under different dates from different plans, the wiki is missing it. Frequency trumps the individual stability heuristic — those entries should be promoted, not just deduplicated inside KC.
 
+**Two promotion destinations, not one.** App-domain rules promote to `.wiki/`. **Machinery, process and tooling** rules — the parcel/sprint pipeline, the dev toolchain, scripts, docs tooling — have no wiki home by design, so they promote instead to [`.devops/rules/process-lessons.md`](../../rules/process-lessons.md) (Phase 6b). Without that second destination KC is a one-way ratchet: process news can never leave, and every sprint's machinery lessons pile up forever.
+
 ---
 
 ## Modes
@@ -37,9 +39,9 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 | Mode | When it fires | What runs |
 |---|---|---|
 | **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 6, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (stdout-only counts summary) |
-| **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or the KC file exceeds 200 lines** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki promotions (Phase 6), user clarification (Phase 8), and the full Phase 9 rewrite |
+| **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or KC holds more than 25 entries** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki + machinery promotions (Phases 6/6b), user clarification (Phase 8), and the full Phase 9 rewrite |
 
-**Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. Tidy mode must keep the file well under the **hard 500-line ceiling**; if a tidy run leaves the file above 200 lines, say so and recommend a full audit.
+**Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. **Measure KC by entry count, not physical lines.** Entries are hard-wrapped for readability, so a reformat can double the line count without adding a single rule — a line-based trigger fires on formatting, not growth. Tidy mode must keep KC at or below the **25-entry ceiling**; if a tidy run leaves it above 25, say so and recommend a full audit.
 
 ---
 
@@ -64,8 +66,8 @@ Before consolidating, extract any tribal knowledge that emerged from the just-co
 
 ### Phase 3 — Inventory & Metrics
 Produce a snapshot before any changes:
-- **Total entries** (real decisions, excluding template/example blocks).
-- **Rough size** (line count, distinguishing real content from template boilerplate).
+- **Entry count** — the primary size signal (real decisions, excluding template/example blocks). The full-audit trigger fires above **25**.
+- **Rough line count** — a secondary format check only; hard-wrapping inflates it, so never read it as a growth metric.
 - **Entries added or updated by the current plan**.
 
 Present this summary to the user as a status report.
@@ -85,8 +87,9 @@ For every existing entry, ask:
    - Can it be stated as an imperative ("Always/never do X")?
    - Does a clear wiki home exist (core doc §, conventions doc, feature doc)?
    If 3/4 are yes, mark `promote`.
+7. **Or is it machinery/process/tooling rather than app-domain?** The parcel/sprint pipeline, the dev toolchain, scripts, and docs tooling have no wiki home by design. If the rule is stable and cross-cutting, mark `promote-machinery` — its destination is `.devops/rules/process-lessons.md` (Phase 6b).
 
-Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `cut-duplicate`, `cut-lowvalue`, `promote`.
+Mark each entry with one of: `keep`, `tighten`, `merge`, `cut`, `cut-duplicate`, `cut-lowvalue`, `promote`, `promote-machinery`.
 
 ### Phase 5 — Duplicate & Conflict Detection
 1. Identify **exact duplicates** (same rule, same wording).
@@ -107,6 +110,15 @@ For every entry marked `promote`, determine its natural wiki home and execute th
 3. **Delete from KC**: Remove the entry entirely — promoted knowledge has no residual in KC, not even a pointer. The wiki is the single home for canonical rules; KC holds only what the wiki cannot.
 
 4. **Track promotions**: Maintain a running list of promotions for the Phase 10 report.
+
+### Phase 6b — Promotion to the Machinery Register
+
+For every entry marked `promote-machinery` (the parcel/sprint pipeline, dev toolchain, scripts, docs tooling), promote it to [`.devops/rules/process-lessons.md`](../../rules/process-lessons.md) instead of the wiki:
+
+1. **Match by theme** — fold the rule into the relevant section (`Parcel & Sprint Mechanics`, `Docs & Tooling`), or into the owning skill / [`plan-lifecycle.md`](../../rules/plan-lifecycle.md) if it has matured that far. Follow the entry format already in that file (≤3 lines, deterministic).
+2. **Do not duplicate** — if the rule already lives in a skill or `plan-lifecycle.md`, delete the KC entry without re-adding it anywhere (same "no pointers" logic as the wiki).
+3. **Delete from KC** — no residual, not even a pointer.
+4. **Track** the machinery promotions separately in the Phase 10 report.
 
 ### Phase 7 — Auto-Apply Safe Changes
 Apply these changes without user intervention:
@@ -138,7 +150,7 @@ Rewrite the knowledge capture file with this structure:
 
 > Living reference of tribal knowledge, pitfalls, and rules. Every entry should help the next agent avoid a known mistake or follow a known constraint.
 
-## Quick Reference — Top 10 Rules
+## Quick Reference — Top Rules (up to 10)
 | # | Rule | Theme | Pitfall? |
 |---|------|-------|----------|
 | 1 | ... | ... | ✅/❌ |
@@ -163,7 +175,7 @@ _(Only decisions whose full story prevents a specific repeat mistake. Most recen
 ```
 
 **Hard limits:**
-- **Whole file: max 500 lines.** A tidy run that cannot bring the file under 200 lines recommends a full audit; if a run finishes above 500 lines, report it as a failed consolidation rather than declaring done.
+- **Whole file: max 25 entries.** A tidy run that cannot bring KC to 25 entries or fewer recommends a full audit; if a full audit finishes above **40 entries**, report it as a failed consolidation rather than declaring done. (The former line-based cap was retired — hard-wrapping inflates physical lines without adding rules.)
 - Every entry in *Pitfalls* and *Rules* sections: **max 3 lines** of body text.
 - Every entry in *Decision Archive*: **max 10 lines** of body text, **max 5 archive entries** (oldest cut first).
 - No narrative paragraphs. Bullet points only.
@@ -174,8 +186,8 @@ _(Only decisions whose full story prevents a specific repeat mistake. Most recen
 ### Phase 10 — Validation & Report
 Print a short summary to the user — **stdout only, nothing written to any log file**. Git history is the permanent record of what consolidation changed:
 
-- Entries before / after; file line count vs the 500 cap.
-- Counts by action: cut (obsolete / failed Admission Gate / wiki-duplicated), merged, tightened, promoted (with target wiki doc names), new from current plan.
+- Entries before / after; entry count against the 25-entry audit trigger (line count only as a format check).
+- Counts by action: cut (obsolete / failed Admission Gate / wiki-duplicated), merged, tightened, promoted (with target wiki doc names), promoted-machinery (to `.devops/rules/process-lessons.md`), new from current plan.
 
 Confirm the user is satisfied with the result.
 
@@ -191,7 +203,8 @@ If any new wiki docs were created, OR existing docs were updated during promotio
 - **Never delete tribal knowledge without confirmation.** Auto-merge combines entries; it never removes information. User-confirmed cuts and `cut-duplicate` (wiki verifiably covers the rule) are the only deletions allowed without asking.
 - **No template/example bloat.** The living log must contain real entries only. Move templates to `.wiki/templates/`.
 - **Zero wiki duplication — zero pointers.** Agents read the wiki before KC, so a pointer or summary in KC is dead weight. If the wiki covers a rule, delete the KC entry. If the wiki *should* cover it but doesn't, promote the rule into the wiki, then delete the KC entry.
-- **Proactive promotion.** If a stable, cross-cutting pattern lives only in KC, it's a knowledge silo. Promote it to the wiki and delete it from KC. An entry that never graduates is a signal that either (a) it's not stable enough to be a rule, or (b) consolidation left a silo.
+- **Proactive promotion.** If a stable, cross-cutting pattern lives only in KC, it's a knowledge silo. Promote it to the wiki — or, if it is machinery/process/tooling, to `.devops/rules/process-lessons.md` — and delete it from KC. An entry that never graduates is a signal that either (a) it's not stable enough to be a rule, or (b) consolidation left a silo.
+- **Two promotion destinations.** App-domain rules go to `.wiki/`; machinery/process/tooling rules go to `.devops/rules/process-lessons.md`. A process rule that never leaves KC is a ratchet — the wiki cannot hold it, so the second home is what releases it.
 - **Repetition is a promotion signal, not just a dedup signal.** If the same rule appears under different dates from different plans, promote it to a single canonical wiki entry and delete all KC copies.
 - **Deterministic entries only.** State the constraint or the fix, not the discussion. An entry is too vague to act on if it needs more than 3 lines to be executable.
 - **Run after every parcel plan.** Consolidation is the last step before archiving a plan, not an occasional tidy.

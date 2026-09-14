@@ -1,8 +1,8 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 3
-updated: 2026-09-13
+version: 4
+updated: 2026-09-14
 ---
 
 # Sprint Close — Retrospective & Hygiene Ritual
@@ -73,7 +73,7 @@ There is **no separate `retro.md`**. Append a `## Retro` section to the existing
 - **Try** (next sprint experiment): {…}
 
 ### Lessons for the Wiki / Knowledge Capture
-{Any durable insight worth promoting via @knowledge-capture. Reference KC numbers if recorded.}
+{Any durable insight worth promoting via @knowledge-capture — app-domain to `.wiki/core/18-knowledge-capture.md`, machinery/process/tooling to `.devops/rules/process-lessons.md`. Reference KC numbers if recorded.}
 
 ### New Refactoring Items (→ REFACTORING.md)
 {List files flagged by the close-of-sprint scan. Confirm they were added to the Kill List.}
@@ -91,6 +91,7 @@ A closed sprint is a historical record: move the whole sprint folder to the arch
 
 - In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Update `last_sprint`.
 - Ensure REFACTORING.md reflects the scan results (Step 2).
+- Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC.
 - Do NOT auto-open the next sprint. Tell the user the current one is closed and they can run `@sprint-plan` when ready, carrying forward the "capacity accuracy" line so the next plan suggests a better budget.
 
 ## 7. Hand Off

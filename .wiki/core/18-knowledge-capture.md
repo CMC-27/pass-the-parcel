@@ -10,17 +10,20 @@ description: "Canonical log of core engineering decisions, tribal knowledge, and
 claims:
   - id: capture-via-skill
     source: .devops/skills/knowledge-capture/SKILL.md#Admission Gate
-    hash: sha256:112ecfd1896184016c6e3e31ec8f8a52d1779479e62f695d76bab4d48146f9d8
+    hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364
   - id: prune-via-consolidation
     source: .devops/skills/knowledge-consolidation/SKILL.md#Tidy (default)
-    hash: sha256:cfdf3f488510d5ab7932df515bf66a7c8363140adb2e026259e2baf597bb8441
-  - id: knowledge-capture-line-ceiling
-    source: .devops/skills/knowledge-consolidation/SKILL.md#hard 500-line ceiling
-    hash: sha256:cfdf3f488510d5ab7932df515bf66a7c8363140adb2e026259e2baf597bb8441
+    hash: sha256:6399e0799df5f2b2bad9e3e151a3cc28c31589a4de7c1461588d7a05ae3e2649
+  - id: knowledge-capture-entry-ceiling
+    source: .devops/skills/knowledge-consolidation/SKILL.md#Hard limits
+    hash: sha256:6399e0799df5f2b2bad9e3e151a3cc28c31589a4de7c1461588d7a05ae3e2649
+  - id: capture-two-destinations
+    source: .devops/skills/knowledge-capture/SKILL.md#Destination Routing
+    hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364
 ---
 # Knowledge Capture & Decision Log
 
-> Tribal knowledge only: edge cases with future practical use that the wiki cannot hold. Agents read the wiki first — anything the wiki covers is deleted here, never pointed at. Hard cap 500 lines; entries ≤3 lines (Rules/Pitfalls), ≤10 lines (Archive, max 5). Capture via `knowledge-capture`; pruning via `knowledge-consolidation` (tidy after every plan).
+> Tribal knowledge only: edge cases with future practical use that **no other home can hold**. Agents read the wiki first — anything the wiki covers is deleted here, never pointed at. **Two homes:** app-domain knowledge lands here (KC); machinery, process and tooling lessons land in [`.devops/rules/process-lessons.md`](../../.devops/rules/process-lessons.md), because the wiki documents the app and can never absorb them. **Ceiling: 25 entries** (measured by entry count, not physical lines); entries ≤3 lines (Rules/Pitfalls), ≤10 lines (Archive, max 5). Capture via `knowledge-capture` (routes by subject); pruning via `knowledge-consolidation` (tidy after every plan).
 
 ## Quick Reference — Top 10 Rules
 | # | Rule | Theme | Pitfall? |
@@ -71,7 +74,8 @@ _(Stable rules derived from prior decisions. Grouped by theme.)_
 - **Measure, then optimize**: measure a gate's real cost/output before restructuring around an estimated token claim. *(2026-09-03)*
 
 ### Knowledge System
-- **Consolidation closes the loop**: `agent-wrap-up` Phase 6 captures AND runs `@knowledge-consolidation` (tidy mode). Capture is append-lean (≤3 lines); tidy prunes. Full audit fires only on its own triggers or when this file exceeds 200 lines. *(2026-09-09)*
+- **Consolidation closes the loop**: `agent-wrap-up` Phase 6 captures (**at most one entry per session**) AND runs `@knowledge-consolidation` (tidy mode). Capture is append-lean (≤3 lines); tidy prunes. Full audit fires only on its own triggers or when this file exceeds **25 entries** — measured by entry count, never by physical lines, since hard-wrapping inflates line count without adding a rule. *(2026-09-09, revised 2026-09-14)*
+- **Two promotion destinations** *(2026-09-14)*: app-domain rules promote to `.wiki/`; **machinery, process and tooling** rules — the parcel/sprint pipeline, dev toolchain, scripts, docs tooling — promote to [`.devops/rules/process-lessons.md`](../../.devops/rules/process-lessons.md) (consolidation Phase 6b) and are captured there directly. Without that second home KC is a one-way ratchet: a process lesson has nowhere to graduate to, so every sprint's machinery news piles up here forever.
 
 ## Decision Archive
 _(Only decisions whose full story prevents a specific repeat mistake. Most recent 5 max.)_

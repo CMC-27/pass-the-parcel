@@ -3,7 +3,7 @@ title: Dev Rules
 tags: [dev, rules, governance, index]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-14
 related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, ../../AGENTS.md]
 ---
 
@@ -25,6 +25,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 |---|---|
 | [agents-and-skills.md](agents-and-skills.md) | How agents and skills are defined, named, published and synced |
 | [plan-lifecycle.md](plan-lifecycle.md) | Parcel plan lifecycle — backlog → sprint queue → plans → archive, gates, claim protocol + worktrees |
+| [process-lessons.md](process-lessons.md) | Staging register of machinery / process / tooling lessons with no home in `.wiki/` — the exit door for Knowledge Capture |
 
 ## Core Principles
 
@@ -35,4 +36,4 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-14. Changes to these rules require human sign-off.*

@@ -53,7 +53,8 @@ Grades are judgement, not measurement — but every one is accountable to the **
 | 2026-09-11 (after hygiene) | A− | A | A− | A− | C | B+ | T2-E1 / T3-E1 hygiene & wiki-parity work |
 | 2026-09-11 | A− | A+ | A | A− | B− | B+ | T2-E2.01 grounding + T2-E2.02 refresh automation + OKF hardening (machinery 31) |
 | 2026-09-13 | A− | A+ | A | A− | B− | B+ | Parcel-Fast locked preset — second orchestrator, structurally single-agent (machinery 37) |
-| 2026-09-13 (now) | A− | A+ | A | A− | B− | B+ | Sprint batch runner (38) + registry-canonical bindings (39) + pre-satellite-sync audit tidy-up: registry-row insertion, prune/UTF-8 guard coverage, gate-contract reconciliation (40) |
+| 2026-09-13 | A− | A+ | A | A− | B− | B+ | Sprint batch runner (38) + registry-canonical bindings (39) + pre-satellite-sync audit tidy-up: registry-row insertion, prune/UTF-8 guard coverage, gate-contract reconciliation (40) |
+| 2026-09-14 (now) | A− | A+ | A | A− | B− | B+ | Sync transport completeness: missing `agent.<key>` insertion + `template-plan.md` portability (41) + Chunked Write Discipline (42) + Knowledge Capture second destination & machinery/process lessons register (43) — grades reassessed, unchanged |
 
 ## Method
 

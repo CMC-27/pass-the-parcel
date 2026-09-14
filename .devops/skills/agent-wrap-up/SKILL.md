@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 10
-updated: 2026-09-13
+version: 11
+updated: 2026-09-14
 ---
 
 # Agent Wrap-Up Skill
@@ -34,8 +34,8 @@ Phases 2–6 are read-heavy and parallelizable. On feature-scale sessions, dispa
 
 | Agent | Owns (exclusive write scope) | Phases | Returns (summary only — never file contents) |
 |-------|------------------------------|--------|----------------------------------------------|
-| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 6 knowledge-capture | One-line-per-doc summary: created/updated/promoted + stale refs fixed + deviations logged |
-| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/` | 4, 5 (minus `defer` rows) | Counts only: plans archived, backlog entries created/resolved/annotated |
+| **A — Wiki Agent** | `.wiki/**` | 2, 3, plus Phase 5 `defer` rows and Phase 6 **app-domain** knowledge-capture | One-line-per-doc summary: created/updated/promoted + stale refs fixed + deviations logged |
+| **B — Process Agent** | `.devops/plans/`, `.devops/archive/`, `.devops/backlog/`, `.devops/rules/process-lessons.md` | 4, 5 (minus `defer` rows), Phase 6 **machinery** knowledge-capture | Counts only: plans archived, backlog entries created/resolved/annotated, process lessons routed |
 
 Delegation rules:
 - Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 7.
@@ -124,9 +124,9 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 4. **If no matches found**: state "No backlog items resolved by this session" and move on.
 
 ### Phase 6: Knowledge Capture & Consolidation
-1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered. Apply the `@knowledge-capture` **Admission Gate strictly** — only real deviations and valuable tribal knowledge qualify; everything else stays in the plan's Phase 10 log and Completion Note.
-2. **Update Decision Log**: Use the `@knowledge-capture` skill to add these entries to the project's `.wiki/core/18-knowledge-capture.md`.
-3. **Consolidate (mandatory)**: Run `@knowledge-consolidation` in **tidy mode** (see its Modes table for scope). This is the step that keeps the log lean — skipping it makes KC growth one-way. Full audits are NOT part of wrap-up; they fire only on the consolidation skill's own triggers.
+1. **Log Tribal Knowledge**: Review the conversation for any specific user preferences, "gotchas", or architectural decisions that aren't captured in formal documentation but should be remembered. Apply the `@knowledge-capture` **Admission Gate strictly** — only real deviations and valuable tribal knowledge qualify; everything else stays in the plan's Phase 10 log and Completion Note. **Budget: at most one new entry per session** — capture the lesson with the widest future reach; a second entry must be a genuinely different rule, not a restatement.
+2. **Route and Update**: Use the `@knowledge-capture` skill to route each entry to its home — **app-domain** → `.wiki/core/18-knowledge-capture.md`; **machinery/process/tooling** (parcel/sprint pipeline, dev toolchain, scripts, docs tooling) → `.devops/rules/process-lessons.md`. Do **not** put machinery lessons in KC; that is the one-way ratchet this routing exists to stop.
+3. **Consolidate (mandatory)**: Run `@knowledge-consolidation` in **tidy mode** (see its Modes table for scope). This is the step that keeps the log lean — skipping it makes KC growth one-way. Full audits are NOT part of wrap-up; they fire only on the consolidation skill's own triggers (KC above **25 entries**).
 
 ### Phase 7a: Coverage Gate (Hard Stop — both must exit 0)
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.

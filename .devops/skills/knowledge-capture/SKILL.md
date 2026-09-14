@@ -1,8 +1,8 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 6
-updated: 2026-09-09
+version: 7
+updated: 2026-09-14
 ---
 
 # Knowledge Capture Skill
@@ -12,12 +12,12 @@ Capture and persist key architectural or procedural decisions in a centralized l
 
 ## File Format Reference
 
-This skill adds entries to `.wiki/core/18-knowledge-capture.md`, which follows the canonical 4-section layout below — identical to what `knowledge-consolidation` Phase 9 produces. Write entries in the format of the section they belong to.
+This skill routes each lesson to one of two homes (see §3). **App-domain** entries go to `.wiki/core/18-knowledge-capture.md`, which follows the canonical 4-section layout below — identical to what `knowledge-consolidation` Phase 9 produces. **Machinery/process/tooling** entries go to `.devops/rules/process-lessons.md` instead. Write each entry in its destination's format.
 
 ### Current file sections
 
 ```
-## Quick Reference — Top 10 Rules
+## Quick Reference — Top Rules (up to 10)
 (compact table of highest-signal rules — updated by consolidation only, not by capture)
 
 ## Pitfalls to Avoid
@@ -55,6 +55,8 @@ KC holds only **real deviations and valuable tribal knowledge** — things that 
 
 Rejected items are NOT recorded here at all — they live in the plan's Phase 10 log / Completion Note, which the archive preserves. State the rejection reason to the user in one line when declining a capture. The same gate governs what consolidation harvests from completed plans.
 
+**Budget — default to one entry per session.** A wrap-up normally earns at most **one** new entry. A second must clear the gate on its own and be a genuinely different lesson, not a restatement of the first. If a session produced several candidate lessons, capture the one with the widest future reach and leave the rest in the plan's Phase 10 log — accumulating volume is what makes the log unreadable.
+
 ### 2. Discovery & Initialization
 *   The canonical knowledge capture file is **always** located at:
     ```
@@ -63,7 +65,12 @@ Rejected items are NOT recorded here at all — they live in the plan's Phase 10
     Resolve the absolute path relative to the active workspace root. **Do not search for alternative filenames or locations.**
 *   If the file **does not exist**, create it with the skeleton above.
 
-### 3. Section Classification
+### 3. Destination Routing (decide before writing)
+Two homes, split by subject:
+*   **App-domain** knowledge (product behaviour, data, UI, testing, refactoring patterns) → `.wiki/core/18-knowledge-capture.md` (KC); continue to §4.
+*   **Machinery/process/tooling** knowledge (the parcel/sprint pipeline, dev toolchain, scripts, docs tooling) → `.devops/rules/process-lessons.md`. Write it there in that file's terse `- **[YYYY-MM-DD] Title** — rule.` format and stop — it never enters KC. This is the second promotion destination that stops KC growing one-way.
+
+### 4. Section Classification
 Classify the decision into one of three sections based on its nature:
 
 | Section | Use when | Format max |
@@ -82,8 +89,9 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 *   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through — the deletion is visible in git history; no separate log. Contradictions resolve to the later decision.
 *   **No wiki duplication, no pointers**: if the rule is already canonically documented in a wiki doc or `.devops/README.md`, **do not add an entry at all** — agents read the wiki before KC, so a pointer is dead weight. If the rule *should* be in the wiki but isn't, capture it normally and let consolidation promote it (which deletes the KC copy).
 
-### 4. Entry Capture
+### 5. Entry Capture
 *   Accept a "Decision" or "Suggestion" from the user.
+*   Write the entry to the destination routed in §3 (KC for app-domain; `process-lessons.md` for machinery/process/tooling).
 *   Assign a **Theme** that best categorises the entry (used as a grouping heading in Rules & Constraints). Common themes: `Architecture & Patterns`, `UI/UX & Design Aesthetic`, `Testing & QA`, `Tooling & Code Quality`, `Product & Process`
 *   Append the new entry to the appropriate section using the exact format from §File Format Reference.
 *   If adding to **Rules & Constraints**, place under the correct `### [Theme]` subsection. Create a new theme subsection if none fits.
@@ -91,7 +99,7 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 *   If adding to **Decision Archive**, use the `### [Title]` format with `- **Context:**` / `- **Action:**` / `- **Rationale:**` bullet points — no wiki links or pointers anywhere in KC.
 *   **Do not** add or modify the Quick Reference table — it's maintained by the consolidation skill.
 
-### 5. Validation
+### 6. Validation
 *   Confirm to the user that the knowledge has been persisted.
 *   Summarize the impact of the decision.
 *   Note if the entry is eligible for wiki promotion (stable, cross-cutting, survived multiple plans) — consolidation will handle the actual promotion.
