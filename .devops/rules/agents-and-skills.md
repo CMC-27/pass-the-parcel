@@ -3,7 +3,7 @@ title: Agents & Skills
 tags: [dev, rules, agents, skills, governance]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-13
+last-reviewed: 2026-09-15
 related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/check-parcel-prefix.ps1]
 ---
 
@@ -19,7 +19,7 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 
 ## Agent Home
 
-- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `parcel-fast.agent.md` (orchestrators — the latter a locked `AUTO`+`SINGLE` preset) + `parcel-sprint.agent.md` (the batch host for `@sprint-run`, a locked batch preset that spawns one per-plan subagent) + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan runner spawned only by `parcel-sprint` — one prefix apart from the selectable `parcel-fast` orchestrator). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
+- **All parcel/ptp agents live in `.devops/agents/` as VS Code custom agent files:** `parcel.agent.md` + `parcel-sprint.agent.md` (orchestrators — the latter the locked batch host for `@sprint-run`, a locked batch preset that spawns one per-plan subagent) + `wiki-writer.agent.md` (selectable) and `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan fast runner, spawned only by `parcel-sprint`). On the opencode surface, `wiki-writer` is additionally bound `mode: all` in `opencode.json`, so a primary agent may invoke it as a subagent via the Task tool while users retain direct selection.
 - Each file carries YAML frontmatter (description, tools, model, user-invocable) followed by the PREFIX-LOCKED prefix and the agent-unique content.
 - The PREFIX-LOCKED prefix must be byte-identical to `.opencode/plans/base-context.md` — enforced by `scripts/check-parcel-prefix.ps1`.
 - **Binding files** are `parcel*`, `ptp-*` and `wiki-*` agent files. Each one requires a row in the `## Model Registry` table of `base-context.md`, and each registry row requires a file — both directions are validated. The registry is the single source; the frontmatter `model:` line and `opencode.json` `agent.<key>.model` are derived and force-stamped by sync, so a satellite-side rebind is transient. The `wiki-*` files carry no PREFIX-LOCKED prefix and are validated by the binding pass only.
@@ -36,7 +36,7 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 ## Naming
 
 - Skills: `kebab-case` folder + matching frontmatter `name`, e.g. `.devops/skills/wiki-query/SKILL.md` with `name: wiki-query`.
-- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`, `ptp-parcel-fast.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent. Mark an orchestrator's locked preset in the `## Orchestrator Presets` table of `base-context.md` (Mode/Agents), never in a plan file.
+- Agents: `<slug>.agent.md` for selectable agents (e.g. `.devops/agents/parcel.agent.md`, `parcel-sprint.agent.md`, `wiki-writer.agent.md`); `ptp-<slug>.subagent.md` for subagents (e.g. `.devops/agents/ptp-context-hunter.subagent.md`, `ptp-parcel-fast.subagent.md`); `wiki-verifier.subagent.md` for the wiki auditor subagent. Mark an orchestrator's locked preset in the `## Orchestrator Presets` table of `base-context.md` (Mode/Agents), never in a plan file.
 - Skill descriptions must state **when to trigger** the skill (the `description` frontmatter is what agents read).
 
 ## The "Batch Host" Pattern
@@ -62,4 +62,4 @@ The machinery layer (`.wiki/rules/`, `.wiki/rules/language/`, `.devops/rules/`, 
 
 ---
 
-*Last reviewed 2026-09-13. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-15. Changes to these rules require human sign-off.*

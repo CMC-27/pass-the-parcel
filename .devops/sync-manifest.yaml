@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 43
+machinery-version: 44
 
 portable_dirs:
   - .wiki/rules
@@ -60,5 +60,11 @@ prune_files:
   - .devops/agents/parcel-phase3-answerer.md
   - .devops/agents/parcel-compactor.md
   - .devops/agents/wiki-verifier.md
+  # Retired in T1-E3.05 (machinery 44): the selectable parcel-fast orchestrator was removed;
+  # the fast lane is subagent-only (`parcel-sprint` -> `ptp-parcel-fast`). This entry is
+  # load-bearing, not cosmetic: a satellite that already synced keeps the orphan file while
+  # its Model Registry row is gone, so that satellite's own check-parcel-prefix.ps1 fails
+  # "registry key has no agent file" / "no Model Registry row" and its pull exits 1.
+  - .devops/agents/parcel-fast.agent.md
 
 excluded_skills: []

@@ -1,6 +1,6 @@
 {
   "_comment": [
-    "type: template | version: 7 | updated: 2026-09-13",
+    "type: template | version: 8 | updated: 2026-09-15",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
     "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
     "The 'agent' block below ships the parcel/ptp agents pre-wired so a bootstrapped satellite",
@@ -37,25 +37,6 @@
           "wiki-writer": "allow",
           "wiki-verifier": "allow"
         },
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
-        "question": "allow"
-      }
-    },
-    "parcel-fast": {
-      "description": "Parcel-Fast orchestrator. Locked AUTO + SINGLE ('fast plan') preset of the pass-the-parcel pipeline — no Mode/Topology questions, inline personas, no subagent spawns. Use when: 'parcel-fast', '/parcel-fast', 'fast parcel', 'quick parcel', 'single-agent parcel'.",
-      "mode": "primary",
-      "model": "opencode-go/deepseek-v4.1-flash",
-      "prompt": "{file:.devops/agents/parcel-fast.agent.md}",
-      "permission": {
-        "read": "allow",
-        "edit": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "bash": "allow",
-        "task": "deny",
         "todowrite": "allow",
         "webfetch": "allow",
         "websearch": "allow",

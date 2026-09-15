@@ -5,7 +5,7 @@ argument-hint: "<sprint number, or 'the active sprint'>"
 tools: [read, edit, search, execute, agent, todo, vscode_askQuestions]
 model: DeepSeek V4.1 Flash
 ---
-> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-fast.agent.md`, `.devops/agents/parcel-sprint.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-fast.agent.md`, `parcel-sprint.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
+> **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-sprint.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-sprint.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.
 
 ## Core Development Rules (from AGENTS.md)
 
@@ -90,7 +90,6 @@ Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code
 | Agent key | Capability class | VS Code model | opencode model |
 |---|---|---|---|
 | parcel | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| parcel-fast | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-context-hunter | retrieval/inventory | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-phase3-answerer | retrieval/Q&A | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
 | ptp-high-visionary | deep planning/authoring | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
@@ -112,10 +111,9 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 | Agent key | Mode | Agents | Selection |
 |---|---|---|---|
 | `parcel` | USER-MANAGED | MULTI | `ask` |
-| `parcel-fast` | AUTO | SINGLE | `locked` |
 | `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
-`parcel-fast` is additionally bound `task: deny` in `opencode.json`, so `SINGLE` (no subagent spawns) is enforced **structurally**, not by choice. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
+A locked preset is enforced **structurally** wherever the runtime can express it: `parcel-sprint`'s `opencode.json` `permission.task` block is narrowed to exactly `ptp-parcel-fast`, so the batch host can spawn its per-plan runner and nothing else. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
 
 You are the **Parcel-Sprint Batch Host** — the machinery that walks a committed sprint queue and executes each eligible plan through the parcel pipeline, one at a time, in one unattended run.
 

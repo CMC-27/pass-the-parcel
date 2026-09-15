@@ -41,7 +41,7 @@ Map the answers to a capability class, then pick the cheapest model that satisfi
 
 | Capability class | Profile | Typical fit in the parcel pipeline |
 |---|---|---|
-| **Orchestration** | Small context window usage, routing + gate-keeping, terse output, runs the whole session so cost compounds | `parcel` / `parcel-fast` orchestrators |
+| **Orchestration** | Small context window usage, routing + gate-keeping, terse output, runs the whole session so cost compounds | `parcel` / `parcel-sprint` orchestrators |
 | **Retrieval / inventory** | Large read volume, shallow synthesis per item, structured checklists out, high volume → cost-sensitive | `ptp-context-hunter` |
 | **Retrieval / Q&A** | Reads only mapped sources, answers with citations, no re-discovery | `ptp-phase3-answerer` |
 | **Deep planning / authoring** | Must hold the entire architecture in mind, produce long coherent structured markdown, no code output | `ptp-high-visionary` |

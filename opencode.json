@@ -31,25 +31,6 @@
         "question": "allow"
       }
     },
-    "parcel-fast": {
-      "description": "Parcel-Fast orchestrator. Locked AUTO + SINGLE ('fast plan') preset of the pass-the-parcel pipeline — no Mode/Topology questions, inline personas, no subagent spawns. Use when: 'parcel-fast', '/parcel-fast', 'fast parcel', 'quick parcel', 'single-agent parcel'.",
-      "mode": "primary",
-      "model": "opencode-go/deepseek-v4.1-flash",
-      "prompt": "{file:.devops/agents/parcel-fast.agent.md}",
-      "permission": {
-        "read": "allow",
-        "edit": "allow",
-        "glob": "allow",
-        "grep": "allow",
-        "list": "allow",
-        "bash": "allow",
-        "task": "deny",
-        "todowrite": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
-        "question": "allow"
-      }
-    },
     "parcel-sprint": {
       "description": "Parcel-Sprint batch host. Walks the ACTIVE sprint queue and runs each eligible plan through the parcel pipeline one at a time in a fresh context per plan, spawning the ptp-parcel-fast subagent (locked AUTO + SINGLE), then emits one consolidated Gate D report. Use when: 'parcel-sprint', '/parcel-sprint', 'run the sprint', 'batch the sprint queue', '@sprint-run'.",
       "mode": "primary",

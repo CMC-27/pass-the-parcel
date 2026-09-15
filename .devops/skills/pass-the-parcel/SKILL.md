@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 13
-updated: 2026-09-13
+version: 14
+updated: 2026-09-15
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -104,9 +104,9 @@ The orchestrator **recommends** a topology from these signals; the **user confir
 An orchestrator agent may carry a **locked preset** that fixes `Mode` and/or `Agents` — the `Orchestrator Presets` table in the orchestrator prefix. Read **your own row** at plan start:
 
 - `ask` -> run the normal selection step (recommend, user confirms), exactly as above.
-- `locked` -> the selection step is **already satisfied**: write the preset values into the plan's **Plan Settings** block and do **not** ask. `parcel-fast` is the canonical example (`Mode = AUTO`, `Agents = SINGLE`).
+- `locked` -> the selection step is **already satisfied**: write the preset values into the plan's **Plan Settings** block and do **not** ask. `parcel-sprint` is the canonical example (it locks `AUTO` and a per-plan `SINGLE` for each run it spawns).
 
-A locked `SINGLE` preset is normally paired with the runtime `task: deny` permission, so the no-subagent rule is enforced **structurally** rather than by the model's restraint. Presets change *who executes* and *which questions are asked* — never the hard halt: **Gate D always halts for the human**, and `AUTO` auto-clears only Gates A-C.
+A locked preset is enforced **structurally** wherever the runtime can express it — e.g. the batch host binds `task` to exactly its per-plan runner, so it cannot spawn anything else. Presets change *who executes* and *which questions are asked* — never the hard halt: **Gate D always halts for the human**, and `AUTO` auto-clears only Gates A-C.
 
 ### Per-topology phase flow
 
