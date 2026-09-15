@@ -19,7 +19,8 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 | Tier | Code | Title | Size | Note |
 |------|------|-------|------|------|
-| — | *(queue clear)* | No open triaged items. Add work via `@backlog`. | — | — |
+| 🟡 NEXT | T1-E3.03 | `GATE_D_USER_APPROVAL` claim status + dependency predicate + fixpoint batch runner | M | Codifies the Sprint 7 dependency ruling; unblocks intra-queue chains in `@sprint-run`. |
+| 🟢 LATER | T1-E3.04 | Batch sprint wrap-up for `parcel-sprint` | M | Confirms + completes + archives the batch in one pass; depends on T1-E3.03. |
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in `TRIAGE.md` (seed: `.devops/templates/TRIAGE.template.md`).
 
