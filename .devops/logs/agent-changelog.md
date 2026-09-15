@@ -11,11 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
-## 2026-09-15 - Parcel Fast becomes subagent-only: the selectable orchestrator is retired (machinery 44)
+## 2026-09-15 - Parcel Fast becomes subagent-only: the selectable orchestrator is retired (machinery 44 → 45)
 
 **Why:** "Parcel Fast" existed twice — a selectable orchestrator (`.devops/agents/parcel-fast.agent.md`) and the hidden batch subagent (`.devops/agents/ptp-parcel-fast.subagent.md`) — one prefix apart, a documented confusion hazard, and only one of the two was ever needed. Operator ruling (2026-09-15): **Parcel Fast is a subagent of `parcel-sprint` only**; the main `parcel` agent is the tool used to deliver a plan from any investigated context. The retirement deletes the agent file and every surface derived from it **together** — the Model Registry row, the Orchestrator Presets row, and the `opencode.json` + seed `agent.parcel-fast` entries — because `check-parcel-prefix.ps1` validates registry↔file↔config **bidirectionally**, so any partial removal is a hard FAIL rather than a silent half-state. The prefix header, the `ORCHESTRATOR-ONLY:START` marker comment and the presets prose now name only the survivors (`parcel` = `ask`; `parcel-sprint` = locked batch host), and `-Sync` re-inlined the prefix byte-for-byte into the **9** remaining locked agents (2 orchestrators + 7 `ptp-*`; 10 → 9; PASS ×9, 11 model bindings, exit 0). `prune_files` gains `.devops/agents/parcel-fast.agent.md` — load-bearing, not cosmetic: `.devops/agents` is portable, so a satellite that already synced would keep an orphan file whose registry row is gone and fail its own prefix check. `machinery-version: 43 -> 44`. Mirrored across `AGENTS.md` + `AGENTS.template.md` v12→v13, `.devops/README.md`, `agents-and-skills.md`, `HOW-TO.md`, `.wiki/rules/naming.md`, `model-routing`, `pass-the-parcel` v13→v14, `template-plan.md`, `base-context.template.md` v12→v13, `opencode.template.json` v7→v8. Substring hazard handled by construction: `parcel-fast` is a substring of `ptp-parcel-fast`, so every edit was phrase-exact and the surviving subagent's byte-equality is asserted by the prefix check.
 
-**Ref:** (recorded at Gate D)
+**Ref:** `e9a8051` (plan: T1-E3.05); wrap-up `6d4f66a`
 
 ---
 
