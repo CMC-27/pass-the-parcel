@@ -1,7 +1,7 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, fresh context each), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 2
+version: 3
 updated: 2026-09-16
 ---
 
@@ -66,7 +66,7 @@ Narrate one line before each spawn: `plan k/N: <code> claimed → running`. Then
 
 ## 4. Terminal state
 
-Leave each run plan at `Status: PHASE_9`, `claim_status: GATE_D_USER_APPROVAL`, still in `.devops/plans/`, **Gate D `OPEN`**. Never archive a plan. Never advance one past `PHASE_9`. Never flip a gate. `GATE_D_USER_APPROVAL` — not `CLAIMED` — is what marks a plan as executed-but-unverified, and it is exactly the state that satisfies a dependent's clause 2.
+Leave each run plan at `Status: PHASE_9`, `claim_status: GATE_D_USER_APPROVAL`, still in `.devops/plans/`, **Gate D `OPEN`**. Never archive a plan. Never advance one past `PHASE_9`. Never flip a gate. `GATE_D_USER_APPROVAL` — not `CLAIMED` — is what marks a plan as executed-but-unverified, and it is exactly the state that satisfies a dependent's clause 2. **Retirement is not this skill's job:** a plan leaves this state only after the human verdict plus the follow-up wrap-up (§ 6).
 
 ## 5. Stop-the-line
 
@@ -88,10 +88,10 @@ When the eligible set is drained, write one report at `.opencode/plans/run-sprin
 
 - one row per run plan carrying **code + title**, terminal Status, touched files, and Phase 9 verification evidence;
 - a **Skipped / deferred** table — every non-run plan with its reason (unmet `depends_on` — still `QUEUED` or in-flight `CLAIMED`; `touches` overlap; pre-existing `PHASE_9`; dependency cycle; claim-time queue-pairwise overlap);
-- a **What to do next** block covering all three exits — **approved** → run the per-plan `@agent-wrap-up` archive sequence (one per batched plan); **a plan that fails the operator's test** → retry or `PHASE_5_REVISION`; **batch halted** → fix the cause, or abandon-claim the orphan back to `QUEUED`, then re-run `@sprint-run`.
+- a **What to do next** block covering all three exits — **approved** → run the **follow-up batch wrap-up**: one separate, operator-invoked invocation of `@agent-wrap-up` (`SKILL.md` § Batch Scope) over the whole batched set. It is never an inline continuation of this loop; per-plan `@agent-wrap-up` stays valid and composes, and either path retires each plan to `COMPLETE` and archives it. **A plan that fails the operator's test** → retry or `PHASE_5_REVISION`; **batch halted** → fix the cause, or abandon-claim the orphan back to `QUEUED`, then re-run `@sprint-run`.
 
 On `HALT`, **emit the partial report immediately** — completed plans at `PHASE_9`, the stop point, the cause, the resume path — instead of waiting for the queue to drain. Echo the **complete body** in chat: the report path is gitignored/ephemeral and cannot be linked from tracked docs.
 
 ## 7. Named exception
 
-This batch loop is the explicit, machine-enforced **Strict Context Isolation** exception: each spawned `ptp-parcel-fast` runs one plan's Phases 1→9 in a single fresh context, and the claim is **trunk-sequential** (keeps `git mv` + the `claim: <code>` commit, drops `git worktree add`). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus per-plan wrap-up retires it to `COMPLETE`. The one-phase-group-per-session bound stands for every other run. See `.devops/rules/plan-lifecycle.md` § Deviations.
+This batch loop is the explicit, machine-enforced **Strict Context Isolation** exception: each spawned `ptp-parcel-fast` runs one plan's Phases 1→9 in a single fresh context, and the claim is **trunk-sequential** (keeps `git mv` + the `claim: <code>` commit, drops `git worktree add`). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. The one-phase-group-per-session bound stands for every other run. See `.devops/rules/plan-lifecycle.md` § Deviations.

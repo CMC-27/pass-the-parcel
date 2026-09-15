@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 15
+version: 16
 updated: 2026-09-16
 ---
 
@@ -155,10 +155,11 @@ Model routing is owned by the **Model Registry** in `.opencode/plans/base-contex
 
 ### Batch Runner (`@sprint-run`)
 
-A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, fresh context each), then emits one consolidated Gate D report.
+A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, fresh context each), then emits one consolidated Gate D report. Retirement is a **separate, operator-invoked step** after the human verdict — the batch never wraps itself up.
 
 - **`trunk-sequential`** — keeps the `git mv` + `claim: <code>` commit, drops `git worktree add`.
 - **Batched Gate D** — plans terminate at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`; a single human verdict covers the whole batch, and Gate D is deferred, never skipped. `GATE_D_USER_APPROVAL` (not `CLAIMED`) is the state that satisfies a dependent's `depends_on`.
+- **Retirement is a separate, operator-invoked step** — the batch loop never archives and never marks a plan complete. After the verdict, the **batch wrap-up** — one distinct invocation of `@agent-wrap-up` (§ Batch Scope), run by `parcel-sprint` (which may spawn `wiki-writer` for the wiki prose) or by the ordinary wrap-up path — asserts each plan against the per-plan confirmation gate, runs the repo gates once for the set, then sets `COMPLETE` and archives each plan. A plan failing any assertion is carry-forward, never complete. Per-plan `@agent-wrap-up` stays valid and composes.
 - **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect).
 - **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
 

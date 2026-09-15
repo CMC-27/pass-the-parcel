@@ -109,5 +109,5 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 | `parcel` | USER-MANAGED | MULTI | `ask` |
 | `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
-A locked preset is enforced **structurally** wherever the runtime can express it: `parcel-sprint`'s `opencode.json` `permission.task` block is narrowed to exactly `ptp-parcel-fast`, so the batch host can spawn its per-plan runner and nothing else. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
+A locked preset is enforced **structurally** wherever the runtime can express it: `parcel-sprint`'s `opencode.json` `permission.task` block denies `"*"` and allows exactly two **named** targets — its per-plan runner `ptp-parcel-fast` (never anything else during a plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose only). No glob key is admitted, so the batch preset stays structural. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
 <!-- ORCHESTRATOR-ONLY:END -->

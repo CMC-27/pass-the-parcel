@@ -41,9 +41,9 @@ related-to: [./README.md, ../../.opencode/plans/base-context.md, ../../scripts/c
 
 ## The "Batch Host" Pattern
 
-A **batch host** is a primary agent whose whole job is to run a *series* of per-plan runs unattended. It is the one legitimate case where a `SINGLE`-style orchestrator **does** spawn — and its `task` allow-list is narrowed to exactly one target.
+A **batch host** is a primary agent whose whole job is to run a *series* of per-plan runs unattended. It is the one legitimate case where a `SINGLE`-style orchestrator **does** spawn — and its `task` allow-list is narrowed to a short, **named** set under `"*": "deny"`, never a glob.
 
-- **Bounded spawning.** `parcel-sprint`'s `opencode.json` `permission.task` maps `"*"` → `"deny"` and `"ptp-parcel-fast"` → `"allow"` — nothing else. The host can spawn its per-plan runner and nothing more.
+- **Bounded spawning.** `parcel-sprint`'s `opencode.json` `permission.task` maps `"*"` → `"deny"` and allows exactly two **named** targets: `"ptp-parcel-fast"` (its per-plan runner — the only target a plan run needs) and `"wiki-writer"` (the follow-up batch wrap-up's read-heavy wiki prose). No glob key is admitted: a `wiki-*` glob would hand the host a whole class of targets and undo the structural guarantee.
 - **Deny-after-glob in a plain orchestrator.** `parcel`'s `task` block allows the `"ptp-*"` glob, which would also admit the batch runner; an exact `"ptp-parcel-fast": "deny"` placed **after** the glob overrides it (an exact key is the most specific match and, placed last, also the last match).
 - **One fresh context per plan.** Each spawned `ptp-parcel-fast` owns one plan's Phases 1→9 and returns a terse `DONE`/`SKIP`/`HALT`. The host writes no code itself.
 

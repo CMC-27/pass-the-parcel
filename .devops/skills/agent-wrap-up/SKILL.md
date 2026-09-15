@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 11
-updated: 2026-09-14
+version: 12
+updated: 2026-09-16
 ---
 
 # Agent Wrap-Up Skill
@@ -41,6 +41,30 @@ Delegation rules:
 - Main agent retains Phases 0, 1 (changelog synthesis from the two returned summaries), and 7.
 - Both subagents must follow the `@wiki-writer` discipline for any prose edits they make.
 - On small sessions (a handful of files, no plan), running Phases 2–6 inline is acceptable — delegation pays off only when the read surface is large.
+
+---
+
+## Batch Scope (sprint batch wrap-up)
+
+Wrap-up normally closes **one** plan. The **batch scope** closes a sprint's whole batched set in one pass. It is the follow-up step the `@sprint-run` batch defers to: that batch ends at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and never wraps itself up.
+
+**Trigger — separate, operator-invoked.** Runs **after** the batch Gate D verdict and **outside** the batch loop — a distinct invocation, never an inline continuation of `@sprint-run`. Either the ordinary wrap-up path (any orchestrator) or `parcel-sprint` itself, which may spawn `wiki-writer` for the read-heavy wiki reconciliation.
+
+**Input.** A list of plan codes. Omitted → every plan in `.devops/plans/` carrying `claim_status: GATE_D_USER_APPROVAL`. An empty list is a no-op, not an error.
+
+**Rule — every phase once, except Phase 4.** Phases 0, 1, 2, 3, 5, 6 and 7a/7b run **once for the batch** exactly as written below: one diff, one changelog entry naming the theme, one wiki reconciliation, one backlog sweep, one consolidation, one gate pass. Only **Phase 4** iterates, once per plan in the input list. Batch scope is a *scope* on this skill — this skill remains the **only** wrap-up owner. Never create a second wrap-up skill.
+
+**Confirmation gate — safety-critical, not simplifiable.** Before a plan is marked complete, assert **each** of the following for it, individually and from file/git evidence — never from the batch report:
+
+1. bottom `Status` is `PHASE_9`;
+2. front-matter `claim_status` is `GATE_D_USER_APPROVAL`;
+3. the plan's per-plan runner outcome was `DONE <code>` (a `SKIP`, a `HALT`, or a missing outcome fails);
+4. Phase 9 verification evidence is present (commands + exit codes) **and** the acceptance-criteria table is populated;
+5. a commit with the exact literal `plan: <code>` exists on the trunk.
+
+Then run the repo gates **once for the batch** — tests / lint / build, `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py`, `wiki_coverage_check.py`. A red gate is a hard stop: it blocks the **whole** batch wrap-up, and a red tree is **never** auto-cleaned.
+
+A plan failing **any** assertion is **carry-forward** — excluded from the batch, left exactly where it is, **never** marked complete. Report it with the failed assertion named. `ponytail:` the carry-forward report is prose, not a schema; upgrade path is a machine-readable per-plan verdict row if the batch ever needs to be driven programmatically.
 
 ---
 
@@ -99,6 +123,8 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
 3.  **Update**: Apply surgical edits to ensure every doc reflects the current reality. Where an edit changes prose structure (not a one-line fact fix), follow the `@wiki-writer` discipline: rebalance the affected section so it reads as if written at once.
 
 ### Phase 4: Plan Finalization
+> **Batch scope:** in a batch wrap-up this phase runs **once per plan in the input list**; every other phase stays once-per-batch. See § Batch Scope — including its confirmation gate, which must pass for a plan before Step 1 below.
+
 1.  **Update Implementation Plans**: If you were following a plan in `.devops/plans/`, finalize it in this strict order:
     - **Step 1 — Mark Complete:** Open the plan file and set **both** `claim_status: COMPLETE` (front-matter) and the bottom State Dashboard `Status` to `COMPLETE`. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
@@ -146,3 +172,5 @@ Mutations that keep downstream tooling honest. Do all three, then close out.
 
 ## Hard Stop
 **Coverage Gate is a hard stop**: Phase 7a must exit 0 on both scripts before wrap-up is declared complete. A green lint with red coverage is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.
+
+**Batch wrap-up is a hard stop too**: the § Batch Scope confirmation gate must pass for a plan before it is marked complete. A plan failing any assertion is carry-forward, never `COMPLETE`; a red repo gate blocks the whole batch wrap-up.

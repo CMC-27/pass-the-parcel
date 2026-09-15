@@ -45,7 +45,8 @@
         "bash": "allow",
         "task": {
           "*": "deny",
-          "ptp-parcel-fast": "allow"
+          "ptp-parcel-fast": "allow",
+          "wiki-writer": "allow"
         },
         "todowrite": "allow",
         "webfetch": "allow",
