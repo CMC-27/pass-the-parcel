@@ -19,7 +19,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 | Tier | Code | Title | Size | Note |
 |------|------|-------|------|------|
-| — | *(queue clear)* | No open triaged items. T1-E3.03/E3.04/E3.05 committed to [Sprint 8](../sprints/sprint-8-sprint-lifecycle-hardening/sprint.md). Add work via `@backlog`. | — | — |
+| 🟡 NEXT | T1-E3.06 | Sprint 8 gate & preflight coverage gaps | S | Two gaps found while executing Sprint 8: `.devops/sprints/**` is outside `check-utf8-agents.ps1`'s scan scope, and `@sprint-plan` never tests mutual `touches` overlap across the set it commits. |
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in `TRIAGE.md` (seed: `.devops/templates/TRIAGE.template.md`).
 
