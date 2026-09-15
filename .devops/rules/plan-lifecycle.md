@@ -3,7 +3,7 @@ title: Plan Lifecycle
 tags: [dev, rules, plans, parcel, lifecycle, concurrency]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-13
+last-reviewed: 2026-09-16
 related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md, ../skills/sprint-plan/SKILL.md]
 ---
 
@@ -22,7 +22,7 @@ Anything in `.devops/plans/` — and every plan committed to a sprint queue — 
 ```
 code: T1-E1.04
 sprint: sprint-1-<slug>
-claim_status: QUEUED        # QUEUED | CLAIMED | IN_PROGRESS | COMPLETE
+claim_status: QUEUED        # QUEUED | CLAIMED | GATE_D_USER_APPROVAL | COMPLETE
 owner: <session/model or user>
 claimed_at: <ISO-8601>
 last_touch: <ISO-8601>
@@ -31,8 +31,10 @@ depends_on: ["<code>", "..."]
 ```
 
 - `claim_status` is the claim state. The pipeline phase stays in the bottom `## 📍 State & Gates` `Status` row — never conflate the two.
+- `claim_status` values: `QUEUED` (parked in the backlog, or committed to a sprint queue but not yet claimed), `CLAIMED` (claimed and in flight — Phases 1→8), `GATE_D_USER_APPROVAL` (executed through Phase 9, Gate D `OPEN`, awaiting the human verdict), `COMPLETE` (archived). `IN_PROGRESS` is **retired** — nothing ever set it.
+- `GATE_D_USER_APPROVAL` is the terminal claim state of **every** path that reaches Phase 9: the `@sprint-run` batch path (which never archives on its own — see § Deviations) and the manual sequential sprint flow (claim a plan, run it to Gate D, leave it in `.devops/plans/` while the next plan is claimed). Its bottom `Status` stays `PHASE_9`; only the Gate D verdict plus `@agent-wrap-up` moves it to `COMPLETE`.
 - `touches` is the declared write set; it is the overlap check that makes concurrent execution safe.
-- `depends_on` names codes that must be COMPLETE (present in `.devops/archive/`) before this plan may be claimed.
+- `depends_on` names codes that must be **satisfied** before this plan may be claimed. A code is satisfied when it is either **(a)** present in `.devops/archive/` — the plan wrapped up and archived (the manual / per-plan path), **or (b)** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` — executed through Phase 9 with Gate D `OPEN`, awaiting the human verdict (the batch path's terminal state). **Any other state is unmet**: still `QUEUED` in the sprint queue, or `CLAIMED` in `.devops/plans/` below `PHASE_9` (in flight). This is the **dependency** rule only; the `touches`-overlap check below is a *separate* blocker that a satisfied dependency does **not** clear.
 - Staleness is judged by `last_touch` plus a human review flag — never by a time lease. Human-gated phases pause legitimately.
 
 ## Layout & Movement
@@ -53,6 +55,8 @@ depends_on: ["<code>", "..."]
 
 `QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
+The `claim_status` mirrors the pipeline: `QUEUED` -> `CLAIMED` (Phases 1→8) -> `GATE_D_USER_APPROVAL` (at `PHASE_9`, Gate D `OPEN`) -> `COMPLETE` (Gate D verdict + wrap-up + archive).
+
 **Revision loop:** `PHASE_7` -> (Gate B or C fails) -> `PHASE_5_REVISION` -> `PHASE_5` -> (Phases 6-7 re-run) -> `PHASE_7` -> Gate C
 
 **Failure states:** Gate A rejected -> `PHASE_1`. Execution rolled back after two failed self-healing attempts -> `PHASE_8_FAILED` (orchestrator routes retry / `PHASE_5_REVISION` / user decision).
@@ -69,11 +73,11 @@ depends_on: ["<code>", "..."]
 
 A **claim** is the right to execute one plan against the working tree. Only one claim may cover a given file at a time. Claiming is a local, in-workspace git operation — no remote and no integration branch.
 
-1. **Select.** From the active sprint queue, take the next item with **no unmet `depends_on`** (every dependency present in `.devops/archive/`) and **no `touches` overlap** with any plan already in `.devops/plans/`. The `@sprint-run` batch path re-evaluates this predicate immediately before **each** claim against the live `.devops/plans/` (never once across the queue); the branch-point semantics below are otherwise unchanged.
+1. **Select.** From the active sprint queue, take the next item whose `depends_on` is **satisfied** (per § Claim Front-Matter: every dependency present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) and which has **no `touches` overlap** with any plan already in `.devops/plans/`. The `@sprint-run` batch path re-evaluates this predicate immediately before **each** claim against the live `.devops/plans/` (never once across the queue) and **iterates to a fixpoint** — each pass claims at most one plan, then re-applies the predicate to the remaining queued set until nothing is eligible (`.devops/skills/sprint-run/SKILL.md` § 2); the branch-point semantics below are otherwise unchanged.
 2. **Claim on trunk.** Fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint queue into `.devops/plans/`; commit `claim: <code>` on the workspace trunk. (`@sprint-run` keeps this step and its exact `claim: <code>` commit.)
 3. **Isolate.** `git worktree add <path> -b plan/<code>-<slug>` from the claim commit. **`@sprint-run` batch exception (`trunk-sequential`):** drop this step — no `plan/<code>-<slug>` branch is created and no merge/prune follows at completion; all changes land on one tree. See § Deviations.
 4. **Execute.** Run the pipeline inside the worktree. **`@sprint-run` batch exception (`trunk-sequential`):** run the per-plan chain directly on the trunk instead of a worktree.
-5. **Complete.** Set `claim_status: COMPLETE`; `git mv` the plan to `.devops/archive/` (root); commit; merge the branch back to the trunk locally; prune the worktree. **`@sprint-run` batched Gate D exception:** the plan terminates at `PHASE_9` with Gate D `OPEN` and archives per plan only after the single consolidated human verdict; with no branch, there is nothing to merge or prune.
+5. **Complete.** Set `claim_status: COMPLETE`; `git mv` the plan to `.devops/archive/` (root); commit; merge the branch back to the trunk locally; prune the worktree. **`@sprint-run` batched Gate D exception:** the plan terminates at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, and archives per plan only after the single consolidated human verdict; with no branch, there is nothing to merge or prune.
 6. **Shared files stay on trunk.** `sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, and `.devops/logs/version-history.md` are edited only on the trunk at merge/close time — never inside a plan branch. (`ponytail:` ceiling — the changelog is written by the trunk, not the branch; upgrade path is per-plan changelog fragments.)
 
 ## Cache-Anchored State & Gates
@@ -96,12 +100,12 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 
 The `@sprint-run` batch host (agent `parcel-sprint`, per-plan runner `ptp-parcel-fast`) runs the committed sprint queue in one unattended pass. It deviates from the default protocol in exactly three named ways; every other section of this document stands unchanged for every other run.
 
-1. **Batched Gate D (deferred, never skipped).** Each per-plan run terminates at `PHASE_9`, stays `claim_status: CLAIMED` in `.devops/plans/`, with **Gate D `OPEN`**. The queue's eligible set drains into **one** consolidated human verdict at the end; per-plan `@agent-wrap-up` then archives each plan. Gate D is deferred, never auto-cleared, never skipped.
+1. **Batched Gate D (deferred, never skipped).** Each per-plan run terminates at `PHASE_9`, stays in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`, with **Gate D `OPEN`**. The queue's eligible set drains into **one** consolidated human verdict at the end; per-plan `@agent-wrap-up` then archives each plan. Gate D is deferred, never auto-cleared, never skipped.
 2. **Trunk-sequential claim.** The Claim Protocol's step 3 (`git worktree add`) is dropped. Steps 1-2 are kept: `git mv` into `.devops/plans/` plus the exact commit literal `claim: <code>`. All changes land on one working tree — no `plan/<code>-<slug>` branch, no merge, no prune. Per-plan execution commits use the exact literal `plan: <code>`.
 3. **Named Strict Context Isolation exception.** Running one plan's Phases 1→9 in a single `ptp-parcel-fast` context is an explicit, machine-enforced exception to the one-phase-group-per-session bound (`@pass-the-parcel` § Review Gates item 1). The bound stands for every other run.
 
-The batch path's eligibility predicate (no unmet `depends_on`; no `touches` overlap with any plan in `.devops/plans/`, including plans already batched to `PHASE_9`) is evaluated **immediately before each claim**; a skip is recorded with its reason and never halts the batch. Stop-the-line triggers and the informed run preview live in the `sprint-run` skill.
+The batch path's eligibility predicate (**every `depends_on` satisfied per § Claim Front-Matter** — archived **or** `GATE_D_USER_APPROVAL` in `.devops/plans/` — plus no `touches` overlap with any plan in `.devops/plans/`, including plans already batched to `PHASE_9`) is evaluated **immediately before each claim** and re-applied to the remaining queue until **no** remaining plan is eligible — a fixpoint, bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` leaves neither eligible: terminate and flag the cycle as a queue defect). A skip is recorded with its reason and never halts the batch. Stop-the-line triggers and the informed run preview live in the `sprint-run` skill.
 
 ---
 
-*Last reviewed 2026-09-13. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-16. Changes to these rules require human sign-off.*

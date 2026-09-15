@@ -1,8 +1,8 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single fresh context per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 1
-updated: 2026-09-13
+version: 2
+updated: 2026-09-16
 ---
 
 # SKILL: Per-Plan Fast Runner (`ptp-parcel-fast`)
@@ -24,7 +24,7 @@ updated: 2026-09-13
 5. Auto-clear Gate B; record Gate C `N/A`.
 6. Play `ptp-code-surgeon` **inline** (Phases 8-9).
 7. Commit the work with the exact message literal `plan: <code>`.
-8. Set bottom **Status** `PHASE_9`, **Active Persona** `Executor`, leave **Gate D** `OPEN`.
+8. Set bottom **Status** `PHASE_9`, **Active Persona** `Executor`, leave **Gate D** `OPEN`, and set the claim front-matter `claim_status: GATE_D_USER_APPROVAL` — **not** `CLAIMED`. That value is what marks the plan as executed-but-unverified; it is the batch path's terminal claim state, and it is the state a dependent's `depends_on` accepts.
 
 ## Plan Settings writer (frozen preset)
 
@@ -43,13 +43,13 @@ This single-context Phases 1→9 run is the **explicit, machine-enforced Strict 
 - `PHASE_8_FAILED` (rollback after two failed self-healing attempts) → return `HALT <code>: PHASE_8_FAILED`.
 - A self-review `**REJECTED:**` at the inline Phase 6 checkpoint, or a Phase 3.5 `Unresolvable:` → return `HALT <code>: <cause>`. **Never** start an inline `PHASE_5_REVISION` loop — revision belongs to a fresh Group B run, not this locked chain.
 - A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` without re-running.
-- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`.
+- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2 — the two layers must not diverge, or the host claims under the relaxed rule and this check immediately skips, leaving a `CLAIMED` orphan.
 
 ## Output contract
 
 Return exactly one terse line:
 
-- `DONE <code>` — terminal `Status` `PHASE_9`, plus the touched-file list.
+- `DONE <code>` — terminal `Status` `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, plus the touched-file list.
 - `SKIP <code>: <reason>` — nothing written.
 - `HALT <code>: <cause>` — nothing further attempted.
 

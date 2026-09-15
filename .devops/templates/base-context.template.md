@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 13
-updated: 2026-09-15
+version: 14
+updated: 2026-09-16
 
 SEED TEMPLATE — copy to <satellite root>/.opencode/plans/base-context.md and customize.
 
@@ -41,6 +41,8 @@ normalize model aliases inconsistently.
 ## PTP Lifecycle (canonical — 4 gates)
 `QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
+**Claim status (orthogonal to the pipeline `Status`):** `QUEUED` -> `CLAIMED` (Phases 1-8) -> `GATE_D_USER_APPROVAL` (at `PHASE_9`, Gate D `OPEN`) -> `COMPLETE`. `GATE_D_USER_APPROVAL` is the terminal claim state of the `@sprint-run` batch path (it never archives on its own) and of the manual sequential sprint flow alike. `IN_PROGRESS` is retired.
+
 **Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
 **Revision loop:** `PHASE_7` -> (Gate B or C fails) -> `PHASE_5_REVISION` -> `PHASE_5` -> (Phases 6-7 re-run) -> `PHASE_7` -> Gate C
@@ -72,7 +74,7 @@ normalize model aliases inconsistently.
 ## Concurrency & Claims (local, in-workspace)
 - Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
 - Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
-- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- Claim = no unmet `depends_on` (every dependency in `.devops/archive/` **or** in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations). The `touches`-overlap clause is a separate blocker: a satisfied dependency does not clear an overlap.
 - Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, `.devops/logs/version-history.md`) are edited ONLY on the trunk, never inside a plan branch.
 - Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
@@ -87,7 +89,7 @@ normalize model aliases inconsistently.
 | 6 | `ptp-grumpy-architect` | adversarial review | `reviews/arch_review.md` (`PASS` / `**REJECTED:**` first line) |
 | 7 | `ptp-smooth-operator` | product review | `reviews/product_review.md` (`PASS` / `**REJECTED:**` first line) |
 | 8-9 | `ptp-code-surgeon` | execution | Executed code + verification proof |
-| batch (sprint queue) | `ptp-parcel-fast` (spawned by `parcel-sprint` only) | execution | One plan run Phases 1-9 -> `PHASE_9`, Gate D `OPEN` |
+| batch (sprint queue) | `ptp-parcel-fast` (spawned by `parcel-sprint` only) | execution | One plan run Phases 1-9 -> `PHASE_9` (`claim_status: GATE_D_USER_APPROVAL`), Gate D `OPEN` |
 
 ## Model Registry (per-subagent bindings — no hardcoded model names in prose)
 Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.

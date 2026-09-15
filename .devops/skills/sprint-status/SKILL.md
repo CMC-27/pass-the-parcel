@@ -1,8 +1,8 @@
 ---
 name: sprint-status
 description: Make sure to use this skill whenever the user asks "where are we", "sprint status", "how's the sprint going", "what's left in this sprint", "are we on track", /sprint-status, or wants a readout of the current sprint's progress. Reads the active sprint.md, the sprint queue, the active claims in .devops/plans/, and the archive, then produces a burn-up snapshot, flags at-risk or stale claims, and recommends what to work on next. This skill READS state — it writes no files and changes nothing.
-version: 2
-updated: 2026-09-13
+version: 3
+updated: 2026-09-16
 ---
 
 # Sprint Status — Read-Only Burn-Up
@@ -25,7 +25,7 @@ Open `.devops/sprints/sprint-{n}-<slug>/sprint.md`. Extract the **Committed Scop
 For each committed code, find its actual state by checking, in order:
 
 1. `.devops/archive/` contains the plan → `COMPLETE` (archived).
-2. `.devops/plans/` contains the plan → read its claim front-matter: `claim_status` `CLAIMED` or `IN_PROGRESS`, plus `owner` / `last_touch`, and the bottom `Status` phase (`PHASE_1`+).
+2. `.devops/plans/` contains the plan → read its claim front-matter: `claim_status` `CLAIMED` or `GATE_D_USER_APPROVAL` (or `COMPLETE` if wrap-up has run but the move has not), plus `owner` / `last_touch`, and the bottom `Status` phase (`PHASE_1`+). `GATE_D_USER_APPROVAL` means **executed, awaiting the Gate D verdict** — report it as awaiting sign-off, **not** as in-flight work.
 3. Still in the sprint folder with `claim_status: QUEUED` → `QUEUED` (not started).
 4. Not found anywhere → `MISSING` — flag it; the queue and reality disagree.
 
@@ -42,6 +42,7 @@ Capacity: {delivered}/{committed} pts ({%})   Plans: {done}/{total}
 | Code | Plan | Size | State | Owner | Last touch | Note |
 |------|------|------|-------|-------|------------|------|
 | T.. | ... | M | ✅ DONE | — | — | archived {date} |
+| T.. | ... | M | 🟠 AWAITING GATE D | {owner} | {date} | `GATE_D_USER_APPROVAL` at `PHASE_9` — verdict + wrap-up pending |
 | T.. | ... | L | 🔄 CLAIMED | {owner} | {date} | PHASE 8 executing |
 | T.. | ... | S | 🟡 QUEUED | — | — | claimable |
 | T.. | ... | S | ⬜ BLOCKED | — | — | depends on {code} |
@@ -54,7 +55,7 @@ Recommended next: {the highest-priority claimable plan, with why}
 
 - A large (L/XL) plan still `QUEUED` late in the sprint → at risk; recommend splitting or carrying forward.
 - **Stale claims:** a plan in `.devops/plans/` whose `last_touch` is older than the newest changelog entry, or that carries a review flag, is stale — surface it for human review. Staleness is `last_touch` + review flag, **never** a time lease; human-gated phases pause legitimately.
-- **Blocked queue:** a `QUEUED` plan whose `depends_on` codes are not yet in `.devops/archive/` is blocked — do not recommend claiming it.
+- **Blocked queue:** a `QUEUED` plan whose `depends_on` codes are neither in `.devops/archive/` **nor** in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` is blocked — do not recommend claiming it. A dependency that is executed-but-unverified (`GATE_D_USER_APPROVAL`) **does** satisfy it.
 - Delivered points far below pace → note it neutrally; do not editorialise.
 - Any plan whose size estimate looks wrong vs the changelog effort → surface it so the retro can capture the calibration lesson.
 

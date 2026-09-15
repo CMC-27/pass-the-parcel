@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 3
-updated: 2026-09-13
+version: 4
+updated: 2026-09-16
 
 SPRINTS.template.md — seed for a satellite's sprint register.
 Copy to .devops/backlog/SPRINTS.md and fill the Sprint Index from your triaged backlog.
@@ -42,7 +42,7 @@ graph LR
 |-------|-------|--------|------|
 | **Plan** | `@sprint-plan` | `.devops/sprints/sprint-{n}-<slug>/sprint.md` + sprint plan queue + SPRINTS.md row | Start of cycle |
 | **Claim & Execute** | `@pass-the-parcel` (per plan) | Plan claimed → `.devops/plans/` → COMPLETE → `.devops/archive/` | During cycle |
-| **Batch Run** | `@sprint-run` | Every eligible queued plan run Phases 1–9 in one pass, each claimed on the trunk and left at `PHASE_9` Gate D `OPEN` → one consolidated Gate D report | During cycle (optional, unattended) |
+| **Batch Run** | `@sprint-run` | Every eligible queued plan run Phases 1–9 in one pass — eligibility re-evaluated per claim and iterated to a fixpoint (bounded, queue-ordered, cycle-safe) — each claimed on the trunk and left at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN` → one consolidated Gate D report | During cycle (optional, unattended) |
 | **Close** | `@sprint-close` | Retro appended to `sprint.md`; `sprint.md` archived to `.devops/archive/sprints/`; REFACTORING.md update | End of cycle |
 | **Status** | `@sprint-status` | Burn-up readout, no file writes | Anytime mid-cycle |
 

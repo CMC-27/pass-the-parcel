@@ -36,6 +36,8 @@ user-invocable: false
 ## PTP Lifecycle (canonical — 4 gates)
 `QUEUED` -> `CLAIMED` -> `PHASE_1` -> `PHASE_3` -> `PHASE_5` -> `PHASE_7` -> `PHASE_9` -> `COMPLETE`
 
+**Claim status (orthogonal to the pipeline `Status`):** `QUEUED` -> `CLAIMED` (Phases 1-8) -> `GATE_D_USER_APPROVAL` (at `PHASE_9`, Gate D `OPEN`) -> `COMPLETE`. `GATE_D_USER_APPROVAL` is the terminal claim state of the `@sprint-run` batch path (it never archives on its own) and of the manual sequential sprint flow alike. `IN_PROGRESS` is retired.
+
 **Gates (hard stops):** A (Scope, after Phase 3) -> B (Spec & Plan, after Phase 5) -> C (Peer Reviews, after Phase 7) -> D (Implementation, after Phase 9)
 
 **Revision loop:** `PHASE_7` -> (Gate B or C fails) -> `PHASE_5_REVISION` -> `PHASE_5` -> (Phases 6-7 re-run) -> `PHASE_7` -> Gate C
@@ -66,7 +68,7 @@ user-invocable: false
 ## Concurrency & Claims (local, in-workspace)
 - Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
 - Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
-- Claim = no unmet `depends_on` + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- Claim = no unmet `depends_on` (every dependency in `.devops/archive/` **or** in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations). The `touches`-overlap clause is a separate blocker: a satisfied dependency does not clear an overlap.
 - Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, `.devops/logs/version-history.md`) are edited ONLY on the trunk, never inside a plan branch.
 - Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
@@ -92,7 +94,7 @@ user-invocable: false
 5. Auto-clear Gate B; record Gate C `N/A`.
 6. Play `ptp-code-surgeon` **inline** (Phases 8-9).
 7. Commit the work with the exact message literal `plan: <code>`.
-8. Set bottom **Status** `PHASE_9`, **Active Persona** `Executor`, leave **Gate D** `OPEN`.
+8. Set bottom **Status** `PHASE_9`, **Active Persona** `Executor`, leave **Gate D** `OPEN`, and set the claim front-matter `claim_status: GATE_D_USER_APPROVAL` — **not** `CLAIMED`. That value is what marks the plan as executed-but-unverified; it is the batch path's terminal claim state, and it is the state a dependent's `depends_on` accepts.
 
 ## Plan Settings writer (frozen preset)
 
@@ -111,13 +113,13 @@ This single-context Phases 1→9 run is the **explicit, machine-enforced Strict 
 - `PHASE_8_FAILED` (rollback after two failed self-healing attempts) → return `HALT <code>: PHASE_8_FAILED`.
 - A self-review `**REJECTED:**` at the inline Phase 6 checkpoint, or a Phase 3.5 `Unresolvable:` → return `HALT <code>: <cause>`. **Never** start an inline `PHASE_5_REVISION` loop — revision belongs to a fresh Group B run, not this locked chain.
 - A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` without re-running.
-- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`.
+- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2 — the two layers must not diverge, or the host claims under the relaxed rule and this check immediately skips, leaving a `CLAIMED` orphan.
 
 ## Output contract
 
 Return exactly one terse line:
 
-- `DONE <code>` — terminal `Status` `PHASE_9`, plus the touched-file list.
+- `DONE <code>` — terminal `Status` `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, plus the touched-file list.
 - `SKIP <code>: <reason>` — nothing written.
 - `HALT <code>: <cause>` — nothing further attempted.
 

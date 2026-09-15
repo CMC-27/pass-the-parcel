@@ -1,8 +1,8 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 3
-updated: 2026-09-14
+version: 4
+updated: 2026-09-16
 ---
 
 # Sprint Planning
@@ -106,6 +106,10 @@ For each committed item:
 1. `git mv` its parked plan from `.devops/backlog/<code>-<slug>-backlog.md` (legacy: `.devops/backlog/<slug>-backlog.md`) to `.devops/sprints/sprint-{n}-<slug>/{code}-{slug}-plan.md` — the move is the signal that it is committed.
 2. Add/replace the claim front-matter at the top of the moved file (`code`, `sprint: sprint-{n}-<slug>`, `claim_status: QUEUED`, `touches`, `depends_on`). Leave `owner` / `claimed_at` / `last_touch` empty until claimed. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 3. Remove the item from the Triage Panel in `backlog-index.md` (it is tracked by the sprint now).
+
+> **Queue order is the first claim order, not an execution dependency.** Record the rows in the order you intend the runner to try them. `@sprint-run` evaluates eligibility immediately before **each** claim and iterates to a fixpoint (`.devops/skills/sprint-run/SKILL.md` § 2), so a plan listed *above* the dependency it needs is still reached once that dependency is satisfied — by archive (`claim_status: COMPLETE`) or by `GATE_D_USER_APPROVAL` (executed to `PHASE_9`, Gate D `OPEN`). Do **not** topologically sort the queue; state the intent and let the runner resolve it.
+>
+> **Mutual `touches` overlap still serialises a queue, and that is not this skill's to fix yet.** Plans committed together whose `touches` overlap are admitted one at a time, so the sprint needs N sequential waves rather than one batch pass — measured and recorded in Sprint 8's Delivery Model. The preflight that foreshadows that wave count at commit time is the fold target `T1-E3.06 G2` recorded on the `touches`-overlap lesson in `.devops/rules/process-lessons.md`; consult it there rather than restating the rule here.
 
 If a committed item has no plan file yet, tell the user to create it with `@backlog` first — do not hand-write an empty plan.
 

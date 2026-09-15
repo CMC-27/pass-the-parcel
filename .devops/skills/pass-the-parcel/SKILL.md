@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 14
-updated: 2026-09-15
+version: 15
+updated: 2026-09-16
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -42,6 +42,8 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 | `PHASE_8_FAILED` | `Executor` | `.devops/plans/` | `-plan.md` | Gate D | Execution rolled back after two failed self-healing attempts. Orchestrator routes: retry Phase 8 / revise (`PHASE_5_REVISION`) / user decision. |
 | `PHASE_9` | `Executor` | `.devops/plans/` | `-plan.md` | Gate D | Implementation done, verified. Awaiting user sign-off at Gate D. |
 | `COMPLETE` | — | `.devops/archive/` | `-plan.md` | — | Plan archived. No further action. All gates `APPROVED`. |
+
+**Claim status (orthogonal to the `Status` above — the claim front-matter field, never the bottom row).** `QUEUED` → `CLAIMED` (claimed and in flight; Phases 1→8) → `GATE_D_USER_APPROVAL` (executed through `PHASE_9`, Gate D `OPEN`, awaiting the human verdict) → `COMPLETE` (archived). `GATE_D_USER_APPROVAL` is the terminal claim state of **every** path that reaches Phase 9 — the `@sprint-run` batch path (which never archives on its own) and the manual sequential sprint flow alike. `IN_PROGRESS` is retired. It also decides `depends_on`: a code is satisfied by archive **or** by `GATE_D_USER_APPROVAL` — the canonical predicate lives in `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 
 **Lifecycle flow:** `QUEUED` → *(claim)* → `CLAIMED`/`PHASE_1` → `PHASE_3` → `PHASE_5` → `PHASE_7` → `PHASE_9` → `COMPLETE`
 
@@ -156,7 +158,8 @@ Model routing is owned by the **Model Registry** in `.opencode/plans/base-contex
 A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, fresh context each), then emits one consolidated Gate D report.
 
 - **`trunk-sequential`** — keeps the `git mv` + `claim: <code>` commit, drops `git worktree add`.
-- **Batched Gate D** — plans terminate at `PHASE_9` and a single human verdict covers the whole batch; Gate D is deferred, never skipped.
+- **Batched Gate D** — plans terminate at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`; a single human verdict covers the whole batch, and Gate D is deferred, never skipped. `GATE_D_USER_APPROVAL` (not `CLAIMED`) is the state that satisfies a dependent's `depends_on`.
+- **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect).
 - **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
 
 Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.
@@ -200,7 +203,7 @@ To maximize token-savings during interaction and within the plan updates, agents
 Work enters the pipeline from a sprint queue. Do not start a plan that is neither committed to a sprint nor claimed.
 
 1. Locate the plan in the active sprint folder `.devops/sprints/sprint-{n}-<slug>/<code>-<slug>-plan.md` (`claim_status: QUEUED`). If the item is still parked at `.devops/backlog/<code>-<slug>-backlog.md`, it is **not committed** — run `@sprint-plan` first.
-2. **Check eligibility:** no unmet `depends_on` (every dependency present in `.devops/archive/`) and no `touches` overlap with any plan in `.devops/plans/`. If either fails, STOP and report the blocker.
+2. **Check eligibility:** `depends_on` **satisfied** (per `.devops/rules/plan-lifecycle.md` § Claim Front-Matter: every dependency present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) and no `touches` overlap with any plan in `.devops/plans/`. The overlap clause is independent — a satisfied dependency does not clear it. If either fails, STOP and report the blocker.
 3. **Claim on the trunk:** fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint folder to `.devops/plans/<code>-<slug>-plan.md`; commit `claim: <code>`.
 4. **Isolate:** `git worktree add <path> -b plan/<code>-<slug>` from the claim commit. — **except** the `@sprint-run` batch path, which is `trunk-sequential` and skips the worktree (§ Batch Runner).
 5. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):

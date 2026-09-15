@@ -1,8 +1,8 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 4
-updated: 2026-09-14
+version: 5
+updated: 2026-09-16
 ---
 
 # Sprint Close — Retrospective & Hygiene Ritual
@@ -19,7 +19,8 @@ updated: 2026-09-14
 
 Check every plan in the Committed Scope (queue) table:
 - Each should be COMPLETE (`claim_status: COMPLETE`) and present in `.devops/archive/` (root).
-- If any plan is unfinished, do NOT silently drop it — record it as **carry-forward** in the retro (Section 4). A sprint can close with carry-forward; it just means capacity was over-committed. Unfinished plans still in the sprint queue stay parked for the next planning pass (move them back with `git mv` to `.devops/backlog/<code>-<slug>-backlog.md` and reset `claim_status: QUEUED`).
+- **A plan in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` is NOT complete.** It has been executed to `PHASE_9` but the Gate D verdict has not been recorded and the per-plan wrap-up has not archived it — closing over it would retire a sprint containing an unapproved plan. Treat it as unfinished: either get the Gate D verdict and run its wrap-up first, or record it as **carry-forward** in the retro (Section 4) alongside the plans still in the queue.
+- If any plan is unfinished, do NOT silently drop it — record it as **carry-forward** in the retro (Section 4). A sprint can close with carry-forward; it just means capacity was over-committed. Unfinished plans still in the sprint queue stay parked for the next planning pass (move them back with `git mv` to `.devops/backlog/<code>-<slug>-backlog.md` and reset `claim_status: QUEUED`); an executed-but-unverified plan stays in `.devops/plans/` at `GATE_D_USER_APPROVAL` until its verdict lands.
 
 Confirm the sprint-level Definition of Done from `sprint.md`: full suite green, lint clean, build exit 0. Run them if not already verified this session.
 

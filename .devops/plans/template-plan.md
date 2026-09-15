@@ -1,7 +1,7 @@
 ---
 code: T{theme}-E{epic}.{impl}
 sprint: sprint-{n}-<slug>
-claim_status: QUEUED        # QUEUED | CLAIMED | IN_PROGRESS | COMPLETE
+claim_status: QUEUED        # QUEUED | CLAIMED | GATE_D_USER_APPROVAL | COMPLETE
 owner: ""
 claimed_at: ""
 last_touch: "{YYYY-MM-DD}"
@@ -307,7 +307,9 @@ depends_on: ["{code}", "..."]
 
 > **Settings pointer:** `Mode` and `Agents` live in the frozen **Plan Settings** block at the TOP of this file — read them there before any phase. Never duplicate them here.
 
-> Valid states: `QUEUED`, `CLAIMED`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
+> Valid states: `QUEUED`, `CLAIMED`, `GATE_D_USER_APPROVAL`, `PHASE_1`, `PHASE_3`, `PHASE_5`, `PHASE_5_REVISION`, `PHASE_7`, `PHASE_8_FAILED`, `PHASE_9`, `COMPLETE`.
+>
+> `GATE_D_USER_APPROVAL` is a **claim-status** value (top front-matter), not a pipeline phase: a plan carrying it has executed through Phase 9 and sits at bottom `Status: PHASE_9` with Gate D `OPEN`, awaiting the human verdict. Valid `claim_status` enum: `QUEUED | CLAIMED | GATE_D_USER_APPROVAL | COMPLETE` (`IN_PROGRESS` retired — see `.devops/rules/plan-lifecycle.md` § Claim Front-Matter).
 
 | Gate | Requirement | Status |
 |---|---|---|
