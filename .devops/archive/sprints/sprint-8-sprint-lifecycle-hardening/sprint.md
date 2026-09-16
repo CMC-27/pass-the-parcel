@@ -100,7 +100,7 @@ Delivery is therefore **three serial waves**, in the operator-reordered sequence
 - Test count: **0 → 0** — no test suite in this template repo.
 - Lint warnings: **0 → 0** — `wiki_lint` clean; no JS/TS lint configured.
 - Gates: `check-parcel-prefix` **PASS**, `check-utf8-agents` **ALL CLEAN**, `wiki_lint` **0**, `wiki_claims` **0 stale**, `wiki_coverage_check` **OK**, `sync-architecture -SelfTest` **OK**, CI machinery-version predicate **OK** — all re-run green at every wave boundary and at close.
-- `machinery-version`: **43 → 47** (E3.05 43→44 → +1 wrap-up → 45; E3.03 45→46; E3.04 46→47), each with its literal recorded in `version-history.md`.
+- `machinery-version`: **43 → 47**, in three bumps — E3.05 `43 → 44`, E3.03 `44 → 46`… precisely: E3.05 landed at **44**, its wrap-up then carried the release to **45** (a `.devops/rules/` file changed, so the release moved before any satellite consumed 44 — the row documents this inline as *"44 at plan close"*); E3.03 `45 → 46`; E3.04 `46 → 47`. `version-history.md` records **45, 46 and 47** as literals; **44 has no literal row**, deliberately — it never left the workspace. The CI predicate requires only the *current* manifest value to appear, so this is compliant, but the ledger is not a clean 44/45/46/47 sequence and should not be read as one.
 - Capacity: committed **9 pts** / delivered **9 pts** = **100%** — but honest only because all three were size **M**; the *effort* was nearer 12 pts (E3.03 and E3.04 both overran because each one changed the machinery that governs the run). **New calibration signal: a plan that edits the pipeline that is executing it costs roughly +1–2 pts.**
 
 ### Retro: Keep / Drop / Try
