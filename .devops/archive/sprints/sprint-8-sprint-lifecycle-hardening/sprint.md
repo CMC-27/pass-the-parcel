@@ -3,10 +3,10 @@ type: "sprint"
 sprint: 8
 name: "Sprint Lifecycle Hardening"
 slug: "sprint-lifecycle-hardening"
-status: "open"
+status: "closed"
 capacity_points: 10
 created: "2026-09-15"
-closed: ""
+closed: "2026-09-16"
 ---
 
 # Sprint 8: Sprint Lifecycle Hardening
@@ -76,4 +76,48 @@ Delivery is therefore **three serial waves**, in the operator-reordered sequence
 - **T1-E3.05 Phase 3 Q&A is unrecorded.** Its five questions are still open (`[ ]`) rather than resolved; under the spawned `AUTO` preset they are auto-resolved at Phase 3.5, which is a weaker evidence bar than the interactive resolution E3.03/E3.04 received.
 
 ## Retro
-*Appended by `@sprint-close` when the sprint closes. Left empty while the sprint is open.*
+
+### Goal — Met?
+**Yes.** An executed plan at `PHASE_9` with Gate D `OPEN` is now a first-class, machine-checkable claim status (`GATE_D_USER_APPROVAL`) that satisfies a dependant's `depends_on`; the batch host has a coalesced batch wrap-up with a fail-closed confirmation gate; and "Parcel Fast" exists as one entity, subagent-only.
+
+**But achieved through a delivery model materially different from the plan.** The sprint was committed as one queue and expected to batch; it was delivered as **three serial waves**, because all three plans declared mutually-overlapping `touches` and T1-E3.04 required T1-E3.03 to be *archived* before it could be claimed. Three Gate D verdicts were required instead of the batch path's one. The operator approved this at the run preview and then reordered the queue (`05 → 03 → 04`).
+
+### What Shipped
+| Code | Plan | Size | Effort accuracy | Notes |
+|------|------|------|-----------------|-------|
+| T1-E3.05 | Retire the selectable `parcel-fast` orchestrator | M | 3 est / ~3 — **accurate** | Agent file + registry row + presets row + both config entries removed together (bidirectional pairing); prefix re-inlined ×9; `prune_files` entry added. Wave 1. |
+| T1-E3.03 | `GATE_D_USER_APPROVAL` status + dependency predicate + fixpoint runner | M | 3 est / ~5 — **underestimated** | 24 files (15 hand-edited + 9 regenerated). Touches the prefix lock, `plan-lifecycle`, and 6 skills at once. Wave 2. |
+| T1-E3.04 | Batch sprint wrap-up for `parcel-sprint` | M | 3 est / ~4 — **underestimated** | 15 files, plus 11 paths added to `touches` mid-plan after its own change falsified prefix prose. First live use of the scope it defines (it retired itself). Wave 3. |
+
+### Carry-Forward
+| Code | Why not done | New size | Next sprint? |
+|------|--------------|----------|--------------|
+| — | None. All three committed plans reached `COMPLETE` and are archived. | — | — |
+
+### Metrics: Before → After
+- Hot spots (>CCN 15): **not measurable** — the CCN scanner cannot run in this workspace (`spaghetti-monster-scan.cjs` hard-crashes on a missing `src/`: `ENOENT … src`). See G3 in `T1-E3.06`.
+- Files >400 lines (code/machinery, manual pass): **4 → 4** — `sync-architecture.ps1` (995), `app-vision-north-star/SKILL.md` (633), `wiki_lint.py` (485), `package-lock.json` (401, generated). None was touched this sprint, and the ritual has never surfaced any of them because the scanner only walks `src/`.
+- Test count: **0 → 0** — no test suite in this template repo.
+- Lint warnings: **0 → 0** — `wiki_lint` clean; no JS/TS lint configured.
+- Gates: `check-parcel-prefix` **PASS**, `check-utf8-agents` **ALL CLEAN**, `wiki_lint` **0**, `wiki_claims` **0 stale**, `wiki_coverage_check` **OK**, `sync-architecture -SelfTest` **OK**, CI machinery-version predicate **OK** — all re-run green at every wave boundary and at close.
+- `machinery-version`: **43 → 47** (E3.05 43→44 → +1 wrap-up → 45; E3.03 45→46; E3.04 46→47), each with its literal recorded in `version-history.md`.
+- Capacity: committed **9 pts** / delivered **9 pts** = **100%** — but honest only because all three were size **M**; the *effort* was nearer 12 pts (E3.03 and E3.04 both overran because each one changed the machinery that governs the run). **New calibration signal: a plan that edits the pipeline that is executing it costs roughly +1–2 pts.**
+
+### Retro: Keep / Drop / Try
+- **Keep** — the per-wave `run → Gate D verdict → wrap-up` rhythm. It was forced by the overlap predicate, but it produced three small, individually-reviewable, individually-reversible verdicts instead of one large one. It also caught E3.05's capability question and E3.04's product question at the right moment.
+- **Keep** — independently re-running every gate and recomputing the predicate at each wave boundary (rather than trusting the runner's report). The independent predicate implementation caught nothing false, but it *proved* the clause separation live rather than asserting it.
+- **Keep** — declaring scope widening in `touches` **before** editing. Used twice (E3.03's `sprint-close`; E3.04's 11 prefix paths), both recorded, neither silent.
+- **Drop** — committing a sprint queue without checking mutual `touches` overlap first. This is G2, and it cost the sprint its single-verdict batch. Do not repeat.
+- **Drop** — trusting a skill's ritual step to be runnable. `@sprint-close` § 2 crashed and had no target register; both were discovered only at close. This is G3.
+- **Try** — for the next sprint, run the `touches`-overlap test *by hand* at planning time (until G2 lands) and record the resulting wave count in `sprint.md` as part of the queue. Treat N waves as the default, not the exception.
+
+### Lessons for the Wiki / Knowledge Capture
+- **App-domain → none.** This sprint changed no application behaviour; it is machinery end to end. Nothing to add to `.wiki/core/18-knowledge-capture.md`.
+- **Machinery → one existing entry annotated, no new entries.** The session's candidate lesson (`touches` overlap means a queue cannot batch itself) was **already** in `.devops/rules/process-lessons.md` (2026-09-13) *including its planner-facing "do instead"* — adding it again would have been a restatement, which the capture admission gate forbids and the one-entry budget exists to stop. The real gap is that the lesson was never **folded into its owning skill**; it is now annotated with its fold target, `T1-E3.06 G2`. This is the first sprint where the machinery register did **not** grow.
+- **One observation recorded here rather than as a rule:** a capability widening in `opencode.json` silently falsified a sentence in the shared prefix describing the *old* capability, and nothing mechanically forces that coupling — `check-parcel-prefix.ps1` proves the 9 agent copies agree with each other, not that their content is still true. Held up by judgement plus the declare-first rule. **Single edge case** (trigger: the mid-sprint realisation that a leaner wrap-up was needed); its one-off trigger is why it is a retro line and not a process lesson.
+- **Process-lessons register review (sprint-close § 6) — no folds due.** Every entry in `.devops/rules/process-lessons.md` remains valid and unmatured; none was folded into its owning skill this sprint. The one entry with a *pending* fold target is 2026-09-13 (`touches` overlap means an aggregate-bundle queue cannot batch itself) → `T1-E3.06 G2`: it cannot be folded and deleted until G2 ships the `@sprint-plan` preflight, so it correctly stays staged. Register size unchanged (~20 entries, under the ~25 tidy ceiling). Two entries were re-examined against this sprint's evidence and confirmed still live — including 2026-09-13 (the batch preset overrules a sprint's recorded plan settings), which was **not** triggered here because the queue's `USER-MANAGED`/`MULTI` values were unedited scaffold boilerplate rather than operator *rulings* — the discriminator that entry already names.
+
+### New Refactoring Items (→ REFACTORING.md)
+**None.** The close-of-sprint scan could not run (`ENOENT: … src`, see `T1-E3.06` G3), so a **manual** line-count pass over the 50 files the sprint touched was substituted: no file crossed the >400-line or high-CCN threshold. The only code file over 300 lines was `scripts/check-parcel-prefix.ps1` (369), **already** parked as `T1-E2.02` ("Split the `check-parcel-prefix.ps1` god-script").
+
+> **Two blockers to the Kill List update, both filed under `T1-E3.06` G3:** (1) the scanner crashes instead of no-oping without `src/`, and never scans the machinery roots; (2) `.devops/backlog/REFACTORING.md` **does not exist** in this repo — only its seed — so the promotion step has no target and `@sprint-plan`'s Kill List source is empty by construction. The refactoring lane is dormant; adopting the register (as `SPRINTS.md` was adopted at this sprint's planning) is a decision, not an oversight to patch at close.

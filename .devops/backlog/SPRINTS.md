@@ -82,7 +82,7 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 
 | # | Name | Goal | Status | Sprint | Retro |
 |---|------|------|--------|--------|-------|
-| 8 | Sprint Lifecycle Hardening | Make "executed to Gate D" a first-class machine-checkable plan state, give the batch host a coalesced wrap-up, and collapse the fast lane to a single subagent-only entity. | 🟢 ACTIVE | [sprint.md](../sprints/sprint-8-sprint-lifecycle-hardening/sprint.md) | — |
+| 8 | Sprint Lifecycle Hardening | Make "executed to Gate D" a first-class machine-checkable plan state, give the batch host a coalesced wrap-up, and collapse the fast lane to a single subagent-only entity. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md) | [retro](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md#retro) |
 
 ---
 

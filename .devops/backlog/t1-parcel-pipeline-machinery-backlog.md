@@ -50,7 +50,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| T1-E3.06 | Sprint 8 gate & preflight coverage gaps | QUEUED | Two defects surfaced while executing Sprint 8: `.devops/sprints/**` sits outside `check-utf8-agents.ps1`'s scope (queue plans lose encoding coverage), and `@sprint-plan` never tests mutual `touches` overlap across the set it commits, so it can commit a queue that the batch runner can only ever execute one wave at a time. | [parked](./t1-e3.06-sprint-8-gate-preflight-gaps-backlog.md) |
+| T1-E3.06 | Sprint 8 gate & preflight coverage gaps | QUEUED | Three deterministic coverage gaps surfaced while executing Sprint 8: `.devops/sprints/**` sits outside `check-utf8-agents.ps1`'s scope (queue plans lose encoding coverage); `@sprint-plan` never tests mutual `touches` overlap across the set it commits, so it can commit a queue the batch runner can only execute one wave at a time; and `spaghetti-monster-scan.cjs` crashes on a repo with no `src/` instead of no-oping, while never scanning the machinery roots (`scripts/`, `.devops/skills`, `.devops/agents`, `.devops/templates`). | [parked](./t1-e3.06-sprint-8-gate-preflight-gaps-backlog.md) |
 
 ### Completed
 

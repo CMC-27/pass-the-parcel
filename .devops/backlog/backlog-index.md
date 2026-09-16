@@ -19,7 +19,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 | Tier | Code | Title | Size | Note |
 |------|------|-------|------|------|
-| 🟡 NEXT | T1-E3.06 | Sprint 8 gate & preflight coverage gaps | S | Two gaps found while executing Sprint 8: `.devops/sprints/**` is outside `check-utf8-agents.ps1`'s scan scope, and `@sprint-plan` never tests mutual `touches` overlap across the set it commits. |
+| 🟡 NEXT | T1-E3.06 | Sprint 8 gate & preflight coverage gaps | S | Three deterministic coverage gaps found while executing Sprint 8: `.devops/sprints/**` is outside `check-utf8-agents.ps1`'s scan scope; `@sprint-plan` never tests mutual `touches` overlap across the set it commits; and `spaghetti-monster-scan.cjs` crashes on a repo with no `src/` and never scans the machinery roots. |
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in `TRIAGE.md` (seed: `.devops/templates/TRIAGE.template.md`).
 
