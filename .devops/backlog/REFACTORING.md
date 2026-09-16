@@ -1,0 +1,132 @@
+---
+type: "process"
+name: "Code Quality & Refactoring Register"
+status: "active"
+description: "Living audit of code complexity, coupling, and test health. Process-driven — items enter here from end-of-cycle checks, not roadmap planning."
+last_scan: "2026-09-16"
+---
+# 🔧 Pass the Parcel — Code Quality & Refactoring Register
+
+> **What this is:** A living audit of complexity debt across the workspace. Items here are NOT backlog features — they are maintenance work triggered by a process. Feature work goes in [backlog-index.md](./backlog-index.md)'s Triage Panel; refactoring goes here.
+
+> **Adopted 2026-09-16** from [`REFACTORING.template.md`](../templates/REFACTORING.template.md) at `T1-E3.06` G3 — the register had no live copy, so `@sprint-close`'s promotion step and `@sprint-plan`'s Kill List source both pointed at nothing. This repo has no `.devops/backlog/TRIAGE.md`; the Triage Panel lives in [backlog-index.md](./backlog-index.md).
+
+---
+
+## 🔄 The Process
+
+Refactoring items enter this register through three triggers:
+
+| Trigger | When | Who |
+|---------|------|-----|
+| **End-of-parcel check** | After each parcel wrap-up, scan the files it touched. If any exceeds the thresholds below, log an item here. | `@agent-wrap-up` skill |
+| **Sprint-close scan** | At the end of every sprint, `@sprint-close` § 2 runs the scanner across the files touched that sprint and refreshes the Kill List. This is the primary rhythm. | `@sprint-close` skill |
+| **CI signal** | A flaky gate, OOM, or lint regression is detected. Log as an infrastructure item. | Any session |
+
+### Thresholds for Flagging
+
+| Metric | Warning | Critical | Action |
+|--------|---------|----------|--------|
+| CCN (per function) | >15 | >25 | Extract a helper / split the function / consolidate branches |
+| File lines | >400 | >800 | Decompose into focused modules |
+| Import count (CBO proxy) | >12 | >20 | Reduce coupling, extract shared logic |
+| Export count (god utility) | >8 | >15 | Split into focused modules |
+| Test file mounts | >3 | >5 | Isolation-first refactor |
+
+When a file crosses a threshold, add it to the Kill List below with a one-line note on *why* and *what changed*.
+
+> **Scan scope is app source *and* machinery.** `scripts/spaghetti-monster-scan.cjs` walks `src/` plus `scripts/`, `.devops/skills/`, `.devops/agents/`, `.devops/templates/`. This workspace has **no `src/` tree** — that root prints a one-line skip and the machinery roots are scanned under these same thresholds. An absent root is a clean no-op, never a crash and never a silent skip.
+
+---
+
+## 📊 Current Scan Results
+
+### First machinery scan — 2026-09-16 (all roots)
+
+```
+node scripts/spaghetti-monster-scan.cjs
+no src/ tree in this workspace — skipping (nothing to scan there)
+=== TOP 40 SOURCE+TEST RISK (unified kill list) ===
+roots: src/ (app) + scripts/, .devops/skills/, .devops/agents/, .devops/templates/ (machinery)
+non-ECMAScript rows (`imp`/`fn`/`CCN` shown as `-`) are ranked on line count only.
+
+rank | source                                                  | lines | imp | fn | CCN(h) | test      | risk
+   1 | scripts\spaghetti-monster-scan.cjs                      |   254 |   2 |   8 |     79 | (no test) | 49.0
+   2 | scripts\sync-architecture.ps1                           |   995 |   - |   - |      - | (no test) | 13.9
+   3 | .devops\skills\app-vision-north-star\SKILL.md           |   634 |   - |   - |      - | (no test) |  6.7
+   4 | scripts\wiki_lint.py                                    |   486 |   - |   - |      - | (no test) |  3.7
+   5 | scripts\check-parcel-prefix.ps1                         |   370 |   - |   - |      - | (no test) |  1.4
+```
+
+Two caveats, both load-bearing when reading this table:
+
+- **`CCN(h)` is a regex heuristic, not an AST count.** It counts `if (`/`case`/`for (`/`&&`/`||`/`?`/`??` occurrences, including those *inside regex literals* — so it is inflated for regex-heavy files (rank 1 is the scanner itself). Treat line count as the reliable column and the CCN figure as a pointer, not a measurement.
+- **`-` means "not measured", not "clean".** Non-ECMAScript files (`.ps1`/`.py`/`.md`) are ranked on line count only; the CCN/import/export regexes are ECMAScript-shaped and would report prose noise as complexity.
+
+### Kill List (ranked by risk × effort)
+
+| File | Lines | CCN(h) | Imports | Status | Plan | Flagged by |
+|------|-------|--------|---------|--------|------|-----------|
+| `scripts/sync-architecture.ps1` | 995 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold |
+| `scripts/spaghetti-monster-scan.cjs` | 254 | 79 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless |
+| `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 — >400 warn: split into `SKILL.md` + `references/` |
+| `scripts/wiki_lint.py` | 486 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 — >400 warn |
+| `scripts/check-parcel-prefix.ps1` | 370 | — | — | 🟡 PLANNED | [`T1-E2.02`](./t1-e2.02-check-parcel-prefix-split-backlog.md) | Pre-existing (`T1-E2.02`); under the 400-line threshold, parked on branch-count grounds |
+| `scripts/wiki_claims.py` | 296 | — | — | ⚪ WATCH | — | Below every threshold — listed because it is the next-largest script, not because it is flagged |
+
+**Status legend:** 🔴 OPEN (flagged, no plan) · 🟡 PLANNED (plan file exists) · 🔄 IN PROGRESS · ✅ RESOLVED (move to the Completed table) · ⚪ WATCH (below threshold, tracked for trend).
+
+> **Not a duplicate of the backlog.** Parked plan `T1-E2.02` (split the `check-parcel-prefix.ps1` god-script) is a *plan*, not a backlog feature, and is linked above as this row's disposition. No row here creates a feature-backlog item — per `@sprint-close` § 2, the scan's output feeds this register only.
+
+---
+
+## ✅ Completed Refactors
+
+*Items that were flagged and resolved. Kept for trend visibility.*
+
+| Date | File(s) | What was done | Source |
+|------|---------|---------------|--------|
+| — | — | *(empty — the register was adopted 2026-09-16, so no refactor has yet been recorded against it)* | — |
+
+---
+
+## 🧪 Test Infrastructure Health
+
+*Update at each sprint close.*
+
+| Metric | Value | Last Checked |
+|--------|-------|-------------|
+| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-16 |
+| Total tests | 0 | 2026-09-16 |
+| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-16 |
+| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-16 |
+| Lint warnings | 0 | 2026-09-16 |
+
+The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/wiki_visualize.py --check`, and `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
+
+### Remaining Test Work
+
+| Item | Status | Note |
+|------|--------|------|
+| Machinery fixture tests | 🔴 OPEN | Only `sync-architecture.ps1 -SelfTest` exercises a script against a fixture. `T1-E3.09` plans the first `scripts/sprint_eligible.py` fixture test; no equivalent exists for the other scripts. |
+
+---
+
+## 🗑️ Dead Code Candidates
+
+*Unwired but tested library code awaiting disposition.*
+
+| File(s) | Orphaned by | Decision needed | Linked item |
+|---------|------------|-----------------|-------------|
+| — | — | *(none — this scan is metrics-only; dead-code detection is `@spaghetti-monster`'s job, run on demand)* | — |
+
+---
+
+## 📐 Structural Notes
+
+- **This file is process-driven, not roadmap-driven.** Items appear here because code got complex, not because someone planned a feature.
+- **Plans move backlog → sprint queue → `.devops/plans/` → archive.** This register tracks them but does not duplicate their content.
+- **The Kill List is ranked by risk × effort.** High-risk files touched often get priority over rarely-touched internals.
+- **Full scans run at sprint close** via `@sprint-close` § 2, which invokes `scripts/spaghetti-monster-scan.cjs` across the sprint's touched scope; its output feeds the Current Scan Results section above.
+- **When in doubt about whether something belongs here vs the backlog:** if it changes user-visible behavior, it is a feature (backlog). If it only changes internal structure, it is refactoring (here).
+- **The lane is opt-in per repo.** A satellite without this file is not broken — `@sprint-close` § 2 records the scan findings in the retro instead of promoting them, and says so. See `.devops/templates/SATELLITE-BOOTSTRAP.md` for the seed.

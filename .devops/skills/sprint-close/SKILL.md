@@ -1,7 +1,7 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 5
+version: 6
 updated: 2026-09-16
 ---
 
@@ -32,6 +32,10 @@ This is the process trigger that keeps refactoring out of the feature backlog:
 2. Invoke `@spaghetti-monster` scoped to those touched areas (or run `scripts/spaghetti-monster-scan.cjs` directly for a quick metric pass).
 3. For any file now crossing a threshold (CCN>15 warn / >25 critical, >400 lines, etc. per `.devops/backlog/REFACTORING.md` § Thresholds), add it to the REFACTORING.md Kill List with a note: *"Flagged at close of sprint {n} by {file change}."*
 4. Update REFACTORING.md's "Completed Refactors" table for anything this sprint cleaned up.
+
+**Scan scope — app source *and* machinery.** `scripts/spaghetti-monster-scan.cjs` walks `src/` (the app surface) **plus** the machinery roots `scripts/`, `.devops/skills/`, `.devops/agents/`, `.devops/templates/`, under the same thresholds. A missing root prints a one-line skip and exits `0` — never a crash, and never a silent skip. Rows whose `imp`/`fn`/`CCN` columns show `-` are non-ECMAScript files (`.ps1`/`.py`/`.md`): they are ranked on **line count only**, which is the load-bearing signal for the machinery pass. Read `-` as "not measured", never as "clean".
+
+**The refactoring lane is opt-in per repo.** Step 3's promotion — and § 6's "Ensure REFACTORING.md reflects the scan results" — need `.devops/backlog/REFACTORING.md` to exist (adopted from `.devops/templates/REFACTORING.template.md`). If it does **not** exist, do not create it implicitly: run the scan anyway and write its findings into the retro's **New Refactoring Items** section, stating plainly that the register is absent, so the lane is dormant and the flags have nowhere to land. A skipped promotion is a *recorded* decision — never a silent one.
 
 The scan output does NOT create new feature-backlog items. It only feeds REFACTORING.md.
 
@@ -91,7 +95,7 @@ A closed sprint is a historical record: move the whole sprint folder to the arch
 ## 6. Update the Registers
 
 - In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Update `last_sprint`.
-- Ensure REFACTORING.md reflects the scan results (Step 2).
+- Ensure REFACTORING.md reflects the scan results (Step 2) — when the register exists; otherwise the retro's **New Refactoring Items** section carries them, with the register's absence stated.
 - Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC.
 - Do NOT auto-open the next sprint. Tell the user the current one is closed and they can run `@sprint-plan` when ready, carrying forward the "capacity accuracy" line so the next plan suggests a better budget.
 

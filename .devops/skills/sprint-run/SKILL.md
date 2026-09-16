@@ -1,7 +1,7 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, fresh context each), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 3
+version: 4
 updated: 2026-09-16
 ---
 
@@ -39,8 +39,7 @@ A queued plan is **eligible** iff all three hold:
 2. Every code in its `depends_on` is **satisfied** — present in `.devops/archive/` (wrapped up and archived), **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` (executed through `PHASE_9` in this batch or a prior wave, Gate D `OPEN`, awaiting the human verdict). Any other state is **unmet**: still `QUEUED` in the sprint folder, or `CLAIMED` in `.devops/plans/` below `PHASE_9` (in flight). This is the **dependency** clause only — see clause 3 for the independent write-set clause.
 3. **No overlap** between its `touches` and the `touches` of **any** plan file currently in `.devops/plans/` (the template excluded) — **including plans already batched to `PHASE_9`**.
 
-**Normalization + overlap rule.** Normalize each entry (forward slashes, lowercase, strip a trailing `/**` or `/*`). Entry A overlaps entry B when either normalized stem is a path-prefix of, or equal to, the other.
-> `ponytail:` prefix-overlap heuristic — a mid-path wildcard (e.g. `src/*/db`) is not detected; upgrade path = segment-wise glob intersection.
+**Normalization + overlap rule.** Canonical in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Write-Set Overlap Predicate*: normalize each entry (forward slashes, lowercase, strip a trailing `/**` or `/*`); A overlaps B when either normalized stem is a path-prefix of, or equal to, the other. Cite that definition — never restate a second dialect here.
 
 **Queue-pairwise check (still-`QUEUED` set).** Before the first claim, run the same overlap test across every queued plan's `touches` pair. Two queued plans that overlap each other are ordered by **queue order**: the first is claimed, the later one is **skipped with its reason recorded**. If the overlap is only discovered at claim time, the outcome is the same — a recorded skip, never a silent drop and never a halt.
 

@@ -3,7 +3,7 @@ title: Process & Tooling Lessons
 tags: [dev, rules, process, lessons, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-14
+last-reviewed: 2026-09-16
 related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-capture/SKILL.md, ../skills/knowledge-consolidation/SKILL.md]
 ---
 
@@ -26,8 +26,6 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 - **[2026-09-13] A contract-coverage AC must name an *exported* seam** — "derived from `BriefEditForm`'s field config" was untestable (T22-E1.02) because the config is module-local. *Do instead:* pin the exact export (add it, and declare it in the file steps) or state plainly that the test is a hand-maintained snapshot that does not guard drift.
 
 - **[2026-09-13] The `@sprint-run` batch preset silently overrules a sprint's recorded plan settings** — the batch's locked `AUTO` + `SINGLE` overwrites each plan's frozen `## ⚙️ Plan Settings` at claim time, so a sprint that ruled its bundles `USER-MANAGED` gets those gates auto-cleared regardless. *Do instead:* grep the sprint queue for `USER-MANAGED`/`MULTI` rulings and get explicit operator acceptance before firing a batch.
-
-- **[2026-09-13] `touches` overlap means an aggregate-bundle queue cannot batch itself** — packages that share files are admitted one at a time, because a plan holds its files at `PHASE_9` until Gate D + archive. *Do instead:* give batch-queued bundles disjoint `touches`, or plan for N sequential passes. *Fold target (proven live by Sprint 8, 2026-09-15):* **T1-E3.06 G2** — `@sprint-plan` still commits a mutually-overlapping set without foreshadowing the wave count, so the lesson is matured and needs folding into that skill rather than restating here.
 
 - **[2026-09-14] A plan whose premise has vanished is archived as resolved, never re-queued** — re-parking it `QUEUED` creates a phantom item a later `@sprint-plan` can pull and burn a parcel on. *Do instead:* archive it to `.devops/archive/` with a Completion Note and sweep the stale "still parked" claims out of the registers.
 

@@ -80,6 +80,19 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 5. **Complete.** Set `claim_status: COMPLETE`; `git mv` the plan to `.devops/archive/` (root); commit; merge the branch back to the trunk locally; prune the worktree. **`@sprint-run` batched Gate D exception:** the plan terminates at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, and archives per plan only after the single consolidated human verdict plus the follow-up batch wrap-up (§ Deviations); with no branch, there is nothing to merge or prune.
 6. **Shared files stay on trunk.** `sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, and `.devops/logs/version-history.md` are edited only on the trunk at merge/close time — never inside a plan branch. (`ponytail:` ceiling — the changelog is written by the trunk, not the branch; upgrade path is per-plan changelog fragments.)
 
+### Write-Set Overlap Predicate (canonical — cite it, never restate it)
+
+The one definition of `touches` overlap. It is cited by `@sprint-run` § 2 (per-claim eligibility) and `@sprint-plan` § 4 (commit-time wave preflight). Do not fork a second dialect: a drifted predicate either admits a colliding claim or serialises a disjoint queue.
+
+- **Normalize** each `touches` entry: forward slashes, lowercase, strip a trailing `/**` or `/*`.
+- **Entry overlap:** A overlaps B when either normalized stem is a path-prefix of, or equal to, the other.
+- **Plan overlap:** two plans overlap when *any* entry of one overlaps *any* entry of the other.
+- **Consequence:** an overlapping plan is **not claimable** while the other plan sits in `.devops/plans/` — including a plan already batched to `PHASE_9` (`claim_status: GATE_D_USER_APPROVAL`, not yet archived). This is a **separate blocker** from `depends_on`: a satisfied dependency does not clear it.
+
+> **Never relax the predicate to make a queue batch in one pass.** Overlap on the shared surfaces (`base-context.md`, `sync-manifest.yaml`, `.devops/logs/version-history.md`) is real — concurrent edits would corrupt the prefix lock and the `machinery-version` bump. A queue that overlaps is an **N-wave queue**: the fix is to *report* N at planning time, when trimming or reordering is still cheap.
+>
+> `ponytail:` ceiling — a mid-path wildcard (`src/*/db`) is not detected; upgrade path = segment-wise glob intersection.
+
 ## Cache-Anchored State & Gates
 
 - The **Plan Settings** block (`Mode` + `Agents`) is frozen config at the **TOP** of every plan file — written once at plan start, never edited after.

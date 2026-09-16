@@ -13,6 +13,8 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 > **Maturity, not queue.** Per-axis template maturity and next levers live in [`MATURITY.md`](MATURITY.md) — this index tracks work items; that register tracks how healthy each axis is.
 
+> **Code quality is a separate lane.** Complexity/debt items live in [`REFACTORING.md`](./REFACTORING.md) — process-driven maintenance fed by the sprint-close scan, not roadmap work. Refactoring never enters the Triage Panel below.
+
 ---
 
 ## Triage Panel

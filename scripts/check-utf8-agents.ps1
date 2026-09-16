@@ -1,6 +1,6 @@
 # Encoding guard: detect UTF-8 mojibake and replacement chars in machinery files.
 # Scans agent files (.devops/agents/*.agent.md + *.subagent.md), all skill sources
-# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs), the
+# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs, sprints), the
 # dev-rules layer + seed templates (.devops/rules, .devops/templates — both portable
 # and agent-read, so mojibake there propagates to every satellite), the full wiki
 # (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus generated `docs/`
@@ -17,7 +17,7 @@ $targets = @()
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.agent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.subagent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
-foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates')) {
+foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates', '.devops\sprints')) {
     $targets += Get-ChildItem -Path (Join-Path $root $dir) -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 }
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to
