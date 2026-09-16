@@ -20,7 +20,6 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 | Tier | Code | Title | Size | Note |
 |------|------|-------|------|------|
 | 🔴 NOW | T1-E2.06 | Portable-surface fold review | M | **Ordering constraint: land before the next satellite pull** — otherwise the one machinery lesson a satellite authored (`[2026-09-16] A register row reading COMPLETE is a claim, not a measurement`) is erased by the merge-by-name overwrite of `.devops/rules/process-lessons.md`. F1 is independently shippable as a one-liner. Also: deletes two matured/stale register entries (F2), folds the exported-seam AC rule into `ptp-high-visionary` Phase 4 (F3), rescopes `@agent-wrap-up` Phase 7b's `machinery-version` bump to the template (F4), and documents the pull's merge-by-name semantics (F5). |
-| 🟡 NEXT | T1-E3.06 | Sprint 8 gate & preflight coverage gaps | S | Three deterministic coverage gaps found while executing Sprint 8: `.devops/sprints/**` is outside `check-utf8-agents.ps1`'s scan scope; `@sprint-plan` never tests mutual `touches` overlap across the set it commits; and `spaghetti-monster-scan.cjs` crashes on a repo with no `src/` and never scans the machinery roots. |
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in `TRIAGE.md` (seed: `.devops/templates/TRIAGE.template.md`).
 
