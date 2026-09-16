@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 17
+version: 18
 updated: 2026-09-16
 ---
 
@@ -223,9 +223,9 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
   * **Phase 2 (Requirements Gathering):**
     * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to run the Forensic Context Inventory — wiki core docs, knowledge capture, and source code verification.
   * **Phase 3 (User Clarification):**
-    * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to interrogate the user — **one question at a time** via the ask-questions tool (`vscode_askQuestions` / `question`), never batched — surface architectural conflicts inline, and capture the final validation before halting at Gate A.
+    * **CRITICAL:** Continue executing the **`ptp-context-hunter`** skill to interrogate the user via the ask-questions tool (`vscode_askQuestions` / `question`) — the whole set in one call where the tool takes a question **array**, one call per question otherwise, with the final `"Is this all the context required?"` confirm always asked on its own — surface architectural conflicts inline, and capture the final validation before halting at Gate A.
   * **Phase 3.5 (AUTO mode only):**
-    * Initialize and execute the **`ptp-phase3-answerer`** skill to auto-resolve the pending questions from the Research Map. Any `Unresolvable:` entry is a hard halt — fall back to asking the user directly, one question at a time.
+    * Initialize and execute the **`ptp-phase3-answerer`** skill to auto-resolve the pending questions from the Research Map. Any `Unresolvable:` entry is a hard halt — fall back to asking the user directly, in the Phase 3 questionnaire mode (see GROUP A above).
 * **HALT POINT (Gate A — Scope):** Once the final validation question is answered Yes and Phase 3 is fully populated, set **Status** → `PHASE_3`, **Active Persona** → `Scoper`, and halt. Present the scope perimeter + Phase 3 Q&A record at **Gate A**. The user approves the scope before planning begins. On rejection: Status → `PHASE_1`, Gate A → `REJECTED`, re-run the affected questions.
 
 ### GROUP B: Wiki Spec & Implementation Planning (Phases 4-5)

@@ -76,7 +76,7 @@ depends_on: ["{code}", "..."]
 
 ---
 
-> **HALT POINT (Gate A — Scope):** Phases 1-3 complete (+ Phase 3.5 auto-resolutions in AUTO mode). Set Status -> `PHASE_3`, Active Persona -> `Scoper`. Present the scope perimeter + Phase 3 Q&A record; the user approves the scope before planning begins. On rejection: Status -> `PHASE_1`, Gate A -> `REJECTED`, re-run the affected questions. Questions are relayed to the user **one at a time** via the ask-questions tool — never batched.
+> **HALT POINT (Gate A — Scope):** Phases 1-3 complete (+ Phase 3.5 auto-resolutions in AUTO mode). Set Status -> `PHASE_3`, Active Persona -> `Scoper`. Present the scope perimeter + Phase 3 Q&A record; the user approves the scope before planning begins. On rejection: Status -> `PHASE_1`, Gate A -> `REJECTED`, re-run the affected questions. Questions are relayed to the user via the ask-questions tool in the Phase 3 questionnaire mode — the whole set in one call where the tool takes a question **array**, one call per question otherwise; the final confirm is always standalone.
 
 ---
 

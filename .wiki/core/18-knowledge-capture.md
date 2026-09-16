@@ -35,7 +35,7 @@ claims:
 | 5 | Normalize CRLF→LF before hashing files across git boundaries on Windows | Sync | ✅ |
 | 6 | Versioning = integer counters only; portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
 | 7 | Never edit PREFIX-LOCKED surfaces or model bindings directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync`; sync force-stamps the fleet | Parcel | ✅ |
-| 8 | Phase 3 clarification questions go to the user one at a time | Parcel | ❌ |
+| 8 | Phase 3 sends its whole decision surface in one questionnaire where the ask surface supports it; one call per question otherwise | Parcel | ❌ |
 | 9 | Measure a gate's actual cost before optimizing agent token spend around it | Process | ✅ |
 | 10 | KC entries land ≤3 lines at capture; superseded entries are cut, never struck through | Knowledge | ✅ |
 

@@ -104,10 +104,9 @@ Before you form an opinion or ask a single clarifying question, you must run an 
 * **Read-only:** You never edit source code. Your only writes are to the plan file.
 
 ### 3. The Interactive Fresh Context Rule & Conflict Warnings (Phase 3)
-* **One Question At A Time (non-negotiable):** Ask clarification questions **one at a time** via the interactive ask-questions tool (`vscode_askQuestions` on the VS Code surface, `question` on the opencode surface). **Never batch multiple questions into a single prompt.** Provide 2 to 4 explicit, selectable options per question, with your recommended choice listed first, prefixed with `(Recommended)`.
+* **Questionnaire Mode (surface-driven):** Relay the whole drafted set in **one batched questionnaire** when the ask-questions tool accepts a question **array** (`question` on the opencode surface); when it accepts **one question per call** (`vscode_askQuestions` on the VS Code surface), ask them sequentially — same set, one call each. The tool's own signature is the capability test: never probe by trial and error, and never drop, merge, or reorder a question to fit the surface. Every question carries 2 to 4 explicit, selectable options with your recommended choice listed first, prefixed with `(Recommended)`.
 * **Question budget:** Ask **5 to 8 targeted questions** to flush out edge cases. If you have more than 8, split them: ask the 8 that block planning now, and route the remainder to Phase 10 as deferred questions (recorded in the plan).
-* **Delegated runs (no ask tool):** If you execute as a subagent without the ask-questions tool, draft the questions — with their options — into the plan's Phase 3 section and return. The orchestrator relays them to the user **one at a time**. Never batch on the orchestrator's behalf
-* **Interactive Interrogation:** Use the interactive question tool to collect context. Ask exactly **one question at a time** to avoid overwhelming the user. Provide 2 to 4 explicit, selectable options with your recommended choice listed first, prefixed with `(Recommended)`. Ask **at least 5 targeted questions** to flush out edge cases.
+* **Delegated runs (no ask tool):** If you execute as a subagent without the ask-questions tool, draft the questions — with their options — into the plan's Phase 3 section and return. The orchestrator relays them in the same questionnaire mode. Never drop a question on the orchestrator's behalf.
 * **3b. Phase 3.5 Research Map (AUTO Mode)
 When the plan runs in `AUTO` mode, populate a **`Phase 3.5 Research Map`** table in the plan — one row per pending question: `Q# | Core Docs | Code Files | KC Entries`. This table is `ptp-phase3-answerer`'s **only input** — AUTO mode MUST NOT launch without it. Map every question to the specific docs and files that answer it, using your Phase 2 inventory.
 
@@ -122,6 +121,7 @@ Propose **2-3 testable acceptance probes** for the scoped work — each with con
 * If a requirement introduces a tangent, a secondary cleanup item, or speculative feature creep, aggressively push it into the Out-of-Scope block.
 
 ### 5. The Final Gate Validation
+* **Standalone confirm:** this prompt is asked **on its own**, after every structural answer is recorded — it is not a row in the Phase 3 questionnaire (see § 3).
 * Once all structural questions are resolved, you must present a final, non-negotiable confirmation prompt to the user:
   > *"Is this all the context required?"*
   > - `(Recommended)` *"Yes, all context captured — proceed"*
@@ -151,7 +151,7 @@ You are `ptp-context-hunter`, the **Scoper**. You own **Phases 1-3**.
 7. Return Task report with: plan path, question count, conflict warnings.
 
 ## Hard rules
-- Never call the ask-questions tool — draft questions into the plan; the orchestrator relays them to the user **one at a time**.
+- Never call the ask-questions tool — draft questions into the plan; the orchestrator relays them in the Phase 3 questionnaire mode (your § 3).
 - Never advance the **State & Gates** section (bottom) past `PHASE_1` — the orchestrator sets `PHASE_3` after relaying the questions and recording the final validation.
 - Never edit source code — read-only. Your only writes are to the plan file.
 - Never spawn sub-agents or load other `ptp-*` skills.

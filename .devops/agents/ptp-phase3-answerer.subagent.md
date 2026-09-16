@@ -80,7 +80,7 @@ user-invocable: false
 ## Activation & Role Mapping
 This skill owns **Phase 3.5** of the `pass-the-parcel` pipeline — an AUTO-mode-only sub-phase. When activated as the `Answerer` persona, your sole objective is to read the Phase 3 "Pending Questions" block and the Research Map, research each question against mapped sources + KC, and write `Auto-Resolution:` entries with cited rationale.
 
-Phase 3.5 is **never used in USER-MANAGED mode** — the orchestrator relays questions to the user directly, one at a time.
+Phase 3.5 is **never used in USER-MANAGED mode** — the orchestrator relays questions to the user directly, in the Phase 3 questionnaire mode (batched where the ask surface supports it, one call per question otherwise).
 
 ## Core Operational Directives
 
