@@ -19,6 +19,8 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 
 ## Parcel & Sprint Mechanics
 
+- **[2026-09-16] In a self-referential sprint a plan's `touches` goes stale as its siblings land** — waves 1 and 2 of Sprint 9 each found 2-4 authored files missing from the claim front-matter: surfaces named in the plan's own Constraints/steps, *plus* files that became the canonical home only **after** an earlier wave landed (E3.06 moved the AUTO clause into `plan-lifecycle.md`, which E3.07 then had to declare). *Do instead:* re-verify `touches` against the plan's body **and** against the live canonical-home convention immediately before claiming — a claim-time amendment is a protocol deviation, not a bookkeeping fix.
+
 - **[2026-09-10] Verify a cleanup parcel's orphan premise before deleting** — a feature shipped *after* the backlog item was filed may have re-wired the "orphan" (T19-E1a's engines were re-imported by T23-E1). *Do instead:* re-grep the current import graph first; if the premise is stale the parcel is a no-op, not a deletion.
 
 - **[2026-07-18] Conflicting Phase 3 answers must not be silently resolved** — when Q3 says "5 tests" and Q5 says "3 tests" for the same file, halt at the gate with the conflict enumerated. *Do instead:* surface both at Gate B and get explicit resolution.
