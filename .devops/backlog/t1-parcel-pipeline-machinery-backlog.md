@@ -33,6 +33,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
 | T1-E2.02 | Split the `check-parcel-prefix.ps1` god-script | PARKED | Four unrelated concerns in one pass (registry, prefix integrity, skill embeds, binding integrity). Extract the binding checks to `scripts/check-model-bindings.ps1`; wire into `portable_files`, `validate.yml` and `-Verify`. Flagged by T1-E1.03's Phase 6 triage. | [parked](../t1-e2.02-check-parcel-prefix-split-backlog.md) |
+| T1-E2.06 | Portable-surface fold review | QUEUED | The `@sprint-close` § 6 fold review cannot be executed in a satellite: both homes for a folded rule (`.devops/rules/**`, `.devops/skills/**`) are on the portable surface, so a local delete is restored and a local fold reverted by the next pull. Five findings — F1 a satellite's only locally-authored lesson is erased by the next pull (measured: this repo 18 entries, the satellite 15, exactly one satellite-unique); F2 two register entries have matured and should be deleted; F3 one rule is genuinely unfolded (`ptp-high-visionary` Phase 4 directive 3); F4 `@agent-wrap-up` Phase 7b orders satellites to bump `machinery-version`, which the sync then stamps away; F5 pull semantics are a merge by name, undocumented. Routed from GRID-Link's Sprint 8 close, 2026-09-16. | [parked](./t1-e2.06-portable-surface-fold-review-backlog.md) |
 
 ### Completed
 
