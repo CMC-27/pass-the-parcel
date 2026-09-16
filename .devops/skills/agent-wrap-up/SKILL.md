@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 12
+version: 13
 updated: 2026-09-16
 ---
 
@@ -53,6 +53,8 @@ Wrap-up normally closes **one** plan. The **batch scope** closes a sprint's whol
 **Input.** A list of plan codes. Omitted → every plan in `.devops/plans/` carrying `claim_status: GATE_D_USER_APPROVAL`. An empty list is a no-op, not an error.
 
 **Rule — every phase once, except Phase 4.** Phases 0, 1, 2, 3, 5, 6 and 7a/7b run **once for the batch** exactly as written below: one diff, one changelog entry naming the theme, one wiki reconciliation, one backlog sweep, one consolidation, one gate pass. Only **Phase 4** iterates, once per plan in the input list. Batch scope is a *scope* on this skill — this skill remains the **only** wrap-up owner. Never create a second wrap-up skill.
+
+**Rule — one `machinery-version` increment for the whole batch.** This is the counter's single writer for a batch (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*). Read the live value from `.devops/sync-manifest.yaml` **at the moment of the bump** — never a value read earlier, and never a value a member plan recorded — increment once, and record that literal in `.devops/logs/version-history.md`. N per-plan runners each reading the same base is the collision this removes; per-skill `version:` bumps remain **per modified file**. If a member plan already bumped under the legacy per-plan rule, do not treat that as a conflict: increment once anyway, because the contract is *strictly increasing values, each recorded*, not a count. The prefix regenerate is **not** part of this — it stays with the plan that edited a reserved prefix surface.
 
 **Confirmation gate — safety-critical, not simplifiable.** Before a plan is marked complete, assert **each** of the following for it, individually and from file/git evidence — never from the batch report:
 
@@ -165,7 +167,7 @@ On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 ### Phase 7b: State Stamps (Checklist — easy to forget, not gated)
 Mutations that keep downstream tooling honest. Do all three, then close out.
 1. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
-2. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`.
+2. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`. **Batch scope override:** the `machinery-version:` increment happens **once for the whole set**, from the value live at that moment (see § Batch Scope — *one `machinery-version` increment*); the per-file skill `version:` bumps are unchanged and stay per modified file. The prefix `-Sync` is **not** wrapped up here — it belongs to the plan that edited a reserved prefix surface, so a red `check-parcel-prefix.ps1` is never carried into this step.
 3. **Record the wrap-up ref**: note the current commit hash in the changelog entry so the next Phase 0 diff has a clean baseline.
 
 ---

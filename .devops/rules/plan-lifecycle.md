@@ -82,19 +82,47 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 5. **Complete.** Set `claim_status: COMPLETE`; `git mv` the plan to `.devops/archive/` (root); commit; merge the branch back to the trunk locally; prune the worktree. **`@sprint-run` batched Gate D exception:** the plan terminates at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, and archives per plan only after the single consolidated human verdict plus the follow-up batch wrap-up (§ Deviations); with no branch, there is nothing to merge or prune.
 6. **Shared files stay on trunk.** `sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, and `.devops/logs/version-history.md` are edited only on the trunk at merge/close time — never inside a plan branch. (`ponytail:` ceiling — the changelog is written by the trunk, not the branch; upgrade path is per-plan changelog fragments.)
 
+### Counter Ownership (`machinery-version`)
+
+`machinery-version` is a **global monotonic counter**, so it has exactly one writer per unit of work — this is the surface where a second writer *corrupts* rather than conflicts (a stale base produces a value a predecessor already used, and the CI predicate in `.github/workflows/validate.yml` then reports a release row that does not describe the set).
+
+- **Manual / per-plan path:** `@agent-wrap-up` Phase 7b owns it — one increment covering that plan's portable-surface changes, with the literal recorded in `.devops/logs/version-history.md`.
+- **`@sprint-run` batch path:** the **follow-up batch wrap-up** owns it — **one** increment for the whole batch (`@agent-wrap-up` § Batch Scope), read from `.devops/sync-manifest.yaml` **at that moment**, never a value captured earlier. A plan runner **never** bumps the counter: N runners reading the same base is precisely the collision this rule removes. Legacy per-plan increments inside one batch are harmless — the contract is *strictly increasing values, each recorded*, not a count.
+- **The prefix regenerate is not part of this.** `check-parcel-prefix.ps1 -Sync` stays with the plan that edits a reserved prefix surface, because deferring it would leave a red `check-parcel-prefix.ps1` in the window the next claim's green-baseline preflight inspects. The batch host owns the **invariant** (exit `0` at every claim boundary), not the repair.
+
 ### Write-Set Overlap Predicate (canonical — cite it, never restate it)
 
 The one definition of `touches` overlap. It is cited by `@sprint-run` § 2 (per-claim eligibility) and `@sprint-plan` § 4 (commit-time wave preflight). Do not fork a second dialect: a drifted predicate either admits a colliding claim or serialises a disjoint queue.
 
 - **Normalize** each `touches` entry: forward slashes, lowercase, strip a trailing `/**` or `/*`.
-- **Entry overlap:** A overlaps B when either normalized stem is a path-prefix of, or equal to, the other.
+- **Entry overlap:** A overlaps B when some path can match both patterns **and** either normalized segment list is a path-prefix of, or equal to, the other. Segments are compared segment-wise, so a wildcard is honoured anywhere in the path:
+  - `*` matches exactly **one** segment;
+  - `**` matches **zero or more** segments;
+  - a literal segment matches only itself, so `src/a` does **not** swallow `src/ab` (the boundary rule).
 - **Plan overlap:** two plans overlap when *any* entry of one overlaps *any* entry of the other.
 - **Consequence:** an overlapping plan is **not claimable** while the other plan sits in `.devops/plans/` — including a plan already batched to `PHASE_9` (`claim_status: GATE_D_USER_APPROVAL`, not yet archived). This is a **separate blocker** from `depends_on`: a satisfied dependency does not clear it.
-- **Executable embodiment (batch path):** `scripts/sprint_eligible.py` (stdlib-only, fixture-tested by `scripts/tests/test_sprint_eligible.py`) implements this predicate together with the § Claim Front-Matter dependency rule and the queue fixpoint, and prints the eligible set, claim order, advisory `parallel_groups` and per-plan skip reasons as JSON. `@sprint-run` § 2 computes eligibility from that output; a non-zero exit is a stop-the-line — never a fallback to prose. The definition stays **here**: the script cites this section, it does not restate it.
+- **Executable embodiment (batch path):** `scripts/sprint_eligible.py` (stdlib-only, fixture-tested by `scripts/tests/test_sprint_eligible.py`) implements this predicate together with the § Claim Front-Matter dependency rule and the queue fixpoint, and prints the eligible set, claim order, advisory `parallel_groups` + `lanes` and per-plan skip reasons as JSON. `@sprint-run` § 2 computes eligibility from that output; a non-zero exit is a stop-the-line — never a fallback to prose. The definition stays **here**: the script cites this section, it does not restate it.
+
+### Reserved Surfaces & the Lane Model
+
+> **Stated once here; cited everywhere.** `sprint_eligible.py` embodies it (the `RESERVED_SURFACES` constant + `serial_reason()`), `@sprint-run` § 2 consumes it as advisory data, and no other surface re-lists the members.
+
+The reserved set is the surfaces whose write is **global rather than file-local** — the ones where a second writer cannot merge, only corrupt. A plan whose `touches` intersects any member is on the **serial lane**:
+
+`.opencode/plans/base-context.md` · `.devops/templates/base-context.template.md` · `.devops/agents` · `.devops/sync-manifest.yaml` · `.devops/logs/version-history.md` · `.devops/logs/agent-changelog.md` · `.devops/sprints` · `.devops/backlog/backlog-index.md` · `.devops/backlog/SPRINTS.md`
+
+**The prefix-embed cascade (transitive).** A `.devops/skills/<slug>/SKILL.md` edit whose body is embedded in an existing `.devops/agents/<slug>.subagent.md` is **also** serial: executing it forces a `-Sync` that rewrites a reserved agent file. Without this rule, the classifier would call this template's most common edit lane-B and be wrong.
+
+| Lane | Membership | Execution |
+|---|---|---|
+| **serial** | `touches` intersects the reserved set, or the prefix-embed cascade | one at a time; never packed with another plan |
+| **parallel** | everything else | mutually disjoint — claimable concurrently **by a runner that provides real isolation** |
+
+> **A lane is a classification, not an execution namespace.** `@sprint-run` remains **trunk-sequential** (§ Deviations item 3), so it claims one plan at a time in `claim_order` and executes both lanes serially. `lanes` and `parallel_groups` are therefore **advisory** data — the `complexity` precedent — consumed by the host's preview and report, and available to a scheduler in a workspace where worktree isolation exists. A queue that is entirely serial (as this template's usually is) reports an empty `parallel_groups` rather than implying a concurrency the path does not have.
 
 > **Never relax the predicate to make a queue batch in one pass.** Overlap on the shared surfaces (`base-context.md`, `sync-manifest.yaml`, `.devops/logs/version-history.md`) is real — concurrent edits would corrupt the prefix lock and the `machinery-version` bump. A queue that overlaps is an **N-wave queue**: the fix is to *report* N at planning time, when trimming or reordering is still cheap.
 >
-> `ponytail:` ceiling — a mid-path wildcard (`src/*/db`) is not detected; upgrade path = segment-wise glob intersection.
+> `ponytail:` ceilings — none on the matcher: a mid-path wildcard (`src/*/db`) **is** detected (the segment-wise upgrade this section's own ceiling once named was executed by `T1-E3.11`). The remaining ceiling is lane *execution*: the batch path has no worktree, so lanes do not run concurrently; the upgrade path is a runner that owns isolated trees and a merge step, which would be a fifth deviation.
 
 ### MULTI-worthy Yield (batch path only)
 

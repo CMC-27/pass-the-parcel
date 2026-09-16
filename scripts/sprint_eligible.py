@@ -33,18 +33,27 @@ DEFINED in .devops/skills/pass-the-parcel/SKILL.md section Agent Topology ->
 *Complexity Triage* ("blast radius: <= 3 files, one domain" is low); this script cites
 that definition and does not fork a second written dialect.
 
+"lanes" is ADVISORY data too (schema sprint-eligible/1, added by T1-E3.11): one entry
+per queued plan, "serial" or "parallel". The Reserved Surface Set that forces the
+serial lane is DEFINED in .devops/rules/plan-lifecycle.md section Claim Protocol ->
+*Reserved Surfaces & the Lane Model*; this script cites it and echoes the set it used
+as "reserved_surfaces" so the host can present it. A lane is a CLASSIFICATION, not an
+execution namespace: @sprint-run stays trunk-sequential (section Deviations item 3) and
+therefore still claims one plan at a time.
+
 Read-only by construction: this script never writes, claims, archives or flips a gate.
 
 ponytail: ceilings (deliberate, documented - see plan-lifecycle.md section Claim Protocol)
-  - a mid-path wildcard ("src/*/db") is NOT detected; upgrade path = segment-wise
-    glob intersection;
   - "parallel_groups" is advisory data only - the fixpoint "claim_order" stays the
-    authoritative serial order (T1-E3.11 owns any scheduler);
+    authoritative serial order; it is lane-aware (a serial-lane plan is never packed
+    into a group) but it schedules nothing;
   - queue order is the ascending plan code, not the physical order of the sprint.md
     table;
   - "complexity" audits the DECLARED write set, not the tree: a plan with 3 declared
     touches that edits 20 files is not detected; and the declared half is a judgement
     this script deliberately does not re-derive (T1-E3.10 owns the flag, not a scorer).
+  (The mid-path-wildcard overlap ceiling recorded here until T1-E3.11 is CLOSED: the
+  matcher is segment-wise and a mid-path `*` or `**` is detected. See segment_overlap.)
 """
 
 import argparse
@@ -106,16 +115,55 @@ def normalize(entry: str) -> str:
     return e
 
 
-def entry_overlap(a: str, b: str) -> bool:
-    """A overlaps B when either stem is a path-prefix of, or equal to, the other.
+def segments(entry: str) -> list:
+    """A normalized entry as path segments (empty segments dropped)."""
+    return [s for s in entry.split("/") if s]
 
-    The prefix must fall on a path boundary, so "src/a" does not swallow "src/ab".
+
+def segment_overlap(a: str, b: str) -> bool:
+    """Two path segments overlap when equal, or when either is the `*` wildcard."""
+    return a == b or a == "*" or b == "*"
+
+
+def entry_overlap(a: str, b: str) -> bool:
+    """Segment-wise glob intersection: A overlaps B when some path matches both, and
+    either segment list is a prefix of, or equal to, the other (the canonical
+    prefix-or-equal rule, now wildcard-aware).
+
+    - `*`  matches exactly one segment.
+    - `**` matches zero or more segments.
+    - a literal segment matches only itself, so "src/a" does NOT swallow "src/ab" -
+      the boundary rule the literal test enforced is preserved.
+
+    Bounded BFS over (index_a, index_b) pairs with a visited set, so a pathological
+    pattern terminates instead of backtracking exponentially.
     """
     if not a or not b:
         return False
-    if a == b:
-        return True
-    return a.startswith(b + "/") or b.startswith(a + "/")
+    sa, sb = segments(a), segments(b)
+    if not sa or not sb:
+        return False
+    seen = set()
+    stack = [(0, 0)]
+    while stack:
+        i, j = stack.pop()
+        if (i, j) in seen:
+            continue
+        seen.add((i, j))
+        if i == len(sa) or j == len(sb):
+            # one pattern is exhausted: it is a prefix of (or equal to) the other
+            return True
+        if sa[i] == "**":
+            stack.append((i + 1, j))            # `**` consumes zero segments
+            stack.append((i, j + 1))            # `**` consumes one segment
+            continue
+        if sb[j] == "**":
+            stack.append((i, j + 1))
+            stack.append((i + 1, j))
+            continue
+        if segment_overlap(sa[i], sb[j]):
+            stack.append((i + 1, j + 1))
+    return False
 
 
 def plan_overlap(mine: list, theirs: list):
@@ -124,6 +172,46 @@ def plan_overlap(mine: list, theirs: list):
         for ae in mine:
             if entry_overlap(ae, be):
                 return be
+    return None
+
+
+# The Reserved Surface Set - the surfaces whose write is GLOBAL rather than
+# file-local, so two writers cannot merge. DEFINED (stated once) in
+# .devops/rules/plan-lifecycle.md section Claim Protocol -> *Reserved Surfaces &
+# the Lane Model*; this tuple is its executable embodiment and cites that section.
+# A plan whose `touches` hits any member is on the serial lane.
+RESERVED_SURFACES = (
+    ".opencode/plans/base-context.md",             # the prefix source (a re-inline rewrites 9 agents)
+    ".devops/templates/base-context.template.md",  # the prefix seed
+    ".devops/agents",                              # the inlined-prefix targets
+    ".devops/sync-manifest.yaml",                  # the machinery-version counter
+    ".devops/logs/version-history.md",             # the counter's recorded release row
+    ".devops/logs/agent-changelog.md",
+    ".devops/sprints",                             # sprint.md + the committed queue
+    ".devops/backlog/backlog-index.md",
+    ".devops/backlog/SPRINTS.md",
+)
+
+SKILL_EMBED_RE = re.compile(r"^\.devops/skills/([^/]+)/skill\.md$")
+
+
+def serial_reason(rec: dict, root: Path):
+    """Why this plan is on the serial lane, or None when it is lane-B eligible.
+
+    Two triggers:
+      - a `touches` entry overlapping a member of RESERVED_SURFACES;
+      - the prefix-embed cascade: a `.devops/skills/<slug>/SKILL.md` entry whose body
+        is embedded in an existing `.devops/agents/<slug>.subagent.md`, because
+        executing that plan forces a `-Sync` that rewrites a reserved agent file.
+    """
+    for entry in rec["touches"]:
+        for surface in RESERVED_SURFACES:
+            if entry_overlap(entry, surface):
+                return f"reserved surface {surface}"
+    for entry in rec["touches"]:
+        m = SKILL_EMBED_RE.match(entry)
+        if m and (root / ".devops" / "agents" / f"{m.group(1)}.subagent.md").is_file():
+            return f"prefix embed cascade via {entry}"
     return None
 
 
@@ -313,6 +401,8 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
     groups = []
     for code in order:
         rec = by_code[code]
+        if serial_reason(rec, root) is not None:
+            continue  # the serial lane is width 1: never packed with another plan
         deps = [d for d in rec["depends_on"] if d in group_of]
         for i, group in enumerate(groups):
             if any(plan_overlap(rec["touches"], by_code[m]["touches"]) is not None for m in group):
@@ -335,6 +425,9 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
         "eligible": eligible,
         "claim_order": order,
         "parallel_groups": groups,
+        "lanes": {r["code"]: ("serial" if serial_reason(r, root) else "parallel")
+                  for r in queue},
+        "reserved_surfaces": sorted(RESERVED_SURFACES),
         "skipped": skipped,
         "in_flight": in_flight,
         "orphans": orphans,

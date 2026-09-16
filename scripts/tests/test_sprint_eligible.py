@@ -7,6 +7,10 @@ Predicate*); this suite pins the script that embodies it. Each case drives the
 REAL CLI (subprocess + exit code + parsed JSON), because the exit code and stdout
 shape are the contract @sprint-run consumes.
 
+T1-E3.11 adds the segment-wise glob matcher (the mid-path-wildcard ceiling is
+closed) and the advisory "lanes" classification (Reserved Surface Set + the
+prefix-embed cascade).
+
 Run: python scripts/tests/test_sprint_eligible.py
 """
 
@@ -213,12 +217,65 @@ class SprintEligibleTestCase(unittest.TestCase):
         self.assertEqual(out["claim_order"], ["T1-E1.01"])
         self.assertIn("touches overlap: T1-E1.01 via scripts/feature", skipped(out, "T1-E1.02"))
 
-    def test_mid_path_wildcard_is_a_documented_miss(self):
-        # ponytail: ceiling - a mid-path wildcard is not detected (plan-lifecycle.md).
+    def test_mid_path_wildcard_overlap_is_detected(self):
+        # T1-E3.11 closed the ceiling this case used to pin: the matcher is
+        # segment-wise, so `*` matches a whole segment anywhere in the path.
         self.tree.queued("T1-E1.01", touches=["src/*/db"])
         self.tree.queued("T1-E1.02", touches=["src/a/db/schema.sql"])
         out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+        self.assertIn("touches overlap: T1-E1.01 via src/*/db", skipped(out, "T1-E1.02"))
+
+    def test_double_star_spans_segments(self):
+        self.tree.queued("T1-E1.01", touches=["src/**/db"])
+        self.tree.queued("T1-E1.02", touches=["src/a/b/db/x.sql"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+        self.assertIn("touches overlap: T1-E1.01 via src/**/db", skipped(out, "T1-E1.02"))
+
+    def test_boundary_prefix_is_not_an_overlap(self):
+        # The wildcard upgrade must not degrade into a substring match.
+        self.tree.queued("T1-E1.01", touches=["src/a"])
+        self.tree.queued("T1-E1.02", touches=["src/ab"])
+        out = payload(run(self.root))
         self.assertEqual(out["claim_order"], ["T1-E1.01", "T1-E1.02"])
+        self.assertEqual(out["skipped"], [])
+
+    def test_reserved_surface_forces_the_serial_lane(self):
+        self.tree.queued("T1-E1.01", touches=[".devops/sync-manifest.yaml"])
+        self.tree.queued("T1-E1.02", touches=["src/util.py"])
+        out = payload(run(self.root))
+        self.assertEqual(out["lanes"],
+                         {"T1-E1.01": "serial", "T1-E1.02": "parallel"})
+        self.assertIn(".devops/sync-manifest.yaml", out["reserved_surfaces"])
+        self.assertEqual(out["reserved_surfaces"], sorted(out["reserved_surfaces"]))
+        # and a direct child of a reserved directory is serial too
+        child = Tree(Path(self._tmp.name) / "child")
+        child.queued("T1-E1.01", touches=[".devops/agents/parcel.agent.md"])
+        self.assertEqual(payload(run(child.root))["lanes"], {"T1-E1.01": "serial"})
+
+    def test_ptp_skill_embed_cascade_is_serial(self):
+        # A ptp-* SKILL.md is embedded verbatim in its agent file, so editing it
+        # forces a -Sync that rewrites a reserved surface.
+        (self.root / ".devops" / "agents").mkdir(parents=True, exist_ok=True)
+        (self.root / ".devops" / "agents" / "ptp-parcel-fast.subagent.md").write_text(
+            "---\nmodel: fixture\n---\n", encoding="utf-8")
+        self.tree.queued("T1-E1.01", touches=[".devops/skills/ptp-parcel-fast/SKILL.md"])
+        self.tree.queued("T1-E1.02", touches=[".devops/skills/wiki-writer/SKILL.md"])
+        out = payload(run(self.root))
+        # wiki-writer is bound in a .agent.md, not a .subagent.md: no embed, no cascade.
+        self.assertEqual(out["lanes"],
+                         {"T1-E1.01": "serial", "T1-E1.02": "parallel"})
+        # same plan, no embedded agent file in the tree -> lane-B eligible
+        bare = Tree(Path(self._tmp.name) / "bare")
+        bare.queued("T1-E1.01", touches=[".devops/skills/ptp-parcel-fast/SKILL.md"])
+        self.assertEqual(payload(run(bare.root))["lanes"], {"T1-E1.01": "parallel"})
+
+    def test_serial_lane_is_never_packed_into_a_group(self):
+        self.tree.queued("T1-E1.01", touches=[".devops/logs/version-history.md"])
+        self.tree.queued("T1-E1.02", touches=["src/util.py"])
+        out = payload(run(self.root))
+        self.assertEqual(out["parallel_groups"], [["T1-E1.02"]])
 
     def test_parallel_groups_pack_disjoint_plans_and_layer_dependencies(self):
         self.tree.queued("T1-E1.01", touches=["a/one.py"])
@@ -243,7 +300,8 @@ class SprintEligibleTestCase(unittest.TestCase):
         out = payload(run(self.root))
         self.assertEqual(out["schema"], "sprint-eligible/1")
         for key in ("schema", "root", "sprint", "sprint_dir", "queue", "eligible",
-                    "claim_order", "parallel_groups", "skipped", "in_flight",
+                    "claim_order", "parallel_groups", "lanes", "reserved_surfaces",
+                    "skipped", "in_flight",
                     "orphans", "already_phased", "complexity", "counts"):
             self.assertIn(key, out)
         self.assertEqual(out["counts"]["queue"], 0)

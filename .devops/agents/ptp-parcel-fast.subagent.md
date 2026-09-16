@@ -96,6 +96,17 @@ user-invocable: false
 7. Commit the work with the exact message literal `plan: <code>`.
 8. Set bottom **Status** `PHASE_9`, **Active Persona** `Executor`, leave **Gate D** `OPEN`, and set the claim front-matter `claim_status: GATE_D_USER_APPROVAL` — **not** `CLAIMED`. That value is what marks the plan as executed-but-unverified; it is the batch path's terminal claim state, and it is the state a dependent's `depends_on` accepts.
 
+## Counter ownership (you never bump it)
+
+`machinery-version` has **one writer per batch: the follow-up batch wrap-up**, reading the live value from `.devops/sync-manifest.yaml` at that moment (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*; `@agent-wrap-up` § Batch Scope). This runner therefore:
+
+- **never** bumps `machinery-version:` in `.devops/sync-manifest.yaml`;
+- **never** writes a `.devops/logs/version-history.md` row;
+- **does** still re-inline the prefix (`check-parcel-prefix.ps1 -Sync`) when its plan edits a reserved prefix surface — that repair stays with the edit, because a red `check-parcel-prefix.ps1` would fail the next claim's green baseline and no later step can un-fail it in time. The host owns the invariant, not the repair;
+- **records the live value it observed** in its Phase 9 evidence as the "before", so the wrap-up's single increment has a stated base.
+
+A plan whose own text instructs a per-plan counter bump is **overruled by this skill** — the plan body cannot see its siblings, and that is exactly the collision. Log the deviation in Phase 9; do not perform the bump. (A legacy plan bumping anyway is harmless — the counter contract is *strictly increasing values, each recorded*, not a count.)
+
 ## Plan Settings writer (frozen preset)
 
 The chain's **first** action — at claim time, before Phase 1 — writes the plan's `## ⚙️ Plan Settings` block as the locked preset: `Mode=AUTO`, `Agents=SINGLE`. This closes the gap where plan-start config had no assigned writer under the batch path. The host (`parcel-sprint`) never authors it, and it is frozen thereafter.

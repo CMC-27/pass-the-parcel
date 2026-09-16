@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 21
+version: 22
 updated: 2026-09-16
 ---
 
@@ -163,6 +163,8 @@ A sprint's committed queue can be run in one unattended pass by the **`parcel-sp
 - **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect). The loop is **executed by** `scripts/sprint_eligible.py` (the predicate's executable embodiment, `.devops/rules/plan-lifecycle.md` § Claim Protocol): the host acts only on that JSON and a non-zero exit halts the batch — prose is never the fallback.
 - **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
 - **MULTI-worthy yield** — a plan whose commit-time triage recommends `MULTI` (or whose declared `touches` exceed the triage table's blast-radius bound) is flagged **before the first claim** and surfaced in the informed preview for one operator answer: **accept batch risk** (the locked `AUTO` + `SINGLE` run, no independent reviewer) or **defer to manual**. A deferral is a **pure pause at that plan's slot** — the loop never claims past it — reported as `DEFERRED-MANUAL` with the dependents it strands and the resume path (deliver it via `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run`). It is a halt, not a fifth deviation: canonical semantics live in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
+- **Lanes (advisory classification, not concurrency)** — the same script output carries `lanes` (`serial` / `parallel` per queued plan) and `reserved_surfaces`: a plan whose `touches` hits a reserved surface, or triggers the prefix-embed cascade, is on the **serial** lane. The definition is canonical in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*. A lane classifies *writability*, not *order* — `trunk-sequential` means the batch still executes both lanes serially, so `claim_order` stays the only ordering and an empty lane B is the honest common case.
+- **One counter, one writer** — `machinery-version` is bumped **once for the batch**, by the follow-up batch wrap-up, from the value live at that moment; no plan runner and no step inside the loop touches it (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*). The prefix `-Sync` is the exception that proves the rule: it stays with the plan that edited a reserved prefix surface, because deferring it would leave a red `check-parcel-prefix.ps1` in the window the next claim's green-baseline preflight inspects.
 
 Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.
 
