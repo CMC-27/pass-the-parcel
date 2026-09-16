@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 18
+version: 19
 updated: 2026-09-16
 ---
 
@@ -83,7 +83,7 @@ Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity**
 
 **Non-negotiables in BOTH topologies:**
 - Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
-- **Gate D (Implementation) always halts for the human.** `AUTO` auto-clears Gates A-C on mechanical verification, but that auto-clear never reaches Gate D.
+- **Gate D (Implementation) always halts for the human.** `AUTO` auto-clears Gates A-C **only** on positive evidence, per `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract — and that auto-clear never reaches Gate D.
 - One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context (§ Batch Runner).
 - `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
 
