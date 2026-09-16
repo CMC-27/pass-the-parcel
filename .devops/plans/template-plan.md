@@ -7,6 +7,7 @@ claimed_at: ""
 last_touch: "{YYYY-MM-DD}"
 touches: ["{path/glob}", "..."]
 depends_on: ["{code}", "..."]
+triage: SINGLE              # MULTI | SINGLE — commit-time topology recommendation (@sprint-plan § 4c); NOT the frozen Plan Settings `Agents`
 ---
 # Parcel Plan: T{theme}-E{epic}.{impl} - [Title]
 ## Theme-Epic: T{theme} - {Theme Name}, E{epic} - {Epic Name}

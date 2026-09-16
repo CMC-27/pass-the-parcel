@@ -19,10 +19,19 @@ Overrides:
 Output contract:
     exit 0 -> ONE JSON object on stdout, keys: schema, root, sprint, sprint_dir,
               queue, eligible, claim_order, parallel_groups, skipped, in_flight,
-              orphans, already_phased, counts
+              orphans, already_phased, complexity, counts
     exit 1 -> a single "sprint_eligible: <cause>" line on stderr and NO JSON.
               A non-zero exit is a stop-the-line for @sprint-run: never fall back to
               reasoning the predicate out from prose.
+
+"complexity" is ADVISORY data (like "parallel_groups"), not part of the eligibility
+predicate: one entry per queued plan, {"triage", "signals", "multi_worthy", "blocks"}.
+The MULTI-worthy flag is the UNION of a declared triage recommendation (the plan's
+claim front-matter `triage: MULTI|SINGLE`, written by @sprint-plan at commit time) and
+a mechanical backstop on the plan's own declared `touches` breadth. The signals are
+DEFINED in .devops/skills/pass-the-parcel/SKILL.md section Agent Topology ->
+*Complexity Triage* ("blast radius: <= 3 files, one domain" is low); this script cites
+that definition and does not fork a second written dialect.
 
 Read-only by construction: this script never writes, claims, archives or flips a gate.
 
@@ -32,7 +41,10 @@ ponytail: ceilings (deliberate, documented - see plan-lifecycle.md section Claim
   - "parallel_groups" is advisory data only - the fixpoint "claim_order" stays the
     authoritative serial order (T1-E3.11 owns any scheduler);
   - queue order is the ascending plan code, not the physical order of the sprint.md
-    table.
+    table;
+  - "complexity" audits the DECLARED write set, not the tree: a plan with 3 declared
+    touches that edits 20 files is not detected; and the declared half is a judgement
+    this script deliberately does not re-derive (T1-E3.10 owns the flag, not a scorer).
 """
 
 import argparse
@@ -57,6 +69,9 @@ QUEUED = "QUEUED"
 CLAIMED = "CLAIMED"
 DONE = "GATE_D_USER_APPROVAL"
 PHASE_9 = "PHASE_9"
+TRIAGE_MULTI = "MULTI"
+BLAST_RADIUS_MAX = 3
+BLAST_RADIUS = "blast-radius"
 CODE_RE = re.compile(r"^([a-z]+\d*-e\d+\.\d+)", re.IGNORECASE)
 STATUS_RE = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*`([^`]+)`", re.MULTILINE)
 ACTIVE_MARK = "\U0001F7E2 ACTIVE"
@@ -112,6 +127,45 @@ def plan_overlap(mine: list, theirs: list):
     return None
 
 
+def blocks_for(code: str, queue: list) -> list:
+    """Queued codes whose depends_on transitively reaches `code` (sorted, self excluded).
+
+    Used by the batch host's DEFERRED-MANUAL report: the plans a deferral strands.
+    BFS over the reverse depends_on edges, restricted to the queued set.
+    """
+    dependents = {}
+    for rec in queue:
+        for dep in rec["depends_on"]:
+            dependents.setdefault(dep, []).append(rec["code"])
+    stranded, frontier = set(), [code]
+    while frontier:
+        for child in dependents.get(frontier.pop(), []):
+            if child != code and child not in stranded:
+                stranded.add(child)
+                frontier.append(child)
+    return sorted(stranded)
+
+
+def complexity_for(rec: dict, queue: list) -> dict:
+    """The MULTI-worthy flag: declared triage UNION the mechanical backstop.
+
+    The signal set is DEFINED in .devops/skills/pass-the-parcel/SKILL.md section
+    Agent Topology -> *Complexity Triage*; only the deterministic, cheaply checkable
+    one ("blast radius": more than BLAST_RADIUS_MAX declared touches is not "<= 3
+    files") is computed here, as the canonical definition of MULTI-worthy stays there.
+    An unrecognised `triage` value never errors - it simply does not fire the declared
+    signal, so the backstop still applies (fail open, never halt a batch on a typo).
+    """
+    signals = [BLAST_RADIUS] if len(rec["touches"]) > BLAST_RADIUS_MAX else []
+    multi_worthy = rec["triage"] == TRIAGE_MULTI or bool(signals)
+    return {
+        "triage": rec["triage"] or None,
+        "signals": signals,
+        "multi_worthy": multi_worthy,
+        "blocks": blocks_for(rec["code"], queue) if multi_worthy else [],
+    }
+
+
 def status_of(body: str) -> str:
     m = STATUS_RE.search(body)
     return m.group(1).strip() if m else ""
@@ -139,6 +193,7 @@ def load_plan(path: Path, root: Path, require_claim: bool) -> dict:
         "claim_status": claim,
         "status": status_of(body),
         "sprint": (fm.get("sprint") or "").strip(),
+        "triage": (fm.get("triage") or "").strip().upper(),
         "touches": [normalize(e) for e in list_field(block, "touches") if e.strip()],
         "depends_on": [c.strip().upper() for c in list_field(block, "depends_on") if c.strip()],
     }
@@ -284,12 +339,14 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
         "in_flight": in_flight,
         "orphans": orphans,
         "already_phased": already_phased,
+        "complexity": {r["code"]: complexity_for(r, queue) for r in queue},
         "counts": {
             "queue": len(queue),
             "eligible": len(eligible),
             "claim_order": len(order),
             "skipped": len(skipped),
             "in_flight": len(in_flight),
+            "multi_worthy": sum(1 for r in queue if complexity_for(r, queue)["multi_worthy"]),
         },
     }
 

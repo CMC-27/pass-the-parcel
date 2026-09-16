@@ -28,12 +28,14 @@ claimed_at: <ISO-8601>
 last_touch: <ISO-8601>
 touches: ["path/glob", "..."]
 depends_on: ["<code>", "..."]
+triage: SINGLE              # MULTI | SINGLE — commit-time topology recommendation (@sprint-plan § 4c)
 ```
 
 - `claim_status` is the claim state. The pipeline phase stays in the bottom `## 📍 State & Gates` `Status` row — never conflate the two.
 - `claim_status` values: `QUEUED` (parked in the backlog, or committed to a sprint queue but not yet claimed), `CLAIMED` (claimed and in flight — Phases 1→8), `GATE_D_USER_APPROVAL` (executed through Phase 9, Gate D `OPEN`, awaiting the human verdict), `COMPLETE` (archived). `IN_PROGRESS` is **retired** — nothing ever set it.
 - `GATE_D_USER_APPROVAL` is the terminal claim state of **every** path that reaches Phase 9: the `@sprint-run` batch path (which never archives on its own — see § Deviations) and the manual sequential sprint flow (claim a plan, run it to Gate D, leave it in `.devops/plans/` while the next plan is claimed). Its bottom `Status` stays `PHASE_9`; only the Gate D verdict plus `@agent-wrap-up` moves it to `COMPLETE`.
 - `touches` is the declared write set; it is the overlap check that makes concurrent execution safe.
+- `triage` is the **commit-time topology recommendation** (`MULTI` / `SINGLE`), scored by `@sprint-plan` § 4c against the canonical five signals in `@pass-the-parcel` § Agent Topology → *Complexity Triage* — a recommendation, never the pipeline configuration. The frozen `Plan Settings` `Agents` row is what the pipeline obeys and is written at plan start; `triage` is what the plan *recommends* before any phase runs. The manual path reads it as the recommendation to confirm; the `@sprint-run` batch path **cannot honour it** (its preset is locked), so it surfaces it as a **flag** — see the *MULTI-worthy yield* below. An absent field is tolerated (a queue that predates the field); the mechanical half of the flag still applies.
 - `depends_on` names codes that must be **satisfied** before this plan may be claimed. A code is satisfied when it is either **(a)** present in `.devops/archive/` — the plan wrapped up and archived (the manual / per-plan path), **or (b)** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` — executed through Phase 9 with Gate D `OPEN`, awaiting the human verdict (the batch path's terminal state). **Any other state is unmet**: still `QUEUED` in the sprint queue, or `CLAIMED` in `.devops/plans/` below `PHASE_9` (in flight). This is the **dependency** rule only; the `touches`-overlap check below is a *separate* blocker that a satisfied dependency does **not** clear.
 - Staleness is judged by `last_touch` plus a human review flag — never by a time lease. Human-gated phases pause legitimately.
 
@@ -94,6 +96,15 @@ The one definition of `touches` overlap. It is cited by `@sprint-run` § 2 (per-
 >
 > `ponytail:` ceiling — a mid-path wildcard (`src/*/db`) is not detected; upgrade path = segment-wise glob intersection.
 
+### MULTI-worthy Yield (batch path only)
+
+The topology recommendation recorded at commit time (`triage`) can be overruled by the batch's locked preset, so a `MULTI`-worthy plan could otherwise run `SINGLE` — no independent reviewer, no adversarial pass — and never say so. The batch path therefore surfaces it **before the first claim**.
+
+- **Flag.** A queued plan is `multi_worthy` when **either** its `triage` is `MULTI` **or** its declared `touches` exceed the *Complexity Triage* blast-radius bound (`≤ 3 files, one domain`; `@pass-the-parcel` § Agent Topology). `scripts/sprint_eligible.py` computes it as its **advisory** `complexity` key — the `parallel_groups` precedent: data for the host, not a clause of the eligibility predicate. The signal set stays **defined** in `@pass-the-parcel`; the script cites it.
+- **Fork.** `@sprint-run` § 1 presents every flagged plan for **one** operator answer: **accept batch risk** (`AUTO` + `SINGLE`, no independent reviewer) or **defer to manual**. Acceptance is pre-clearable for one, several or all, so a fully unattended run stays possible and the pause is opt-in.
+- **Yield.** A deferral is a **pure pause at that plan's slot**: the batch claims in `claim_order` and halts on reaching it — it never claims **past** a hole. The report records `DEFERRED-MANUAL` with the plan's code, the topology it needs (`MULTI`), the dependents it strands (the computed `blocks` closure), and the resume contract: deliver the plan via `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run`. Nothing is persisted — the next invocation recomputes the fork from live state.
+- **A halt, never a relaxation.** This is precisely why it is **not** one of § Deviations' items: the batch relaxes exactly four rules, and this adds a stop instead of removing one.
+
 ## Cache-Anchored State & Gates
 
 - The **Plan Settings** block (`Mode` + `Agents`) is frozen config at the **TOP** of every plan file — written once at plan start, never edited after.
@@ -125,7 +136,7 @@ An `AUTO` gate clears **only on positive, presence-based evidence**. The test is
 
 > **Never relax the test to let a thin plan through.** The pressure to relax is always "the plan is obviously fine" — but the test is what makes that judgement auditable, and it sits between a self-authored plan and the human. `@sprint-run` batches Gate D into **one** verdict, so weak A/B evidence propagates to a single end-of-batch decision.
 >
-> `ponytail:` ceiling — the test proves an artifact is *present and referenced*, never that it is *correct* (a self-review row citing `AC 1` passes even if the reasoning is thin). Upgrade path = an independent reviewer in `SINGLE` (out of scope here; `T1-E3.10` territory).
+> `ponytail:` ceiling — the test proves an artifact is *present and referenced*, never that it is *correct* (a self-review row citing `AC 1` passes even if the reasoning is thin). Upgrade path = an independent reviewer in `SINGLE` — still open: `T1-E3.10` shipped the **MULTI-worthy flag + yield** instead, so a `MULTI`-worthy plan *escapes* `SINGLE` by operator choice rather than gaining a reviewer inside it.
 
 ## Rules
 
@@ -138,7 +149,7 @@ An `AUTO` gate clears **only on positive, presence-based evidence**. The test is
 
 ## Deviations (@sprint-run batch path)
 
-The `@sprint-run` batch host (agent `parcel-sprint`, per-plan runner `ptp-parcel-fast`) runs the committed sprint queue in one unattended pass. It deviates from the default protocol in exactly four named ways; every other section of this document stands unchanged for every other run.
+The `@sprint-run` batch host (agent `parcel-sprint`, per-plan runner `ptp-parcel-fast`) runs the committed sprint queue in one unattended pass. It deviates from the default protocol in exactly four named ways; every other section of this document stands unchanged for every other run. A *halt* is not a deviation — the batch may additionally stop for the operator (today: the `MULTI`-worthy yield, § Claim Protocol → *MULTI-worthy Yield*, and `sprint-run` § 1/§ 3), and a halt never enlarges this list.
 
 1. **Batched Gate D (deferred, never skipped).** Each per-plan run terminates at `PHASE_9`, stays in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`, with **Gate D `OPEN`**. The queue's eligible set drains into **one** consolidated human verdict at the end. Gate D is deferred, never auto-cleared, never skipped.
 2. **Retirement is a separate, operator-invoked step.** The batch loop never archives a plan and never marks one `COMPLETE`. After the verdict the **batch wrap-up** runs as a **distinct invocation** — of `@agent-wrap-up` in its **batch scope** (`SKILL.md` § Batch Scope), executed by `parcel-sprint` (which may spawn `wiki-writer` for the read-heavy wiki prose) or by the ordinary wrap-up path. One invocation covers the whole set: per plan it asserts bottom `Status: PHASE_9`, `claim_status: GATE_D_USER_APPROVAL`, a `DONE` per-plan outcome, Phase 9 evidence plus acceptance criteria, and the exact `plan: <code>` commit on the trunk; it then runs the repo gates **once** for the set, sets `COMPLETE`, and `git mv`s each plan to `.devops/archive/` (root). A plan failing any assertion is **carry-forward** — never marked complete — and a red repo gate blocks the whole batch wrap-up. Per-plan `@agent-wrap-up` remains valid and composes, so the manual path is unchanged.

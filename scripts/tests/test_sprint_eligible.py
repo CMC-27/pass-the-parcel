@@ -32,6 +32,7 @@ claimed_at: "2026-09-16"
 last_touch: "2026-09-16"
 touches: [{touches}]
 depends_on: [{depends}]
+triage: {triage}
 ---
 # {code}
 
@@ -74,7 +75,7 @@ class Tree:
         )
 
     def plan(self, folder: Path, code: str, claim="QUEUED", status="QUEUED",
-             touches=(), depends=(), with_code=True):
+             touches=(), depends=(), with_code=True, triage=""):
         body = PLAN_TEMPLATE.format(
             code=code if with_code else "",
             sprint=SPRINT,
@@ -82,9 +83,12 @@ class Tree:
             status=status,
             touches=", ".join(json.dumps(t) for t in touches),
             depends=", ".join(json.dumps(d) for d in depends),
+            triage=triage,
         )
         if not with_code:
             body = body.replace("code: \n", "")
+        if not triage:
+            body = body.replace("triage: \n", "")
         path = folder / f"{code.lower()}-fixture-plan.md"
         path.write_text(body, encoding="utf-8")
         return path
@@ -117,6 +121,14 @@ def skipped(payload_obj, code):
         if row["code"] == code:
             return row["reasons"]
     raise AssertionError(f"{code} is not in the skip table")
+
+
+def complexity(payload_obj, code):
+    """One plan's advisory complexity entry (T1-E3.10's MULTI-worthy flag)."""
+    try:
+        return payload_obj["complexity"][code]
+    except KeyError:
+        raise AssertionError(f"{code} has no complexity entry")
 
 
 class SprintEligibleTestCase(unittest.TestCase):
@@ -232,10 +244,67 @@ class SprintEligibleTestCase(unittest.TestCase):
         self.assertEqual(out["schema"], "sprint-eligible/1")
         for key in ("schema", "root", "sprint", "sprint_dir", "queue", "eligible",
                     "claim_order", "parallel_groups", "skipped", "in_flight",
-                    "orphans", "already_phased", "counts"):
+                    "orphans", "already_phased", "complexity", "counts"):
             self.assertIn(key, out)
         self.assertEqual(out["counts"]["queue"], 0)
         self.assertEqual(out["sprint"], SPRINT)
+
+    # --- T1-E3.10: the MULTI-worthy triage flag (advisory "complexity" data) ---
+
+    def test_breadth_flags_an_undeclared_plan(self):
+        # No `triage` field at all: the mechanical backstop still fires.
+        self.tree.queued("T1-E1.01", touches=["a/1.py", "b/2.py", "c/3.py", "d/4.py"])
+        out = payload(run(self.root))
+        self.assertIsNone(complexity(out, "T1-E1.01")["triage"])
+        self.assertEqual(complexity(out, "T1-E1.01")["signals"], ["blast-radius"])
+        self.assertTrue(complexity(out, "T1-E1.01")["multi_worthy"])
+
+    def test_declared_multi_flags_a_one_touch_plan(self):
+        self.tree.queued("T1-E1.01", touches=["a/1.py"], triage="MULTI")
+        out = payload(run(self.root))
+        self.assertEqual(complexity(out, "T1-E1.01")["signals"], [])
+        self.assertTrue(complexity(out, "T1-E1.01")["multi_worthy"])
+
+    def test_local_plan_is_not_flagged(self):
+        # The canonical low bound is inclusive: "<= 3 files, one domain".
+        self.tree.queued("T1-E1.01", touches=["a/1.py", "a/2.py", "a/3.py"],
+                         triage="SINGLE")
+        out = payload(run(self.root))
+        self.assertEqual(complexity(out, "T1-E1.01"),
+                         {"triage": "SINGLE", "signals": [],
+                          "multi_worthy": False, "blocks": []})
+
+    def test_unknown_triage_value_fails_open_to_the_backstop(self):
+        self.tree.queued("T1-E1.01", triage="MAYBE",
+                         touches=[f"a/{i}.py" for i in range(5)])
+        out = payload(run(self.root))  # exit 0 is asserted by payload()
+        self.assertEqual(complexity(out, "T1-E1.01")["triage"], "MAYBE")
+        self.assertTrue(complexity(out, "T1-E1.01")["multi_worthy"])
+
+    def test_blocks_lists_still_queued_dependents(self):
+        self.tree.queued("T1-E1.01", touches=["a/1.py", "b/2.py", "c/3.py", "d/4.py"])
+        self.tree.queued("T1-E1.02", touches=["e/5.py"], depends=["T1-E1.01"])
+        self.tree.queued("T1-E1.03", touches=["f/6.py"], depends=["T1-E1.02"])
+        self.tree.queued("T1-E1.04", touches=["g/7.py"])
+        out = payload(run(self.root))
+        self.assertEqual(complexity(out, "T1-E1.01")["blocks"], ["T1-E1.02", "T1-E1.03"])
+        self.assertEqual(complexity(out, "T1-E1.04")["blocks"], [])
+
+    def test_sprint9_counterfactual_all_six_waves_are_flagged(self):
+        """Proven against the over-reach it exists to catch, not a hypothetical.
+
+        Declared `touches` counts of the six committed Sprint 9 plans (E3.06 11,
+        E3.07 10, E3.08 15, E3.09 12, E3.10 10, E3.11 12). None of them carried a
+        `triage` field - they predate it - so this is the mechanical backstop alone
+        firing, which is exactly the sprint's failure mode (scaffold declarations).
+        """
+        counts = {"T1-E1.01": 11, "T1-E1.02": 10, "T1-E1.03": 15,
+                  "T1-E1.04": 12, "T1-E1.05": 10, "T1-E1.06": 12}
+        for code, n in counts.items():
+            self.tree.queued(code, touches=[f"{code.lower()}/f{i}.md" for i in range(n)])
+        out = payload(run(self.root))
+        self.assertTrue(all(complexity(out, c)["multi_worthy"] for c in counts))
+        self.assertEqual(out["counts"]["multi_worthy"], 6)
 
     def test_explicit_sprint_dir_bypasses_the_active_row(self):
         idle = Tree(Path(self._tmp.name) / "idle", active=False)

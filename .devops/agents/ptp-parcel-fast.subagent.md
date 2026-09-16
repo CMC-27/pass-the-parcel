@@ -67,7 +67,7 @@ user-invocable: false
 
 ## Concurrency & Claims (local, in-workspace)
 - Lifecycle: backlog -> sprint queue -> `.devops/plans/` (claimed) -> `.devops/archive/`. Physical moves are signals; a plan keeps its stable `T{theme}-E{epic}.{impl}` code.
-- Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. `claim_status` is NOT the pipeline `Status`.
+- Claim front-matter on every plan: `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on` / `triage`. `claim_status` is NOT the pipeline `Status`; `triage` is the commit-time topology recommendation (`@sprint-plan` § 4c), not the frozen `Plan Settings` `Agents` config.
 - Claim = no unmet `depends_on` (every dependency in `.devops/archive/` **or** in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) + no `touches` overlap -> `git mv` the plan into `.devops/plans/` and commit `claim: <code>` on the trunk -> `git worktree add` on branch `plan/<code>-<slug>` — except the `@sprint-run` batch path, which is trunk-sequential: keep the `git mv` + `claim: <code>` commit, drop the `git worktree add` (see `.devops/rules/plan-lifecycle.md` § Deviations). The `touches`-overlap clause is a separate blocker: a satisfied dependency does not clear an overlap.
 - Shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, `.devops/logs/version-history.md`) are edited ONLY on the trunk, never inside a plan branch.
 - Full protocol: `.devops/rules/plan-lifecycle.md` § Claim Protocol.
@@ -99,6 +99,8 @@ user-invocable: false
 ## Plan Settings writer (frozen preset)
 
 The chain's **first** action — at claim time, before Phase 1 — writes the plan's `## ⚙️ Plan Settings` block as the locked preset: `Mode=AUTO`, `Agents=SINGLE`. This closes the gap where plan-start config had no assigned writer under the batch path. The host (`parcel-sprint`) never authors it, and it is frozen thereafter.
+
+**Record the flag in that same block.** When the claimed plan's claim front-matter carries `triage: MULTI`, the provenance line written with the preset must **name the flag** and state plainly that this run is `SINGLE` under the batch preset with **no independent review** — the operator accepted that risk at the fork (`@sprint-run` § 1), and the record belongs in the plan, not in a session transcript. Recording it at claim time is the one legal moment (the block is written once); Gate D then reads the risk instead of discovering it. Canonical semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 
 ## Auto-clear test
 

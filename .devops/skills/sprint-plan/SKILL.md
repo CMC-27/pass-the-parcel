@@ -1,7 +1,7 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 5
+version: 6
 updated: 2026-09-16
 ---
 
@@ -64,6 +64,15 @@ Test the candidate set **against itself**, not only against the plans already in
 4. **State the accepted cost in that same section, explicitly:** N waves means **N Gate D verdicts and N wrap-ups**, not one consolidated verdict — an executed plan stays in `.devops/plans/` at `claim_status: GATE_D_USER_APPROVAL` until its verdict plus wrap-up archives it, and it keeps blocking its overlaps until then.
 5. If the wave count is unacceptable, fix it **here, while it is still cheap** — trim the set, reorder it, or split a plan's `touches` off the shared surface. Do not commit on a promise of one batch pass. A queue that cannot batch itself is a planning fact, not a run-time surprise.
 
+### 4c. Multi-worthy triage flag (mandatory, at commit)
+
+Scoring a candidate's complexity is part of committing it. Run this in the same pass as § 4b:
+
+1. **Score the canonical five signals** — blast radius, contract change, risk & reversibility, ambiguity, novelty. The table, its low/high bounds, and the "all low → `SINGLE`; any high → `MULTI`" rule live in `@pass-the-parcel` § Agent Topology → *Complexity Triage*: **cite them; never restate a second dialect here.**
+2. **Record the recommendation in `sprint.md`** § Delivery Model — the `Flag` column (`MULTI` / `—`) plus the names of the signals that fired.
+3. **Write it into the plan's claim front-matter** as `triage: MULTI` or `triage: SINGLE` (§ 6 step 2 does this on the moved file). It is a **recommendation**, not the plan's frozen `Plan Settings` `Agents` row — that row is written at plan start and is what the pipeline obeys. The manual path reads `triage` as the recommendation to confirm.
+4. **Say what the flag buys.** A `MULTI` flag on a plan committed to a `@sprint-run` batch means the batch **cannot honour it** — its preset is locked `AUTO` + `SINGLE` — so the plan is presented for an **accept batch risk / defer to manual** fork before the first claim (`@sprint-run` § 1, `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*). Flag honestly: an under-scored plan is still caught by the mechanical backstop (`scripts/sprint_eligible.py`'s `complexity` key — a plan declaring more than 3 `touches`), but the *reason* is lost.
+
 ## 5. Write sprint.md
 
 Create `.devops/sprints/sprint-{n}-<slug>/sprint.md` from the template below. Fill every placeholder. The out-of-scope section is mandatory — it is what prevents mid-sprint scope creep. The Committed Scope table is the **queue**: it lists what is committed, and each row links to the plan file that now lives in this folder.
@@ -102,9 +111,11 @@ closed: ""
 ## Delivery Model
 {Wave decomposition predicted by the § 4b preflight — one row per wave. Write a single wave / "one batch pass" only when the set is mutually disjoint.}
 
-| Wave | Plan | Size | Steps |
-|------|------|------|-------|
-| 1 | {T..} | {S/M/L} | preview → claim → spawn `ptp-parcel-fast` → `PHASE_9` → verdict + wrap-up |
+| Wave | Plan | Size | Flag | Steps |
+|------|------|------|------|-------|
+| 1 | {T..} | {S/M/L} | {`MULTI` / `—`} | preview → claim → spawn `ptp-parcel-fast` → `PHASE_9` → verdict + wrap-up |
+
+> **`Flag`** is the § 4c triage recommendation for that plan (`MULTI` / `—`), with the signals that fired named in the row. A `MULTI` row in a `@sprint-run` batch is surfaced as an **accept batch risk / defer to manual** fork before the first claim (`@sprint-run` § 1) — the batch's locked `AUTO` + `SINGLE` preset cannot honour the recommendation.
 
 **Accepted cost:** {N} serial waves = {N} Gate D verdicts and {N} wrap-ups — not one consolidated verdict; a committed plan holds its files from claim until its wrap-up archives it.
 
@@ -125,7 +136,7 @@ closed: ""
 For each committed item:
 
 1. `git mv` its parked plan from `.devops/backlog/<code>-<slug>-backlog.md` (legacy: `.devops/backlog/<slug>-backlog.md`) to `.devops/sprints/sprint-{n}-<slug>/{code}-{slug}-plan.md` — the move is the signal that it is committed.
-2. Add/replace the claim front-matter at the top of the moved file (`code`, `sprint: sprint-{n}-<slug>`, `claim_status: QUEUED`, `touches`, `depends_on`). Leave `owner` / `claimed_at` / `last_touch` empty until claimed. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
+2. Add/replace the claim front-matter at the top of the moved file (`code`, `sprint: sprint-{n}-<slug>`, `claim_status: QUEUED`, `touches`, `depends_on`, `triage` from § 4c). Leave `owner` / `claimed_at` / `last_touch` empty until claimed. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 3. Remove the item from the Triage Panel in `backlog-index.md` (it is tracked by the sprint now).
 
 > **Queue order is the first claim order, not an execution dependency.** Record the rows in the order you intend the runner to try them. `@sprint-run` evaluates eligibility immediately before **each** claim and iterates to a fixpoint (`.devops/skills/sprint-run/SKILL.md` § 2), so a plan listed *above* the dependency it needs is still reached once that dependency is satisfied — by archive (`claim_status: COMPLETE`) or by `GATE_D_USER_APPROVAL` (executed to `PHASE_9`, Gate D `OPEN`). Do **not** topologically sort the queue; state the intent and let the runner resolve it.

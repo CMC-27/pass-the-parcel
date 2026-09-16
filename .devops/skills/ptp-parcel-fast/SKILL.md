@@ -1,7 +1,7 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single fresh context per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 4
+version: 5
 updated: 2026-09-16
 ---
 
@@ -29,6 +29,8 @@ updated: 2026-09-16
 ## Plan Settings writer (frozen preset)
 
 The chain's **first** action — at claim time, before Phase 1 — writes the plan's `## ⚙️ Plan Settings` block as the locked preset: `Mode=AUTO`, `Agents=SINGLE`. This closes the gap where plan-start config had no assigned writer under the batch path. The host (`parcel-sprint`) never authors it, and it is frozen thereafter.
+
+**Record the flag in that same block.** When the claimed plan's claim front-matter carries `triage: MULTI`, the provenance line written with the preset must **name the flag** and state plainly that this run is `SINGLE` under the batch preset with **no independent review** — the operator accepted that risk at the fork (`@sprint-run` § 1), and the record belongs in the plan, not in a session transcript. Recording it at claim time is the one legal moment (the block is written once); Gate D then reads the risk instead of discovering it. Canonical semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 
 ## Auto-clear test
 

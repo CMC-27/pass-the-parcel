@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 20
+version: 21
 updated: 2026-09-16
 ---
 
@@ -23,7 +23,7 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 ## Plan State Lifecycle (Canonical Reference)
 
 Every plan file **MUST** have:
-- The **claim front-matter** block at the very top — `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on`. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
+- The **claim front-matter** block at the very top — `code` / `sprint` / `claim_status` / `owner` / `claimed_at` / `last_touch` / `touches` / `depends_on` / `triage`. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter. (`triage` is the **commit-time topology recommendation** recorded by `@sprint-plan` § 4c — a recommendation, not the frozen `Plan Settings` `Agents` config.)
 - The full template scaffold with phases, gates, and checks.
 - Its **Plan Settings** block (top of the file) recording `Mode` + `Agents`, set once at plan start and read before any phase.
 - Its **State & Gates** section (bottom of the file) updated at each transition. 
@@ -162,6 +162,7 @@ A sprint's committed queue can be run in one unattended pass by the **`parcel-sp
 - **Retirement is a separate, operator-invoked step** — the batch loop never archives and never marks a plan complete. After the verdict, the **batch wrap-up** — one distinct invocation of `@agent-wrap-up` (§ Batch Scope), run by `parcel-sprint` (which may spawn `wiki-writer` for the wiki prose) or by the ordinary wrap-up path — asserts each plan against the per-plan confirmation gate, runs the repo gates once for the set, then sets `COMPLETE` and archives each plan. A plan failing any assertion is carry-forward, never complete. Per-plan `@agent-wrap-up` stays valid and composes.
 - **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect). The loop is **executed by** `scripts/sprint_eligible.py` (the predicate's executable embodiment, `.devops/rules/plan-lifecycle.md` § Claim Protocol): the host acts only on that JSON and a non-zero exit halts the batch — prose is never the fallback.
 - **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
+- **MULTI-worthy yield** — a plan whose commit-time triage recommends `MULTI` (or whose declared `touches` exceed the triage table's blast-radius bound) is flagged **before the first claim** and surfaced in the informed preview for one operator answer: **accept batch risk** (the locked `AUTO` + `SINGLE` run, no independent reviewer) or **defer to manual**. A deferral is a **pure pause at that plan's slot** — the loop never claims past it — reported as `DEFERRED-MANUAL` with the dependents it strands and the resume path (deliver it via `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run`). It is a halt, not a fifth deviation: canonical semantics live in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 
 Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.
 
