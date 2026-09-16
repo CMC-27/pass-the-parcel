@@ -1,7 +1,7 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, fresh context each), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 4
+version: 5
 updated: 2026-09-16
 ---
 
@@ -75,6 +75,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 - Preflight: non-empty `git status --porcelain` and no accepted resume path.
 - Preflight: red baseline (`check-parcel-prefix.ps1` or `check-utf8-agents.ps1` exit ≠ `0`).
 - Per plan: a Phase 3.5 `Unresolvable:` entry.
+- Per plan: an `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** (`.devops/rules/plan-lifecycle.md`) — a gate-critical section carrying a line-leading unchecked box or a bare `TBD`/`TODO`/`FIXME`, a Phase 4 acceptance-criteria table with no criterion + `Test Target` row, or a Phase 6 self-review with no acceptance-criterion row. **An unproven gate is not clearable.**
 - Per plan: a self-review `**REJECTED:**` at the inline Phase 6 checkpoint (never an inline `PHASE_5_REVISION` loop).
 - Per plan: `PHASE_8_FAILED` (rollback after two failed self-healing attempts).
 - Per plan: the `ptp-parcel-fast` subagent returns `HALT <code>: <cause>`.

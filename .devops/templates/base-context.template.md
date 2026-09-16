@@ -51,7 +51,7 @@ normalize model aliases inconsistently.
 
 **Gate flips:** gates flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 
-**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
+**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — see `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract; Gate D always requires the human).
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
@@ -122,5 +122,5 @@ Each orchestrator agent declares its Plan Settings defaults here. At plan start,
 | `parcel` | USER-MANAGED | MULTI | `ask` |
 | `parcel-sprint` | AUTO | `per-plan SINGLE` (governs each spawned `ptp-parcel-fast`; the host itself spawns) | locked (batch host) |
 
-A locked preset is enforced **structurally** wherever the runtime can express it: `parcel-sprint`'s `opencode.json` `permission.task` block denies `"*"` and allows exactly two **named** targets — its per-plan runner `ptp-parcel-fast` (never anything else during a plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose only). No glob key is admitted, so the batch preset stays structural. `AUTO` auto-clears Gates A-C on mechanical verification; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
+A locked preset is enforced **structurally** wherever the runtime can express it: `parcel-sprint`'s `opencode.json` `permission.task` block denies `"*"` and allows exactly two **named** targets — its per-plan runner `ptp-parcel-fast` (never anything else during a plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose only). No glob key is admitted, so the batch preset stays structural. `AUTO` auto-clears Gates A-C **only** on positive evidence — see `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract; **Gate D always halts for the human**. Full contract: `@pass-the-parcel` § Agent Topology.
 <!-- ORCHESTRATOR-ONLY:END -->

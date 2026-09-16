@@ -65,7 +65,7 @@ The `claim_status` mirrors the pipeline: `QUEUED` -> `CLAIMED` (Phases 1→8) ->
 
 **Gate flips:** gates flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 
-**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
+**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C **only** on positive evidence — see § AUTO Gate Evidence Contract; Gate D always requires the human).
 
 **Agents (topology axis — orthogonal to Modes):** `MULTI` (default — **comprehensive plan**: full `ptp-*` delegation, independent Group C reviewers, 4 gates) / `SINGLE` (**fast plan**: the orchestrator executes each group's persona inline with no `task` spawns, Group C is skipped, and Gates B+C merge into one approval at Gate B with Gate C `N/A`). Chosen by task complexity at plan start (blast radius / contract change / risk / ambiguity / novelty) and confirmed by the user. Gate D always halts for the human in both topologies; `AUTO` auto-clears Gates A-C on mechanical verification. See `@pass-the-parcel` § Agent Topology. Both `Mode` and `Agents` are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file (frozen at plan start) — never the bottom State & Gates.
 
@@ -100,11 +100,37 @@ The one definition of `touches` overlap. It is cited by `@sprint-run` § 2 (per-
 - Gate transitions mutate ONLY those bottom rows; the frozen settings block and phase content above stay byte-stable to preserve LLM prefix-cache hits.
 - Every "update the dashboard" instruction means "update the bottom State & Gates section".
 
+## AUTO Gate Evidence Contract (canonical — cite it, never restate it)
+
+The one definition of what makes an `AUTO` gate clearable. Cited by `@pass-the-parcel` § Review Gates, `ptp-parcel-fast` § Auto-clear test, and `@sprint-run` § 5. Do not fork a second dialect: a drifted test either passes an empty self-review by omission, or halts a gate that was proven.
+
+An `AUTO` gate clears **only on positive, presence-based evidence**. The test is **mechanical** — presence plus reference, never a quality judgement. A quality judgement in the test produces false halts; its absence is what makes the test safe to automate.
+
+**Gate-critical sections (scoped, not global).** Phases 1-3 for Gate A; Phases 4-5 for Gate B; the Phase 6 self-review block for the `SINGLE` checkpoint. Phases 8-9 belong to Gate D and are **deliberately outside this contract** — Gate D is the human's.
+
+**Cross-cutting checks.**
+
+- **P1 — no unresolved placeholder.** After removing fenced code blocks and code spans, the gate's **evidence blocks** (Phase 3's question/answer block; Phase 4's acceptance-criteria table; Phase 6's self-review table) carry no line-leading unchecked box (`[ ]`) and none of the bare tokens `TBD` / `TODO` / `FIXME`. The strip step is what makes the test **quotation-safe**: a plan may quote the very tokens it forbids. **Forward work lists are exempt** — `### To-Do List` and the Phase 8 execution checklist are `[ ]` at Gate B by design, ticked during Phase 8, and are not evidence.
+- **P2 — no blocking verdict.** No line whose first non-whitespace token is `**REJECTED:**` or `Unresolvable:`, and no Phase 6 `**Verdict:**` line recording a value other than `PASS`. A bare mention inside prose is not an entry. P2 is the *retained* negative test, now **necessary but never sufficient**.
+
+| Gate | Positive evidence required, in addition to P1 + P2 |
+|---|---|
+| **A** (Scope, after Phase 3) | Every Phase 3 question carries an answer: in `AUTO`, each `Q#` has an `Auto-Resolution:` entry with `Rationale:` + `Source:`; in `USER-MANAGED`, each `Q#` carries the user's recorded answer. **And** the final-validation verdict line is recorded. |
+| **B** (Spec & Plan, after Phase 5) | Phase 4 carries ≥1 acceptance-criterion row with a non-empty criterion **and** a non-empty `Test Target` — **or** the recorded line `No wiki delta — rationale: …`. **And** Phase 5 carries ≥1 file-level step naming a path. |
+| **C** (Peer Reviews, `MULTI` only) | Each review file exists and its first line is a `PASS` / `**REJECTED:**` verdict. In `SINGLE`, Gate C is `N/A` and the Phase 6 row below replaces it. |
+| **Phase 6 self-review** (`SINGLE`) | The Phase 6 section carries ≥1 self-review row that names an acceptance criterion by its `#` **and** fills both the "met?" and the evidence cell (a blank cell is not evidence), plus a `**Verdict:**` line reading `PASS`. An empty checkpoint, a prose paragraph, a bare `N/A`, or a row with a blank cell does **not** clear Gate B. |
+
+**Consequence — an unproven gate is a stop-the-line.** A gate whose outputs exist but fail P1, P2, or its row above is **not clearable**: the run halts with the failing gate and the missing artifact named. It is never a `REJECTED` verdict (which routes to `PHASE_5_REVISION`) and never a silent skip. `@sprint-run` § 5 carries this as a per-plan stop-the-line cause; `ptp-parcel-fast` returns `HALT <code>: unproven <gate> — <missing artifact>`.
+
+> **Never relax the test to let a thin plan through.** The pressure to relax is always "the plan is obviously fine" — but the test is what makes that judgement auditable, and it sits between a self-authored plan and the human. `@sprint-run` batches Gate D into **one** verdict, so weak A/B evidence propagates to a single end-of-batch decision.
+>
+> `ponytail:` ceiling — the test proves an artifact is *present and referenced*, never that it is *correct* (a self-review row citing `AC 1` passes even if the reasoning is thin). Upgrade path = an independent reviewer in `SINGLE` (out of scope here; `T1-E3.10` territory).
+
 ## Rules
 
 1. **The plan is the only state.** Never carry workflow state in conversation; always read the plan first and update it before halting.
 2. **One phase-group per session.** Never skip ahead after a gate. Save the plan and halt. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context — an explicit, machine-enforced **Strict Context Isolation** exception. The rule stands for every other run. See § Deviations.
-3. **No gate is skippable.** Gates A–D are hard stops requiring the human — except in `AUTO` mode, where the orchestrator auto-clears Gates A–C after mechanical verification; Gate D always requires the human. In `SINGLE` topology Gate C is `N/A` — the plan is approved once at Gate B (spec + plan + inline self-review).
+3. **No gate is skippable.** Gates A–D are hard stops requiring the human — except in `AUTO` mode, where the orchestrator auto-clears Gates A–C **only** on positive evidence (see § AUTO Gate Evidence Contract); Gate D always requires the human. In `SINGLE` topology Gate C is `N/A` — the plan is approved once at Gate B (spec + plan + inline self-review).
 4. **Claim before edits.** A plan may not execute until it holds a claim (front-matter, plus a worktree for an isolated run — `@sprint-run` is `trunk-sequential` and skips the worktree; see § Deviations). Never run two claims whose `touches` overlap — serialize with the claim protocol instead of relying on the user. See § Claim Protocol.
 5. **Gate C precedes all edits.** No file is touched until the plan has passed peer review and been approved for execution.
 6. **Archive on completion.** A complete plan left in the plans folder is not done. `git mv` it to `.devops/archive/` (root) — no stub. The sprint's `sprint.md` archives to `.devops/archive/sprints/sprint-{n}-<slug>/` at sprint close.

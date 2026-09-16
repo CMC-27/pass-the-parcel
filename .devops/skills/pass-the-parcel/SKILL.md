@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 16
+version: 17
 updated: 2026-09-16
 ---
 
@@ -181,7 +181,7 @@ To prevent context inflation and ensure complete control over design and executi
    - **Gate B (Spec & Plan):** Stop after completing **Phases 4-5** (or a `PHASE_5_REVISION` fix round). Present the wiki requirements spec with acceptance criteria AND the standard implementation plan together as one decision — what it will do and what it will cost. **If rejected:** set Status → `PHASE_5_REVISION`, Gate B → `REJECTED`, return to Group B.
    - **Gate C (Peer Reviews):** Stop after completing **Phases 6-7** (Grumpy Architect Spec & Logic Audit + Product Owner review). Present findings and required fixes. **If a review failed, set `PHASE_5_REVISION` and return to Group B — do not proceed to execution.** Wait for approval before proceeding to execution.
    - **Gate D (Implementation):** Stop after completing **Phases 8-9** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off. **On rollback:** Status → `PHASE_8_FAILED`; the orchestrator routes retry / revision / user decision.
-   - **AUTO mode:** the orchestrator auto-clears Gates A-C after mechanical verification (outputs present, no `REJECTED` verdict line, no `Unresolvable:` entries). **Gate D always requires the human.**
+   - **AUTO mode:** the orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — the canonical contract is `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract (cited, never restated here). An unproven gate is a **stop-the-line**, never a `REJECTED` verdict and never a silent skip. **Gate D always requires the human.**
    - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
 
 ---

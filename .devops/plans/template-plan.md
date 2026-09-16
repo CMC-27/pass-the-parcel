@@ -152,7 +152,12 @@ depends_on: ["{code}", "..."]
 ## 6 Phase 6: Grumpy Architect Spec & Logic Audit
 **Skill Executed:** `ptp-grumpy-architect` (`SINGLE`: orchestrator inline)
 
-> **`SINGLE` topology:** no independent reviewer. The orchestrator logs an inline self-review checkpoint here and records **Verdict** `N/A — SINGLE self-review`.
+> **`SINGLE` topology:** no independent reviewer. The orchestrator fills the **self-review table** below — one row per acceptance criterion from Phase 4 — and records the `**Verdict:**` line. An empty table does **not** clear Gate B: `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract makes a row per criterion, with both cells filled, the positive evidence. A `SINGLE` run that cannot fill the rows records `REJECTED` and **halts** — it never starts an inline revision loop.
+
+**`SINGLE` self-review (evidence — one row per acceptance criterion):**
+| AC # | Criterion met? (`Yes`/`No`) | Evidence / gap |
+|---|---|---|
+| 1 | | |
 
 **Verdict:** `PASS` / `REJECTED`
 
@@ -238,6 +243,11 @@ depends_on: ["{code}", "..."]
 - [ ] Build pass (exit 0)
 - [ ] Code matches exact plan specifications — verified by re-running the Phase 5 Test Verification Plan commands; every command exits `0`
 - [ ] No functional gaps identified
+
+**Verification Evidence (required — the checkbox list alone is not evidence):**
+| # | Command | Expected | Observed | Exit |
+|---|---|---|---|---|
+| 1 | | | | |
 
 ---
 

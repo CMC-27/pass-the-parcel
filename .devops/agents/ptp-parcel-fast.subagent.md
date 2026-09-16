@@ -46,7 +46,7 @@ user-invocable: false
 
 **Gate flips:** gates flip to `APPROVED`/`REJECTED` only AFTER the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`.
 
-**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C after mechanical verification; Gate D always requires the human).
+**Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — see `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract; Gate D always requires the human).
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
@@ -102,7 +102,7 @@ The chain's **first** action — at claim time, before Phase 1 — writes the pl
 
 ## Auto-clear test
 
-A gate auto-clears only when its outputs exist **and** contain no `REJECTED` verdict line and no `Unresolvable:` entry (mirrors `@pass-the-parcel` § Review Gates, `AUTO` clause). Otherwise halt with the failure outcome below.
+A gate auto-clears only when its outputs satisfy the canonical **AUTO Gate Evidence Contract** (`.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract) — cited, never restated here. This chain auto-clears Gate A and Gate B; Gate C is recorded `N/A` under the locked `SINGLE` preset. Otherwise halt with the failure outcome below.
 
 ## Named exception
 
@@ -111,6 +111,7 @@ This single-context Phases 1→9 run is the **explicit, machine-enforced Strict 
 ## Per-plan outcome map (halt vs skip)
 
 - `PHASE_8_FAILED` (rollback after two failed self-healing attempts) → return `HALT <code>: PHASE_8_FAILED`.
+- An `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** → return `HALT <code>: unproven <gate> — <missing artifact>`. Never repaired inline, never downgraded to a skip.
 - A self-review `**REJECTED:**` at the inline Phase 6 checkpoint, or a Phase 3.5 `Unresolvable:` → return `HALT <code>: <cause>`. **Never** start an inline `PHASE_5_REVISION` loop — revision belongs to a fresh Group B run, not this locked chain.
 - A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` without re-running.
 - A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2 — the two layers must not diverge, or the host claims under the relaxed rule and this check immediately skips, leaving a `CLAIMED` orphan.
