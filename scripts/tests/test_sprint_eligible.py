@@ -1,0 +1,282 @@
+#!/usr/bin/env python3
+"""Fixture tests for scripts/sprint_eligible.py - the batch eligibility predicate.
+
+The predicate's definition is canonical in .devops/rules/plan-lifecycle.md
+(section Claim Front-Matter + section Claim Protocol -> *Write-Set Overlap
+Predicate*); this suite pins the script that embodies it. Each case drives the
+REAL CLI (subprocess + exit code + parsed JSON), because the exit code and stdout
+shape are the contract @sprint-run consumes.
+
+Run: python scripts/tests/test_sprint_eligible.py
+"""
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+SCRIPT = REPO_ROOT / "scripts" / "sprint_eligible.py"
+SPRINT = "sprint-1-fixture"
+ACTIVE = "\U0001F7E2 ACTIVE"
+
+PLAN_TEMPLATE = """---
+code: {code}
+sprint: {sprint}
+claim_status: {claim}
+owner: fixture
+claimed_at: "2026-09-16"
+last_touch: "2026-09-16"
+touches: [{touches}]
+depends_on: [{depends}]
+---
+# {code}
+
+## 9 Phase 9: Verify Changes
+
+## State & Gates
+
+| Metric | Value |
+|---|---|
+| **Status** | `{status}` |
+| **Version** | `v0.1.0` |
+"""
+
+SPRINTS_TEMPLATE = """---
+type: "sprint"
+---
+# Sprint Index
+
+| # | Sprint | Goal | Status | Link | Notes |
+|---|---|---|---|---|---|
+| 1 | Fixture | fixture sprint | {active} | [sprint.md](../sprints/{sprint}/sprint.md) | - |
+"""
+
+
+class Tree:
+    """A throwaway .devops/ tree: one sprint queue, the claimed set, the archive."""
+
+    def __init__(self, base: Path, active: bool = True):
+        self.root = base
+        self.sprint_dir = base / ".devops" / "sprints" / SPRINT
+        self.plans_dir = base / ".devops" / "plans"
+        self.archive_dir = base / ".devops" / "archive"
+        self.backlog_dir = base / ".devops" / "backlog"
+        for folder in (self.sprint_dir, self.plans_dir, self.archive_dir, self.backlog_dir):
+            folder.mkdir(parents=True, exist_ok=True)
+        (self.sprint_dir / "sprint.md").write_text("# Fixture sprint\n", encoding="utf-8")
+        self.backlog_dir.joinpath("SPRINTS.md").write_text(
+            SPRINTS_TEMPLATE.format(active=ACTIVE if active else "LATER", sprint=SPRINT),
+            encoding="utf-8",
+        )
+
+    def plan(self, folder: Path, code: str, claim="QUEUED", status="QUEUED",
+             touches=(), depends=(), with_code=True):
+        body = PLAN_TEMPLATE.format(
+            code=code if with_code else "",
+            sprint=SPRINT,
+            claim=claim,
+            status=status,
+            touches=", ".join(json.dumps(t) for t in touches),
+            depends=", ".join(json.dumps(d) for d in depends),
+        )
+        if not with_code:
+            body = body.replace("code: \n", "")
+        path = folder / f"{code.lower()}-fixture-plan.md"
+        path.write_text(body, encoding="utf-8")
+        return path
+
+    def queued(self, code: str, **kw):
+        kw.setdefault("claim", "QUEUED")
+        kw.setdefault("status", "QUEUED")
+        return self.plan(self.sprint_dir, code, **kw)
+
+    def claimed_plan(self, code: str, claim="CLAIMED", status="PHASE_3", **kw):
+        return self.plan(self.plans_dir, code, claim=claim, status=status, **kw)
+
+
+def run(root, *args, cwd=None):
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), "--root", str(root), *args],
+        capture_output=True, text=True, cwd=str(cwd or REPO_ROOT),
+    )
+
+
+def payload(result):
+    """Parsed stdout of a successful run; fails loudly when the contract broke."""
+    if result.returncode != 0:
+        raise AssertionError(f"expected exit 0, got {result.returncode}: {result.stderr}")
+    return json.loads(result.stdout)
+
+
+def skipped(payload_obj, code):
+    for row in payload_obj["skipped"]:
+        if row["code"] == code:
+            return row["reasons"]
+    raise AssertionError(f"{code} is not in the skip table")
+
+
+class SprintEligibleTestCase(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self._tmp.name)
+        self.tree = Tree(self.root)
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    # FILL:tests
+    def test_dependency_chain_is_claimed_in_queue_order(self):
+        self.tree.queued("T1-E1.01")
+        self.tree.queued("T1-E1.02", depends=["T1-E1.01"])
+        out = payload(run(self.root))
+        self.assertEqual(out["eligible"], ["T1-E1.01"])
+        self.assertEqual(out["claim_order"], ["T1-E1.01", "T1-E1.02"])
+        self.assertEqual(out["skipped"], [])
+
+    def test_mutual_cycle_leaves_both_skipped(self):
+        self.tree.queued("T1-E1.01", depends=["T1-E1.02"])
+        self.tree.queued("T1-E1.02", depends=["T1-E1.01"])
+        out = payload(run(self.root))
+        self.assertEqual(out["eligible"], [])
+        self.assertEqual(out["claim_order"], [])
+        self.assertIn("unmet depends_on: T1-E1.02", skipped(out, "T1-E1.01"))
+        self.assertIn("unmet depends_on: T1-E1.01", skipped(out, "T1-E1.02"))
+
+    def test_touches_overlap_skips_the_later_plan(self):
+        self.tree.queued("T1-E1.01", touches=["scripts/foo.py"])
+        self.tree.queued("T1-E1.02", touches=["scripts/foo.py"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+        self.assertIn("touches overlap: T1-E1.01 via scripts/foo.py", skipped(out, "T1-E1.02"))
+
+    def test_dependency_satisfied_by_gate_d_user_approval(self):
+        self.tree.claimed_plan("T1-E1.01", claim="GATE_D_USER_APPROVAL", status="PHASE_9")
+        self.tree.queued("T1-E1.02", depends=["T1-E1.01"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.02"])
+        self.assertEqual(out["already_phased"], ["T1-E1.01"])
+        self.assertEqual(out["in_flight"], [])
+
+    def test_in_flight_dependency_is_unmet(self):
+        self.tree.claimed_plan("T1-E1.01", claim="CLAIMED", status="PHASE_3")
+        self.tree.queued("T1-E1.02", depends=["T1-E1.01"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], [])
+        self.assertIn("unmet depends_on: T1-E1.01", skipped(out, "T1-E1.02"))
+        self.assertEqual(out["in_flight"], ["T1-E1.01"])
+        self.assertEqual(out["orphans"], ["T1-E1.01"])
+
+    def test_queued_plan_already_at_phase_9_is_skipped(self):
+        self.tree.queued("T1-E1.01", status="PHASE_9")
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], [])
+        self.assertEqual(skipped(out, "T1-E1.01"), ["already PHASE_9"])
+        self.assertEqual(out["already_phased"], ["T1-E1.01"])
+
+    def test_template_plan_changes_nothing(self):
+        self.tree.queued("T1-E1.01", touches=["scripts/foo.py"])
+        without = payload(run(self.root))
+        shutil.copy(REPO_ROOT / ".devops" / "plans" / "template-plan.md",
+                    self.tree.plans_dir / "template-plan.md")
+        self.assertEqual(payload(run(self.root)), without)
+        self.assertEqual(without["claim_order"], ["T1-E1.01"])
+
+    def test_archived_dependency_is_satisfied_with_or_without_code_field(self):
+        self.tree.plan(self.tree.archive_dir, "T1-E1.00")
+        self.tree.plan(self.tree.archive_dir, "T1-E1.01", with_code=False)
+        self.tree.queued("T1-E1.02", touches=["a/x.py"], depends=["T1-E1.00"])
+        self.tree.queued("T1-E1.03", touches=["b/y.py"], depends=["T1-E1.01"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.02", "T1-E1.03"])
+        self.assertEqual(out["skipped"], [])
+
+    def test_overlap_normalisation_ignores_case_and_trailing_glob(self):
+        self.tree.queued("T1-E1.01", touches=["Scripts/Feature/**"])
+        self.tree.queued("T1-E1.02", touches=["scripts/feature/module.py"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+        self.assertIn("touches overlap: T1-E1.01 via scripts/feature", skipped(out, "T1-E1.02"))
+
+    def test_mid_path_wildcard_is_a_documented_miss(self):
+        # ponytail: ceiling - a mid-path wildcard is not detected (plan-lifecycle.md).
+        self.tree.queued("T1-E1.01", touches=["src/*/db"])
+        self.tree.queued("T1-E1.02", touches=["src/a/db/schema.sql"])
+        out = payload(run(self.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01", "T1-E1.02"])
+
+    def test_parallel_groups_pack_disjoint_plans_and_layer_dependencies(self):
+        self.tree.queued("T1-E1.01", touches=["a/one.py"])
+        self.tree.queued("T1-E1.02", touches=["b/two.py"])
+        out = payload(run(self.root))
+        self.assertEqual(out["parallel_groups"], [["T1-E1.01", "T1-E1.02"]])
+
+        other = Tree(Path(self._tmp.name) / "layered")
+        other.queued("T1-E1.01", touches=["a/one.py"])
+        other.queued("T1-E1.02", touches=["b/two.py"], depends=["T1-E1.01"])
+        out = payload(run(other.root))
+        self.assertEqual(out["claim_order"], ["T1-E1.01", "T1-E1.02"])
+        self.assertEqual(out["parallel_groups"], [["T1-E1.01"], ["T1-E1.02"]])
+
+    def test_output_is_deterministic(self):
+        self.tree.queued("T1-E1.01", touches=["a/one.py"])
+        self.tree.queued("T1-E1.02", touches=["a/one.py"])
+        first, second = run(self.root), run(self.root)
+        self.assertEqual(first.stdout, second.stdout)
+
+    def test_schema_keys_and_empty_queue(self):
+        out = payload(run(self.root))
+        self.assertEqual(out["schema"], "sprint-eligible/1")
+        for key in ("schema", "root", "sprint", "sprint_dir", "queue", "eligible",
+                    "claim_order", "parallel_groups", "skipped", "in_flight",
+                    "orphans", "already_phased", "counts"):
+            self.assertIn(key, out)
+        self.assertEqual(out["counts"]["queue"], 0)
+        self.assertEqual(out["sprint"], SPRINT)
+
+    def test_explicit_sprint_dir_bypasses_the_active_row(self):
+        idle = Tree(Path(self._tmp.name) / "idle", active=False)
+        idle.queued("T1-E1.01", touches=["a/one.py"])
+        out = payload(run(idle.root, "--sprint-dir", str(idle.sprint_dir)))
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+
+    def test_exit_1_when_no_active_sprint_row(self):
+        idle = Tree(Path(self._tmp.name) / "idle", active=False)
+        result = run(idle.root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("no ACTIVE sprint row", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+    def test_exit_1_when_root_is_not_a_directory(self):
+        result = run(Path(self._tmp.name) / "missing")
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("--root is not a directory", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+    def test_exit_1_when_plan_has_no_front_matter(self):
+        (self.tree.sprint_dir / "t1-e1.99-broken-plan.md").write_text(
+            "# no front matter here\n", encoding="utf-8")
+        result = run(self.root)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("plan file has no front-matter block", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+    def test_exit_1_when_shared_reader_import_fails(self):
+        solo = Path(self._tmp.name) / "solo"
+        solo.mkdir()
+        shutil.copy(SCRIPT, solo / "sprint_eligible.py")
+        result = subprocess.run(
+            [sys.executable, str(solo / "sprint_eligible.py"), "--root", str(self.root)],
+            capture_output=True, text=True, cwd=str(solo),
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("shared reader import failed", result.stderr)
+        self.assertEqual(result.stdout, "")
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
+

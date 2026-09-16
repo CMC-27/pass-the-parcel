@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 19
+version: 20
 updated: 2026-09-16
 ---
 
@@ -160,7 +160,7 @@ A sprint's committed queue can be run in one unattended pass by the **`parcel-sp
 - **`trunk-sequential`** — keeps the `git mv` + `claim: <code>` commit, drops `git worktree add`.
 - **Batched Gate D** — plans terminate at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`; a single human verdict covers the whole batch, and Gate D is deferred, never skipped. `GATE_D_USER_APPROVAL` (not `CLAIMED`) is the state that satisfies a dependent's `depends_on`.
 - **Retirement is a separate, operator-invoked step** — the batch loop never archives and never marks a plan complete. After the verdict, the **batch wrap-up** — one distinct invocation of `@agent-wrap-up` (§ Batch Scope), run by `parcel-sprint` (which may spawn `wiki-writer` for the wiki prose) or by the ordinary wrap-up path — asserts each plan against the per-plan confirmation gate, runs the repo gates once for the set, then sets `COMPLETE` and archives each plan. A plan failing any assertion is carry-forward, never complete. Per-plan `@agent-wrap-up` stays valid and composes.
-- **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect).
+- **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect). The loop is **executed by** `scripts/sprint_eligible.py` (the predicate's executable embodiment, `.devops/rules/plan-lifecycle.md` § Claim Protocol): the host acts only on that JSON and a non-zero exit halts the batch — prose is never the fallback.
 - **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
 
 Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-run` skill.

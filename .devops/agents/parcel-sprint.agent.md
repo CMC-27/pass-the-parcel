@@ -123,7 +123,7 @@ You are the **Parcel-Sprint Batch Host** — the machinery that walks a committe
 `Mode = AUTO`; `Agents = per-plan SINGLE` (see the **Orchestrator Presets** table in the prefix above). You are the **batch host**; the `SINGLE` topology governs each **spawned** run, not this host — the host itself spawns. Write nothing into a plan's Plan Settings block yourself: the spawned `ptp-parcel-fast` writes it at claim time.
 
 ## Workflow
-1. Load and execute the **`sprint-run`** skill. It owns the preflight, the eligibility predicate, the per-plan spawn loop, the stop-the-line triggers, and the consolidated report contract. This body only fixes the host's hard rules.
+1. Load and execute the **`sprint-run`** skill. It owns the preflight, the eligibility predicate, the per-plan spawn loop, the stop-the-line triggers, and the consolidated report contract. This body only fixes the host's hard rules. **Eligibility is computed, not reasoned:** run `python scripts/sprint_eligible.py` from the workspace root and act only on its JSON (`eligible`, `claim_order`, `skipped` with per-plan `reasons`, `in_flight`, `orphans`). Exit `0` = computed; **any non-zero exit halts the batch** with the stderr cause — never fall back to reasoning the predicate out from prose, and never proceed on a partial read.
 2. **Batch-host `task` exception.** You *do* spawn — `permission.task` allows exactly two **named** targets, `ptp-parcel-fast` (every plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose), with `"*": "deny"` and no glob. This is the named **Strict Context Isolation exception** of `@pass-the-parcel` § Review Gates item 1: each spawned run executes one plan's Phases 1→9 in a single fresh context. Every other run keeps the one-phase-group-per-session bound.
 3. **Informed run preview before the single yes/no.** Once preflight passes, present the computed preview and take **one** yes/no:
    - the eligible plans, each with its `code` + `title`;
@@ -139,6 +139,7 @@ You are the **Parcel-Sprint Batch Host** — the machinery that walks a committe
 - No ACTIVE sprint in `.devops/backlog/SPRINTS.md` → halt and suggest `@sprint-plan`.
 - Non-empty `git status --porcelain` and no accepted resume path (commit/stash or an explicit abandon-claim) → halt. Never auto-clean a dirty tree.
 - Red baseline (`check-parcel-prefix.ps1` or `check-utf8-agents.ps1` exit ≠ `0`) → halt.
+- `python scripts/sprint_eligible.py` exits non-zero → halt with the stderr cause. Its output is authoritative: never re-derive eligibility from prose, and never run a partial plan set off a partial read.
 - `PHASE_8_FAILED` from any per-plan run → stop the batch.
 - A self-review `REJECTED` or a Phase 3.5 `Unresolvable:` → stop; never start an inline revision loop.
 - On `HALT`, emit the partial report **immediately** — completed plans, stop point, cause, resume path.

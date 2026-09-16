@@ -20,7 +20,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 52
+machinery-version: 53
 
 portable_dirs:
   - .wiki/rules
@@ -40,6 +40,11 @@ portable_files:
   - scripts/wiki_okf.py
   - scripts/wiki_visualize.py
   - scripts/spaghetti-monster-scan.cjs
+  # The batch eligibility predicate, executable. `parcel-sprint` (portable) and the
+  # `sprint-run` skill call it as their authority, so it must ride with them; the
+  # fixture test beside it (`scripts/tests/`) stays local — `validate.yml` is not a
+  # portable file, so a satellite would ship a test nothing runs.
+  - scripts/sprint_eligible.py
   - .github/workflows/wiki-refresh.yml
   # The canonical plan scaffold. Named by the shared prefix (.opencode/plans/base-context.md)
   # and by five shipped skills, so it must ride with them; the only file under .devops/plans/

@@ -1,7 +1,7 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single fresh context per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 3
+version: 4
 updated: 2026-09-16
 ---
 
@@ -44,7 +44,7 @@ This single-context Phases 1→9 run is the **explicit, machine-enforced Strict 
 - An `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** → return `HALT <code>: unproven <gate> — <missing artifact>`. Never repaired inline, never downgraded to a skip.
 - A self-review `**REJECTED:**` at the inline Phase 6 checkpoint, or a Phase 3.5 `Unresolvable:` → return `HALT <code>: <cause>`. **Never** start an inline `PHASE_5_REVISION` loop — revision belongs to a fresh Group B run, not this locked chain.
 - A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` without re-running.
-- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2 — the two layers must not diverge, or the host claims under the relaxed rule and this check immediately skips, leaving a `CLAIMED` orphan.
+- A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2, whose executable embodiment is `scripts/sprint_eligible.py` — the two layers must not diverge, which is why neither restates the rule: they cite `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 
 ## Output contract
 

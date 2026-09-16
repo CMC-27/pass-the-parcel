@@ -1,7 +1,7 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, fresh context each), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 5
+version: 6
 updated: 2026-09-16
 ---
 
@@ -32,6 +32,8 @@ Run in order; any failure halts the batch **before** the first claim.
 ## 2. Eligible set (per claim)
 
 **Immediately before each claim**, re-apply the predicate against the **live** `.devops/plans/` — not once across the queue. That is what makes the batched-`PHASE_9` protection live rather than dead text.
+
+**Computed, not reasoned.** Run `python scripts/sprint_eligible.py` from the workspace root; its JSON is authoritative for this section — `queue`, `eligible`, `claim_order`, `parallel_groups`, `skipped` (per-plan `reasons`), `in_flight`, `orphans`, `already_phased`. Exit `0` means computed; **any non-zero exit is a stop-the-line (§ 5)** — the host does not re-derive eligibility from these clauses, and a missing or partial output is never a partial run. The clauses below are the definition that script implements (canonical: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Write-Set Overlap Predicate*, plus § Claim Front-Matter) and the reference a human reads; when the two could disagree, the script's exit code decides.
 
 A queued plan is **eligible** iff all three hold:
 
@@ -76,6 +78,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 - Preflight: red baseline (`check-parcel-prefix.ps1` or `check-utf8-agents.ps1` exit ≠ `0`).
 - Per plan: a Phase 3.5 `Unresolvable:` entry.
 - Per plan: an `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** (`.devops/rules/plan-lifecycle.md`) — a gate-critical section carrying a line-leading unchecked box or a bare `TBD`/`TODO`/`FIXME`, a Phase 4 acceptance-criteria table with no criterion + `Test Target` row, or a Phase 6 self-review with no acceptance-criterion row. **An unproven gate is not clearable.**
+- Per claim: `scripts/sprint_eligible.py` exits non-zero (no or multiple ACTIVE sprint rows, an unparsable plan file, a failed shared-reader import). The host halts and reports the stderr cause — it never reasons the predicate out from prose on the failed path.
 - Per plan: a self-review `**REJECTED:**` at the inline Phase 6 checkpoint (never an inline `PHASE_5_REVISION` loop).
 - Per plan: `PHASE_8_FAILED` (rollback after two failed self-healing attempts).
 - Per plan: the `ptp-parcel-fast` subagent returns `HALT <code>: <cause>`.

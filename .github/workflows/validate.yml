@@ -78,6 +78,9 @@ jobs:
         shell: pwsh
         run: ./scripts/sync-architecture.ps1 -SelfTest
 
+      - name: Sprint eligibility predicate (fixture tests, temp trees only)
+        run: python scripts/tests/test_sprint_eligible.py
+
       - name: Machinery version discipline (manifest vs version-history)
         run: |
           python - <<'EOF'
