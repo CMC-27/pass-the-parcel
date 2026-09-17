@@ -67,7 +67,7 @@ Two caveats, both load-bearing when reading this table:
 
 | File | Lines | CCN(h) | Imports | Status | Plan | Flagged by |
 |------|-------|--------|---------|--------|------|-----------|
-| `scripts/sync-architecture.ps1` | 995 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold. Now **485** lines; the engine moved to five dot-sourced `scripts/lib/` modules |
+| `scripts/sync-architecture.ps1` | 995 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold. Now **497** lines (485 at W6; +12 when W8.1 added the `prune_dirs` capability); the engine moved to five dot-sourced `scripts/lib/` modules |
 | `scripts/spaghetti-monster-scan.cjs` | 254 | 79 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless |
 | `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | ✅ RESOLVED | `T1-E4.01` W8.1 | Retired — product/strategy authoring with no operational home; the skill folder is gone |
 | `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
@@ -86,7 +86,7 @@ Two caveats, both load-bearing when reading this table:
 
 | Date | File(s) | What was done | Source |
 |------|---------|---------------|--------|
-| 2026-09-17 | `scripts/sync-architecture.ps1` (995 → 485) | Decomposed into five dot-sourced `scripts/lib/` modules (manifest, bindings, prune, prefix, verify). CLI, sync path and `-SelfTest` body unchanged; four CLI modes proven line-for-line against pre-split goldens | `T1-E4.01` W6 |
+| 2026-09-17 | `scripts/sync-architecture.ps1` (995 → 485 at W6; 497 after W8.1) | Decomposed into five dot-sourced `scripts/lib/` modules (manifest, bindings, prune, prefix, verify). CLI, sync path and `-SelfTest` body unchanged; four CLI modes proven line-for-line against pre-split goldens | `T1-E4.01` W6 |
 | 2026-09-17 | `scripts/wiki_lint.py` (485 → 60) | Split into `wiki_lint_core.py` (readers, primitives, constants) and `wiki_lint_checks.py` (the ten steps + `--fix`), over an explicit `LintContext`. Import surface and all eleven re-exported names preserved; `--fix` stdout **and** mutated-file bytes identical | `T1-E4.01` W6 |
 | 2026-09-17 | `.devops/skills/app-vision-north-star/` (634) | Retired whole (with three sibling skills). No successor needed — the roadmap artefacts it produced are authored directly | `T1-E4.01` W8.1 |
 

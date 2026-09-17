@@ -84,7 +84,7 @@ prune_files:
   # its Model Registry row is gone, so that satellite's own check-parcel-prefix.ps1 fails
   # "registry key has no agent file" / "no Model Registry row" and its pull exits 1.
   - .devops/agents/parcel-fast.agent.md
-  # Retired in T1-E4.01 (machinery 62): the three scripts left the portable surface.
+  # Retired in T1-E4.01 (machinery 56): the three scripts left the portable surface.
   # The coverage gate MOVED into wiki_claims.py (a satellite that still carries the old
   # script would run a gate nothing maintains); the OKF bundle and the static visualizer
   # had no consumer left.
