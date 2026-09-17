@@ -45,6 +45,7 @@ portable_files:
   # fixture test beside it (`scripts/tests/`) stays local — `validate.yml` is not a
   # portable file, so a satellite would ship a test nothing runs.
   - scripts/sprint_eligible.py
+  - scripts/rule_fanout.py
   - .github/workflows/wiki-refresh.yml
   # The canonical plan scaffold. Named by the shared prefix (.opencode/plans/base-context.md)
   # and by five shipped skills, so it must ride with them; the only file under .devops/plans/
