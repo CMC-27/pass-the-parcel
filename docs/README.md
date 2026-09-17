@@ -1,19 +1,13 @@
-# docs/ — Generated Wiki Visualizer
+# docs/ — Authored Supporting Content
 
-This directory holds a **generated** artifact, not authored documentation.
+This directory holds **authored** content, alongside `.wiki/` (architecture knowledge) and `.devops/` (operational state).
 
-| File | Source |
-|---|---|
-| `wiki-graph.md` | `python scripts/wiki_visualize.py` |
+A generated wiki graph used to live here (`wiki-graph.md`, written by `scripts/wiki_visualize.py`). It was **retired in T1-E4.01**: nothing consumed the artefact, so the file and its generator both went. The directory and its anchor row in `.wiki/rules/structure.md` were kept — the anchor is immutable, only its note changed.
 
-## Regenerate
+## Adding content here
 
-```
-python scripts/wiki_visualize.py
-```
-
-The script walks `.wiki/`, emits a mermaid hub-and-spoke graph plus a linked catalog, and refuses to write if any emitted link does not resolve. Commit the refreshed `wiki-graph.md` whenever the wiki structure changes.
+Write it by hand like any other doc. There is no generator, no build step and no regenerate instruction: adding a file here is the whole workflow.
 
 ## Not Hosted
 
-This is a static Markdown export only. No GitHub Pages, no MkDocs, no build step. Hosting can be added later without changing the export.
+This is a static Markdown directory only. No GitHub Pages, no MkDocs, no build step. Hosting can be added later without changing anything here.

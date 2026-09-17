@@ -8,6 +8,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 > **Track mapping.** Two versions move independently: the **product** line (this file) and the **machinery** line (`machinery-version` in `.devops/sync-manifest.yaml`). Product **v1.0.0** shipped on machinery-version **26**. Machinery releases continue after it, so the "Earlier releases" list below includes machinery versions newer than v1.0.0.
 
+## [Unreleased] — 2026-09-17
+
+### Added
+- **Managed Simplicity** adopted as the template's first principle (`.devops/rules/managed-simplicity.md`), carried by a compact form plus a link into `AGENTS.md`, its seed and the shared prefix.
+- **Surface-budget report** — `.devops/rules/surface-budget.md` (the machine-readable rule registry) plus `scripts/rule_fanout.py` (report-only, always exits 0, never a CI gate): per registered rule, how many machinery surfaces restate it and how many do so without naming its canonical home.
+
+### Changed
+- Rule fan-out trimmed: the five most-copied rules (`claim_status`, `GATE_D_USER_APPROVAL`, `auto-clear`, `context-isolated`, `Chunked Write Discipline`) each have one canonical home, and every legitimate surface now cites it instead of restating it.
+- `scripts/sync-architecture.ps1` 995 → 485 lines, its engine split into five dot-sourced `scripts/lib/` modules; `scripts/wiki_lint.py` 485 → 60, its readers and primitives moved to `wiki_lint_core.py` and its checks to `wiki_lint_checks.py`. Both splits are behaviour-preserving, proven line-for-line against pre-split goldens.
+- The encoding guard is roughly **32× faster** (18.4 s → 0.57 s at template scale) and no longer blind to a marker at end-of-file. `.devops/archive/**` left the recurring scan; `-All` reproduces the whole-tree scan on demand, unscheduled.
+- **The wiki coverage gate moved, never died**: `python scripts/wiki_claims.py coverage` replaces the standalone script and keeps its hard-stop contract.
+- `@test-and-deploy` § 2b absorbs the app-facing hardening sweep from the retired vibe-auditor.
+
+### Removed
+- Four skills retired: `wiki-assessment`, `caveman`, `app-vision-north-star`, `pre-deployment-vibe-auditor` — the vibe-auditor's unique checks were folded into `@test-and-deploy` first.
+- `scripts/wiki_okf.py` and `scripts/wiki_visualize.py` retired along with the generated `docs/wiki-graph.md`. The CI assertion that every `.wiki/**/*.md` frontmatter block parses as YAML survives as its own dependency-free step.
+- `sync-manifest.yaml` gains `prune_dirs:`, so a retired skill folder is actually deleted from an already-synced satellite instead of lingering as an orphan.
+
+### Fixed
+- A file whose last two bytes were the CP1252 marker `C3 A2` was never scanned by the encoding guard — the loop bound stopped two bytes short. The whole file is now scanned.
+
 ## [v1.0.0] — 2026-09-11
 
 First public release of the template.

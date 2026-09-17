@@ -33,22 +33,18 @@ jobs:
         run: python scripts/wiki_lint.py --quiet
 
       - name: Wiki coverage gate (graceful no-op until src/ exists)
-        run: python scripts/wiki_coverage_check.py
+        run: python scripts/wiki_claims.py coverage
 
       - name: Claims drift check (grounded evidence)
         run: python scripts/wiki_claims.py check
 
-      - name: Wiki visualizer freshness (docs/wiki-graph.md)
-        run: python scripts/wiki_visualize.py --check
-
-      - name: OKF interop (export frontmatter parses as YAML; import round-trip)
+      - name: Wiki frontmatter parses as YAML
         run: |
           pip install --quiet pyyaml
-          python scripts/wiki_okf.py export --out /tmp/okf-src --quiet
           python - <<'EOF'
           import glob, sys, yaml
           bad = 0
-          for f in sorted(glob.glob('/tmp/okf-src/**/*.md', recursive=True)):
+          for f in sorted(glob.glob('.wiki/**/*.md', recursive=True)):
               txt = open(f, encoding='utf-8').read()
               if not txt.startswith('---'):
                   continue
@@ -59,14 +55,8 @@ jobs:
                   bad += 1
           if bad:
               sys.exit(1)
-          print('OKF export: every frontmatter block parses as YAML')
+          print('Wiki frontmatter: every .wiki/**/*.md frontmatter block parses as YAML')
           EOF
-          python scripts/wiki_okf.py import --from /tmp/okf-src --out /tmp/okf-dst --quiet
-          src=$(find /tmp/okf-src -name '*.md' -not -name index.md | wc -l)
-          dst=$(find /tmp/okf-dst -name '*.md' | wc -l)
-          test "$src" -gt 0
-          test "$src" -eq "$dst"
-          echo "OKF round-trip parity: $src exported concepts == $dst imported"
 
       - name: JSON config parses (tracked JSON only)
         run: |

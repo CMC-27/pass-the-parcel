@@ -15,7 +15,7 @@ Invoke after `agent-wrap-up` completes (Phase 7a passed), or whenever the user s
 ## Inputs (read these ONLY — do not re-discover)
 1. **Latest entry** in `.devops/logs/agent-changelog.md` — the wrap-up being audited.
 2. **The mechanical diff**: `git diff --name-only <wrap-up-ref>..HEAD` where `<wrap-up-ref>` is the commit recorded in the most recent changelog entry BEFORE the one being audited. If that entry records no commit, halt and report "no wrap-up ref" — do not guess a boundary.
-3. **Gate outputs**: run `python scripts/wiki_lint.py` and `python scripts/wiki_coverage_check.py`.
+3. **Gate outputs**: run `python scripts/wiki_lint.py` and `python scripts/wiki_claims.py coverage`.
 
 ## Procedure
 1. Run both gate scripts. Record exit codes verbatim.
@@ -42,4 +42,4 @@ Verdict: PASS | FAIL (N gaps)
 ## Hard Rules
 - **Report-only.** Never edit source, wiki, or plan files. Findings go back to the orchestrator/user for remediation.
 - **Wiki-first:** start from `.wiki/core/00-system-index.md` and the changelog; only open code files named in the diff.
-- **No scope creep:** audit ONLY the diff since the last wrap-up ref. Do not re-audit the whole wiki (that is the `wiki-assessment` skill's job).
+- **No scope creep:** audit ONLY the diff since the last wrap-up ref. Do not re-audit the whole wiki (that is `@wiki-bootstrap`'s job).

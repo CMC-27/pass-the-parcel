@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 12
-updated: 2026-09-13
+version: 13
+updated: 2026-09-17
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -122,9 +122,7 @@ The wiki surface ships four portable scripts beyond the linter:
 | Script | Purpose |
 |---|---|
 | `scripts/wiki_claims.py` | `check` grounded claims for drift, `affected <sha>` for docs a diff hit, `update` to re-stamp |
-| `scripts/wiki_okf.py` | `export` the wiki as an OpenWiki/OKF v0.2 bundle, `import` one back as `in-progress` drafts (index-registered, existing docs skipped) |
-| `scripts/wiki_visualize.py` | Write the static hub-spoke graph + catalog into `docs/` |
-| `scripts/wiki_coverage_check.py` | Coverage gate — a non-test source file is evidenced by an index-cited exported symbol, a `claims: source:` binding, or the retained filename/folder match; no-op until `src/` exists |
+| `python scripts/wiki_claims.py coverage` | Coverage gate - a non-test source file is evidenced by an index-cited exported symbol, a `claims: source:` binding, or the retained filename/folder match; no-op until `src/` exists |
 
 `check` runs in CI with no secret. Two skills scaffold the workflow: `@wiki-generate` drafts
 structure, `@wiki-bootstrap` verifies it, `@wiki-update` refreshes incrementally. A scheduled

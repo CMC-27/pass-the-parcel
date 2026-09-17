@@ -16,8 +16,8 @@ graph TD
 ```
 
 ### Phase A: Vision & North Star
-*   **Skill:** `@app-vision-north-star`
 *   **Purpose:** Turns the codebase and requirements into a strategic roadmap (`01-vision-north-star.md`), aligning product objectives with engineering tasks and defining the constraints.
+*   **Note:** this phase was previously assisted by a product/strategy authoring skill, retired in T1-E4.01 as having no operational home. The roadmap artefacts and this phase remain; author them directly.
 
 ### Phase B: Generate & Verify the Wiki Library
 *   **Skills:** `@wiki-generate`, then `@wiki-bootstrap`
@@ -92,7 +92,7 @@ graph TD
     C --> D[Safe Git Push / Deploy]
 ```
 
-*   **`@pre-deployment-vibe-auditor`**: Scans the codebase for "vibe-coded" anomalies, architectural drift, unoptimized queries, missing error handling, or security risks.
+*   **`@test-and-deploy` § *App-facing hardening sweep***: Scans the codebase for "vibe-coded" anomalies, architectural drift, unoptimized queries, missing error handling, or security risks. (This check absorbed the previously separate pre-deployment auditor in T1-E4.01.)
 *   **`@test-and-deploy`**: Automates running the local test suite, executing linter rules, and verifying configurations before executing a safe, pre-validated git push or deployment.
 
 ---
@@ -159,7 +159,7 @@ The parcel pipeline routes by capability class — `orchestration`, `retrieval/i
 
 ## 7. Wiki Evidence & Drift Automation
 
-Docs may carry Grounded Claims (`claims:` frontmatter, `source: path#symbol` + a content hash). `scripts/wiki_claims.py check` fails CI when a claimed source changed; `affected` lists the docs a diff invalidated; `update` re-stamps. `@wiki-generate` drafts structure and `@wiki-update` refreshes incrementally. `scripts/wiki_okf.py export` projects the wiki into an OpenWiki/OKF v0.2 bundle and `import` ingests one back as `in-progress` drafts (registered in the area index, existing docs skipped); `scripts/wiki_visualize.py` writes the static graph into `docs/`. A secret-free scheduled job (`.github/workflows/wiki-refresh.yml`, weekly cron + manual dispatch) runs the claims checker and raises a `wiki-drift` issue when docs drift, closing it again once clean.
+Docs may carry Grounded Claims (`claims:` frontmatter, `source: path#symbol` + a content hash). `scripts/wiki_claims.py check` fails CI when a claimed source changed; `affected` lists the docs a diff invalidated; `update` re-stamps; `coverage` runs the code-coverage gate. `@wiki-generate` drafts structure and `@wiki-update` refreshes incrementally. A secret-free scheduled job (`.github/workflows/wiki-refresh.yml`, weekly cron + manual dispatch) runs the claims checker and raises a `wiki-drift` issue when docs drift, closing it again once clean. (The OKF export/import bridge and the static visualizer were retired in T1-E4.01; CI keeps asserting that every `.wiki/**/*.md` frontmatter block parses as YAML.)
 
 ---
 

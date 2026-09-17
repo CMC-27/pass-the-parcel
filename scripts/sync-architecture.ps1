@@ -21,6 +21,9 @@ param(
                             every folder in .devops/skills minus this exclusion list)
         portable_files:     standalone files copied verbatim into the target
         prune_files:        files deleted from the target if present (retired upstream)
+        prune_dirs:         directories deleted from the target if present, recursively
+                            (retired skill folders; portable skills are derived, so a
+                            removed folder is otherwise never compared and never deleted)
         machinery-version:  integer version of the dirs/files/agents/rules set; drives
                             UPGRADE vs DRIFT classification for non-skill items
 
@@ -30,6 +33,11 @@ param(
     non-CURRENT verdict it makes -Check exit 1. Prune files are excluded from their parent
     directory's comparison, so a lingering retired file surfaces as PRUNE rather than a
     misleading parent-dir DRIFT ("locally customized") when the live content matches upstream.
+    A retired DIRECTORY (a `prune_dirs:` entry — a skill folder retired upstream) is reported
+    by a direct existence test on the declared path, and sync deletes it recursively. That
+    mask is not mirrored for directories: the folders this key retires sit under .devops/skills,
+    which is compared per slug over the derived portable set and is not a portable_dirs root,
+    so a mask branch could never fire for them.
     For the PREFIX-LOCKED agents (.devops/agents/parcel*.agent.md + ptp-*.subagent.md) only
     the agent-unique content is hashed: the prefix region is regenerated from each repo's
     own base-context.md after every sync, so it legitimately differs between source and
@@ -188,6 +196,7 @@ if ($SelfTest) {
         $stDirs = @($stMan.Lists['portable_dirs'])
         $stFiles = @($stMan.Lists['portable_files'])
         $stPrune = @($stMan.Lists['prune_files'])
+        $stPruneDirs = @($stMan.Lists['prune_dirs'])
         $stExcluded = @($stMan.Lists['excluded_skills'])
         $skillsRoot = Join-Path $srcRoot '.devops/skills'
         $stSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name } | Where-Object { $stExcluded -notcontains $_ })
@@ -248,6 +257,22 @@ if ($SelfTest) {
             & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
             if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
             if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
+        }
+        # Prune-DIRECTORY test: a retired skill folder is invisible to the derived portable
+        # skill set, so it can only be removed by the explicit prune_dirs existence test.
+        # Plant a NON-EMPTY directory (a flat delete would fail on it) and assert the same
+        # three-phase contract: -Check reports PRUNE and exits non-zero, re-sync deletes it
+        # recursively, -Check is then clean.
+        if ($stPruneDirs.Count -gt 0) {
+            $staleDir = Join-Path $tmp $stPruneDirs[0]
+            New-Item -ItemType Directory -Force -Path $staleDir | Out-Null
+            Set-Content -Path (Join-Path $staleDir 'SKILL.md') -Value "stale" -NoNewline
+            $stOutDir = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+            if ($LASTEXITCODE -eq 0) { $fail += "-Check reported IN SYNC with a prune directory present (exit 0)" }
+            if (-not ($stOutDir -match 'PRUNE')) { $fail += "-Check did not report a PRUNE verdict for $($stPruneDirs[0])" }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
+            if ($LASTEXITCODE -ne 0) { throw "selftest: prune-dir re-sync failed (exit $LASTEXITCODE)" }
+            if (Test-Path $staleDir) { $fail += "prune_dirs failed: $($stPruneDirs[0]) still present after re-sync" }
         }
         # End-to-end -Check gate: immediately after a successful sync the target must
         # report IN SYNC (manifest stamped, prefix-locked agents excluded from the hash).
@@ -352,11 +377,7 @@ if ($Check) {
     }
     foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
-    foreach ($pf in $manifest['prune_files']) {
-        if (Test-Path (Join-Path $tgtRoot $pf)) {
-            Add-Verdict 'prune' $pf 'PRUNE' 'redundant file present in target; sync will delete it'
-        }
-    }
+    Test-PrunePresent -TgtRoot $tgtRoot -Manifest $manifest
 
     Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f 'KIND', 'ITEM', 'VERDICT', 'DETAIL')
     foreach ($v in $script:verdicts) { Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f $v.Kind, $v.Item, $v.Verdict, $v.Detail) }
@@ -426,18 +447,9 @@ foreach ($file in $manifest['portable_files']) {
     $copied++
 }
 
-# 3b. Prune redundant files from the target (files retired upstream).
-foreach ($pf in $manifest['prune_files']) {
-    $tp = Join-Path $tgtRoot $pf
-    if (Test-Path $tp) {
-        if ($DryRun) {
-            Write-Output "DRYRUN would prune $pf"
-        } else {
-            Remove-Item $tp -Force
-            Write-Output "PRUNED $pf"
-        }
-    }
-}
+# 3b. Prune redundant files and directories from the target (retired upstream).
+$prunePlan = @(Get-PrunePlan -TgtRoot $tgtRoot -Manifest $manifest)
+Invoke-PrunePlan -TgtRoot $tgtRoot -Plan $prunePlan -DryRun:$DryRun
 
 # 3c. Stamp the target's manifest with the source machinery-version (post-sync bookkeeping).
 Update-TargetManifestVersion -TgtRoot $tgtRoot -SrcRoot $srcRoot -Version $scalars['machinery-version'] -DryRun:$DryRun

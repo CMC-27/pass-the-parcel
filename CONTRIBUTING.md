@@ -35,7 +35,7 @@ Treat a green local run as the price of a pull request. All of these must exit `
 powershell -NoProfile -File scripts\check-parcel-prefix.ps1
 powershell -NoProfile -File scripts\check-utf8-agents.ps1
 python scripts/wiki_lint.py --quiet
-python scripts/wiki_coverage_check.py
+python scripts/wiki_claims.py coverage
 python scripts/wiki_claims.py check
 python -c "import json; json.load(open('opencode.json', encoding='utf-8'))"
 ```

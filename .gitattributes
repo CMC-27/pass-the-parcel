@@ -26,7 +26,7 @@ scripts/*.cjs text eol=lf
 .vscode/*.json text eol=lf
 .github/workflows/*.yml text eol=lf
 
-# Generated visualizer export (wiki_visualize.py).
+# Authored content (the generated visualizer export was retired in T1-E4.01).
 docs/** text eol=lf
 
 # Binary files must never be touched.

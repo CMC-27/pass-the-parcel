@@ -4,8 +4,8 @@ name: "wiki-bootstrap"
 status: "stable"
 description: "Verification pass over the wiki: walks each of the 19 core docs one by one, asking 5-8 targeted questions per doc to confirm the content against reality. Use after @wiki-generate drafts docs, when re-bootstrapping a stale doc, or when a wiki needs to be proven correct rather than authored. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
 references: "references/0X-*.md — 19 scaffold templates (one per core doc). references/qa-0X-*.md — 19 question sets (one per doc) that drive the verification Q&A."
-version: 2
-updated: 2026-09-11
+version: 3
+updated: 2026-09-17
 ---
 
 # wiki-bootstrap
@@ -194,9 +194,9 @@ For full slot definitions, see the Q&A files above and the scaffold templates. O
 - **Verifying docs drafted by `@wiki-generate`** (the primary path).
 - **Setting up a brand-new project's wiki** (cold start — no draft exists, so author by interview).
 - **Filling in a previously-stubbed slot** in an existing wiki.
-- **Re-bootstrapping a doc** that's known to be wrong or stale (paired with `wiki-assessment`).
+- **Re-bootstrapping a doc** that's known to be wrong or stale (paired with `@wiki-bootstrap --verify`).
 
-For drafting structure and index rows from the codebase, use **`@wiki-generate`**. For ongoing audits and gap-finding on an existing wiki, use **`wiki-assessment`**. For writing or rewriting prose in any already-bootstrapped doc (integration, consolidation, rebalancing), use **`wiki-writer`**.
+For drafting structure and index rows from the codebase, use **`@wiki-generate`**. For ongoing audits and gap-finding on an existing wiki, use **`@wiki-bootstrap`** (verification pass) or **`@wiki-lint`** (structural health). For writing or rewriting prose in any already-bootstrapped doc (integration, consolidation, rebalancing), use **`wiki-writer`**.
 
 ---
 

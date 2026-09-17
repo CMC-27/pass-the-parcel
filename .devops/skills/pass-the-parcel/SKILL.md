@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 22
-updated: 2026-09-16
+version: 23
+updated: 2026-09-17
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -189,7 +189,7 @@ To prevent context inflation and ensure complete control over design and executi
 
 ---
 
-## Linguistic Rules (Caveman Integration)
+## Linguistic Rules (Token Compression)
 
 To maximize token-savings during interaction and within the plan updates, agents must adhere to strict **Linguistic Token Compression**:
 * **Terse Communication:** Drop pleasantries ("sure", "happy to help"), articles ("a", "an", "the"), fillers ("just", "actually"), and hedging.

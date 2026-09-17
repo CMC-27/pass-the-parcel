@@ -55,7 +55,7 @@ The digest is `sha256` of the entire source file. Any edit to that file marks ev
 
 ## Coverage Evidence
 
-A claim's `source` path is also consumed as **coverage evidence** by `scripts/wiki_coverage_check.py`. That gate inverts the doc→source map — it reads every `claims:` entry and treats any `source` path it names as a covered code file, independent of the domain index. A file the index never names therefore gains a second route to coverage; the four evidence routes are documented in the script's docstring, which is canonical.
+A claim's `source` path is also consumed as **coverage evidence** by `python scripts/wiki_claims.py coverage`. That gate inverts the doc→source map - it reads every `claims:` entry and treats any `source` path it names as a covered code file, independent of the domain index. A file the index never names therefore gains a second route to coverage; the four evidence routes are documented in the subcommand's docstring, which is canonical.
 
 The claim shape, the hash definition, and the `#symbol` semantics above are unchanged: coverage trusts the authored `#symbol` fragment rather than re-verifying it.
 

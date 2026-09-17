@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 13
-updated: 2026-09-16
+version: 14
+updated: 2026-09-17
 ---
 
 # Agent Wrap-Up Skill
@@ -64,7 +64,7 @@ Wrap-up normally closes **one** plan. The **batch scope** closes a sprint's whol
 4. Phase 9 verification evidence is present (commands + exit codes) **and** the acceptance-criteria table is populated;
 5. a commit with the exact literal `plan: <code>` exists on the trunk.
 
-Then run the repo gates **once for the batch** — tests / lint / build, `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py`, `wiki_coverage_check.py`. A red gate is a hard stop: it blocks the **whole** batch wrap-up, and a red tree is **never** auto-cleaned.
+Then run the repo gates **once for the batch** - tests / lint / build, `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py`, `wiki_claims.py coverage`. A red gate is a hard stop: it blocks the **whole** batch wrap-up, and a red tree is **never** auto-cleaned.
 
 A plan failing **any** assertion is **carry-forward** — excluded from the batch, left exactly where it is, **never** marked complete. Report it with the failed assertion named. `ponytail:` the carry-forward report is prose, not a schema; upgrade path is a machine-readable per-plan verdict row if the batch ever needs to be driven programmatically.
 
@@ -160,7 +160,7 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 Run the mechanical gates. **Wrap-up is not complete until both exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
 1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
-2. **Code-coverage gate**: `python scripts/wiki_coverage_check.py` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must carry wiki evidence: its domain index cites a real exported symbol (preferred), OR a wiki doc claims-binds its path, OR the retained filename/folder match. On gaps: add an index row citing a real exported symbol, add a `claims: source:` binding, or add to the script's `ALLOWLIST` with an explicit reason. The script docstring is canonical. Never skip silently.
+2. **Code-coverage gate**: `python scripts/wiki_claims.py coverage` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must carry wiki evidence: its domain index cites a real exported symbol (preferred), OR a wiki doc claims-binds its path, OR the retained filename/folder match. On gaps: add an index row citing a real exported symbol, add a `claims: source:` binding, or add to the gate's `ALLOWLIST` with an explicit reason. The subcommand's docstring is canonical. Never skip silently.
 
 On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 

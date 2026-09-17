@@ -11,6 +11,12 @@
 #   portable_files:  standalone files copied verbatim into the target.
 #   prune_files:     files deleted from the target if present (files retired upstream,
 #                    e.g. renamed/removed runbooks). Relative to repo root.
+#   prune_dirs:      directories deleted from the target if present, recursively (folders
+#                    retired upstream). Portable skills are DERIVED from .devops/skills
+#                    minus excluded_skills, so a retired skill folder is never compared,
+#                    never copied and never deleted without this key — every already-synced
+#                    satellite would keep a silent orphan. Do NOT express a retirement via
+#                    excluded_skills: exclusion narrows fresh syncs and yields no verdict.
 #   excluded_skills:   skill slugs NOT synced. Portable skills are DERIVED: every folder
 #                      in .devops/skills minus this list. Adding a skill needs no manifest
 #                      edit; only exclusions do.
@@ -35,7 +41,6 @@ portable_files:
   - scripts/sync-architecture.ps1
   - scripts/pull-architecture.ps1
   - scripts/wiki_lint.py
-  - scripts/wiki_coverage_check.py
   - scripts/wiki_claims.py
   - scripts/wiki_lint_core.py
   - scripts/wiki_lint_checks.py
@@ -46,8 +51,6 @@ portable_files:
   - scripts/lib/sync-prune.ps1
   - scripts/lib/sync-prefix.ps1
   - scripts/lib/sync-verify.ps1
-  - scripts/wiki_okf.py
-  - scripts/wiki_visualize.py
   - scripts/spaghetti-monster-scan.cjs
   # The batch eligibility predicate, executable. `parcel-sprint` (portable) and the
   # `sprint-run` skill call it as their authority, so it must ride with them; the
@@ -81,5 +84,23 @@ prune_files:
   # its Model Registry row is gone, so that satellite's own check-parcel-prefix.ps1 fails
   # "registry key has no agent file" / "no Model Registry row" and its pull exits 1.
   - .devops/agents/parcel-fast.agent.md
+  # Retired in T1-E4.01 (machinery 62): the three scripts left the portable surface.
+  # The coverage gate MOVED into wiki_claims.py (a satellite that still carries the old
+  # script would run a gate nothing maintains); the OKF bundle and the static visualizer
+  # had no consumer left.
+  - scripts/wiki_coverage_check.py
+  - scripts/wiki_okf.py
+  - scripts/wiki_visualize.py
+
+# Retired portable DIRECTORIES (folders retired upstream, deleted recursively). Portable
+# skills are derived from .devops/skills minus excluded_skills, so a retired skill folder
+# is never compared, never copied and never deleted: without this key every already-synced
+# satellite keeps the folder as a silent orphan whose @slug references are already gone.
+# Added in T1-E4.01 (W8.1) with the four skill retirements below.
+prune_dirs:
+  - .devops/skills/wiki-assessment
+  - .devops/skills/caveman
+  - .devops/skills/app-vision-north-star
+  - .devops/skills/pre-deployment-vibe-auditor
 
 excluded_skills: []

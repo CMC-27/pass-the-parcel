@@ -67,7 +67,7 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 | 11 | Dev Rules | area | `.devops/rules/` | Dev governance layer — agents, skills, plans |
 | 12 | Dev Ops State | area | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
 | 13 | Opencode Config | area | `.opencode/` | opencode configuration |
-| 14 | Visualizer Export | area | `docs/` | Generated wiki graph + catalog (not authored) |
+| 14 | Visualizer Export | area | `docs/` | Authored supporting content (the generated export was retired in T1-E4.01) |
 
 ### Canonical Authority Files (type: `file`)
 

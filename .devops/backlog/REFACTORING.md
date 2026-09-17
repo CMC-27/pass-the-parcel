@@ -67,12 +67,12 @@ Two caveats, both load-bearing when reading this table:
 
 | File | Lines | CCN(h) | Imports | Status | Plan | Flagged by |
 |------|-------|--------|---------|--------|------|-----------|
-| `scripts/sync-architecture.ps1` | 995 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold |
+| `scripts/sync-architecture.ps1` | 995 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold. Now **485** lines; the engine moved to five dot-sourced `scripts/lib/` modules |
 | `scripts/spaghetti-monster-scan.cjs` | 254 | 79 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless |
-| `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 — >400 warn: split into `SKILL.md` + `references/` |
-| `scripts/wiki_lint.py` | 486 | — | — | 🔴 OPEN | — | First machinery scan, 2026-09-16 — >400 warn |
+| `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | ✅ RESOLVED | `T1-E4.01` W8.1 | Retired — product/strategy authoring with no operational home; the skill folder is gone |
+| `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
 | `scripts/check-parcel-prefix.ps1` | 370 | — | — | 🟡 PLANNED | [`T1-E2.02`](./t1-e2.02-check-parcel-prefix-split-backlog.md) | Pre-existing (`T1-E2.02`); under the 400-line threshold, parked on branch-count grounds |
-| `scripts/wiki_claims.py` | 296 | — | — | ⚪ WATCH | — | Below every threshold — listed because it is the next-largest script, not because it is flagged |
+| `scripts/wiki_claims.py` | 296 | — | — | ⚪ WATCH | — | Below every threshold — listed because it is the next-largest script, not because it is flagged. Grew to ~400 with the moved `coverage` subcommand (W8.0): still under the warning line, now the largest Python file — watch the trend |
 
 **Status legend:** 🔴 OPEN (flagged, no plan) · 🟡 PLANNED (plan file exists) · 🔄 IN PROGRESS · ✅ RESOLVED (move to the Completed table) · ⚪ WATCH (below threshold, tracked for trend).
 
@@ -86,7 +86,9 @@ Two caveats, both load-bearing when reading this table:
 
 | Date | File(s) | What was done | Source |
 |------|---------|---------------|--------|
-| — | — | *(empty — the register was adopted 2026-09-16, so no refactor has yet been recorded against it)* | — |
+| 2026-09-17 | `scripts/sync-architecture.ps1` (995 → 485) | Decomposed into five dot-sourced `scripts/lib/` modules (manifest, bindings, prune, prefix, verify). CLI, sync path and `-SelfTest` body unchanged; four CLI modes proven line-for-line against pre-split goldens | `T1-E4.01` W6 |
+| 2026-09-17 | `scripts/wiki_lint.py` (485 → 60) | Split into `wiki_lint_core.py` (readers, primitives, constants) and `wiki_lint_checks.py` (the ten steps + `--fix`), over an explicit `LintContext`. Import surface and all eleven re-exported names preserved; `--fix` stdout **and** mutated-file bytes identical | `T1-E4.01` W6 |
+| 2026-09-17 | `.devops/skills/app-vision-north-star/` (634) | Retired whole (with three sibling skills). No successor needed — the roadmap artefacts it produced are authored directly | `T1-E4.01` W8.1 |
 
 ---
 

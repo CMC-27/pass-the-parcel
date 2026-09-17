@@ -1,8 +1,8 @@
 ---
 name: true-or-false
 description: Make sure to use this skill whenever the user mentions "true or false", "validate the wiki", "does the knowledge base match", "is this accurate", "step-by-step validation", "check against reality", or wants to validate knowledge-base/process docs against human intent one step at a time with a dual SME (plain language) + Knowledge Curator (document proof) lens. Use it to eliminate AI-fabricated or unsourced content, surface stale, wrong or dead knowledge, validate a workflow or journey step-by-step, or check a process document against live practice.
-version: 4
-updated: 2026-09-06
+version: 5
+updated: 2026-09-17
 ---
 
 # True or False — Knowledge Base Alignment Workflow
@@ -326,7 +326,7 @@ Both record in an independent `.md`, both have many questions, both produce a cl
 
 - [Q&A](../q-and-a/SKILL.md) — requirements gathering with same live-.md JIT pattern (companion skill)
 - [Wiki Lint](../wiki-lint/SKILL.md) — structural link/frontmatter health
-- [Wiki Assessment](../wiki-assessment/SKILL.md) — document-level health and authority review
+- [Wiki Bootstrap](../wiki-bootstrap/SKILL.md) — document-level verification pass and authority review
 - [AI Rules](../../../.wiki/rules/language/ai-rules.md) — evidence ladder and no-fabrication guardrails
 - [Plan template](../../../.devops/plans/template-plan.md) and [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — change execution
 - [Agent Wrap-Up](../agent-wrap-up/SKILL.md) — end-of-run summary
@@ -334,7 +334,7 @@ Both record in an independent `.md`, both have many questions, both produce a cl
 ## See Also
 
 - [Q&A](../q-and-a/SKILL.md) — gathering requirements before this confirmation step
-- [Wiki Assessment](../wiki-assessment/SKILL.md) — document-level health and authority review
+- [Wiki Bootstrap](../wiki-bootstrap/SKILL.md) — document-level verification pass and authority review
 - [Wiki Lint](../wiki-lint/SKILL.md) — structural link/frontmatter health
 - [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — executing the changes this validation identifies
 - [AI Rules](../../../.wiki/rules/language/ai-rules.md) — evidence ladder and no-fabrication guardrails

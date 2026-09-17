@@ -11,9 +11,6 @@ claims:
   - id: required-frontmatter-fields
     source: scripts/wiki_lint.py#REQUIRED_FIELDS
     hash: sha256:41604cf24f3a987101443951ff0dc64488992bf2bb7553b529e12fe4e4007b3c
-  - id: visualizer-generates-docs
-    source: scripts/wiki_visualize.py#main
-    hash: sha256:57d2fa4d6991275cc809f5c3433f4d6032f29aafb043894eeee8c32a4d669d03
   - id: claims-drift-gate
     source: scripts/wiki_claims.py#cmd_check
     hash: sha256:4ea8c09141b381c5f9ae6ebd2846c32b39bd3174c0928e22d3fc90ba7b0fe6cd
@@ -35,12 +32,12 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 ## 2. Folder Taxonomy (The Library Structure)
 
-Three roots: **`.wiki/`** holds architecture knowledge, **`.devops/`** holds operational state, and **`docs/`** holds generated exports.
+Three roots: **`.wiki/`** holds architecture knowledge, **`.devops/`** holds operational state, and **`docs/`** holds authored supporting content.
 
 ```
 .wiki/          <- Architecture Knowledge Base
 .devops/        <- Operational state (backlog / plans / archive / logs)
-docs/           <- Generated visualizer export (not authored)
+docs/           <- Authored supporting content (the generated export was retired)
 ```
 
 ### .wiki/ - Architecture Knowledge Base
@@ -66,9 +63,9 @@ docs/           <- Generated visualizer export (not authored)
 | `.devops/plans` | The Future | (User Managed) | Claimed implementation plans. |
 | `.devops/archive` | The Archive | (User Managed) | Completed plans at root + closed sprint records under `sprints/`. |
 
-### docs/ - Generated Visualizer Export
+### docs/ - Authored Supporting Content
 
-`docs/` is **generated**, never authored. `scripts/wiki_visualize.py` writes `docs/wiki-graph.md` — a mermaid hub-and-spoke graph plus a linked catalog. Regenerate with `python scripts/wiki_visualize.py`.
+`docs/` holds **authored** content only. The static visualizer export was retired in T1-E4.01 (W8.1): `scripts/wiki_visualize.py` and its generated `docs/wiki-graph.md` had no consumer left, and a generated artefact that nothing reads is a surface that stopped paying for itself. Nothing regenerates `docs/` — write it, don't build it.
 
 ---
 

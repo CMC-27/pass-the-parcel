@@ -1,8 +1,8 @@
 ---
 name: wiki-lint
 description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing index drift and hub reachability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
-version: 4
-updated: 2026-09-11
+version: 5
+updated: 2026-09-17
 ---
 
 # Wiki Lint Skill
@@ -55,3 +55,6 @@ The script never throws mid-run: unreadable files are skipped with an INFO line,
 - **First-thing**: run on a fresh wiki to establish a baseline.
 - **Drift detection**: run weekly to catch gradual decay (renamed files leaving dead links, new docs never indexed).
 - **Deferred checks** (not implemented, add here if built): index size budget (>400 lines); blueprint spoke-list sync (`17-docs-blueprint.md`); hop-count reporting (>2 hops from hub); `See Also` section coverage; `ref/` index coverage (no `ref/` directory content exists yet).
+
+### 5. Rule fan-out (report-only, never a gate)
+`python scripts/rule_fanout.py` prints the **surface-budget report**: per registered rule, the raw count of machinery surfaces that restate it and the count that does so **without** naming its canonical home. It is the maintenance instrument of `.devops/rules/managed-simplicity.md`, the registry lives in `.devops/rules/surface-budget.md`, and it **always exits 0** — it is never wired into `validate.yml`. Surface its table when a rule change is contemplated or after retiring one; a rising count is the signal to cite instead of restate.
