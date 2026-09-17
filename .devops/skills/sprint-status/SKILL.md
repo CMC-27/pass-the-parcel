@@ -1,8 +1,8 @@
 ---
 name: sprint-status
 description: Make sure to use this skill whenever the user asks "where are we", "sprint status", "how's the sprint going", "what's left in this sprint", "are we on track", /sprint-status, or wants a readout of the current sprint's progress. Reads the active sprint.md, the sprint queue, the active claims in .devops/plans/, and the archive, then produces a burn-up snapshot, flags at-risk or stale claims, and recommends what to work on next. This skill READS state — it writes no files and changes nothing.
-version: 3
-updated: 2026-09-16
+version: 4
+updated: 2026-09-17
 ---
 
 # Sprint Status — Read-Only Burn-Up
@@ -25,7 +25,7 @@ Open `.devops/sprints/sprint-{n}-<slug>/sprint.md`. Extract the **Committed Scop
 For each committed code, find its actual state by checking, in order:
 
 1. `.devops/archive/` contains the plan → `COMPLETE` (archived).
-2. `.devops/plans/` contains the plan → read its claim front-matter: `claim_status` `CLAIMED` or `GATE_D_USER_APPROVAL` (or `COMPLETE` if wrap-up has run but the move has not), plus `owner` / `last_touch`, and the bottom `Status` phase (`PHASE_1`+). `GATE_D_USER_APPROVAL` means **executed, awaiting the Gate D verdict** — report it as awaiting sign-off, **not** as in-flight work.
+2. `.devops/plans/` contains the plan → read its claim front-matter: `claim_status` `CLAIMED` or `GATE_D_USER_APPROVAL` (or `COMPLETE` if wrap-up has run but the move has not), plus `owner` / `last_touch`, and the bottom `Status` phase (`PHASE_1`+). `GATE_D_USER_APPROVAL` means **executed, awaiting the Gate D verdict** — report it as awaiting sign-off, **not** as in-flight work. (Values and semantics: `.devops/rules/plan-lifecycle.md` § Claim Front-Matter — the canonical home.)
 3. Still in the sprint folder with `claim_status: QUEUED` → `QUEUED` (not started).
 4. Not found anywhere → `MISSING` — flag it; the queue and reality disagree.
 

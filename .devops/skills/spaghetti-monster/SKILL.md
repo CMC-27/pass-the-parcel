@@ -1,8 +1,8 @@
 ---
 name: spaghetti-monster
 description: Make sure to use this skill whenever the user mentions "spaghetti", "spaghetti-monster", "god object", "find tangled code", "scan for complexity", "refactor opportunities", "codebase audit", "what needs refactoring", or asks to detect, untangle, or audit high-entropy, highly coupled, non-cohesive code. The monster is a Hunter — it scans the codebase, quantifies the spaghetti, and packages each high-value target into a backlog parcel plan with Phase 1 and Phase 2 pre-populated, ready for the user to pick up Phase 3 (user clarification) in a new conversation. It does NOT execute refactors from this skill — that work happens later via pass-the-parcel execution, with the monster optionally re-invoked as a Group D sub-skill.
-version: 2
-updated: 2026-09-13
+version: 3
+updated: 2026-09-17
 ---
 
 # Spaghetti Monster — The Hunter
@@ -178,7 +178,7 @@ The monster is done when every item is checked:
 * [ ] Gate A (kill list review) completed with user sign-off on which targets become plans
  * [ ] One backlog parcel plan created per accepted target, with Phases 1 and 2 fully pre-populated
  * [ ] Every Phase 3 question uses the Default-And-Justify format (`[★] recommended answer` + rationale)
- * [ ] State Dashboard on every plan set to `QUEUED` with `Planner` persona, claim front-matter `claim_status: QUEUED`
+ * [ ] State Dashboard on every plan set to `QUEUED` with `Planner` persona, claim front-matter `claim_status: QUEUED` (`.devops/rules/plan-lifecycle.md` § Claim Front-Matter is the canonical home for the field and its values)
 * [ ] The matching `t{n}-<slug>-backlog.md` theme register updated with one row per new plan
 * [ ] Changelog entry written to `.devops/logs/agent-changelog.md`
 * [ ] User briefed on the next-step workflow ("open a plan in a new conversation, review Phases 1-2, proceed to Phase 3")

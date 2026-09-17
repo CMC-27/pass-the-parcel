@@ -1,8 +1,8 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single fresh context per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 6
-updated: 2026-09-16
+version: 7
+updated: 2026-09-17
 ---
 
 # SKILL: Per-Plan Fast Runner (`ptp-parcel-fast`)
@@ -19,7 +19,7 @@ updated: 2026-09-16
 
 1. Play `ptp-context-hunter` **inline** (Phases 1-3).
 2. Play `ptp-phase3-answerer` **inline** (Phase 3.5).
-3. Auto-clear Gate A (see *Auto-clear test*).
+3. Auto-clear Gate A (see *Auto-clear test*; the `AUTO` mode vocabulary is canonically homed in `.opencode/plans/base-context.md`).
 4. Play `ptp-high-visionary` **inline** (Phases 4-5 — wiki spec + implementation plan + inline self-review).
 5. Auto-clear Gate B; record Gate C `N/A`.
 6. Play `ptp-code-surgeon` **inline** (Phases 8-9).

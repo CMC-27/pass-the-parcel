@@ -46,11 +46,11 @@ walk-roots:
   - .devops/plans/template-plan.md
 rules:
   - managed-simplicity :: We do one thing, we do it well, and we do it fast :: .devops/rules/managed-simplicity.md :: AGENTS.md | .devops/templates/AGENTS.template.md | .opencode/plans/base-context.md | .devops/templates/base-context.template.md
-  - claim_status :: claim_status :: .devops/rules/plan-lifecycle.md ::
-  - GATE_D_USER_APPROVAL :: GATE_D_USER_APPROVAL :: .devops/rules/plan-lifecycle.md ::
-  - auto-clear :: auto-clear :: .opencode/plans/base-context.md ::
-  - context-isolated :: context-isolated :: .opencode/plans/base-context.md ::
-  - Chunked Write Discipline :: Chunked Write Discipline :: AGENTS.md ::
+  - claim_status :: claim_status :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel.agent.md | .devops/agents/ptp-parcel-fast.subagent.md | .devops/plans/template-plan.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/backlog/SKILL.md | .devops/skills/build-roadmap/SKILL.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/skills/spaghetti-monster/SKILL.md | .devops/skills/sprint-close/SKILL.md | .devops/skills/sprint-plan/SKILL.md | .devops/skills/sprint-run/SKILL.md | .devops/skills/sprint-status/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/SPRINTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | AGENTS.md | HOW-TO.md
+  - GATE_D_USER_APPROVAL :: GATE_D_USER_APPROVAL :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel-sprint.agent.md | .devops/plans/template-plan.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/skills/sprint-close/SKILL.md | .devops/skills/sprint-plan/SKILL.md | .devops/skills/sprint-run/SKILL.md | .devops/skills/sprint-status/SKILL.md | .devops/templates/SPRINTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | HOW-TO.md
+  - auto-clear :: auto-clear :: .opencode/plans/base-context.md :: .devops/plans/template-plan.md | .devops/rules/plan-lifecycle.md | .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
+  - context-isolated :: context-isolated :: .opencode/plans/base-context.md :: .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
+  - Chunked Write Discipline :: Chunked Write Discipline :: AGENTS.md :: .devops/skills/sprint-plan/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md
 <!-- SURFACE-BUDGET:END -->
 
 ## Usage

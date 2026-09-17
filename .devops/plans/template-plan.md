@@ -16,7 +16,7 @@ triage: SINGLE              # MULTI | SINGLE — commit-time topology recommenda
 
 | Setting | Value | Meaning |
 |---|---|---|
-| **Mode** | `USER-MANAGED` | `USER-MANAGED` (every gate halts for the user) or `AUTO` (orchestrator auto-clears Gates A-C; Gate D always halts) |
+| **Mode** | `USER-MANAGED` | `USER-MANAGED` (every gate halts for the user) or `AUTO` (orchestrator auto-clears Gates A-C; Gate D always halts) — the mode vocabulary is canon in `.opencode/plans/base-context.md` |
 | **Agents** | `MULTI` | `MULTI` (comprehensive — full `ptp-*` delegation, 4 gates) or `SINGLE` (fast — inline personas, Group C skipped, Gates B+C merged at Gate B, Gate C `N/A`) |
 
 > **Frozen config — read before executing ANY phase.** These two settings govern the entire pipeline and are never edited after plan start; they sit at the TOP so no session can miss them. Mutable runtime state (Status / Active Persona / gates) lives ONLY in the cache-anchored `## 📍 State & Gates` section at the bottom. See `@pass-the-parcel` § Agent Topology. **Preset provenance:** the orchestrator agent may set these from a **locked preset** (e.g. `parcel-sprint` locks `AUTO` + a per-plan `SINGLE`); when it does, the selection question is skipped and the preset values are recorded here.

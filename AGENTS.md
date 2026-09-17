@@ -15,7 +15,7 @@ This repository is configured with a structured documentation library in **`.wik
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-sprint.agent.md` (orchestrators; `parcel-sprint` is the locked batch host) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan fast runner, spawned only by `parcel-sprint`)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
 - **`.wiki/rules/language/`** — Language governance layer — voice & tone, AI rules, publication rules
-- **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle
+- **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle (canonical home of the plan lifecycle: [`.devops/rules/plan-lifecycle.md`](.devops/rules/plan-lifecycle.md))
 
 Instead of searching the entire codebase to understand context, **STOP** and read the localized intelligence hub first.
 

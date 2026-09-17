@@ -25,7 +25,7 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, process-lessons.md, ../ski
 
 ## Why the maintenance instrument was missing
 
-**Measured, not asserted (2026-09-16).** A single canon rule was independently authored in **4-5 surfaces** — `claim_status` 25 files / ~5 independent sites, `GATE_D_USER_APPROVAL` 20 / ~5, `auto-clear` 17 / ~5, `Chunked Write Discipline` 14 / **5 exact** — so one rule change cost ~5 synchronised edits and one retirement had to find all 5 by hand. `machinery-version` went 26 → 52 in roughly five days.
+**Measured, not asserted (2026-09-16).** A single canon rule was independently authored in **4-5 surfaces** — the lifecycle claim field in 25 files / ~5 independent sites, the batch terminal value in 20 / ~5, the AUTO gate mode flag in 17 / ~5, the write-discipline rule in 14 / **5 exact** — so one rule change cost ~5 synchronised edits and one retirement had to find all 5 by hand. `machinery-version` went 26 → 52 in roughly five days. (Each token, with its canonical home, is registered in [surface-budget.md](surface-budget.md); those counts are that report's baseline.)
 
 **Why the existing governance did not push back.** The template's governance verifies that machinery surfaces **agree** with each other. Nothing verified that there were **too many** of them, and this repo is self-referential (no `src/`, ~0 application tests), so only internal consistency applied — complexity grew without bound. The gradient is the finding: rules landed *after* the ("cite it, never restate it") doctrine sat at 1-3 surfaces, older rules sat at ~5. **The doctrine works; it was not enforced.**
 

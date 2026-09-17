@@ -1,8 +1,8 @@
 ---
 name: build-roadmap
 description: Make sure to use this skill whenever the user mentions building a product roadmap, creating a roadmap, defining themes or epics, /build-roadmap, planning strategic phases, or wants to map out the future of a product at a high level above the backlog. Use it to create or update a product-roadmap.md file and optionally scaffold aligned epics and implementation plans.
-version: 2
-updated: 2026-09-13
+version: 3
+updated: 2026-09-17
 ---
 
 # Build Roadmap — Product Roadmap Builder
@@ -124,7 +124,7 @@ Collect a list of plan titles and intents from the user.
 For each implementation plan, apply the **backlog** skill workflow:
 
 1. Determine the next available implementation number by scanning the theme register and `.devops/backlog/` for existing plans with the same `T{n}-E{n}.` prefix.
-2. Create the parked plan at `.devops/backlog/{code}-{slug}-backlog.md` (`type: backlog`) using the Pass-the-Parcel template and its claim front-matter (`code`, `sprint: ""`, `claim_status: QUEUED`).
+2. Create the parked plan at `.devops/backlog/{code}-{slug}-backlog.md` (`type: backlog`) using the Pass-the-Parcel template and its claim front-matter (`code`, `sprint: ""`, `claim_status: QUEUED`) — the field is canonically defined in `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 3. Set State Dashboard: `Status: QUEUED`, `Active Persona: Planner`.
 4. Populate Phase 1 with the epic's scope, key features, and technical goals from the roadmap.
 5. Populate Phase 2 with relevant docs and code context discovered during research.
