@@ -15,7 +15,7 @@ All changes made by AI agents are tracked chronologically below.
 
 **Why:** The template verified that its machinery surfaces *agree*; nothing verified there were *too many*, and with no application code only internal consistency pushed back. Measured, not asserted: one canon rule was independently authored in 4-5 surfaces, so a single change cost ~5 synchronised edits. The parcel added the missing counterweight — **Managed Simplicity** as the first principle plus a report-only **surface-budget report** — then applied it: rule fan-out **59 → 2** unauthorised restatement sites, `sync-architecture.ps1` **995 → 485** and `wiki_lint.py` **485 → 60** with line-for-line golden parity, the encoding gate **18.41 s → 0.57 s** with its EOF blind spot fixed, and four skills + two scripts + a generated artefact retired behind a new **`prune_dirs`** that actually deletes a retired folder from an already-synced satellite (7 `PRUNE` → deleted → `IN SYNC`, proven against a live pre-retirement target).
 **Why (recorded, not hidden):** exactly **two** CI assertions were lost with their subjects — the OKF export/import round trip and the visualizer freshness check; the frontmatter-YAML invariant was **kept**, re-pointed at the live `.wiki/**` corpus, and both losses are named in the dated `MATURITY.md` row. A PowerShell text round-trip corrupted six skills during a version bump and the W7-rewritten encoding guard caught all six — the gate paid for itself inside the same session.
-**Ref:** `<pending - wrap-up commit>`
+**Ref:** `505f281` (wrap-up; plan commits `180359c` W0 · `6bee792` W1 · `0ed41bf` W2 · `4c18e7d` W6 · `7d102a6` W7 · `dc466fc` W8.0 · `dd78dd9` W8.1 · `acdd24a` plan doc)
 
 ---
 
