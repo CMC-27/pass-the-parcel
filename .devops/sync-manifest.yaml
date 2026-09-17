@@ -37,6 +37,15 @@ portable_files:
   - scripts/wiki_lint.py
   - scripts/wiki_coverage_check.py
   - scripts/wiki_claims.py
+  - scripts/wiki_lint_core.py
+  - scripts/wiki_lint_checks.py
+  # The sync engine's dot-sourced modules. A partial split ships a satellite a broken
+  # engine, so every module travels with the entry script; -SelfTest asserts this mirror.
+  - scripts/lib/sync-manifest.ps1
+  - scripts/lib/sync-bindings.ps1
+  - scripts/lib/sync-prune.ps1
+  - scripts/lib/sync-prefix.ps1
+  - scripts/lib/sync-verify.ps1
   - scripts/wiki_okf.py
   - scripts/wiki_visualize.py
   - scripts/spaghetti-monster-scan.cjs

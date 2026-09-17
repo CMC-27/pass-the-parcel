@@ -8,7 +8,7 @@ description: "Master gateway - the hub in a hub-and-spoke documentation architec
 claims:
   - id: hub-links-every-spoke
     source: scripts/wiki_lint.py#category_indexes
-    hash: sha256:5381104562ff9e29c6314174491f28362210b52e5822ff793e67854312091287
+    hash: sha256:41604cf24f3a987101443951ff0dc64488992bf2bb7553b529e12fe4e4007b3c
 ---
 
 # System Index (Developer Onboarding Hub)

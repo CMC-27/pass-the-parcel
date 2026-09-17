@@ -91,7 +91,7 @@ user-invocable: false
 
 1. Play `ptp-context-hunter` **inline** (Phases 1-3).
 2. Play `ptp-phase3-answerer` **inline** (Phase 3.5).
-3. Auto-clear Gate A (see *Auto-clear test*).
+3. Auto-clear Gate A (see *Auto-clear test*; the `AUTO` mode vocabulary is canonically homed in `.opencode/plans/base-context.md`).
 4. Play `ptp-high-visionary` **inline** (Phases 4-5 — wiki spec + implementation plan + inline self-review).
 5. Auto-clear Gate B; record Gate C `N/A`.
 6. Play `ptp-code-surgeon` **inline** (Phases 8-9).
