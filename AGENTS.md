@@ -1,6 +1,6 @@
 # Pass the Parcel — Agent Entry Point
 
-> **What this repo is.** Pass the Parcel is a template with **two jobs**: (1) a **stateless, multi-agent planning & execution framework** — the 10-phase parcel pipeline with four hard gates and independent review; and (2) an **agent-first wiki system** — a governed, grounded knowledge base (deterministic linter + Grounded Claims + drift automation) that keeps an agent's context cheap and honest. This repo is the **template, not an app**: the app-facing content under `.wiki/` documents the pattern satellites fill in. Maturity of both jobs is tracked in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
+> **What this repo is.** Pass the Parcel is a template whose **goal** is **stateless, multi-agent planning & execution** — the 10-phase parcel pipeline with four hard gates and independent review. Its **principal instrument** is an **agent-first wiki** — a governed, grounded knowledge base (deterministic linter + Grounded Claims + drift automation) that keeps an agent's context cheap and honest — supported by **cache-first context**, **Managed Simplicity** and **deterministic guardrails**. This repo is the **template, not an app**: the app-facing content under `.wiki/` documents the pattern satellites fill in. See [`OPERATING-PRINCIPLES.md`](OPERATING-PRINCIPLES.md); maturity is tracked per axis in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
 
 This repository is configured with a structured documentation library in **`.wiki/`** designed to serve as the single source of truth for the codebase, architecture, state management, and user interfaces.
 
@@ -18,6 +18,12 @@ This repository is configured with a structured documentation library in **`.wik
 - **`.devops/rules/`** — Dev governance layer — agents & skills, plan lifecycle (canonical home of the plan lifecycle: [`.devops/rules/plan-lifecycle.md`](.devops/rules/plan-lifecycle.md))
 
 Instead of searching the entire codebase to understand context, **STOP** and read the localized intelligence hub first.
+
+---
+
+## The Goal
+
+**Pass the Parcel** is this template's purpose: turn a feature request into a reviewed, executed, verified change by passing one Markdown plan between specialised agents. It is stateless, independently reviewed, gated (A → B → C → D), and deterministic. The **agent-managed wiki** is the principal instrument; **Cache-first context**, **Managed Simplicity** and **deterministic guardrails** are the supporting instruments. Full statement: [`OPERATING-PRINCIPLES.md`](OPERATING-PRINCIPLES.md).
 
 ---
 
@@ -56,7 +62,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 | Touching AI / agentic workflows | `.wiki/core/15-ai-features.md` | AI client utility |
 | Checking backlog/roadmap or parked items | `.devops/backlog/backlog-index.md` | Specific backlog plan doc |
 | Assessing template maturity / axis health | `.devops/backlog/MATURITY.md` | Specific axis evidence + next lever |
-| Understanding what this template is / its dual purpose | `README.md` (Two jobs) | `.devops/backlog/MATURITY.md` |
+| Understanding what this template is / why it exists | `OPERATING-PRINCIPLES.md` | `README.md`, `.devops/backlog/MATURITY.md` |
 | Viewing archived implementation plans | `.devops/archive/README.md` | Specific archived plan |
 | Viewing audit results (T/F, Q&A, UI inventories) | `.devops/audits/README.md` | Originating skill doc |
 | Adding or editing form fields | `.wiki/core/09-design-system.md` §5c | `.wiki/core/10-validation-standards.md` |

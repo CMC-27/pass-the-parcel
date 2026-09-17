@@ -31,6 +31,8 @@ related-to: [managed-simplicity.md, plan-lifecycle.md, agents-and-skills.md]
   `id :: signature :: canonical-home :: allowed-surfaces`
   where `allowed-surfaces` is a ` | `-delimited list of repo-relative paths (may be empty).
 - `canonical-home:` is a repo-relative path. `signature:` must be distinctive enough that a zero-match rule is possible.
+- `agreement:` — **optional.** One `- ` row per token that must appear on every declared surface, two cells delimited by ` :: `:
+  `token :: <file> | <file> | ...`. The report prints `DISAGREE` for any declared surface that lacks the token or is absent from the walk. Report-only; it never affects the exit code.
 
 <!-- SURFACE-BUDGET:START -->
 walk-roots:
@@ -42,15 +44,23 @@ walk-roots:
   - HOW-TO.md
   - README.md
   - CONTRIBUTING.md
+  - OPERATING-PRINCIPLES.md
   - .opencode/plans/base-context.md
   - .devops/plans/template-plan.md
 rules:
   - managed-simplicity :: We do one thing, we do it well, and we do it fast :: .devops/rules/managed-simplicity.md :: AGENTS.md | .devops/templates/AGENTS.template.md | .opencode/plans/base-context.md | .devops/templates/base-context.template.md
+  - operating-principles :: reviewed, executed, verified change :: OPERATING-PRINCIPLES.md :: README.md | AGENTS.md
+  - cache-first :: Cache-first :: OPERATING-PRINCIPLES.md :: README.md | AGENTS.md
   - claim_status :: claim_status :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel.agent.md | .devops/agents/ptp-parcel-fast.subagent.md | .devops/plans/template-plan.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/backlog/SKILL.md | .devops/skills/build-roadmap/SKILL.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/skills/spaghetti-monster/SKILL.md | .devops/skills/sprint-close/SKILL.md | .devops/skills/sprint-plan/SKILL.md | .devops/skills/sprint-run/SKILL.md | .devops/skills/sprint-status/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/SPRINTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | AGENTS.md | HOW-TO.md
   - GATE_D_USER_APPROVAL :: GATE_D_USER_APPROVAL :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel-sprint.agent.md | .devops/plans/template-plan.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/skills/sprint-close/SKILL.md | .devops/skills/sprint-plan/SKILL.md | .devops/skills/sprint-run/SKILL.md | .devops/skills/sprint-status/SKILL.md | .devops/templates/SPRINTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | HOW-TO.md
   - auto-clear :: auto-clear :: .opencode/plans/base-context.md :: .devops/plans/template-plan.md | .devops/rules/plan-lifecycle.md | .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
   - context-isolated :: context-isolated :: .opencode/plans/base-context.md :: .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
   - Chunked Write Discipline :: Chunked Write Discipline :: AGENTS.md :: .devops/skills/sprint-plan/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md
+agreement:
+  - PHASE_9 :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
+  - GATE_D_USER_APPROVAL :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
+  - MULTI :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
+  - SINGLE :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
 <!-- SURFACE-BUDGET:END -->
 
 ## Usage

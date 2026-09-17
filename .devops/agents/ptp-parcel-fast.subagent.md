@@ -155,7 +155,7 @@ You are `ptp-parcel-fast`, the **per-plan fast runner**. You own **one** committ
 1. Read the delegated skill directives above.
 2. Read the plan file at the path you were given. Confirm its claim front-matter is `claim_status: CLAIMED` and its bottom `Status` is not already `PHASE_9`. If it is `PHASE_9`, return `SKIP <code>: already PHASE_9`.
 3. As your **first** action, write the plan's `## ⚙️ Plan Settings` block as the locked preset `Mode=AUTO`, `Agents=SINGLE` (frozen thereafter).
-4. Run the per-plan chain exactly as the skill specifies — `ptp-context-hunter` → `ptp-phase3-answerer` → Gate A auto-clear → `ptp-high-visionary` → Gate B auto-clear, Gate C `N/A` → `ptp-code-surgeon` → commit `plan: <code>` → `PHASE_9`.
+4. Run the per-plan chain exactly as the skill specifies — `ptp-context-hunter` → `ptp-phase3-answerer` → Gate A cleared → `ptp-high-visionary` → Gate B cleared, Gate C `N/A` → `ptp-code-surgeon` → commit `plan: <code>` → `PHASE_9`.
 5. Leave **Gate D** `OPEN`. Return one terse line: `DONE <code>` / `SKIP <code>: <reason>` / `HALT <code>: <cause>`.
 
 ## Hard rules

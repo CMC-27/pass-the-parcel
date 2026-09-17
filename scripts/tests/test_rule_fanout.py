@@ -83,6 +83,15 @@ class TempTree:
         stripped, raw = rf.collect(self.root, walk)
         return {rule["id"]: rf.evaluate(rule, stripped, raw) for rule in rules}
 
+    def agreement(self):
+        text = rf.read_text(self.root / rf.REGISTRY_REL)
+        rows = rf.parse_agreement(text)
+        assert rows is not None, "agreement section did not parse"
+        walk, rules = rf.parse_registry(text)
+        self.assert_parsed(walk, rules)
+        stripped, _ = rf.collect(self.root, walk)
+        return {r["row"]["token"]: r for r in rf.evaluate_agreement(rows, stripped)}
+
     @staticmethod
     def assert_parsed(walk, rules):
         assert walk is not None and rules is not None, "registry block did not parse"
@@ -205,6 +214,47 @@ class RuleFanoutTests(unittest.TestCase):
     def test_no_sibling_yaml(self):
         repo = SCRIPTS.parent
         self.assertFalse((repo / ".devops/rules/surface-budget.yaml").exists())
+
+    # --- agreement section (report-only) ---------------------------------
+
+    AGREE_EXTRA = "agreement:\n  - TOKEN :: .devops/rules/canon.md | .devops/skills/s/SKILL.md\n"
+
+    def test_agreement_all_present(self):
+        tree = self.tree(registry_block(extra=self.AGREE_EXTRA))
+        tree.write(".devops/rules/canon.md", "# Canon\n\nTOKEN here\n")
+        tree.write(".devops/skills/s/SKILL.md", "# Skill\n\nTOKEN here\n")
+        res = tree.agreement()["TOKEN"]
+        self.assertEqual(res["missing"], [])
+        self.assertEqual(res["absent"], [])
+        self.assertEqual(len(res["present"]), 2)
+
+    def test_agreement_missing_token_is_flagged(self):
+        tree = self.tree(registry_block(extra=self.AGREE_EXTRA))
+        tree.write(".devops/rules/canon.md", "# Canon\n\nTOKEN here\n")
+        # the skill deliberately does not carry the token
+        res = tree.agreement()["TOKEN"]
+        self.assertEqual(res["missing"], [".devops/skills/s/SKILL.md"])
+
+    def test_agreement_absent_file_is_flagged(self):
+        tree = self.tree(registry_block(
+            extra="agreement:\n  - TOKEN :: .devops/rules/canon.md | .devops/missing/nope.md\n"
+        ))
+        tree.write(".devops/rules/canon.md", "# Canon\n\nTOKEN here\n")
+        res = tree.agreement()["TOKEN"]
+        self.assertEqual(res["absent"], [".devops/missing/nope.md"])
+
+    def test_agreement_malformed_exits_zero(self):
+        tree = self.tree(registry_block(extra="agreement:\n  - TOKEN :: a :: b\n"))
+        code, out = tree.run()
+        self.assertEqual(code, 0)
+        self.assertIn("malformed agreement section", out)
+        self.assertNotIn("Traceback", out)
+
+    def test_agreement_absent_section_is_silent(self):
+        tree = self.tree(registry_block())
+        code, out = tree.run()
+        self.assertEqual(code, 0)
+        self.assertNotIn("Agreement", out)
 
 
 if __name__ == "__main__":

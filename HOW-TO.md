@@ -164,6 +164,7 @@ Docs may carry Grounded Claims (`claims:` frontmatter, `source: path#symbol` + a
 ---
 
 ## See Also
-- [README.md](README.md) — what Pass the Parcel is and its two jobs
+- [OPERATING-PRINCIPLES.md](OPERATING-PRINCIPLES.md) — the goal and the instruments that serve it
+- [README.md](README.md) — the product page and quickstart
 - [AGENTS.md](AGENTS.md) — the agent entry point and task lookup
 - [`.devops/README.md`](.devops/README.md) — operational state and the transportable machinery

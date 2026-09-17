@@ -7,9 +7,11 @@ declared `allowed-surfaces:` that pass the pointer test (`unauthorised`).
 
 REPORT-ONLY. Always exits 0 — a missing or malformed registry block prints a
 loud one-line notice and exits 0, a rule with zero matches prints a row of
-zeroes. There is no --json, no --fail-on and no exit-code surface at all. Never
-add this to .github/workflows/validate.yml: a report that can block would be a
-second gate over the gates.
+zeroes. An optional `agreement:` section lists tokens that must appear on every
+declared surface; divergence is printed, never enforced. There is no --json, no
+--fail-on and no exit-code surface at all. Never add this to
+.github/workflows/validate.yml: a report that can block would be a second gate
+over the gates.
 
 Usage:
     python scripts/rule_fanout.py [--root <path>]
@@ -55,6 +57,9 @@ def parse_registry(text: str):
             continue
         if line == "rules:":
             mode = "rules"
+            continue
+        if line == "agreement:":
+            mode = "agreement"
             continue
         if not line.startswith("- "):
             continue
@@ -188,6 +193,52 @@ def evaluate(rule: dict, stripped: dict, raw: dict) -> dict:
     }
 
 
+def parse_agreement(text: str):
+    """Parse the optional fenced `agreement:` section. Returns rows, or None when malformed.
+
+    Row shape: `<token> :: <file> | <file> | ...` — every declared file must contain the
+    token. The section is optional; a registry without it returns [].
+    """
+    if text.count(BLOCK_START) != 1 or text.count(BLOCK_END) != 1:
+        return []
+    block = text.split(BLOCK_START, 1)[1].split(BLOCK_END, 1)[0]
+    rows, mode = [], None
+    for raw in block.splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line == "agreement:":
+            mode = "agreement"
+            continue
+        if line in ("walk-roots:", "rules:"):
+            mode = None
+            continue
+        if mode != "agreement" or not line.startswith("- "):
+            continue
+        cells = [c.strip() for c in line[2:].strip().split("::")]
+        if len(cells) != 2:
+            return None
+        token, files = cells
+        rows.append({"token": token, "files": [f.strip() for f in files.split("|") if f.strip()]})
+    return rows
+
+
+def evaluate_agreement(rows: list[dict], stripped: dict) -> list[dict]:
+    """Per row: which declared surfaces carry the token, which do not, which are not in the walk."""
+    results = []
+    for row in rows:
+        present, missing, absent = [], [], []
+        for rel in row["files"]:
+            if rel not in stripped:
+                absent.append(rel)
+            elif row["token"] in stripped[rel]:
+                present.append(rel)
+            else:
+                missing.append(rel)
+        results.append({"row": row, "present": present, "missing": missing, "absent": absent})
+    return results
+
+
 def report(results: list[dict]) -> None:
     print("Rule fan-out — surface budget (report-only; machinery corpus; see .devops/rules/surface-budget.md)")
     print()
@@ -216,6 +267,35 @@ def report(results: list[dict]) -> None:
         ".devops/backlog/MATURITY.md — this run stores nothing."
     )
 
+
+def report_agreement(results: list[dict]) -> None:
+    if not results:
+        return
+    print()
+    print(
+        "Agreement — tokens that must appear on every declared surface "
+        "(report-only; see .devops/rules/surface-budget.md)"
+    )
+    print()
+    print(f"{'token':<24} {'status':<10} surfaces")
+    print("-" * 100)
+    for res in results:
+        row = res["row"]
+        status = "AGREE" if not res["missing"] and not res["absent"] else "DISAGREE"
+        print(f"{row['token']:<24} {status:<10} {len(res['present'])}/{len(row['files'])}")
+    print("-" * 100)
+    for res in results:
+        row = res["row"]
+        if not res["missing"] and not res["absent"]:
+            continue
+        detail = []
+        if res["missing"]:
+            detail.append("missing-token: " + ", ".join(res["missing"]))
+        if res["absent"]:
+            detail.append("not-in-walk: " + ", ".join(res["absent"]))
+        print(f"  [{row['token']}] " + "; ".join(detail))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Rule fan-out report (report-only, always exits 0).")
     parser.add_argument("--root", default=None, help="repo root to scan (default: this script's repo)")
@@ -226,14 +306,21 @@ def main(argv: list[str] | None = None) -> int:
     if not registry.is_file():
         print(f"rule_fanout: no registry block — {REGISTRY_REL} not found under {root}")
         return 0
-    walk_roots, rules = parse_registry(read_text(registry))
+    registry_text = read_text(registry)
+    walk_roots, rules = parse_registry(registry_text)
     if walk_roots is None:
         print(f"rule_fanout: malformed registry block in {REGISTRY_REL} — need exactly one START/END pair, "
               "a walk-roots: list and 4-cell rules: rows")
         return 0
+    agreement = parse_agreement(registry_text)
+    if agreement is None:
+        print(f"rule_fanout: malformed agreement section in {REGISTRY_REL} — "
+              "each row must be `<token> :: <file> | <file> | ...`")
+        agreement = []
 
     stripped, raw = collect(root, walk_roots)
     report([evaluate(rule, stripped, raw) for rule in rules])
+    report_agreement(evaluate_agreement(agreement, stripped))
     return 0
 
 

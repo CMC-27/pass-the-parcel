@@ -6,14 +6,19 @@
 
 Pass the Parcel is a template for **stateless, multi-agent software delivery**. A single plan file (`.devops/plans/<slug>-plan.md`) holds all state; each phase is executed by one agent that reads the plan, does exactly one job, writes its result back, and exits. No agent carries a conversation, the reviewers never see the planner's reasoning, and every gate is a hard stop. Around the pipeline sits an **agent-first wiki** that acts as the source of truth for the codebase.
 
-## Two jobs
+## The goal
 
-Pass the Parcel is a template with two deliberate halves:
+**Pass the Parcel** turns a feature request into a reviewed, executed, verified change by passing one Markdown plan between specialised agents. One plan file holds all state; every agent starts cold, does one job, writes its result back, and exits. It is stateless, independently reviewed by context-isolated agents, gated (Scope → Spec & Plan → Peer Reviews → Implementation), and deterministic.
 
-1. **A planning & execution framework** — a stateless, 10-phase, multi-agent pipeline carried entirely in one Markdown plan, with four hard gates (Scope → Spec & Plan → Peer Reviews → Implementation) and independent, context-isolated review.
-2. **An agent-first wiki system** — a governed, grounded knowledge base that keeps an agent's context cheap and honest: a deterministic linter, Grounded Claims with source evidence, and drift automation. **Governance is the differentiator**; generation interoperates with [OpenWiki](https://github.com/langchain-ai/openwiki) through the Open Knowledge Format.
+## The principal instrument
 
-Maturity of both halves is tracked per axis in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
+The **agent-managed wiki** is the input every cold start consumes — a governed, grounded knowledge base with a deterministic linter, Grounded Claims with source evidence, and drift automation. Without it, each phase would re-derive the codebase and the loop would be expensive or wrong. **Governance is the differentiator**, not generation.
+
+## The supporting instruments
+
+**Cache-first context** (byte-stable prefixes and cache-anchored plans) makes the stateless loop affordable. **Managed Simplicity** keeps the machinery small enough to hold. **Deterministic guardrails** keep every instrument's invariant a script, not a convention. Full statement: [`OPERATING-PRINCIPLES.md`](OPERATING-PRINCIPLES.md).
+
+Maturity is tracked per axis in [`.devops/backlog/MATURITY.md`](.devops/backlog/MATURITY.md).
 
 ## Why this exists
 
