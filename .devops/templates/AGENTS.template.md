@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 13
-updated: 2026-09-15
+version: 14
+updated: 2026-09-17
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -32,6 +32,13 @@ user interfaces.
 
 Instead of searching the entire codebase to understand context, **STOP** and read the localized
 intelligence hub first.
+
+---
+
+## Managed Simplicity
+<!-- MACHINERY: keep verbatim -->
+
+> **Managed Simplicity.** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
 
 ---
 

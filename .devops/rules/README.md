@@ -3,7 +3,7 @@ title: Dev Rules
 tags: [dev, rules, governance, index]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-14
+last-reviewed: 2026-09-17
 related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, ../../AGENTS.md]
 ---
 
@@ -24,6 +24,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 | File | Covers |
 |---|---|
 | [agents-and-skills.md](agents-and-skills.md) | How agents and skills are defined, named, published and synced |
+| [managed-simplicity.md](managed-simplicity.md) | The template's first principle, and the two instruments that enforce it — the Simplicity Ladder (plan time) and the surface-budget report (maintenance) |
 | [plan-lifecycle.md](plan-lifecycle.md) | Parcel plan lifecycle — backlog → sprint queue → plans → archive, gates, claim protocol + worktrees |
 | [process-lessons.md](process-lessons.md) | Staging register of machinery / process / tooling lessons with no home in `.wiki/` — the exit door for Knowledge Capture |
 
@@ -36,4 +37,4 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 
 ---
 
-*Last reviewed 2026-09-14. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-17. Changes to these rules require human sign-off.*

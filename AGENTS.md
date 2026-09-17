@@ -21,6 +21,12 @@ Instead of searching the entire codebase to understand context, **STOP** and rea
 
 ---
 
+## Managed Simplicity
+
+> **Managed Simplicity.** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
+
+---
+
 ## Design & Scope Notes
 
 > [!NOTE]
