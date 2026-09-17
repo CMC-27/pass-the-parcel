@@ -102,13 +102,26 @@ Two caveats, both load-bearing when reading this table:
 | Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-16 |
 | Lint warnings | 0 | 2026-09-16 |
 
-The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/wiki_visualize.py --check`, and `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
+The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
+
+### Gate cost (dated rows — no deterministic gate > 5 s at template scale)
+
+| Gate | Wall clock | Files | Note | Date |
+|------|-----------|-------|------|------|
+| `check-utf8-agents.ps1` (default) | **0.57 s** | 208 | The figure is the **default live-surface scan**; `.devops/archive` is excluded (immutable history, ~half the scanned bytes, unactionable verdict). `-All` is a **manual escape hatch with no scheduled run** — nothing in `validate.yml`, no hook and no job invokes it — so the default figure is *not* full-surface coverage. | 2026-09-17 |
+| `check-utf8-agents.ps1` (`-All`) | **0.58 s** | 231 | Reproduces the former whole-tree scan on demand; its stdout is byte-identical to the pre-W7 capture at the 231-file count. | 2026-09-17 |
+| `check-parcel-prefix.ps1` | ~1 s | 11 agents | Model-registry + prefix + seed parity. | 2026-09-17 |
+| `wiki_lint.py --quiet` | ~1 s | .wiki tree | Exit `0`. | 2026-09-17 |
+| `wiki_claims.py check` | ~1 s | .wiki tree | `0 stale, all grounded sources present`. | 2026-09-17 |
+| `sync-architecture.ps1 -SelfTest` | ~20 s | full portable surface | Deliberately heavy: it materialises a throwaway satellite end-to-end and asserts the manifest mirror. The one gate above the 5 s target, by design and by construction — recorded rather than hidden. | 2026-09-17 |
+
+> **Pre-W7 baseline (2026-09-16, 231 files): 13.8 s**, rising past 3 minutes at a satellite's 701 files, because the guard was a hand-rolled interpreted per-byte loop with the loop bound `$i -lt $bytes.Length - 2`. It is now one Latin-1 decode plus one compiled regex alternation per file (T1-E4.01, W7) — **~32× faster** — and the bound is gone, which also fixed a false negative: a file whose last two bytes were `C3 A2` was never scanned.
 
 ### Remaining Test Work
 
 | Item | Status | Note |
 |------|--------|------|
-| Machinery fixture tests | 🔴 OPEN | Only `sync-architecture.ps1 -SelfTest` exercises a script against a fixture. `T1-E3.09` plans the first `scripts/sprint_eligible.py` fixture test; no equivalent exists for the other scripts. |
+| Machinery fixture tests | 🟡 PARTIAL | **Closed for four scripts** by T1-E4.01: `scripts/tests/test_sprint_eligible.py` (29 tests), `test_rule_fanout.py` (13), `test_check_utf8_agents.py` (10), `test_wiki_claims_coverage.py` — all stdlib `unittest`, driving the real CLI over temp trees. Still open for `scripts/sync-architecture.ps1` beyond `-SelfTest`, `scripts/wiki_lint.py` and `scripts/check-parcel-prefix.ps1`. |
 
 ---
 

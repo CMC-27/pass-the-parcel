@@ -1,48 +1,71 @@
 # Encoding guard: detect UTF-8 mojibake and replacement chars in machinery files.
 # Scans agent files (.devops/agents/*.agent.md + *.subagent.md), all skill sources
-# (.devops/skills/**/*.md), plan-state surfaces (plans, archive, backlog, logs, sprints), the
+# (.devops/skills/**/*.md), plan-state surfaces (plans, backlog, logs, sprints), the
 # dev-rules layer + seed templates (.devops/rules, .devops/templates — both portable
 # and agent-read, so mojibake there propagates to every satellite), the full wiki
 # (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus generated `docs/`
 # and `.github/` markdown — the wiki scan closes the guard gap where corrupted glyphs
 # in documentation prose (which wiki_lint never inspects) survived unchecked.
-# Markers: C3 A2 (CP1252 double-encoded em-dash lead, "â€"), C3 B0 C2 (CP1252 double-encoded emoji lead, "ðŸ"),
-# CE 93 + C2/C3 (CP437 double-encoded dash/emoji lead, "ΓÇ"), E2 89 A1 C6 92 (CP437 double-encoded
-# 4-byte emoji lead, "≡ƒ"), EF BF BD (U+FFFD replacement). The CP437 pair catches UTF-8 bytes misread
-# through code page 437 — a second corruption path the CP1252 markers alone missed.
+#
+# Markers, BY HEX BYTE SEQUENCE ONLY — never as literal glyphs, because a glyph here
+# would depend on this file's own bytes and on the host's BOM-less read (PowerShell 5.1
+# assumes ANSI), and `scripts/` sits outside this guard's own scan set, so a mangled
+# guard could not catch itself:
+#   C3 A2             CP1252 double-encoded em-dash lead
+#   C3 B0 C2          CP1252 double-encoded emoji lead
+#   CE 93 + C2|C3     CP437 double-encoded dash / emoji lead
+#   E2 89 A1 C6 92    CP437 double-encoded 4-byte emoji lead
+#   EF BF BD          U+FFFD replacement character
+# The CP437 pairs catch UTF-8 bytes misread through code page 437 — a second corruption
+# path the CP1252 markers alone missed.
+#
+# Mechanism: each file is decoded ONCE as Latin-1 (code page 28591 — 1 byte maps to 1
+# char), then the five sequences are matched with one compiled regex alternation built
+# from .NET `\u` escapes. That replaces the interpreted per-index byte loop with native
+# search, and — the declared delta — it scans the WHOLE file: the old loop bound was
+# `$i -lt $bytes.Length - 2`, which never tested the final two bytes, so a file whose last
+# two bytes were C3 A2 passed silently. Fixing that is a deliberate, stated strengthening,
+# not a moved goalpost.
+#
+# Immutable history: `.devops/archive` is EXCLUDED from the recurring scan (roughly half
+# the scanned bytes, and its verdict is unactionable — the archive is never retro-edited
+# and is not portable). `-All` reproduces the former whole-tree scan on demand; nothing
+# schedules it, so the default run's file count is the live surface, not the full tree.
+param(
+    [string]$Root = "",
+    [switch]$All
+)
 $ErrorActionPreference = 'Stop'
-$root = Split-Path -Parent $PSScriptRoot
+$root = if ($Root) { (Resolve-Path $Root).Path } else { Split-Path -Parent $PSScriptRoot }
 
 $targets = @()
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.agent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.subagent.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
-foreach ($dir in @('.devops\plans', '.devops\archive', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates', '.devops\sprints')) {
+$dirs = @('.devops\plans', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates', '.devops\sprints')
+if ($All) { $dirs += '.devops\archive' }
+foreach ($dir in $dirs) {
     $targets += Get-ChildItem -Path (Join-Path $root $dir) -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 }
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to
 # wiki_lint, so the byte guard is the only mojibake detector for .wiki content.
 $targets += Get-ChildItem -Path (Join-Path $root '.wiki') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
-# Root docs + generated/github markdown — also agent-read surfaces. `docs/` is
-# generated (visualizer export) but committed, so it must stay clean too.
+# Root docs + generated/github markdown — also agent-read surfaces.
 $targets += Get-ChildItem -Path $root -Filter '*.md' -File -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root 'docs') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 $targets += Get-ChildItem -Path (Join-Path $root '.github') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
 
+$latin1 = [System.Text.Encoding]::GetEncoding(28591)
+$markerPattern = '\u00C3\u00A2|\u00C3\u00B0\u00C2|\u00EF\u00BF\u00BD|\u00CE\u0093[\u00C2\u00C3]|\u00E2\u0089\u00A1\u00C6\u0092'
+$markerRegex = [System.Text.RegularExpressions.Regex]::new(
+    $markerPattern,
+    [System.Text.RegularExpressions.RegexOptions]::Compiled
+)
+
 $bad = @()
 foreach ($file in $targets) {
-    $bytes = [System.IO.File]::ReadAllBytes($file.FullName)
-    $mojibake = $false
-    for ($i = 0; $i -lt $bytes.Length - 2; $i++) {
-        if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xA2) { $mojibake = $true; break }
-        if ($bytes[$i] -eq 0xC3 -and $bytes[$i + 1] -eq 0xB0 -and $bytes[$i + 2] -eq 0xC2) { $mojibake = $true; break }
-        if ($bytes[$i] -eq 0xEF -and $bytes[$i + 1] -eq 0xBF -and $bytes[$i + 2] -eq 0xBD) { $mojibake = $true; break }
-        # CP437 double-encoding: Γ (CE 93) leads misread E2 xx sequences (dash / most emoji).
-        if ($bytes[$i] -eq 0xCE -and $bytes[$i + 1] -eq 0x93 -and ($bytes[$i + 2] -eq 0xC2 -or $bytes[$i + 2] -eq 0xC3)) { $mojibake = $true; break }
-        # CP437 double-encoding: ≡ƒ (E2 89 A1 C6 92) leads misread 4-byte F0 9F emoji sequences.
-        if ($i -lt $bytes.Length - 4 -and $bytes[$i] -eq 0xE2 -and $bytes[$i + 1] -eq 0x89 -and $bytes[$i + 2] -eq 0xA1 -and $bytes[$i + 3] -eq 0xC6 -and $bytes[$i + 4] -eq 0x92) { $mojibake = $true; break }
-    }
-    if ($mojibake) {
+    $text = $latin1.GetString([System.IO.File]::ReadAllBytes($file.FullName))
+    if ($markerRegex.IsMatch($text)) {
         $bad += $file.FullName.Substring($root.Length + 1)
     }
 }
