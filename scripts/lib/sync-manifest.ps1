@@ -116,17 +116,20 @@ function Get-ItemHashes {
             $text = [System.Text.Encoding]::UTF8.GetString([System.IO.File]::ReadAllBytes($File)) -replace "`r`n", "`n"
         }
         $sha = [System.Security.Cryptography.SHA256]::Create()
-        try { ($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text)) | ForEach-Object { $_.ToString('X2') }) -join '' } finally { $sha.Dispose() }
+        try { ([System.BitConverter]::ToString($sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($text)))).Replace('-','') } finally { $sha.Dispose() }
     }
-    # -Force: on Unix, dot-prefixed names are hidden and Get-Item/Get-ChildItem
-    # ignore hidden items by default. .vscode is the only portable-surface leaf
-    # that is dot-prefixed (.wiki/rules, .devops/agents, ... end in visible
-    # names), so without -Force -Check dies on it under Linux/pwsh — the
-    # "Could not find item .../.vscode" crash that reddens the CI self-test.
-    if ((Get-Item -Force $Path).PSIsContainer) {
-        Get-ChildItem -Force $Path -Recurse -File | ForEach-Object {
-            $base = $Path.TrimEnd('\', '/'); $rel = $_.FullName.Substring($base.Length + 1).Replace('\','/')
-            $map[$rel] = Hash-Normalized $_.FullName
+    # -Force on the provider side: on Unix, dot-prefixed names are hidden and
+    # Get-Item/Get-ChildItem ignore hidden items by default. .vscode is the only
+    # portable-surface leaf that is dot-prefixed (.wiki/rules, .devops/agents, ...
+    # end in visible names), so without -Force -Check dies on it under Linux/pwsh —
+    # the "Could not find item .../.vscode" crash that reddens the CI self-test.
+    # .NET enumeration replaces `Get-ChildItem -Force -Recurse -File`: the provider
+    # materialises a FileInfo per entry, which dominates -Check over a large
+    # machinery tree on PS 5.1, and it includes dot-prefixed entries anyway.
+    if ([System.IO.Directory]::Exists($Path)) {
+        $base = $Path.TrimEnd('\', '/')
+        foreach ($file in [System.IO.Directory]::EnumerateFiles($Path, '*', [System.IO.SearchOption]::AllDirectories)) {
+            $map[$file.Substring($base.Length + 1).Replace('\','/')] = Hash-Normalized $file
         }
     } else {
         $map[(Split-Path -Leaf $Path)] = Hash-Normalized $Path

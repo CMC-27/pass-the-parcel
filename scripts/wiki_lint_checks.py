@@ -13,6 +13,7 @@ The checks module holds **no module-level mutable state**.
 
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -36,6 +37,7 @@ from wiki_lint_core import (
     is_path_token,
     list_field,
     parse_frontmatter,
+    path_key,
     rel,
     resolve_link,
 )
@@ -49,11 +51,57 @@ class LintContext:
         self.hard_msgs: list[str] = []
         self.hard_failures = 0
         self.bad_encoding: set[str] = set()
+        # Per-run I/O caches: the wiki corpus is enumerated once and every file is
+        # read at most once, however many of the checks inspect it.
+        self._wiki_files: list[Path] | None = None
+        self._text: dict[Path, str] = {}
+        self._raw: dict[Path, bytes] = {}
 
     def hard(self, msg: str) -> None:
         self.hard_failures += 1
         self.hard_msgs.append(msg)
         self.findings.append(f"HARD  {msg}")
+
+    def key(self, path: Path) -> str:
+        """A syscall-free identity for a path (see `wiki_lint_core.path_key`)."""
+        return path_key(path)
+
+    def wiki_files(self) -> list[Path]:
+        """Every `.wiki/**/*.md`, enumerated once per run."""
+        if self._wiki_files is None:
+            self._wiki_files = sorted(WIKI.rglob("*.md"))
+        return self._wiki_files
+
+    def text(self, path: Path) -> str:
+        cached = self._text.get(path)
+        if cached is None:
+            cached = path.read_text(encoding="utf-8")
+            self._text[path] = cached
+        return cached
+
+    def raw(self, path: Path) -> bytes:
+        cached = self._raw.get(path)
+        if cached is None:
+            cached = path.read_bytes()
+            self._raw[path] = cached
+        return cached
+
+
+def _md_files_pruned(base: Path, skip_dirs: tuple[str, ...] = ()) -> list[Path]:
+    """`base.rglob("*.md")`, sorted, without descending into `skip_dirs`.
+
+    Pruning matters because `.devops/archive`, `.devops/logs` and `.devops/plans`
+    grow without bound in a long-lived satellite and every file under them is
+    skipped anyway — the walk should not pay to enumerate them.
+    """
+    skip = {os.path.normcase(os.path.join(str(base), d)) for d in skip_dirs}
+    out: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(base):
+        dirnames[:] = [d for d in dirnames if os.path.normcase(os.path.join(dirpath, d)) not in skip]
+        for name in filenames:
+            if name.endswith(".md"):
+                out.append(Path(dirpath) / name)
+    return sorted(out)
 
 
 def _last_table_bounds(lines: list[str]) -> tuple[int, int] | None:
@@ -112,16 +160,16 @@ def _fix_missing(index_path: Path, link: str) -> str | None:
 def check_encoding(ctx: LintContext) -> None:
     # 0. Encoding guard: flag BOMs and non-UTF-8 files before any parsing.
     #    This byte check is the only one that inspects raw bytes, not parsed text.
-    for f in sorted(WIKI.rglob("*.md")):
-        enc = encoding_problem(f)
+    for f in ctx.wiki_files():
+        enc = encoding_problem(ctx.raw(f))
         if enc:
-            ctx.bad_encoding.add(str(f.resolve()))
+            ctx.bad_encoding.add(ctx.key(f))
             ctx.hard(f"{rel(f)}: {enc}")
 
 
 def check_structure_anchors(ctx: LintContext) -> None:
     # 1. Structure manifest anchors exist.
-    if str(MANIFEST.resolve()) in ctx.bad_encoding:
+    if ctx.key(MANIFEST) in ctx.bad_encoding:
         anchors = []
     else:
         manifest_text = MANIFEST.read_text(encoding="utf-8")
@@ -134,10 +182,10 @@ def check_structure_anchors(ctx: LintContext) -> None:
 
 def check_wiki_links_and_frontmatter(ctx: LintContext) -> None:
     # 2. Walk wiki content: body links + frontmatter fields.
-    for f in sorted(WIKI.rglob("*.md")):
-        if str(f.resolve()) in ctx.bad_encoding:
+    for f in ctx.wiki_files():
+        if ctx.key(f) in ctx.bad_encoding:
             continue
-        text = f.read_text(encoding="utf-8")
+        text = ctx.text(f)
         fm, body = parse_frontmatter(text)
 
         # Frontmatter required fields.
@@ -161,14 +209,15 @@ def check_wiki_links_and_frontmatter(ctx: LintContext) -> None:
 
 def check_frontmatter_link_targets(ctx: LintContext) -> None:
     # 3. Frontmatter link targets resolve (`.wiki/**` + `.devops/**`).
-    for base in (WIKI, DEVOPS):
-        for f in sorted(base.rglob("*.md")):
+    #    Historical trees are pruned during the walk, not merely skipped per file.
+    for base, skip in ((WIKI, ()), (DEVOPS, ("archive", "logs", "plans"))):
+        for f in _md_files_pruned(base, skip):
             r = rel(f)
             if r.startswith(HISTORICAL_PREFIXES):
                 continue
-            if str(f.resolve()) in ctx.bad_encoding:
+            if ctx.key(f) in ctx.bad_encoding:
                 continue
-            block = frontmatter_block(f.read_text(encoding="utf-8"))
+            block = frontmatter_block(ctx.text(f))
             if block is None:
                 continue
             for key in FM_LINK_FIELDS:
@@ -182,10 +231,10 @@ def check_grounded_claims(ctx: LintContext) -> None:
     #     import it lazily so the module-level wiki_claims -> wiki_lint import
     #     never forms a cycle.
     from wiki_claims import claims as parse_claims  # noqa: PLC0415
-    for f in sorted(WIKI.rglob("*.md")):
-        if str(f.resolve()) in ctx.bad_encoding:
+    for f in ctx.wiki_files():
+        if ctx.key(f) in ctx.bad_encoding:
             continue
-        block = frontmatter_block(f.read_text(encoding="utf-8"))
+        block = frontmatter_block(ctx.text(f))
         for claim in parse_claims(block):
             cid = claim.get("id", "<no-id>")
             absent = [k for k in ("id", "source", "hash") if k not in claim]
@@ -204,17 +253,17 @@ def check_rules_index(ctx: LintContext) -> None:
     #     rule file ships unlisted and the linter cannot otherwise see it.
     rules_dir = WIKI / "rules"
     rules_readme = rules_dir / "README.md"
-    if rules_readme.exists() and str(rules_readme.resolve()) not in ctx.bad_encoding:
-        _, readme_body = parse_frontmatter(rules_readme.read_text(encoding="utf-8"))
+    if rules_readme.exists() and ctx.key(rules_readme) not in ctx.bad_encoding:
+        _, readme_body = parse_frontmatter(ctx.text(rules_readme))
         catalogued: set[str] = set()
         for link in extract_links(readme_body):
             t = resolve_link(link, rules_readme)
             if t:
-                catalogued.add(str(t.resolve()))
+                catalogued.add(ctx.key(t))
         for rule_file in sorted(rules_dir.glob("*.md")):
             if rule_file.name == "README.md":
                 continue
-            if str(rule_file.resolve()) not in catalogued:
+            if ctx.key(rule_file) not in catalogued:
                 ctx.hard(f"{rel(rules_readme)}: [UNCATALOGUED] {rel(rule_file)}")
 
 
@@ -222,14 +271,14 @@ def check_hub_spokes(ctx: LintContext) -> set[str]:
     # 4. Hub -> spoke links (every category index that exists).
     hub_targets: set[str] = set()
     if HUB.exists():
-        hub_text = HUB.read_text(encoding="utf-8")
+        hub_text = ctx.text(HUB)
         _, hub_body = parse_frontmatter(hub_text)
         for link in extract_links(hub_body):
             t = resolve_link(link, HUB)
             if t:
-                hub_targets.add(str(t.resolve()))
+                hub_targets.add(ctx.key(t))
         for idx in category_indexes():
-            if str(idx.resolve()) not in hub_targets:
+            if ctx.key(idx) not in hub_targets:
                 ctx.hard(f"{rel(HUB)}: [HUB MISSING SPOKE] {rel(idx)}")
     return hub_targets
 
@@ -239,7 +288,7 @@ def check_index_catalogue(ctx: LintContext) -> tuple[list[tuple[Path, Path]], li
     unindexed: list[tuple[Path, Path]] = []
     missing: list[tuple[Path, str]] = []
     for idx in category_indexes():
-        idx_text = idx.read_text(encoding="utf-8")
+        idx_text = ctx.text(idx)
         _, idx_body = parse_frontmatter(idx_text)
         listed: set[str] = set()
         for link in extract_links(idx_body):
@@ -248,11 +297,11 @@ def check_index_catalogue(ctx: LintContext) -> tuple[list[tuple[Path, Path]], li
                 ctx.findings.append(f"WARN  {rel(idx)}: [MISSING] {link}")
                 missing.append((idx, link))
             else:
-                listed.add(str(t.resolve()))
+                listed.add(ctx.key(t))
         for sib in sorted(idx.parent.glob("*.md")):
             if sib == idx or is_fm_exempt_name(sib.name):
                 continue
-            if str(sib.resolve()) not in listed:
+            if ctx.key(sib) not in listed:
                 ctx.findings.append(f"WARN  {rel(idx)}: [UNINDEXED] {rel(sib)}")
                 unindexed.append((idx, sib))
     return unindexed, missing
@@ -270,43 +319,43 @@ def check_reachability(ctx: LintContext, hub_targets: set[str]) -> None:
                 p = Path(target)
                 if not p.exists() or p.suffix != ".md":
                     continue
-                if str(p.resolve()) in ctx.bad_encoding:
+                if ctx.key(p) in ctx.bad_encoding:
                     continue
-                _, body = parse_frontmatter(p.read_text(encoding="utf-8"))
+                _, body = parse_frontmatter(ctx.text(p))
                 for link in extract_links(body):
                     t = resolve_link(link, p)
-                    if t and str(t.resolve()) not in reachable:
-                        reachable.add(str(t.resolve()))
-                        nxt.add(str(t.resolve()))
+                    if t and ctx.key(t) not in reachable:
+                        reachable.add(ctx.key(t))
+                        nxt.add(ctx.key(t))
             frontier = nxt
-        for f in WIKI.rglob("*.md"):
+        for f in ctx.wiki_files():
             if is_fm_exempt_name(f.name) or f.name == "knowledge-capture.md":
                 continue
             r = f.relative_to(WIKI).as_posix()
             if r.startswith(("ref/", "templates/", "examples/", "rules/")):
                 continue
-            if str(f.resolve()) not in reachable:
+            if ctx.key(f) not in reachable:
                 ctx.findings.append(f"WARN  {rel(f)}: unreachable from hub")
 
 
 def check_orphans(ctx: LintContext) -> None:
     # 7. Orphans (report only).
     linked_targets = set()
-    for f in WIKI.rglob("*.md"):
-        if str(f.resolve()) in ctx.bad_encoding:
+    for f in ctx.wiki_files():
+        if ctx.key(f) in ctx.bad_encoding:
             continue
-        text = f.read_text(encoding="utf-8")
+        text = ctx.text(f)
         for link in extract_links(text):
             t = resolve_link(link, f)
             if t:
-                linked_targets.add(str(t.resolve()))
-    for f in WIKI.rglob("*.md"):
+                linked_targets.add(ctx.key(t))
+    for f in ctx.wiki_files():
         if is_fm_exempt_name(f.name) or f.name == "knowledge-capture.md":
             continue
         rel_wiki = f.relative_to(WIKI).as_posix()
         if rel_wiki.startswith(("ref/", "templates/", "examples/")):
             continue
-        if str(f.resolve()) not in linked_targets:
+        if ctx.key(f) not in linked_targets:
             ctx.findings.append(f"INFO  {rel(f)}: orphan (no inbound links)")
 
 

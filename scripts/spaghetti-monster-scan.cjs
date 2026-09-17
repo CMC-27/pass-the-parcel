@@ -16,19 +16,23 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-function walk(dir, exts, ignore) {
-  const out = [];
+function walk(dir, exts, ignore, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (ignore.some(p => entry.name === p || entry.name.startsWith(p))) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      out.push(...walk(full, exts, ignore));
+      walk(full, exts, ignore, out);
     } else if (exts.some(e => entry.name.endsWith(e))) {
       out.push(full);
     }
   }
   return out;
 }
+
+// Every path the single recursive walk discovered, normalised. `findTestFile`
+// consults this set first so a sibling test file costs a Set lookup instead of a
+// filesystem stat per candidate.
+const WALKED = new Set();
 
 function analyzeSource(filePath) {
   const src = fs.readFileSync(filePath, 'utf8');
@@ -141,7 +145,9 @@ function analyzeTest(filePath) {
 function findTestFile(sourcePath) {
   const dir = path.dirname(sourcePath);
   const base = path.basename(sourcePath, path.extname(sourcePath));
-  // Common patterns
+  // Common patterns. The first two live in the walked tree, so the set answers
+  // them; the `__tests__` pair sits under a pruned directory and still needs the
+  // stat. A sibling test therefore costs zero syscalls.
   const candidates = [
     path.join(dir, `${base}.test.jsx`),
     path.join(dir, `${base}.test.js`),
@@ -149,7 +155,7 @@ function findTestFile(sourcePath) {
     path.join(dir, '__tests__', `${base}.test.js`),
   ];
   for (const c of candidates) {
-    if (fs.existsSync(c)) return c;
+    if (WALKED.has(path.normalize(c)) || fs.existsSync(c)) return c;
   }
   return null;
 }
@@ -176,6 +182,7 @@ for (const root of ROOTS) {
   }
   allFiles.push(...walk(rootPath, root.exts, root.ignore));
 }
+for (const f of allFiles) WALKED.add(path.normalize(f));
 
 if (allFiles.length === 0) {
   console.log('nothing to scan: no app-source or machinery root exists in this workspace');

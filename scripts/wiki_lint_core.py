@@ -13,7 +13,9 @@ named `wiki_lint`, because a `scripts/wiki_lint/` package would shadow `wiki_lin
 """
 
 
+import os
 import re
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -115,21 +117,40 @@ def is_path_token(token: str) -> bool:
     return "/" in token or token.endswith(".md")
 
 
+def path_key(path: Path) -> str:
+    """A stable, syscall-free identity for a repo path.
+
+    `Path.resolve()` canonicalises through the filesystem on every call (on Windows
+    that is a `GetFinalPathNameByHandle` syscall per call, which dominated the
+    linter's runtime on a link-heavy wiki). Every path the linter touches is
+    discovered *under* `ROOT`, so lexical normalisation is equivalent and free.
+    """
+    return os.path.normcase(os.path.normpath(os.path.abspath(str(path))))
+
+
+@lru_cache(maxsize=None)
+def _resolve_link_cached(link: str, base_dir: str) -> Path | None:
+    """The filesystem-touching half of `resolve_link`, memoised per (link, dir).
+
+    Many docs in one directory link the same target (every index links the hub),
+    so the memo turns N stat pairs into one per distinct target.
+    """
+    target = Path(os.path.normpath(os.path.join(base_dir, link)))
+    if target.exists():
+        return target
+    if not target.suffix and target.with_suffix(".md").exists():
+        return target.with_suffix(".md")
+    return None
+
+
 def resolve_link(link: str, src_file: Path) -> Path | None:
     """Resolve a relative markdown link against the source file's directory."""
     link = link.split("#")[0]
     if not link or link.startswith(("http://", "https://", "mailto:", "#")):
         return None
     if link.startswith("/"):
-        target = ROOT / link.lstrip("/")
-    else:
-        target = (src_file.parent / link).resolve()
-    # Try as-is, then with .md if extensionless.
-    if target.exists():
-        return target
-    if not target.suffix and (target.with_suffix(".md")).exists():
-        return target.with_suffix(".md")
-    return None
+        return _resolve_link_cached(link.lstrip("/"), str(ROOT))
+    return _resolve_link_cached(link, str(src_file.parent))
 
 
 def extract_links(text: str) -> list[str]:
@@ -140,9 +161,8 @@ def extract_links(text: str) -> list[str]:
     return re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
 
 
-def encoding_problem(path: Path) -> str | None:
-    """Return a description if the file has a BOM or is not valid UTF-8, else None."""
-    raw = path.read_bytes()
+def encoding_problem(raw: bytes) -> str | None:
+    """Return a description if the bytes carry a BOM or are not valid UTF-8, else None."""
     if raw.startswith(b"\xef\xbb\xbf"):
         return "UTF-8 BOM (EF BB BF) — write UTF-8 without BOM"
     if raw.startswith(b"\xff\xfe"):
@@ -160,11 +180,12 @@ def rel(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
-def category_indexes() -> list[Path]:
+@lru_cache(maxsize=None)
+def category_indexes() -> tuple[Path, ...]:
     """Every category spoke index that exists (excludes the hub and README)."""
     out = []
     for f in sorted(WIKI.rglob("*-index.md")):
         if f == HUB or f.name == "index.md":
             continue
         out.append(f)
-    return out
+    return tuple(out)

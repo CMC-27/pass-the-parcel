@@ -88,8 +88,30 @@ def source_path(claim: dict[str, str]) -> str:
     return claim.get("source", "").split("#", 1)[0].strip()
 
 
+_TEXT_CACHE: dict[Path, str] = {}
+_BYTES_CACHE: dict[Path, bytes] = {}
+
+
+def read_text(path: Path) -> str:
+    """UTF-8 text with universal newlines, read at most once per run."""
+    cached = _TEXT_CACHE.get(path)
+    if cached is None:
+        cached = path.read_text(encoding="utf-8")
+        _TEXT_CACHE[path] = cached
+    return cached
+
+
+def read_bytes(path: Path) -> bytes:
+    """Raw bytes, read at most once per run (the hashing input)."""
+    cached = _BYTES_CACHE.get(path)
+    if cached is None:
+        cached = path.read_bytes()
+        _BYTES_CACHE[path] = cached
+    return cached
+
+
 def digest(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return hashlib.sha256(read_bytes(path)).hexdigest()
 
 
 # Identifier-shaped symbols (function/class/constant names) must match on a word
@@ -107,7 +129,7 @@ def symbol_resolves(path: Path, symbol: str) -> bool:
     per-language extraction (AST for Python, heading regex for Markdown).
     """
     try:
-        text = path.read_text(encoding="utf-8")
+        text = read_text(path)
     except (OSError, UnicodeDecodeError):
         return False
     if _IDENT_SYMBOL.match(symbol):
@@ -125,7 +147,7 @@ def claim_docs() -> list[tuple[Path, list[dict[str, str]]]]:
     """Every wiki doc that carries a `claims:` block."""
     out = []
     for f in sorted(WIKI.rglob("*.md")):
-        block = frontmatter_block(f.read_text(encoding="utf-8"))
+        block = frontmatter_block(read_text(f))
         items = claims(block)
         if items:
             out.append((f, items))
@@ -139,11 +161,14 @@ def referenced_paths(doc: Path, items: list[dict[str, str]]) -> set[str]:
         src = source_path(c)
         if src:
             refs.add(src)
-    block = frontmatter_block(doc.read_text(encoding="utf-8"))
+    block = frontmatter_block(read_text(doc))
     for key in LINK_FIELDS:
         for token in list_field(block, key):
-            if is_path_token(token) and resolve_link(token, doc):
-                refs.add(rel(resolve_link(token, doc)))
+            if not is_path_token(token):
+                continue
+            target = resolve_link(token, doc)
+            if target:
+                refs.add(rel(target))
     return refs
 
 
@@ -251,7 +276,7 @@ def _restamp_block(block: str, digests: list[str | None]) -> str:
 def cmd_update() -> int:
     stamped = 0
     for doc, items in claim_docs():
-        text = doc.read_text(encoding="utf-8")
+        text = read_text(doc)
         m = re.match(r"^---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
         if not m:
             continue

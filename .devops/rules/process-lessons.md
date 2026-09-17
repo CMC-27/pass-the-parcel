@@ -47,6 +47,8 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 
 ## Docs & Tooling
 
+- **[2026-09-17] A walker's cost is path bookkeeping, not file I/O** — profiling `wiki_lint` on a 2100-doc satellite put **48%** of runtime in `Path.resolve()` (a `GetFinalPathNameByHandle` syscall per link, per check), the `.wiki` corpus was enumerated ~6× and every doc read 4-5× per run, and the unbounded `.devops/archive|logs|plans` trees were enumerated only to be skipped per file. *Do instead:* profile before optimising a walker, then make path identity syscall-free (`os.path.normcase(os.path.abspath(p))` for anything discovered under the repo root), enumerate each root once with `os.walk` directory pruning, and read each file once per run behind a cache — the same shape applies to PowerShell, where `Get-ChildItem -Recurse` (a `FileInfo` per entry) loses to `Directory.GetFiles`/`EnumerateFiles`. Measured: `wiki_lint` 5,979 → 900 ms and the UTF-8 guard 1,206 → 615 ms, findings byte-identical.
+
 - **[2026-09-11] Architecture sync clobbers agent `model:` bindings and never touches `.opencode/`** — `pull-architecture.ps1` overwrites each agent's `model:` frontmatter with the template default while the Model Registry in `.opencode/plans/base-context.md` is not synced. *Do instead:* after any sync reconcile the registry + `opencode.json`, then run `scripts/check-parcel-prefix.ps1 -Sync` and confirm PASS.
 
 - **[2026-08-29] Vite 500 on a view = unresolved import, usually a missing `node_modules` package** — `net::ERR_ABORTED 500` loading a `.jsx` module is not a code bug when the editor is clean. *Do instead:* check `Test-Path node_modules/<pkg>`, run `npm install`, restart the dev server (Vite caches failed resolutions).

@@ -11,7 +11,7 @@ related-to: [./frontmatter.md, ./link-hygiene.md, ../../scripts/wiki_claims.py]
 claims:
   - id: claims-parser-owner
     source: scripts/wiki_claims.py#claims
-    hash: sha256:4ea8c09141b381c5f9ae6ebd2846c32b39bd3174c0928e22d3fc90ba7b0fe6cd
+    hash: sha256:90d7fa2d9961ae8fc1cf8d61a51032c0a17906bf292037430ed51baad7a0df80
 ---
 
 # Grounded Claims

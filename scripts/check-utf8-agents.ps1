@@ -38,22 +38,32 @@ param(
 $ErrorActionPreference = 'Stop'
 $root = if ($Root) { (Resolve-Path $Root).Path } else { Split-Path -Parent $PSScriptRoot }
 
-$targets = @()
-$targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.agent.md' -ErrorAction SilentlyContinue
-$targets += Get-ChildItem -Path (Join-Path $root '.devops\agents') -Filter '*.subagent.md' -ErrorAction SilentlyContinue
-$targets += Get-ChildItem -Path (Join-Path $root '.devops\skills') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+$targets = [System.Collections.Generic.List[string]]::new()
+# .NET enumeration rather than Get-ChildItem -Recurse: the provider materialises a
+# FileInfo per entry and is markedly slower on PS 5.1 over a large .wiki. GetFiles
+# returns bare path strings, so the scan loop reads them directly.
+function Add-MarkdownTargets {
+    param([string]$Dir, [string]$Filter = '*.md', [switch]$Recurse)
+    if (-not (Test-Path -LiteralPath $Dir)) { return }
+    $option = if ($Recurse) { [System.IO.SearchOption]::AllDirectories } else { [System.IO.SearchOption]::TopDirectoryOnly }
+    $targets.AddRange([System.IO.Directory]::GetFiles($Dir, $Filter, $option))
+}
+$agentsDir = Join-Path $root '.devops\agents'
+Add-MarkdownTargets $agentsDir '*.agent.md'
+Add-MarkdownTargets $agentsDir '*.subagent.md'
+Add-MarkdownTargets (Join-Path $root '.devops\skills') -Recurse
 $dirs = @('.devops\plans', '.devops\backlog', '.devops\logs', '.devops\rules', '.devops\templates', '.devops\sprints')
 if ($All) { $dirs += '.devops\archive' }
 foreach ($dir in $dirs) {
-    $targets += Get-ChildItem -Path (Join-Path $root $dir) -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+    Add-MarkdownTargets (Join-Path $root $dir) -Recurse
 }
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to
 # wiki_lint, so the byte guard is the only mojibake detector for .wiki content.
-$targets += Get-ChildItem -Path (Join-Path $root '.wiki') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+Add-MarkdownTargets (Join-Path $root '.wiki') -Recurse
 # Root docs + generated/github markdown — also agent-read surfaces.
-$targets += Get-ChildItem -Path $root -Filter '*.md' -File -ErrorAction SilentlyContinue
-$targets += Get-ChildItem -Path (Join-Path $root 'docs') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
-$targets += Get-ChildItem -Path (Join-Path $root '.github') -Recurse -Filter '*.md' -ErrorAction SilentlyContinue
+Add-MarkdownTargets $root
+Add-MarkdownTargets (Join-Path $root 'docs') -Recurse
+Add-MarkdownTargets (Join-Path $root '.github') -Recurse
 
 $latin1 = [System.Text.Encoding]::GetEncoding(28591)
 $markerPattern = '\u00C3\u00A2|\u00C3\u00B0\u00C2|\u00EF\u00BF\u00BD|\u00CE\u0093[\u00C2\u00C3]|\u00E2\u0089\u00A1\u00C6\u0092'
@@ -64,9 +74,9 @@ $markerRegex = [System.Text.RegularExpressions.Regex]::new(
 
 $bad = @()
 foreach ($file in $targets) {
-    $text = $latin1.GetString([System.IO.File]::ReadAllBytes($file.FullName))
+    $text = $latin1.GetString([System.IO.File]::ReadAllBytes($file))
     if ($markerRegex.IsMatch($text)) {
-        $bad += $file.FullName.Substring($root.Length + 1)
+        $bad += $file.Substring($root.Length + 1)
     }
 }
 if ($bad.Count -gt 0) {
