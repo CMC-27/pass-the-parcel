@@ -88,7 +88,6 @@ powershell -NoProfile -File scripts\pull-architecture.ps1          # pull update
 | [`.devops/`](.devops/) | Operational state and the transportable machinery: skills, agents, plans, backlog, archive, logs. |
 | [`.opencode/plans/base-context.md`](.opencode/plans/base-context.md) | The PREFIX-LOCKED shared prefix inlined into every agent. |
 | `scripts/` | The deterministic gates and the sync/transport engine. |
-| [`docs/`](docs/README.md) | Authored supporting content (a generated wiki graph used to live here; it was retired in T1-E4.01). |
 
 ## See a real run
 

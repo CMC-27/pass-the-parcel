@@ -3,8 +3,8 @@
 # (.devops/skills/**/*.md), plan-state surfaces (plans, backlog, logs, sprints), the
 # dev-rules layer + seed templates (.devops/rules, .devops/templates — both portable
 # and agent-read, so mojibake there propagates to every satellite), the full wiki
-# (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus generated `docs/`
-# and `.github/` markdown — the wiki scan closes the guard gap where corrupted glyphs
+# (.wiki/**/*.md), AND the root README/AGENTS/CHANGELOG set plus `.github/` markdown
+# — the wiki scan closes the guard gap where corrupted glyphs
 # in documentation prose (which wiki_lint never inspects) survived unchecked.
 #
 # Markers, BY HEX BYTE SEQUENCE ONLY — never as literal glyphs, because a glyph here
@@ -60,9 +60,8 @@ foreach ($dir in $dirs) {
 # Full wiki tree (supersedes the former KC-only scan) — docs prose is invisible to
 # wiki_lint, so the byte guard is the only mojibake detector for .wiki content.
 Add-MarkdownTargets (Join-Path $root '.wiki') -Recurse
-# Root docs + generated/github markdown — also agent-read surfaces.
+# Root docs + github markdown — also agent-read surfaces.
 Add-MarkdownTargets $root
-Add-MarkdownTargets (Join-Path $root 'docs') -Recurse
 Add-MarkdownTargets (Join-Path $root '.github') -Recurse
 
 $latin1 = [System.Text.Encoding]::GetEncoding(28591)

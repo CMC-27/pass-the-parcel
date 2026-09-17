@@ -3,7 +3,7 @@ title: Process & Tooling Lessons
 tags: [dev, rules, process, lessons, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-16
+last-reviewed: 2026-09-17
 related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-capture/SKILL.md, ../skills/knowledge-consolidation/SKILL.md]
 ---
 
@@ -49,8 +49,6 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 
 - **[2026-09-17] A walker's cost is path bookkeeping, not file I/O** — profiling `wiki_lint` on a 2100-doc satellite put **48%** of runtime in `Path.resolve()` (a `GetFinalPathNameByHandle` syscall per link, per check), the `.wiki` corpus was enumerated ~6× and every doc read 4-5× per run, and the unbounded `.devops/archive|logs|plans` trees were enumerated only to be skipped per file. *Do instead:* profile before optimising a walker, then make path identity syscall-free (`os.path.normcase(os.path.abspath(p))` for anything discovered under the repo root), enumerate each root once with `os.walk` directory pruning, and read each file once per run behind a cache — the same shape applies to PowerShell, where `Get-ChildItem -Recurse` (a `FileInfo` per entry) loses to `Directory.GetFiles`/`EnumerateFiles`. Measured: `wiki_lint` 5,979 → 900 ms and the UTF-8 guard 1,206 → 615 ms, findings byte-identical.
 
-- **[2026-09-11] Architecture sync clobbers agent `model:` bindings and never touches `.opencode/`** — `pull-architecture.ps1` overwrites each agent's `model:` frontmatter with the template default while the Model Registry in `.opencode/plans/base-context.md` is not synced. *Do instead:* after any sync reconcile the registry + `opencode.json`, then run `scripts/check-parcel-prefix.ps1 -Sync` and confirm PASS.
-
 - **[2026-08-29] Vite 500 on a view = unresolved import, usually a missing `node_modules` package** — `net::ERR_ABORTED 500` loading a `.jsx` module is not a code bug when the editor is clean. *Do instead:* check `Test-Path node_modules/<pkg>`, run `npm install`, restart the dev server (Vite caches failed resolutions).
 
 - **[2026-08-30] PowerShell writes BOMs and mangles inline Python** — `Set-Content -Encoding UTF8` emits a BOM that breaks frontmatter parsers; `python -c "…"` inside a quoted PS string corrupts or hangs the shell. *Do instead:* write probe/migration code to a `.py` file; read wiki files with `encoding="utf-8-sig"`.
@@ -58,8 +56,6 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 - **[2026-08-30] Bulk frontmatter rewrites silently eat formatting** — a title-backfill normalised CRLF→LF, dropped the blank line before the H1, and produced backtick-quoted YAML titles the linter never caught. *Do instead:* after any bulk doc migration, diff-audit (`git diff --ignore-cr-at-eol`), restore blank lines, and scan for BOM/mojibake.
 
 - **[2026-07-26] Wiki anchor fragments are tied to header text, not file name** — retargeting `05-design-system.md` → `09-design-system.md` left `#5c-form-field-hygiene` pointing at a renamed slug. *Do instead:* after any path retarget, validate each anchor against the target's header slugs, or run `@wiki-lint`.
-
-- **[2026-08-30] Wiki lint severity contract** — `scripts/wiki_lint.py` exits 1 only on HARD (broken links, missing anchors/frontmatter, invalid status, unresolvable dep, hub→spoke break); catalog gaps, unreachable docs and index-size are WARN; hop/blueprint/orphan advisories are INFO. `--fix` edits index rows only; only humans promote to `stable`.
 
 - **[2026-07-26] Wiki renumbering leaves stale agent paths** — a core-file renumbering renamed 12 files but left old paths in `.devops/agents/*.md`, breaking subagent spawns. *Do instead:* grep `.devops/agents/*.md` for doc paths after any renumbering; never retro-edit historical records in `.devops/logs/` or `.devops/archive/`.
 

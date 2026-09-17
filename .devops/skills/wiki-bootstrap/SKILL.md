@@ -3,8 +3,8 @@ type: "core"
 name: "wiki-bootstrap"
 status: "stable"
 description: "Verification pass over the wiki: walks each of the 19 core docs one by one, asking 5-8 targeted questions per doc to confirm the content against reality. Use after @wiki-generate drafts docs, when re-bootstrapping a stale doc, or when a wiki needs to be proven correct rather than authored. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
-references: "references/0X-*.md — 19 scaffold templates (one per core doc). references/qa-0X-*.md — 19 question sets (one per doc) that drive the verification Q&A."
-version: 3
+references: "references/0X-*.md — 19 scaffold templates (one per core doc). references/qa-0X-*.md — 18 question sets (slot 14 is handled by the testing subtree) that drive the verification Q&A."
+version: 4
 updated: 2026-09-17
 ---
 

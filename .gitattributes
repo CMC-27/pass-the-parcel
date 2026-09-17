@@ -26,9 +26,6 @@ scripts/*.cjs text eol=lf
 .vscode/*.json text eol=lf
 .github/workflows/*.yml text eol=lf
 
-# Authored content (the generated visualizer export was retired in T1-E4.01).
-docs/** text eol=lf
-
 # Binary files must never be touched.
 *.png binary
 *.jpg binary

@@ -32,12 +32,11 @@ The documentation is not just for humans; it is the **source of truth** for AI A
 
 ## 2. Folder Taxonomy (The Library Structure)
 
-Three roots: **`.wiki/`** holds architecture knowledge, **`.devops/`** holds operational state, and **`docs/`** holds authored supporting content.
+Two roots: **`.wiki/`** holds architecture knowledge and **`.devops/`** holds operational state.
 
 ```
 .wiki/          <- Architecture Knowledge Base
 .devops/        <- Operational state (backlog / plans / archive / logs)
-docs/           <- Authored supporting content (the generated export was retired)
 ```
 
 ### .wiki/ - Architecture Knowledge Base
@@ -62,10 +61,6 @@ docs/           <- Authored supporting content (the generated export was retired
 | `.devops/sprints` | The Rhythm | `sprint-{n}-<slug>/sprint.md` | Active sprint records + committed plan queues. |
 | `.devops/plans` | The Future | (User Managed) | Claimed implementation plans. |
 | `.devops/archive` | The Archive | (User Managed) | Completed plans at root + closed sprint records under `sprints/`. |
-
-### docs/ - Authored Supporting Content
-
-`docs/` holds **authored** content only. The static visualizer export was retired in T1-E4.01 (W8.1): `scripts/wiki_visualize.py` and its generated `docs/wiki-graph.md` had no consumer left, and a generated artefact that nothing reads is a surface that stopped paying for itself. Nothing regenerates `docs/` — write it, don't build it.
 
 ---
 

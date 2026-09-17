@@ -31,7 +31,7 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 - Every numbered area, numbered sub-area and canonical file the wiki depends on has exactly one row here.
 - A renamed anchor is caught the first time `wiki_lint.py` runs after the change, with a clear instruction to update every link to the old path.
 - Adding a numbered folder means adding one row here **before** the folder is linked from anywhere.
-- No anchor row is pruned — the manifest records the current structural contract, not history.
+- The manifest records the current structural contract, not history — a row leaves only when its path is **retired** (a missing anchor is otherwise a hard failure).
 - The linter exits 0 only when no links are broken **and** no anchor is missing.
 
 ## Schema
@@ -67,20 +67,18 @@ Direct relative links keep the wiki portable, but they break the moment an ancho
 | 11 | Dev Rules | area | `.devops/rules/` | Dev governance layer — agents, skills, plans |
 | 12 | Dev Ops State | area | `.devops/` | Operational state — skills, agents, plans, backlog, archive, logs |
 | 13 | Opencode Config | area | `.opencode/` | opencode configuration |
-| 14 | Visualizer Export | area | `docs/` | Authored supporting content (the generated export was retired in T1-E4.01) |
-
 ### Canonical Authority Files (type: `file`)
 
 | # | Anchor | Type | Path | Note |
 |---|---|---|---|---|
-| 15 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
-| 16 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
-| 17 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
-| 18 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
-| 19 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
-| 20 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
-| 21 | Grounded Claims Rule | file | `.wiki/rules/claims.md` | Claim shape + drift semantics |
-| 22 | Claims Checker | file | `scripts/wiki_claims.py` | Owns the claims parser |
+| 14 | Operating Rules | file | `AGENTS.md` | Authoritative operating layer |
+| 15 | System Index | file | `.wiki/core/00-system-index.md` | Wiki entry point |
+| 16 | Knowledge Capture | file | `.wiki/core/18-knowledge-capture.md` | Decision log |
+| 17 | Structure Manifest | file | `.wiki/rules/structure.md` | This file — loaded by the linter |
+| 18 | Wiki Linter | file | `scripts/wiki_lint.py` | Deterministic enforcer — hardcoded dependency |
+| 19 | Base Context | file | `.opencode/plans/base-context.md` | PREFIX-LOCKED canonical header |
+| 20 | Grounded Claims Rule | file | `.wiki/rules/claims.md` | Claim shape + drift semantics |
+| 21 | Claims Checker | file | `scripts/wiki_claims.py` | Owns the claims parser |
 
 ## See Also
 
