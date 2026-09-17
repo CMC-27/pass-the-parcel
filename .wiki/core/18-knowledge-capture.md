@@ -13,10 +13,10 @@ claims:
     hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364
   - id: prune-via-consolidation
     source: .devops/skills/knowledge-consolidation/SKILL.md#Tidy (default)
-    hash: sha256:6399e0799df5f2b2bad9e3e151a3cc28c31589a4de7c1461588d7a05ae3e2649
+    hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
   - id: knowledge-capture-entry-ceiling
     source: .devops/skills/knowledge-consolidation/SKILL.md#Hard limits
-    hash: sha256:6399e0799df5f2b2bad9e3e151a3cc28c31589a4de7c1461588d7a05ae3e2649
+    hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
   - id: capture-two-destinations
     source: .devops/skills/knowledge-capture/SKILL.md#Destination Routing
     hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364

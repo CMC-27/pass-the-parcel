@@ -1,8 +1,8 @@
 ---
 name: knowledge-consolidation
 description: Distills the Knowledge Capture log into a clean, actionable reference of tribal knowledge and prior pitfalls. Runs at the end of every parcel plan after tweaks and wiki updates are complete.
-version: 8
-updated: 2026-09-14
+version: 9
+updated: 2026-09-17
 ---
 
 # Knowledge Consolidation Skill
@@ -39,7 +39,7 @@ Every entry in the knowledge capture sits on a spectrum. Classification drives t
 | Mode | When it fires | What runs |
 |---|---|---|
 | **Tidy (default)** | After every parcel plan — the final step of `agent-wrap-up` Phase 6, before the plan is archived | Phase 2 (harvest) + Phase 3 (metrics) + enforcement of line limits, dedupe, placeholder/header removal, supersession cuts, encoding repair — via **surgical edits only** (Phase 7 restricted to entries touched or added this session; never a whole-file rewrite) + Phase 10 (stdout-only counts summary) |
-| **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); a `pre-deployment-vibe-auditor` run flags KC as bloated or contradictory; **or KC holds more than 25 entries** | All Phases 3–11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki + machinery promotions (Phases 6/6b), user clarification (Phase 8), and the full Phase 9 rewrite |
+| **Full audit (explicit only)** | The user requests it ("consolidate/clean up knowledge capture"); an `@test-and-deploy` § 2b hardening sweep flags KC as bloated or contradictory; **or KC holds more than 25 entries** | All Phases 3-11, including the Tribal-Knowledge Audit (Phase 4), conflicts (Phase 5), wiki + machinery promotions (Phases 6/6b), user clarification (Phase 8), and the full Phase 9 rewrite |
 
 **Never run the full audit as a silent side effect of plan completion** — it rewrites the file (cache churn + wiki-lint churn) and can request user clarification mid-wrap-up. **Measure KC by entry count, not physical lines.** Entries are hard-wrapped for readability, so a reformat can double the line count without adding a single rule — a line-based trigger fires on formatting, not growth. Tidy mode must keep KC at or below the **25-entry ceiling**; if a tidy run leaves it above 25, say so and recommend a full audit.
 

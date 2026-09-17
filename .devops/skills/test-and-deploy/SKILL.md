@@ -1,8 +1,8 @@
 ---
 name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
-version: 4
-updated: 2026-09-13
+version: 5
+updated: 2026-09-17
 ---
 
 # NPM Test, Lint, and GitHub Deployment Pipeline
@@ -36,6 +36,14 @@ If the repo ships the parcel machinery (`.opencode/plans/base-context.md` or `.d
 2. `powershell -File scripts/check-utf8-agents.ps1` — verifies agent files are UTF-8 clean.
 
 Both are cheap (<1s each). Skipping them lets prefix drift or encoding corruption reach a pushed commit — AGENTS.md rule 9 forbids it.
+
+**App-facing hardening sweep.** The same gate also covers the app surface, where one exists. Report each finding as **🟢 PASS** / **🟡 WARNING** / **🔴 CRITICAL FAIL** with **Evidence** (file + line) and an **Actionable Fix** (exact snippet, config rule or command), so a 🔴 is copy-pasteable:
+
+1. **Workspace & dependency hygiene.** Repository-level agent instructions (`AGENTS.md`) present and current (no-op in this template: the machinery check above already covers it). `package.json` + lockfile: exact pinned versions, no unused prototype packages.
+2. **Secrets & injection.** Scan source for hardcoded API keys, tokens or private URIs → extract to `.env` references. Schema validation (e.g. Zod) at every entry boundary including API routes and server actions. Sanitize dynamic HTML (`dangerouslySetInnerHTML`, `innerHTML`) with a verified sanitizer.
+3. **Data access.** Row-level security active on every table (Supabase RLS / Firestore rules), scoped to authenticated owners. No queries inside loops (N+1) — batch or join them.
+4. **Blast radius.** Top-level error boundaries or global exception middleware present. Feature-flag utility proposed for newly introduced modules, instant env-var rollback.
+5. **Release infrastructure.** A CI workflow (`.github/workflows/`) running lint, type-check and tests on pull requests. Parameterized test suites protecting critical paths. Structured logging or error tracking initialised at the app entry point.
 
 ## 3. Version Increment Phase
 Before staging and committing, you MUST check and bump the version in `package.json` following the project's **3-Level Versioning Strategy**:

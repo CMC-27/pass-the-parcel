@@ -15,6 +15,7 @@ Usage:
     python scripts/wiki_claims.py check            # verify claims, exit 1 on drift
     python scripts/wiki_claims.py affected <sha>   # docs hit by <sha>..HEAD
     python scripts/wiki_claims.py update           # re-stamp hashes to current
+    python scripts/wiki_claims.py coverage         # code-graph coverage gate (this module owns it)
     python scripts/wiki_claims.py check --quiet    # suppress output when clean
 
 Exit codes: 0 clean, 1 drift/findings, 2 usage error (bad ref / no git).
@@ -273,6 +274,162 @@ def cmd_update() -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# `coverage` — the wiki coverage gate: verifies every non-test source file carries
+# wiki evidence, so the wiki can never silently drift when code changes shape but
+# not name. Previously a standalone script; T1-E4.01 moved it here so one module
+# owns the claims-graph surface. The logic is carried verbatim; the only changes
+# are the three declared non-behavioural adjustments recorded in that commit: the
+# usage string and the ALLOWLIST fix instruction now name this module, and the root
+# is threaded through the call sites so `--root` can drive the gate over a temp
+# tree. Verdict, messages and exit codes are unchanged.
+# ---------------------------------------------------------------------------
+
+# domain -> (source glob patterns, index file)
+DOMAINS = {
+    "logic (utils + hooks)": (
+        ["src/utils/**/*.js", "src/hooks/*.js"],
+        ".wiki/logic/logic-index.md",
+    ),
+    "components": (
+        ["src/components/**/*.jsx"],
+        ".wiki/components/components-index.md",
+    ),
+    "features (views)": (
+        ["src/views/**/*.jsx"],
+        ".wiki/features/features-index.md",
+    ),
+}
+
+# Exempt files with explicit reasons. Keep this list SHORT — every entry is a
+# documented decision that the file needs no wiki coverage.
+ALLOWLIST = {
+    "src/utils/csvParser/index.js": "barrel re-export of the csvParser folder module",
+    "src/utils/csvParser/utils.js": "internal helper of the csvParser folder module",
+    "src/utils/csvParser/io.js": "internal file-reading helper of the csvParser folder module",
+    "src/utils/csvParser/export.js": "internal export helper of the csvParser folder module",
+    "src/utils/csvParser/template.js": "internal CSV template helper of the csvParser folder module",
+}
+
+# ponytail: regex export scan - approximate for anonymous default exports, re-exports with aliasing, and non-standard syntax; upgrade path is a real JS/TS parser.
+_EXPORT_PATTERNS = (
+    re.compile(r"export\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)"),
+    re.compile(r"export\s+(?:const|let|var|class)\s+([A-Za-z_$][\w$]*)"),
+    re.compile(r"export\s+default\s+(?:async\s+)?function\s*\*?\s*([A-Za-z_$][\w$]*)"),
+    re.compile(r"export\s+default\s+class\s+([A-Za-z_$][\w$]*)"),
+    re.compile(r"export\s+default\s+(?!function\b|class\b)([A-Za-z_$][\w$]*)"),
+)
+_LIST_PATTERNS = (
+    re.compile(r"export\s*\{([^}]*)\}"),
+    re.compile(r"module\.exports\s*=\s*\{([^}]*)\}"),
+)
+_SIDE_EXPORT_PATTERN = re.compile(r"(?:module\.exports|exports)\.([A-Za-z_$][\w$]*)\s*=")
+_IDENT_PATTERN = re.compile(r"[A-Za-z_$][\w$]*")
+
+
+def exports_of(path: Path) -> set:
+    """Set of exported identifiers discovered in a source file (regex)."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return set()
+    names = set()
+    for pat in _EXPORT_PATTERNS:
+        for m in pat.finditer(text):
+            names.add(m.group(1))
+    for pat in _LIST_PATTERNS:
+        for m in pat.finditer(text):
+            for token in m.group(1).split(","):
+                for part in token.split(" as "):
+                    part = part.strip()
+                    if _IDENT_PATTERN.fullmatch(part):
+                        names.add(part)
+    for m in _SIDE_EXPORT_PATTERN.finditer(text):
+        names.add(m.group(1))
+    return names
+
+
+def collect_files(patterns: list, root: Path) -> list:
+    files = []
+    for pat in patterns:
+        for p in sorted(root.glob(pat)):
+            if not p.is_file():
+                continue
+            rel = p.relative_to(root).as_posix()
+            if ".test." in p.name or ".stories." in p.name:
+                continue
+            if rel in ALLOWLIST:
+                continue
+            files.append(rel)
+    return files
+
+
+def covered(rel: str, index_text: str, exports: set, claimed_sources: set) -> bool:
+    name = Path(rel).name
+    # (a) filename match with boundary guard so `Modal.jsx` does not match
+    # `CSVImportModal.jsx` (preceding char must not be a word char)
+    if re.search(r"(?<![\w])" + re.escape(name), index_text):
+        return True
+    # (b) folder-module match: parent dir path with trailing slash in index
+    parent = str(Path(rel).parent.as_posix()) + "/"
+    if parent in index_text:
+        return True
+    # (c) symbol evidence: the index cites an identifier this file exports
+    for sym in exports:
+        if re.search(r"(?<![\w])" + re.escape(sym) + r"\b", index_text):
+            return True
+    # (d) claims evidence: a `claims:` entry names this source path
+    if rel in claimed_sources:
+        return True
+    return False
+
+
+def cmd_coverage(root: Path) -> int:
+    total = 0
+    gaps = []
+    # Graceful no-op: the template repo has no application source tree. The gate
+    # activates automatically in satellites that do (src/ present).
+    if not (root / "src").is_dir():
+        print("coverage OK: no src/ tree in this workspace — nothing to cover")
+        return 0
+    # Claims evidence: the parser is owned by this module — no second import path.
+    claimed_sources = {
+        src
+        for _, items in claim_docs()
+        for src in (source_path(c) for c in items)
+        if src
+    }
+    for domain, (patterns, index_path) in DOMAINS.items():
+        index_file = root / index_path
+        if not index_file.exists():
+            print(f"ERROR: index file missing: {index_path}")
+            return 1
+        index_text = index_file.read_text(encoding="utf-8")
+        files = collect_files(patterns, root)
+        total += len(files)
+        for rel in files:
+            if not covered(rel, index_text, exports_of(root / rel), claimed_sources):
+                gaps.append((domain, rel))
+
+    if gaps:
+        print(f"COVERAGE GAPS: {len(gaps)} file(s) not referenced in their wiki index\n")
+        cur = None
+        for domain, rel in gaps:
+            if domain != cur:
+                print(f"  [{domain}]")
+                cur = domain
+            print(f"    - {rel}")
+        print(
+            "\nFix: add an index row citing an exported symbol, add a "
+            "`claims: source:` binding on a wiki doc, or add to ALLOWLIST in "
+            "scripts/wiki_claims.py with a reason."
+        )
+        return 1
+
+    print(f"coverage OK: {total} source files checked, all referenced in wiki indexes")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Grounded Claims checker")
     sub = parser.add_subparsers(dest="mode", required=True)
@@ -281,6 +438,8 @@ def main() -> int:
     p_affected = sub.add_parser("affected")
     p_affected.add_argument("ref")
     sub.add_parser("update")
+    p_coverage = sub.add_parser("coverage")
+    p_coverage.add_argument("--root", default=None, help="repo root to scan (default: this repo)")
     args = parser.parse_args()
 
     if args.mode == "check":
@@ -289,6 +448,9 @@ def main() -> int:
         return cmd_affected(args.ref)
     if args.mode == "update":
         return cmd_update()
+    if args.mode == "coverage":
+        root = Path(args.root).resolve() if args.root else ROOT
+        return cmd_coverage(root)
     return 2
 
 
