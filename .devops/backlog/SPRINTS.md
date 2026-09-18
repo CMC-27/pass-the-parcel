@@ -83,7 +83,7 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 | # | Name | Goal | Status | Sprint | Retro |
 |---|------|------|--------|--------|-------|
 | 8 | Sprint Lifecycle Hardening | Make "executed to Gate D" a first-class machine-checkable plan state, give the batch host a coalesced wrap-up, and collapse the fast lane to a single subagent-only entity. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md) | [retro](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md#retro) |
-| 9 | Batch Hardening | Harden the batch pipeline end to end: positive-evidence AUTO gates, batched Phase 3 clarification, a tested eligibility predicate replacing four prose copies, MULTI-worthy flagging before an unattended run, and two-lane concurrency with host-owned version bumps. | 🟢 ACTIVE | [sprint.md](../sprints/sprint-9-batch-hardening/sprint.md) | — |
+| 9 | Batch Hardening | Harden the batch pipeline end to end: positive-evidence AUTO gates, batched Phase 3 clarification, a tested eligibility predicate replacing four prose copies, MULTI-worthy flagging before an unattended run, and two-lane concurrency with host-owned version bumps. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-9-batch-hardening/sprint.md) | [retro](../archive/sprints/sprint-9-batch-hardening/sprint.md#retro) |
 
 ---
 

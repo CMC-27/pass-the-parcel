@@ -3,7 +3,7 @@ type: "process"
 name: "Code Quality & Refactoring Register"
 status: "active"
 description: "Living audit of code complexity, coupling, and test health. Process-driven — items enter here from end-of-cycle checks, not roadmap planning."
-last_scan: "2026-09-16"
+last_scan: "2026-09-18"
 ---
 # 🔧 Pass the Parcel — Code Quality & Refactoring Register
 
@@ -72,7 +72,11 @@ Two caveats, both load-bearing when reading this table:
 | `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | ✅ RESOLVED | `T1-E4.01` W8.1 | Retired — product/strategy authoring with no operational home; the skill folder is gone |
 | `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
 | `scripts/check-parcel-prefix.ps1` | 370 | — | — | 🟡 PLANNED | [`T1-E2.02`](./t1-e2.02-check-parcel-prefix-split-backlog.md) | Pre-existing (`T1-E2.02`); under the 400-line threshold, parked on branch-count grounds |
-| `scripts/wiki_claims.py` | 296 | — | — | ⚪ WATCH | — | Below every threshold — listed because it is the next-largest script, not because it is flagged. Grew to ~400 with the moved `coverage` subcommand (W8.0): still under the warning line, now the largest Python file — watch the trend |
+| `scripts/wiki_claims.py` | 484 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — crossed >400 warn (coverage subcommand growth); was WATCH |
+| `scripts/sprint_eligible.py` | 463 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — new file above warn (predicate + lanes + complexity) |
+| `scripts/wiki_lint_checks.py` | 423 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — split product above warn; trend only |
+| `scripts/tests/test_sprint_eligible.py` | 410 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — fixture growth 18→29; test, not product |
+| `scripts/sync-architecture.ps1` | 561 | — | — | ⚪ WATCH | `T1-E4.01` W6 | Sprint 9 close, 2026-09-18 — regrew 497→561 (+T1-E2.07 prune/mask/stamp); split precedent stands, trend only |
 
 **Status legend:** 🔴 OPEN (flagged, no plan) · 🟡 PLANNED (plan file exists) · 🔄 IN PROGRESS · ✅ RESOLVED (move to the Completed table) · ⚪ WATCH (below threshold, tracked for trend).
 

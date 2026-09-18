@@ -137,7 +137,7 @@
       "prompt": "{file:.devops/agents/ptp-grumpy-architect.subagent.md}",
       "permission": {
         "read": "allow",
-        "edit": "deny",
+        "edit": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",
@@ -156,7 +156,7 @@
       "prompt": "{file:.devops/agents/ptp-smooth-operator.subagent.md}",
       "permission": {
         "read": "allow",
-        "edit": "deny",
+        "edit": "allow",
         "glob": "allow",
         "grep": "allow",
         "list": "allow",

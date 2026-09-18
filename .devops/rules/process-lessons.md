@@ -19,6 +19,8 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 
 ## Parcel & Sprint Mechanics
 
+- **[2026-09-18] Verify a claim commit carries content, not just renames** — `git mv` stages the rename while working-tree edits stay unstaged, so a bare `git commit` records a content-empty claim (0 insertions) and the claim front-matter lives only in the working tree. *Do instead:* `git add` the plan file explicitly and check `git show --stat HEAD` after every claim commit — amend when the stat is rename-only.
+
 - **[2026-09-18] Re-check `git status` after any external commit lands mid-session** — a concurrent session committed on top of this parcel's claim and swept one of its working-tree files (the manifest prune line) into an unrelated release; the content survived but the attribution did not. *Do instead:* commit narrowly (`git add` only the plan's files), and after any foreign commit re-verify each planned file is where it should be (working tree vs HEAD) before continuing.
 
 - **[2026-09-17] Never round-trip a file through PowerShell text cmdlets** — a version bump applied as `Get-Content -Raw | Set-Content -Encoding UTF8` under PS 5.1 read BOM-less UTF-8 as ANSI and re-wrote it, mojibake-corrupting six skill files in one loop; the damage is invisible in an editor and only the byte guard saw it (`T1-E4.01`, and the guard had been rewritten one wave earlier in that same parcel). *Do instead:* edit with the file tool, or write with `[System.IO.File]::WriteAllText($p, $t, (New-Object System.Text.UTF8Encoding($false)))`, then confirm with `scripts/check-utf8-agents.ps1` — the only check that reads the bytes.

@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-18 - Sprint 9 closed; T1-E2.06 fold review to Gate D (machinery 63 -> 64)
+
+**Why:** Cleared the four open risks in one serial pass — Sprint 9 archived (20/20 pts, two-lane execution descoped on record), the pull-blocking fold landed (satellite lesson verbatim, exported-seam + template-side fold rules, merge-by-name semantics), `TRIAGE.md` adopted, reviewer write-unblock committed. Skips: Phases 2–3 (no `src/`, machinery-only).
+**Ref:** working tree (uncommitted; baseline `fa69f65`)
+
+---
+
 ## 2026-09-18 - PO wording: what/where/when/why + linked artefacts
 
 **Why:** User's own words replace my paraphrase in `communication-rules.md` — the PO wants what, where, when and why, with artefacts linked for reference and review. Folded into machinery 62 (unsynced, no bump). Skips: Phases 2–6 (one-line reword, nothing new).
