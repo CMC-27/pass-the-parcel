@@ -3,10 +3,10 @@ type: "sprint"
 sprint: 9
 name: "Batch Hardening"
 slug: "batch-hardening"
-status: "open"
+status: "closed"
 capacity_points: 20
 created: "2026-09-16"
-closed: ""
+closed: "2026-09-18"
 ---
 
 # Sprint 9: Batch Hardening
@@ -88,4 +88,44 @@ The operator's choice at planning was **`@sprint-run` batch delivery**: one batc
 - **The incoming plans arrived untracked.** `T1-E3.07`–`E3.11` were never committed before this planning commit (they were added to `.devops/backlog/` in the working tree); this sprint commit is their first appearance in git history.
 
 ## Retro
-*Appended by `@sprint-close` when the sprint closes. Left empty while the sprint is open.*
+
+### Goal — Met?
+Partially. Positive-evidence AUTO gates, batched Phase 3, tested eligibility predicate, MULTI-worthy yield, lane classification, and single-owner `machinery-version` all landed. Two-lane concurrent *execution* was descoped by operator ruling at `T1-E3.11` Gate D (classification only); genuine execution needs a fifth batch deviation and is a future parcel.
+
+### What Shipped
+| Code | Plan | Size | Effort accuracy | Notes |
+|------|------|------|-----------------|-------|
+| T1-E3.06 | Sprint 8 gate & preflight coverage gaps | S (1) | 1 vs ~1 | G1/G2/G3; preflight + REFACTORING adoption |
+| T1-E3.07 | Positive-evidence auto-clear for AUTO gates | M (3) | 3 vs ~3 | AUTO Gate Evidence Contract, cited not restated |
+| T1-E3.08 | Batched clarification questionnaire | M (3) | 3 vs ~4 | 7-surface sweep; self-review noted MULTI-worthy |
+| T1-E3.09 | Eligibility predicate script + fixtures | L (5) | 5 vs ~6 | `sprint_eligible.py` + 18 fixtures; hard checkpoint |
+| T1-E3.10 | MULTI-worthy triage flag + batch yield | M (3) | 3 vs ~3 | `complexity` block; fires 6-of-6 on this sprint |
+| T1-E3.11 | Two-lane classification + counter ownership | L (5) | 5 vs ~6 | Reserved set + lanes advisory; wildcard fix; descoped execution |
+
+### Carry-Forward
+| Code | Why not done | New size | Next sprint? |
+|------|--------------|----------|--------------|
+| *(none)* | Queue empty; all six archived COMPLETE | — | — |
+
+### Metrics: Before → After
+- Hot spots (risk >10): 1 → 1 (`spaghetti-monster-scan.cjs` self-flag, regex-inflated CCN)
+- Files >400 lines: 4 → 6 (`sync-architecture.ps1` 497→561 with T1-E2.07; `wiki_claims.py` ~400→484; `sprint_eligible.py` new 463; `wiki_lint_checks.py` new 423)
+- Fixture tests: 0 → 62 (29 eligible + 10 utf8 + 5 coverage + 18 fanout)
+- Lint warnings: 0 → 0
+- Capacity: committed 20 / delivered 20 = 100%
+
+### Retro: Keep / Drop / Try
+- **Keep**: canonical-once + cite-everywhere; fixture-pinned predicates; serial waves over overlapping touches; per-claim eligibility re-evaluation.
+- **Drop**: stale-base `machinery-version` bumps (now single-owner per batch); committing overlapping queues without a wave preflight; negative-test AUTO gates.
+- **Try**: wire `@sprint-plan` §4b to call `sprint_eligible.py --sprint-dir` (T1-E3.10 R3 still open); recurring Axis 7 re-derivation; `version-history` length cap.
+
+### Lessons for the Wiki / Knowledge Capture
+- Machinery/process lessons already routed to `.devops/rules/process-lessons.md` per wave. Fold review of matured entries is **deferred to T1-E2.06** (template-side step; satellite reports upward only).
+- No app-domain lesson (template repo, no `src/`).
+
+### New Refactoring Items (→ REFACTORING.md)
+- `scripts/wiki_claims.py` 484 lines — crossed >400 warn (coverage subcommand growth). WATCH → OPEN.
+- `scripts/sprint_eligible.py` 463 lines — new file above warn. OPEN.
+- `scripts/wiki_lint_checks.py` 423 lines — split product above warn. WATCH.
+- `scripts/tests/test_sprint_eligible.py` 410 lines — fixture growth 18→29. WATCH (test, not product).
+- `scripts/sync-architecture.ps1` 561 lines — regrew past 485 post-split (+T1-E2.07). Track trend; no new plan (split precedent stands).
