@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-19 - T1-E2.02 ruled won't-fix, parked plan retired
+
+**Why:** Operator ruling per Managed Simplicity: 370-line script sits under the 400-line threshold, so the split's three new wiring points exceed the benefit. Parked file retired to `.devops/archive/`; register Completed; `REFACTORING.md` row to WATCH. Backlog open queue fully clear (T1/T2/T3).
+**Ref:** working tree (uncommitted)
+
+---
+
 ## 2026-09-18 - T1-E4.02 closed as resolved-by-direct-fix
 
 **Why:** The parked topology review never ran as a parcel because its concrete misfire was already fixed directly: `e80950e` (one-orchestrator-delegates-phase-groups, 15 files) plus this session's reviewer `edit: allow` unblock. Registered as Completed with the residual audit named as deferred by operator choice. Triage Panel back to queue clear.

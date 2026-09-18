@@ -71,7 +71,7 @@ Two caveats, both load-bearing when reading this table:
 | `scripts/spaghetti-monster-scan.cjs` | 254 | 79 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless |
 | `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | ✅ RESOLVED | `T1-E4.01` W8.1 | Retired — product/strategy authoring with no operational home; the skill folder is gone |
 | `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
-| `scripts/check-parcel-prefix.ps1` | 370 | — | — | 🟡 PLANNED | [`T1-E2.02`](./t1-e2.02-check-parcel-prefix-split-backlog.md) | Pre-existing (`T1-E2.02`); under the 400-line threshold, parked on branch-count grounds |
+| `scripts/check-parcel-prefix.ps1` | 370 | — | — | ⚪ WATCH | — | Pre-existing (`T1-E2.02`, ruled won't-fix 2026-09-19); under the 400-line threshold, tracked for branch-count trend only |
 | `scripts/wiki_claims.py` | 484 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — crossed >400 warn (coverage subcommand growth); was WATCH |
 | `scripts/sprint_eligible.py` | 463 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — new file above warn (predicate + lanes + complexity) |
 | `scripts/wiki_lint_checks.py` | 423 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — split product above warn; trend only |
@@ -80,7 +80,7 @@ Two caveats, both load-bearing when reading this table:
 
 **Status legend:** 🔴 OPEN (flagged, no plan) · 🟡 PLANNED (plan file exists) · 🔄 IN PROGRESS · ✅ RESOLVED (move to the Completed table) · ⚪ WATCH (below threshold, tracked for trend).
 
-> **Not a duplicate of the backlog.** Parked plan `T1-E2.02` (split the `check-parcel-prefix.ps1` god-script) is a *plan*, not a backlog feature, and is linked above as this row's disposition. No row here creates a feature-backlog item — per `@sprint-close` § 2, the scan's output feeds this register only.
+> **Not a duplicate of the backlog.** Parked plan `T1-E2.02` (split the `check-parcel-prefix.ps1` god-script) was ruled won't-fix 2026-09-19 and retired to `.devops/archive/` — a *plan* disposition, not a backlog feature, recorded in the `T1-E2` Completed table. No row here creates a feature-backlog item — per `@sprint-close` § 2, the scan's output feeds this register only.
 
 ---
 

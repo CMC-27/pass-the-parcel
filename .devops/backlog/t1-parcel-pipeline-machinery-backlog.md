@@ -32,12 +32,13 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| T1-E2.02 | Split the `check-parcel-prefix.ps1` god-script | PARKED | Four unrelated concerns in one pass (registry, prefix integrity, skill embeds, binding integrity). Extract the binding checks to `scripts/check-model-bindings.ps1`; wire into `portable_files`, `validate.yml` and `-Verify`. Flagged by T1-E1.03's Phase 6 triage. | [parked](../t1-e2.02-check-parcel-prefix-split-backlog.md) |
+| _(none)_ | | | | |
 
 ### Completed
 
 | Code | Title | Resolved | Note | Archive |
 |------|-------|----------|------|---------|
+| T1-E2.02 | Split the `check-parcel-prefix.ps1` god-script | 2026-09-19 | **Ruled won't-fix by operator.** 370 lines — under the 400-line warn threshold, parked on branch-count grounds only; the split's three new wiring points (`portable_files`, `validate.yml`, `-Verify`) exceed the benefit per Managed Simplicity. Branch-count trend stays in `REFACTORING.md` as WATCH. | [parked](../archive/t1-e2.02-check-parcel-prefix-split-backlog.md) |
 | T1-E4.02 | Review orchestrator/subagent execution topology | 2026-09-18 | Resolved by direct fix, no parcel: `e80950e` replaced session-rotation wording with one-orchestrator-delegates-phase-groups across 15 files (the parked item's concrete Group B misfire), and the reviewer `edit: allow` unblock (machinery 59→60) settled the read-only-vs-write question. Residual handoff-cost audit left unbuilt by operator choice. | [parked](../archive/t1-e4.02-orchestrator-subagent-execution-review-backlog.md) |
 | T1-E2.06 | Portable-surface fold review | 2026-09-18 | GRID-Link lesson added verbatim to the register; exported-seam rule folded into `ptp-high-visionary` directive 3; wrap-up Phase 7b template-scoped; merge-by-name paragraph in sync skill; sprint-close fold marked template-side. F2 deletions already done by the hygiene cull. Next satellite pull converges with nothing lost. | [plan](../archive/t1-e2.06-portable-surface-fold-review-plan.md) |
 | T1-E2.07 | Retirement transport gaps | 2026-09-18 | Additions travelled but retirements did not (GRID-Link 54→59 pull): registry delete pass, skill prune mask + declaration, structural task stamp, version discipline + v9. Next pull self-heals. | [plan](../archive/t1-e2.07-retirement-transport-gaps-plan.md) |
