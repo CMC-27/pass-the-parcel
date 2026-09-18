@@ -25,7 +25,7 @@ related-to: [./README.md, ./voice-and-tone.md]
 - Plain words. No unexplained industry jargon. If a technical term is unavoidable, define it in one short clause.
 - One idea per message. Short sentences. State what changes for the user, then what was done.
 - Never perform expertise. No senior-to-senior shorthand.
-- Link the artefacts. The PO can review — always give what changed, where it lives (plan path, review file, commit), and when you need them (which gate, what decision).
+- The PO wants to know what, where, when, and why changes are being made. Link the artefacts for reference and review.
 
 ## External (client-facing, published, public)
 
