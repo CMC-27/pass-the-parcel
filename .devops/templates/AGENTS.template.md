@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 14
-updated: 2026-09-17
+version: 15
+updated: 2026-09-18
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -88,6 +88,7 @@ Everything you need is mapped in `.wiki/`. Start at **`.wiki/core/00-system-inde
 10. **Chunked Write Discipline (large files):** Never materialise a large file in a single `write`/`edit` call — the editor runs a synchronous diff over the whole payload before the permission prompt and the TUI stalls on "Preparing write…". Create a skeleton first (frontmatter + section headings, each with a unique placeholder such as `<!-- FILL:goal -->`) in one small `write`; then fill each section with its own small `edit` that replaces that placeholder. Cap each call at roughly 60–100 lines and split larger sections beneath a sub-placeholder. `write` overwrites — it does not append — so never re-issue the whole payload; after a stall, `read` what landed and continue with the next section. This applies to every agent and subagent, including plan/sprint/doc authoring. <!-- MACHINERY: keep verbatim -->
 11. **Sprint Discipline (Agile Cycle, optional):** Development runs in time-boxed sprints tracked in `.devops/backlog/SPRINTS.md`. Feature work is triaged in the `backlog-index.md` Triage Panel and theme registers, committed into a sprint queue via `@sprint-plan`, claimed into a `git worktree` via the claim protocol, executed parcel-by-parcel via `@pass-the-parcel`, and closed via `@sprint-close` (retro appended to `sprint.md`). One active sprint at a time; do NOT pull ad-hoc items mid-sprint. Code-quality/refactoring lives in `REFACTORING.md` (sprint-close scan), not the backlog. Claim protocol: `.devops/rules/plan-lifecycle.md`. <!-- MACHINERY: optional — delete if you don't adopt the sprint cycle -->
 12. <!-- CUSTOMIZE if your app has additional repo-specific rules; otherwise delete. -->
+13. **User-Facing Conversation:** Dev to product owner — practical outcomes first, plain words, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation. <!-- MACHINERY: keep verbatim -->
 
 ---
 

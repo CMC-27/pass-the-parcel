@@ -26,7 +26,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 59
+machinery-version: 61
 
 portable_dirs:
   - .wiki/rules
@@ -91,6 +91,10 @@ prune_files:
   - scripts/wiki_coverage_check.py
   - scripts/wiki_okf.py
   - scripts/wiki_visualize.py
+  # Retired in the machinery-59 hygiene cull (commit 6fe6e5f): an orphan reference
+  # inside a portable SKILL. The first prune_files path under a portable skill - the
+  # parent-dir mask covers skills, so it reports PRUNE, never a false skill DRIFT.
+  - .devops/skills/wiki-bootstrap/references/qa-14-testing-standards.md
 
 # Retired portable DIRECTORIES (folders retired upstream, deleted recursively). Portable
 # skills are derived from .devops/skills minus excluded_skills, so a retired skill folder

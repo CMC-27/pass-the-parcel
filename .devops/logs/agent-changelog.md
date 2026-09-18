@@ -11,6 +11,20 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-18 - User-facing conversation is dev-to-PO (machinery 60 -> 61)
+
+**Why:** User found agent chat overly technical (senior-to-senior). New canonical rule in `communication-rules.md` § User-facing conversation — practical outcomes first, no unexplained jargon; pointed at from `AGENTS.md:11`, live `base-context.md:10` (prefix re-synced to 9 agents), and both seed templates so new satellites inherit it. Existing satellites keep local `base-context.md`/`AGENTS.md` (only registry rows force-push), so they need the one-liner added manually. Skips: Phases 2–4 (docs/process-only, no plan); Phase 5–6 (nothing new — preference codified as the rule itself).
+**Ref:** `PENDING_HASH`
+
+---
+
+## 2026-09-18 - Reviewer write-unblock (machinery 59 -> 60)
+
+**Why:** `ptp-grumpy-architect` + `ptp-smooth-operator` carried `edit: deny` but their output contract writes `reviews/arch_review.md` / `product_review.md`, so MULTI reviews could not complete. Flipped `edit` to `allow` in `opencode.json` + frontmatter `tools: [read, edit, search]`; kept `bash/task/webfetch` denied (spec audit is read-only; `git show` stays orchestrator-supplied). Pre-existing backlog dirt (2 modified + 2 untracked backlog files) untouched by this session.
+**Ref:** working tree (uncommitted; baseline `e80950e`)
+
+---
+
 ## 2026-09-17 - Template hygiene cull (machinery 58 -> 59)
 
 **Why:** A cleanliness review of the template (direct user direction) found five surfaces that had stopped paying for themselves, and two live docs that had drifted from truth. **Deleted:** `.devops/skills/wiki-bootstrap/references/qa-14-testing-standards.md` - an orphan (the skill's own Question Set table routes slot 14 to the testing subtree, and no surface referenced the file; the skill's `references:` frontmatter claim drops 19 -> 18 question sets); `.wiki/hooks/README.md` - unreferenced, and it contradicted the linked `hooks-index.md` about what the folder is for; `.github/CODEOWNERS` - template-owner-specific, inherited by every fork; and the `docs/` directory itself - after T1-E4.01 its only content was a note about a retired export, so the tombstone stopped paying for itself (Managed Simplicity). **Corrected:** `.devops/rules/process-lessons.md` dropped the two entries a prior maturity pass had proved superseded or wrong (the wiki-lint severity contract, and the "sync clobbers model bindings" premise) - register 22 -> 20; `.wiki/core/18-knowledge-capture.md` records the `docs/` removal beside the existing visualizer note and past-tenses the retired `wiki_okf.py import` action; the structure manifest anchor 14 (`docs/`) is pruned with the canonical-authority rows renumbered 15-22 -> 14-21; `README.md`, `.gitattributes`, `.wiki/core/17-docs-blueprint.md`, `.devops/rules/surface-budget.md` and the `check-utf8-agents.ps1` scan list lose their `docs/` reference. `.devops/archive/` is deliberately **kept** - its traceability is load-bearing for 27 live links.
