@@ -1,6 +1,6 @@
 ---
 name: sprint-run
-description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, fresh context each), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
+description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
 version: 8
 updated: 2026-09-16
 ---
@@ -103,4 +103,4 @@ On `HALT`, **emit the partial report immediately** — completed plans at `PHASE
 
 ## 7. Named exception
 
-This batch loop is the explicit, machine-enforced **Strict Context Isolation** exception: each spawned `ptp-parcel-fast` runs one plan's Phases 1→9 in a single fresh context, and the claim is **trunk-sequential** (keeps `git mv` + the `claim: <code>` commit, drops `git worktree add`). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. The one-phase-group-per-session bound stands for every other run. See `.devops/rules/plan-lifecycle.md` § Deviations.
+This batch loop runs each spawned `ptp-parcel-fast` through one plan's Phases 1→9 in a single run, and the claim is **trunk-sequential** (keeps `git mv` + the `claim: <code>` commit, drops `git worktree add`). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. See `.devops/rules/plan-lifecycle.md` § Deviations.

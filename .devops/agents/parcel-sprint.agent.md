@@ -53,7 +53,7 @@ model: DeepSeek V4.1 Flash
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
-- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same one-phase-grouping-per-session bound, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single fresh per-plan context (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same per-group delegation, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single `ptp-parcel-fast` run (see `.devops/rules/plan-lifecycle.md` § Deviations).
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start — unless the orchestrator runs a **locked preset** that fixes one or both axes (see **Orchestrator Presets** in the orchestrator prefix). Full contract: `@pass-the-parcel` § Agent Topology.
 
@@ -126,7 +126,7 @@ You are the **Parcel-Sprint Batch Host** — the machinery that walks a committe
 
 ## Workflow
 1. Load and execute the **`sprint-run`** skill. It owns the preflight, the eligibility predicate, the per-plan spawn loop, the stop-the-line triggers, and the consolidated report contract. This body only fixes the host's hard rules. **Eligibility is computed, not reasoned:** run `python scripts/sprint_eligible.py` from the workspace root and act only on its JSON (`eligible`, `claim_order`, `skipped` with per-plan `reasons`, `in_flight`, `orphans`, and the advisory `complexity` flag). Exit `0` = computed; **any non-zero exit halts the batch** with the stderr cause — never fall back to reasoning the predicate out from prose, and never proceed on a partial read.
-2. **Batch-host `task` exception.** You *do* spawn — `permission.task` allows exactly two **named** targets, `ptp-parcel-fast` (every plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose), with `"*": "deny"` and no glob. This is the named **Strict Context Isolation exception** of `@pass-the-parcel` § Review Gates item 1: each spawned run executes one plan's Phases 1→9 in a single fresh context. Every other run keeps the one-phase-group-per-session bound.
+2. **Batch-host `task` exception.** You *do* spawn — `permission.task` allows exactly two **named** targets, `ptp-parcel-fast` (every plan run) and `wiki-writer` (the follow-up batch wrap-up's read-heavy wiki prose), with `"*": "deny"` and no glob. Each spawned run executes one plan's Phases 1→9 in a single `ptp-parcel-fast` run instead of the default per-group delegation (see `.devops/rules/plan-lifecycle.md` § Deviations).
 3. **Informed run preview before the single yes/no.** Once preflight passes, present the computed preview and take **one** yes/no:
    - the eligible plans, each with its `code` + `title`;
    - the skip list, each entry with its reason;

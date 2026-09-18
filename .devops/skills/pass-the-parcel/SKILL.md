@@ -7,7 +7,7 @@ updated: 2026-09-17
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
 
-Execute highly complex multi-agent engineering workflows with minimal token usage by maintaining the entire system state, goals, reviews, and execution checklists in a self-contained markdown "parcel" file at `.devops/plans/[plan-name].md`. Each agent session operates stateless, reading the plan, executing its specific role, editing the plan, and immediately exiting without carrying conversation history.
+Execute highly complex multi-agent engineering workflows with minimal token usage by maintaining the entire system state, goals, reviews, and execution checklists in a self-contained markdown "parcel" file at `.devops/plans/[plan-name].md`. Each sub-agent run operates stateless, reading the plan, executing its specific role, editing the plan, and immediately exiting without carrying conversation history.
 
 ---
 
@@ -84,7 +84,7 @@ Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity**
 **Non-negotiables in BOTH topologies:**
 - Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
 - **Gate D (Implementation) always halts for the human.** `AUTO` auto-clears Gates A-C **only** on positive evidence, per `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract — and that auto-clear never reaches Gate D.
-- One phase grouping per session still applies (Strict Context Isolation) — topology changes **who executes**, not how sessions are bounded. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context (§ Batch Runner).
+- Per-group delegation applies in both topologies — topology changes **who executes**, not the delegation sequence. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single `ptp-parcel-fast` run (§ Batch Runner).
 - `SINGLE` is **not** "skip rigor" — it swaps *independent* review for *sequential* review in a single context.
 
 ### Complexity Triage (topology selection)
@@ -155,13 +155,13 @@ Model routing is owned by the **Model Registry** in `.opencode/plans/base-contex
 
 ### Batch Runner (`@sprint-run`)
 
-A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, fresh context each), then emits one consolidated Gate D report. Retirement is a **separate, operator-invoked step** after the human verdict — the batch never wraps itself up.
+A sprint's committed queue can be run in one unattended pass by the **`parcel-sprint` batch host** + the **`@sprint-run`** skill, which claims each eligible plan on the trunk and spawns one **`ptp-parcel-fast`** per plan (locked `AUTO` + `SINGLE`, one runner per plan), then emits one consolidated Gate D report. Retirement is a **separate, operator-invoked step** after the human verdict — the batch never wraps itself up.
 
 - **`trunk-sequential`** — keeps the `git mv` + `claim: <code>` commit, drops `git worktree add`.
 - **Batched Gate D** — plans terminate at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`; a single human verdict covers the whole batch, and Gate D is deferred, never skipped. `GATE_D_USER_APPROVAL` (not `CLAIMED`) is the state that satisfies a dependent's `depends_on`.
 - **Retirement is a separate, operator-invoked step** — the batch loop never archives and never marks a plan complete. After the verdict, the **batch wrap-up** — one distinct invocation of `@agent-wrap-up` (§ Batch Scope), run by `parcel-sprint` (which may spawn `wiki-writer` for the wiki prose) or by the ordinary wrap-up path — asserts each plan against the per-plan confirmation gate, runs the repo gates once for the set, then sets `COMPLETE` and archives each plan. A plan failing any assertion is carry-forward, never complete. Per-plan `@agent-wrap-up` stays valid and composes.
 - **Fixpoint loop** — eligibility is re-evaluated immediately before **each** claim and re-applied to the remaining queue until nothing is eligible: bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` terminates the loop and flags a queue defect). The loop is **executed by** `scripts/sprint_eligible.py` (the predicate's executable embodiment, `.devops/rules/plan-lifecycle.md` § Claim Protocol): the host acts only on that JSON and a non-zero exit halts the batch — prose is never the fallback.
-- **Strict Context Isolation exception** — one plan's Phases 1→9 run in a single fresh per-plan context; the one-phase-group-per-session bound stands for every other run.
+- **Single-context fast runner** — one plan's Phases 1→9 run in a single `ptp-parcel-fast` run instead of the default per-group delegation.
 - **MULTI-worthy yield** — a plan whose commit-time triage recommends `MULTI` (or whose declared `touches` exceed the triage table's blast-radius bound) is flagged **before the first claim** and surfaced in the informed preview for one operator answer: **accept batch risk** (the locked `AUTO` + `SINGLE` run, no independent reviewer) or **defer to manual**. A deferral is a **pure pause at that plan's slot** — the loop never claims past it — reported as `DEFERRED-MANUAL` with the dependents it strands and the resume path (deliver it via `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run`). It is a halt, not a fifth deviation: canonical semantics live in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 - **Lanes (advisory classification, not concurrency)** — the same script output carries `lanes` (`serial` / `parallel` per queued plan) and `reserved_surfaces`: a plan whose `touches` hits a reserved surface, or triggers the prefix-embed cascade, is on the **serial** lane. The definition is canonical in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*. A lane classifies *writability*, not *order* — `trunk-sequential` means the batch still executes both lanes serially, so `claim_order` stays the only ordering and an empty lane B is the honest common case.
 - **One counter, one writer** — `machinery-version` is bumped **once for the batch**, by the follow-up batch wrap-up, from the value live at that moment; no plan runner and no step inside the loop touches it (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*). The prefix `-Sync` is the exception that proves the rule: it stays with the plan that edited a reserved prefix surface, because deferring it would leave a red `check-parcel-prefix.ps1` in the window the next claim's green-baseline preflight inspects.
@@ -171,13 +171,14 @@ Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-r
 
 ---
 
-## Review Gates & Context Isolation Protocol
+## Review Gates & Delegation Protocol
 
 To prevent context inflation and ensure complete control over design and execution, the agent **MUST** adhere to strict execution boundaries:
 
-1. **Strict Context Isolation (Single Phase Rule):**
-   - The agent is permitted to execute **ONLY ONE** phase grouping (e.g., scoping, planning, or executing) per conversation session.
-   - Once a phase grouping is updated in the plan, the agent **MUST save the plan and immediately halt** (conclude the turn). It must never proceed to subsequent phases or touch code without the user explicitly initiating the next session.
+1. **Delegation & gate halts:**
+   - One orchestrator owns the plan end-to-end and delegates **one phase grouping at a time** (scoping, planning, or executing) to its sub-agent.
+   - Once a phase grouping is integrated into the plan, the orchestrator **halts at the gate for the verdict** and resumes on approval. It never skips past an uncleared gate and never touches code before Gate C clearance.
+   - Sub-agents never advance the pipeline; only the orchestrator does.
    
 2. **The Mandatory Review Gates (A-D):**
    - **Gate A (Scope):** Stop after completing **Phases 1-3** (+ Phase 3.5 in AUTO mode). Present the scope perimeter (In-Scope/Out-of-Scope), the Phase 3 Q&A record, and any conflict warnings. **If rejected:** set Status → `PHASE_1`, Gate A → `REJECTED`, append rejection reasons to the plan, re-run Group A on the affected questions.

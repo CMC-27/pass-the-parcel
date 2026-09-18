@@ -9,7 +9,7 @@ related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md, ../skills/sprint-p
 
 # Plan Lifecycle
 
-> How parcel plans live, move and retire. The plan file is the parcel: the entire system state lives in one self-contained markdown file, and each agent session is stateless — it reads the plan, executes one phase-group, updates the plan, and halts. A plan keeps the **same stable code** for its whole life: physical location is only a signal, the code is the link.
+> How parcel plans live, move and retire. The plan file is the parcel: the entire system state lives in one self-contained markdown file, and each sub-agent run is stateless — it reads the plan, executes its phase-group, updates the plan, and returns to the orchestrator. A plan keeps the **same stable code** for its whole life: physical location is only a signal, the code is the link.
 
 ## The Stable Code
 
@@ -23,7 +23,7 @@ Anything in `.devops/plans/` — and every plan committed to a sprint queue — 
 code: T1-E1.04
 sprint: sprint-1-<slug>
 claim_status: QUEUED        # QUEUED | CLAIMED | GATE_D_USER_APPROVAL | COMPLETE
-owner: <session/model or user>
+owner: <agent/model or user>
 claimed_at: <ISO-8601>
 last_touch: <ISO-8601>
 touches: ["path/glob", "..."]
@@ -169,7 +169,7 @@ An `AUTO` gate clears **only on positive, presence-based evidence**. The test is
 ## Rules
 
 1. **The plan is the only state.** Never carry workflow state in conversation; always read the plan first and update it before halting.
-2. **One phase-group per session.** Never skip ahead after a gate. Save the plan and halt. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan context — an explicit, machine-enforced **Strict Context Isolation** exception. The rule stands for every other run. See § Deviations.
+2. **One orchestrator, delegated phase-groups.** One orchestrator owns the plan end-to-end and delegates each phase-group to its sub-agent(s) (A → hunter, B → visionary, C → reviewers, D → surgeon). Never skip ahead past an uncleared gate: integrate the sub-agent handback into the plan, then halt at the gate for the verdict and resume on approval. Sub-agents never continue to the next group; only the orchestrator advances the pipeline. **Exception:** the named `@sprint-run` batch path runs one plan's Phases 1→9 in a single fresh per-plan `ptp-parcel-fast` context. See § Deviations.
 3. **No gate is skippable.** Gates A–D are hard stops requiring the human — except in `AUTO` mode, where the orchestrator auto-clears Gates A–C **only** on positive evidence (see § AUTO Gate Evidence Contract); Gate D always requires the human. In `SINGLE` topology Gate C is `N/A` — the plan is approved once at Gate B (spec + plan + inline self-review).
 4. **Claim before edits.** A plan may not execute until it holds a claim (front-matter, plus a worktree for an isolated run — `@sprint-run` is `trunk-sequential` and skips the worktree; see § Deviations). Never run two claims whose `touches` overlap — serialize with the claim protocol instead of relying on the user. See § Claim Protocol.
 5. **Gate C precedes all edits.** No file is touched until the plan has passed peer review and been approved for execution.
@@ -182,7 +182,7 @@ The `@sprint-run` batch host (agent `parcel-sprint`, per-plan runner `ptp-parcel
 1. **Batched Gate D (deferred, never skipped).** Each per-plan run terminates at `PHASE_9`, stays in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`, with **Gate D `OPEN`**. The queue's eligible set drains into **one** consolidated human verdict at the end. Gate D is deferred, never auto-cleared, never skipped.
 2. **Retirement is a separate, operator-invoked step.** The batch loop never archives a plan and never marks one `COMPLETE`. After the verdict the **batch wrap-up** runs as a **distinct invocation** — of `@agent-wrap-up` in its **batch scope** (`SKILL.md` § Batch Scope), executed by `parcel-sprint` (which may spawn `wiki-writer` for the read-heavy wiki prose) or by the ordinary wrap-up path. One invocation covers the whole set: per plan it asserts bottom `Status: PHASE_9`, `claim_status: GATE_D_USER_APPROVAL`, a `DONE` per-plan outcome, Phase 9 evidence plus acceptance criteria, and the exact `plan: <code>` commit on the trunk; it then runs the repo gates **once** for the set, sets `COMPLETE`, and `git mv`s each plan to `.devops/archive/` (root). A plan failing any assertion is **carry-forward** — never marked complete — and a red repo gate blocks the whole batch wrap-up. Per-plan `@agent-wrap-up` remains valid and composes, so the manual path is unchanged.
 3. **Trunk-sequential claim.** The Claim Protocol's step 3 (`git worktree add`) is dropped. Steps 1-2 are kept: `git mv` into `.devops/plans/` plus the exact commit literal `claim: <code>`. All changes land on one working tree — no `plan/<code>-<slug>` branch, no merge, no prune. Per-plan execution commits use the exact literal `plan: <code>`.
-4. **Named Strict Context Isolation exception.** Running one plan's Phases 1→9 in a single `ptp-parcel-fast` context is an explicit, machine-enforced exception to the one-phase-group-per-session bound (`@pass-the-parcel` § Review Gates item 1). The bound stands for every other run.
+4. **Single-context fast runner.** One `ptp-parcel-fast` runs its plan's Phases 1→9 in a single context instead of the default per-group delegation (`@pass-the-parcel` § Agent Topology).
 
 The batch path's eligibility predicate (**every `depends_on` satisfied per § Claim Front-Matter** — archived **or** `GATE_D_USER_APPROVAL` in `.devops/plans/` — plus no `touches` overlap with any plan in `.devops/plans/`, including plans already batched to `PHASE_9`) is evaluated **immediately before each claim** and re-applied to the remaining queue until **no** remaining plan is eligible — a fixpoint, bounded by the queue length, deterministic in queue order, and cycle-safe (a mutual `depends_on` leaves neither eligible: terminate and flag the cycle as a queue defect). A skip is recorded with its reason and never halts the batch. **Executed by** `scripts/sprint_eligible.py` — the host acts only on its JSON, and a script error halts the batch rather than reverting to prose (`sprint-run` § 5). Stop-the-line triggers and the informed run preview live in the `sprint-run` skill.
 
