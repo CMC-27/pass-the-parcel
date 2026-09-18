@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 15
+version: 16
 updated: 2026-09-18
 ---
 
@@ -131,7 +131,7 @@ Ensure the rest of the documentation doesn't become "stale" or misleading.
     - **Step 1 — Mark Complete:** Open the plan file and set **both** `claim_status: COMPLETE` (front-matter) and the bottom State Dashboard `Status` to `COMPLETE`. Do this **before** moving the file.
     - **Step 2 — Add Completion Note:** At the bottom of the plan, add a `## Completion Note` section explaining the actual outcome and any deviations from the original plan.
     - **Step 3 — Archive:** Move the completed plan with `git mv` from `.devops/plans/[plan-name].md` to `.devops/archive/[plan-name].md` — no stub is left at the old location. The plan stays at the archive **root**; its `sprint:` front-matter field is what links it to a sprint. The sprint's `sprint.md` archives separately to `.devops/archive/sprints/sprint-{n}-<slug>/` at sprint close (see `.devops/rules/plan-lifecycle.md`).
-    - **Step 4 — Return the branch (concurrent runs):** commit, merge `plan/<code>-<slug>` back to the workspace trunk, and prune the worktree. Do not leave an unmerged plan branch behind. **`@sprint-run` batch exception (`trunk-sequential`):** there is **no branch** — verify the working tree is the trunk and **skip merge/prune** entirely.
+    - **Step 4 — Confirm in-place state:** verify the working tree is the trunk; there is no plan branch and no worktree — nothing to merge or prune. Commit in place.
 
 > **Archival is mandatory, not optional.** A plan that is done but still sitting in `.devops/plans/` is a ghost — it pollutes future agents' context. Every completed plan **MUST** be archived before wrap-up is considered complete.
 

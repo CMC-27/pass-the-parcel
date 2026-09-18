@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 5
-updated: 2026-09-16
+version: 6
+updated: 2026-09-18
 
 SPRINTS.template.md — seed for a satellite's sprint register.
 Copy to .devops/backlog/SPRINTS.md and fill the Sprint Index from your triaged backlog.
@@ -29,7 +29,7 @@ last_sprint: "none"
 graph LR
     A["Backlog (triaged)"] --> B["Sprint Planning<br/>sprint-plan"]
     B --> C["Queue: sprint.md + plans"]
-    C --> D["Claim + worktree<br/>pass-the-parcel"]
+    C --> D["Claim in place<br/>pass-the-parcel"]
     D --> E{"All plans done?"}
     E -->|No| C
     E -->|Yes| F["Sprint Close<br/>sprint-close"]
@@ -42,7 +42,7 @@ graph LR
 |-------|-------|--------|------|
 | **Plan** | `@sprint-plan` | `.devops/sprints/sprint-{n}-<slug>/sprint.md` + sprint plan queue + SPRINTS.md row | Start of cycle |
 | **Claim & Execute** | `@pass-the-parcel` (per plan) | Plan claimed → `.devops/plans/` → COMPLETE → `.devops/archive/` | During cycle |
-| **Batch Run** | `@sprint-run` | Every eligible queued plan run Phases 1–9 in one pass — eligibility re-evaluated per claim and iterated to a fixpoint (bounded, queue-ordered, cycle-safe) — each claimed on the trunk and left at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN` → one consolidated Gate D report. Lanes (`serial` / `parallel`) are an **advisory classification** — the batch stays trunk-sequential, so both lanes execute serially — and `machinery-version` is bumped **once for the batch** by the follow-up wrap-up, never by a plan runner. | During cycle (optional, unattended) |
+| **Batch Run** | `@sprint-run` | Every eligible queued plan run Phases 1–9 in one pass — eligibility re-evaluated per claim and iterated to a fixpoint (bounded, queue-ordered, cycle-safe) — each claimed on the trunk and left at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN` → one consolidated Gate D report. Lanes (`serial` / `parallel`) are an **advisory classification** — every path runs in place serially, so both lanes execute serially — and `machinery-version` is bumped **once for the batch** by the follow-up wrap-up, never by a plan runner. | During cycle (optional, unattended) |
 | **Close** | `@sprint-close` | Retro appended to `sprint.md`; `sprint.md` archived to `.devops/archive/sprints/`; REFACTORING.md update | End of cycle |
 | **Status** | `@sprint-status` | Burn-up readout, no file writes | Anytime mid-cycle |
 

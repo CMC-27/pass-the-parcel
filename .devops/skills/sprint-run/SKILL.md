@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 8
-updated: 2026-09-16
+version: 9
+updated: 2026-09-18
 ---
 
 # Sprint Run — Batch Queue Runner
@@ -27,8 +27,8 @@ Run in order; any failure halts the batch **before** the first claim.
    - the orphan re-adoption list, if any (surfaced for confirmation — the heuristic cannot tell a dead-batch orphan from a live concurrent claim);
    - the forecast claim order from step 6, and any flagged dependency cycle;
    - the **MULTI-worthy fork** — every plan the script flags in its advisory `complexity` key (`multi_worthy: true`), each with its declared `triage`, the mechanical `signals` that fired, and the dependents it would strand (`blocks`), for a per-plan answer of **accept batch risk** (`AUTO` + `SINGLE`, no independent reviewer) or **defer to manual**. One answer may cover all flagged plans, so acceptance keeps the run unattended — **the pause is opt-in**. Semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*;
-   - a plain-language blast radius — *N plans → N×2 commits on your trunk (**no worktree isolation**), source edits, one Gate D at the end.*
-   - the **lane readout** from the same JSON (`lanes`, `reserved_surfaces`): which plans are on the **serial** lane (a reserved surface `touches` hit, or the prefix-embed cascade — `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*) and which are lane-B eligible. Present it as a **classification, not a promise of concurrency**: this loop is trunk-sequential and executes both lanes serially, so an empty lane B is the honest common case.
+   - a plain-language blast radius — *N plans → N×2 commits on your trunk in place, one plan at a time, source edits, one Gate D at the end.*
+   - the **lane readout** from the same JSON (`lanes`, `reserved_surfaces`): which plans are on the **serial** lane (a reserved surface `touches` hit, or the prefix-embed cascade — `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*) and which are lane-B eligible. Present it as a **classification, not a promise of concurrency**: every path runs in place serially, so an empty lane B is the honest common case.
    Label the preview a **forecast**: the predicate is re-evaluated per claim, so the executed set may differ from it. Record the operator's approval. Decline → no claims, no writes.
 
 ## 2. Eligible set (per claim)
@@ -59,13 +59,13 @@ A queued plan is **eligible** iff all three hold:
 
 Anything failing 1-3 is **skipped with its reason recorded**; a skip never halts the batch.
 
-**Lanes are advisory (do not re-derive them).** The same JSON carries `lanes` (`{code: "serial"|"parallel"}` over the queued set) and `reserved_surfaces` (the set the script used). They classify *writability*, not *order*: this loop stays trunk-sequential, so `claim_order` remains the only ordering and both lanes are executed serially. A serial-lane plan is never packed into `parallel_groups` — but `parallel_groups` schedules nothing, so nothing about the fixpoint, the skip table or the claim loop changes. Never hard-code the reserved surfaces here: the definition is `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*, and the script is its executable embodiment.
+**Lanes are advisory (do not re-derive them).** The same JSON carries `lanes` (`{code: "serial"|"parallel"}` over the queued set) and `reserved_surfaces` (the set the script used). They classify *writability*, not *order*: every path runs in place serially, so `claim_order` remains the only ordering and both lanes are executed serially. A serial-lane plan is never packed into `parallel_groups` — but `parallel_groups` schedules nothing, so nothing about the fixpoint, the skip table or the claim loop changes. Never hard-code the reserved surfaces here: the definition is `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Reserved Surfaces & the Lane Model*, and the script is its executable embodiment.
 
 ## 3. Per plan (serial)
 
 Narrate one line before each spawn: `plan k/N: <code> claimed → running`. Then:
 
-1. `git mv` the plan into `.devops/plans/`, fill the claim front-matter (`claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`), and commit with the exact literal `claim: <code>` on the trunk. **No `git worktree add`** — this batch path is trunk-sequential.
+1. `git mv` the plan into `.devops/plans/`, fill the claim front-matter (`claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`), and commit with the exact literal `claim: <code>` on the trunk. All work runs in place — no worktree, no plan branch, one claim at a time.
 2. Spawn **one** `ptp-parcel-fast` for that plan path. The spawned runner writes the plan's `## ⚙️ Plan Settings` block at claim time as its **first** action (frozen `Mode=AUTO` + `Agents=SINGLE`); the host never authors it. On return, the plan sits at `PHASE_9` + `claim_status: GATE_D_USER_APPROVAL`. **The runner never touches `machinery-version`** — the counter has one writer per batch (§ 6 and `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*), and N runners bumping from one shared base is the collision that rule exists to remove. The runner **does** still re-inline the prefix (`-Sync`) when its plan edits a reserved prefix surface, because a red `check-parcel-prefix.ps1` would fail the next claim's green baseline; the host owns that **invariant** — see § 1 step 3 — not the repair.
 3. **Re-apply § 2 to the remaining `QUEUED` set before the next claim** — that is the fixpoint loop, and it is what lets a dependent follow its dependency inside one batch. A `SKIP` continues the batch; a `HALT` stops it (§ 5).
 4. **Deferred plans (the MULTI-worthy yield).** If the operator deferred a flagged plan at § 1 step 7, that plan is a **hole in the line**. Keep claiming and running in `claim_order` as normal, but **never claim past the hole**: on reaching the deferred plan's position, halt and emit the partial report (§ 6) with a `DEFERRED-MANUAL` row carrying the plan's code, the topology it needs (`MULTI`), its `blocks` from the script's `complexity` output, and the resume path. Nothing is persisted — the next invocation recomputes the fork from live state, which is the resume contract. Full semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
@@ -87,7 +87,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 - Per plan: a self-review `**REJECTED:**` at the inline Phase 6 checkpoint (never an inline `PHASE_5_REVISION` loop).
 - Per plan: `PHASE_8_FAILED` (rollback after two failed self-healing attempts).
 - Per plan: the `ptp-parcel-fast` subagent returns `HALT <code>: <cause>`.
-- Per batch: the operator **deferred** a flagged `MULTI`-worthy plan at § 1 step 7 — the **yield**. The batch stops at that plan's slot (§ 3 step 4); plans already run keep their terminal `PHASE_9` state. This is a halt for the human — **never a skip** (it is not in the skip table) and **never a deviation** (`.devops/rules/plan-lifecycle.md` § Deviations stays at four).
+- Per batch: the operator **deferred** a flagged `MULTI`-worthy plan at § 1 step 7 — the **yield**. The batch stops at that plan's slot (§ 3 step 4); plans already run keep their terminal `PHASE_9` state. This is a halt for the human — **never a skip** (it is not in the skip table) and **never a deviation** (`.devops/rules/plan-lifecycle.md` § Deviations stays at three).
 
 > **Not a halt (skip with reason):** unmet `depends_on` (the dependency is still `QUEUED`, or `CLAIMED` below `PHASE_9` — in flight); `touches` overlap (active, batched-`PHASE_9`, or claim-time queue-pairwise) — this clause bites independently of clause 2, so a **satisfied** dependency can still leave its dependent skipped while it occupies overlapping files; a plan already at `PHASE_9`; a dependency **cycle** (queue defect — terminate and name the members); no remaining plan eligible (the fixpoint is reached — report the terminal skip set).
 
@@ -103,4 +103,4 @@ On `HALT`, **emit the partial report immediately** — completed plans at `PHASE
 
 ## 7. Named exception
 
-This batch loop runs each spawned `ptp-parcel-fast` through one plan's Phases 1→9 in a single run, and the claim is **trunk-sequential** (keeps `git mv` + the `claim: <code>` commit, drops `git worktree add`). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. See `.devops/rules/plan-lifecycle.md` § Deviations.
+This batch loop runs each spawned `ptp-parcel-fast` through one plan's Phases 1→9 in a single run, and every claim runs in place on the trunk (no worktree, no plan branch, one claim at a time). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. See `.devops/rules/plan-lifecycle.md` § Deviations.

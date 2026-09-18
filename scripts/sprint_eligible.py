@@ -38,7 +38,7 @@ per queued plan, "serial" or "parallel". The Reserved Surface Set that forces th
 serial lane is DEFINED in .devops/rules/plan-lifecycle.md section Claim Protocol ->
 *Reserved Surfaces & the Lane Model*; this script cites it and echoes the set it used
 as "reserved_surfaces" so the host can present it. A lane is a CLASSIFICATION, not an
-execution namespace: @sprint-run stays trunk-sequential (section Deviations item 3) and
+execution namespace: every path runs in place, one claim at a time, and
 therefore still claims one plan at a time.
 
 Read-only by construction: this script never writes, claims, archives or flips a gate.

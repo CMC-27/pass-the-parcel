@@ -19,7 +19,7 @@ last_sprint: "9"
 graph LR
     A["Backlog (triaged)"] --> B["Sprint Planning<br/>sprint-plan"]
     B --> C["Queue: sprint.md + plans"]
-    C --> D["Claim + worktree<br/>pass-the-parcel"]
+    C --> D["Claim in place<br/>pass-the-parcel"]
     D --> E{"All plans done?"}
     E -->|No| C
     E -->|Yes| F["Sprint Close<br/>sprint-close"]
