@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-18 - Link artefacts in PO updates (machinery 61 -> 62)
 
 **Why:** PO can review, so updates must give what changed, where it lives, and when it's needed. One bullet added to `communication-rules.md` § User-facing conversation; no prefix/template text changed. Skips: Phases 2–6 (one-bullet docs tweak, preference already codified).
-**Ref:** `PENDING_HASH`
+**Ref:** `c876530`
 
 ---
 
