@@ -1,7 +1,7 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 8
+version: 9
 updated: 2026-09-18
 ---
 
@@ -80,6 +80,7 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
   agent arrives runnable instead of arriving as a file the runtime never mounts. `BINDING-SKIP`
   now means only that neither the target nor the seed could supply an entry — still a loud
   failure in the target's own `check-parcel-prefix.ps1`.
+- **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §6 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
 - A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
   declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.
 - **Version discipline.** A skill's `version` MUST bump with any `SKILL.md` or reference change.

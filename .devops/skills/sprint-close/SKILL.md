@@ -1,8 +1,8 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 6
-updated: 2026-09-16
+version: 7
+updated: 2026-09-18
 ---
 
 # Sprint Close — Retrospective & Hygiene Ritual
@@ -96,7 +96,7 @@ A closed sprint is a historical record: move the whole sprint folder to the arch
 
 - In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Update `last_sprint`.
 - Ensure REFACTORING.md reflects the scan results (Step 2) — when the register exists; otherwise the retro's **New Refactoring Items** section carries them, with the register's absence stated.
-- Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC.
+- Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC. **Template-side step:** both homes (`.devops/rules/**`, `.devops/skills/**`) are on the portable surface, so a pull replaces them wholesale — a satellite **reports** fold candidates upward and does not attempt the edit locally.
 - Do NOT auto-open the next sprint. Tell the user the current one is closed and they can run `@sprint-plan` when ready, carrying forward the "capacity accuracy" line so the next plan suggests a better budget.
 
 ## 7. Hand Off

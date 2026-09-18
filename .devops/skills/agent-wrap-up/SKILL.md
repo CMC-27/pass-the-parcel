@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 14
-updated: 2026-09-17
+version: 15
+updated: 2026-09-18
 ---
 
 # Agent Wrap-Up Skill
@@ -167,7 +167,7 @@ On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 ### Phase 7b: State Stamps (Checklist — easy to forget, not gated)
 Mutations that keep downstream tooling honest. Do all three, then close out.
 1. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
-2. **Machinery version bump**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`. **Batch scope override:** the `machinery-version:` increment happens **once for the whole set**, from the value live at that moment (see § Batch Scope — *one `machinery-version` increment*); the per-file skill `version:` bumps are unchanged and stay per modified file. The prefix `-Sync` is **not** wrapped up here — it belongs to the plan that edited a reserved prefix surface, so a red `check-parcel-prefix.ps1` is never carried into this step.
+2. **Machinery version bump (template repo only — satellites inherit, never bump)**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml`. Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`. A satellite run of this skill skips this step entirely: the next pull stamps the satellite's manifest with the source `machinery-version`, so a satellite-side bump is inert and is stamped back down. **Batch scope override:** the `machinery-version:` increment happens **once for the whole set**, from the value live at that moment (see § Batch Scope — *one `machinery-version` increment*); the per-file skill `version:` bumps are unchanged and stay per modified file. The prefix `-Sync` is **not** wrapped up here — it belongs to the plan that edited a reserved prefix surface, so a red `check-parcel-prefix.ps1` is never carried into this step.
 3. **Record the wrap-up ref**: note the current commit hash in the changelog entry so the next Phase 0 diff has a clean baseline.
 
 ---
