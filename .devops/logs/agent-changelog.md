@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-18 - T1-E4.02 closed as resolved-by-direct-fix
+
+**Why:** The parked topology review never ran as a parcel because its concrete misfire was already fixed directly: `e80950e` (one-orchestrator-delegates-phase-groups, 15 files) plus this session's reviewer `edit: allow` unblock. Registered as Completed with the residual audit named as deferred by operator choice. Triage Panel back to queue clear.
+**Ref:** working tree (uncommitted; baseline `df228de`)
+
+---
+
 ## 2026-09-18 - Sprint 9 closed; T1-E2.06 fold review to Gate D (machinery 63 -> 64)
 
 **Why:** Cleared the four open risks in one serial pass — Sprint 9 archived (20/20 pts, two-lane execution descoped on record), the pull-blocking fold landed (satellite lesson verbatim, exported-seam + template-side fold rules, merge-by-name semantics), `TRIAGE.md` adopted, reviewer write-unblock committed. Skips: Phases 2–3 (no `src/`, machinery-only).

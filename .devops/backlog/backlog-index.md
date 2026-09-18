@@ -19,9 +19,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-| Tier | Code | Title | Size | Note |
-|------|------|-------|------|------|
-| 🟡 NEXT | T1-E4.02 | Review orchestrator/subagent execution topology | M | Review whether the repo's serial coordinator/subagent design is adding real isolation or just orchestration bloat. The concern is the mix of read-only specialists, orchestrator-owned persistence, and sequential handoff cost. Add the concrete multi-mode symptom where the orchestrator asks for a fresh session instead of spawning subagents for Group B (spec + plan → Gate B) under the one-grouping rule. |
+*(queue clear — no triaged items; next candidate surfaces via `@backlog` or sprint retro)*
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
