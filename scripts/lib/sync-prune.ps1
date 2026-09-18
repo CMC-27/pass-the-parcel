@@ -10,13 +10,14 @@
 # directory shell), and adding a retired slug to `excluded_skills` only narrows fresh syncs
 # and produces NO verdict at all. One declarative line per retirement is the whole mechanism.
 #
-# Parent-dir prune mask: `prune_files` entries that sit inside a `portable_dirs` root are
-# stripped from the target's hash map in -Check so a retired file reports PRUNE instead of a
-# misleading parent-dir DRIFT. That mask is NOT mirrored for `prune_dirs`, and deliberately
-# so: the directories this key retires sit under `.devops/skills`, which is compared per slug
-# over the derived portable set and is not a `portable_dirs` root, so a mask branch could
-# never fire for them. The direct existence test below is what reports a lingering retired
-# folder — document the limitation instead of writing code that cannot run.
+# Parent-dir prune mask: `prune_files` entries that sit inside a `portable_dirs` root
+# or a portable skill are stripped from the target's hash map in -Check so a retired
+# file reports PRUNE instead of a misleading parent-dir DRIFT. That mask is NOT
+# mirrored for `prune_dirs`, and deliberately so: the directories this key retires
+# sit under `.devops/skills`, which is compared per slug over the derived portable
+# set and is not a `portable_dirs` root, so a mask branch could never fire for them.
+# The direct existence test below is what reports a lingering retired folder —
+# document the limitation instead of writing code that cannot run.
 #
 # Dot-sourced by scripts/sync-architecture.ps1 (see scripts/lib/README.md). Portable.
 

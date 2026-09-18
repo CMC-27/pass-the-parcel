@@ -97,9 +97,11 @@ function Add-TargetAgentEntry {
 function Update-TargetModelBindings {
     # Force-propagate the SOURCE Model Registry into the target's binding surfaces:
     # (1) the target's registry table rows (rewritten, plus rows INSERTED for keys the
-    # target lacks - registry growth must reach an existing satellite), (2) each target
-    # agent file's frontmatter `model:` line, (3) each present target opencode.json
-    # `agent.<key>.model` value.
+    # target lacks - registry growth must reach an existing satellite - and rows
+    # DELETED for keys the source retired, so a retirement does not leave the
+    # target gate-failing), (2) each target agent file's frontmatter `model:` line,
+    # (3) each present target opencode.json `agent.<key>.model` value, plus (4) the
+    # structural `permission.task` allow-list of the locked-preset host `parcel-sprint`.
     # There is no preservation branch: a satellite-side rebind is transient by contract.
     # ponytail: naive 4-cell registry row rewrite keyed on the first cell - a reordered or
     # 3-cell table is left alone and fails loudly in check-parcel-prefix instead.
@@ -155,6 +157,21 @@ function Update-TargetModelBindings {
             }
             Write-Output ("BINDINGS: inserted {0} new registry row(s): {1}" -f $missing.Count, ($missing -join ', '))
         }
+        # Delete rows for keys the source registry has retired (machinery T1-E2.07): a
+        # retirement must reach an already-bootstrapped satellite, or its own
+        # check-parcel-prefix fails `Model Registry key '<key>' has no agent file` and
+        # the next pull exits 1. ponytail: keyed on the same 4-cell binding-row shape
+        # Get-RegistryBindings parses - any other table row is left alone even when its
+        # first cell is lowercase. Prose is untouched; only rows are removed.
+        $pruned = @()
+        for ($i = $lines.Count - 1; $i -ge 0; $i--) {
+            $pm = [regex]::Match($lines[$i], '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|')
+            if (-not $pm.Success) { continue }
+            if (-not $srcRegistry.ContainsKey($pm.Groups[1].Value)) { $pruned += $pm.Groups[1].Value; $lines.RemoveAt($i); $rows++ }
+        }
+        if ($pruned.Count -gt 0) {
+            Write-Output ("BINDINGS: pruned {0} stale registry row(s): {1}" -f $pruned.Count, (($pruned | Sort-Object) -join ', '))
+        }
         if ($rows -gt 0) {
             [System.IO.File]::WriteAllText($tgtBc, (($lines -join "`n") + $end), (New-Object System.Text.UTF8Encoding($false)))
         }
@@ -180,7 +197,10 @@ function Update-TargetModelBindings {
     }
 
     # 3. Target opencode.json (repo-specific). Entries the target ALREADY carries: only the
-    #    `model` value is rewritten - permissions, key order and formatting stay as authored.
+    #    `model` value is rewritten - permissions, key order and formatting stay as authored -
+    #    EXCEPT the locked-preset host's `permission.task` allow-list (step 4 below), which
+    #    is structural, like `model`. Entries for registry keys the target has NEVER
+    #    authored: inserted whole from the target's own synced seed, then stamped.
     #    Entries for registry keys the target has NEVER authored: inserted whole from the
     #    target's own synced seed, then stamped. A key the satellite never authored carries no
     #    local intent to preserve, so the seed's permission block is the sanctioned default
@@ -221,7 +241,61 @@ function Update-TargetModelBindings {
                     $ocCount++
                 }
             }
-            if ($ocCount -gt 0 -or $ocInserted.Count -gt 0) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
+            # 4. Structural task stamp (machinery T1-E2.07): the locked-preset host's
+            #    `permission.task` allow-list is template-owned - the shared prefix prose
+            #    names exactly which targets the batch host may spawn, so a satellite that
+            #    authored the entry before a permission shipped would otherwise diverge
+            #    silently from its own documented contract. Rewrite the target's
+            #    parcel-sprint task object from the target's own synced seed (whole object,
+            #    re-indented to the target's entry). Every other permission, key order and
+            #    formatting stays as authored; any other agent's block is never touched.
+            $ocTaskStamped = $false
+            $psSeed = Get-SeedAgentEntry -TgtRoot $TgtRoot -Key 'parcel-sprint'
+            if ($null -eq $psSeed) {
+                Write-Output "BINDING-SKIP parcel-sprint (no seed entry to stamp the structural task allow-list from)"
+            } else {
+                $seedTaskM = [regex]::Match($psSeed.Body, '"task"\s*:\s*\{')
+                if (-not $seedTaskM.Success) {
+                    Write-Output "BINDING-SKIP parcel-sprint (seed entry carries no task object)"
+                } else {
+                    $seedTaskOpen = $psSeed.Body.IndexOf('{', $seedTaskM.Index)
+                    $seedTaskClose = Find-MatchingBrace $psSeed.Body $seedTaskOpen
+                    $psEntryM = [regex]::Match($ocRaw, '"parcel-sprint"\s*:\s*\{')
+                    if ($seedTaskOpen -lt 0 -or $seedTaskClose -lt 0 -or -not $psEntryM.Success) {
+                        Write-Output "BINDING-SKIP parcel-sprint (task object not locatable for structural stamp)"
+                    } else {
+                        $psEntryOpen = $ocRaw.IndexOf('{', $psEntryM.Index)
+                        $psEntryClose = Find-MatchingBrace $ocRaw $psEntryOpen
+                        $tgtTaskM = [regex]::Match($ocRaw.Substring($psEntryOpen, $psEntryClose - $psEntryOpen), '"task"\s*:\s*\{')
+                        if (-not $tgtTaskM.Success) {
+                            Write-Output "BINDING-SKIP parcel-sprint (target task is not an object; structural stamp skipped)"
+                        } else {
+                            $tgtTaskOpen = $psEntryOpen + $tgtTaskM.Index + $tgtTaskM.Value.IndexOf('{')
+                            $tgtTaskClose = Find-MatchingBrace $ocRaw $tgtTaskOpen
+                            $seedTaskText = $psSeed.Body.Substring($seedTaskOpen, $seedTaskClose - $seedTaskOpen + 1)
+                            $tgtEol = if ($ocRaw -match "`r`n") { "`r`n" } else { "`n" }
+                            $seedKeyLineStart = $psSeed.Body.LastIndexOf("`n", $seedTaskM.Index) + 1
+                            $seedKeyIndent = $psSeed.Body.Substring($seedKeyLineStart, $seedTaskM.Index - $seedKeyLineStart)
+                            $tgtTaskKeyIdx = $psEntryOpen + $tgtTaskM.Index
+                            $tgtKeyLineStart = $ocRaw.LastIndexOf("`n", $tgtTaskKeyIdx) + 1
+                            $tgtKeyIndent = $ocRaw.Substring($tgtKeyLineStart, $tgtTaskKeyIdx - $tgtKeyLineStart)
+                            $rebuilt = @()
+                            foreach ($sline in ($seedTaskText -split "`n")) {
+                                if ($sline.StartsWith($seedKeyIndent)) { $rebuilt += $tgtKeyIndent + $sline.Substring($seedKeyIndent.Length) }
+                                else { $rebuilt += $sline }
+                            }
+                            $newTaskText = $rebuilt -join $tgtEol
+                            $oldTaskText = $ocRaw.Substring($tgtTaskOpen, $tgtTaskClose - $tgtTaskOpen + 1)
+                            if ($oldTaskText -ne $newTaskText) {
+                                $ocRaw = $ocRaw.Remove($tgtTaskOpen, $tgtTaskClose - $tgtTaskOpen + 1).Insert($tgtTaskOpen, $newTaskText)
+                                $ocTaskStamped = $true
+                            }
+                        }
+                    }
+                }
+            }
+            if ($ocTaskStamped) { Write-Output "BINDINGS: stamped parcel-sprint structural task allow-list from seed" }
+            if ($ocCount -gt 0 -or $ocInserted.Count -gt 0 -or $ocTaskStamped) { [System.IO.File]::WriteAllText($ocTarget, $ocRaw, (New-Object System.Text.UTF8Encoding($false))) }
             if ($ocInserted.Count -gt 0) { Write-Output ("BINDINGS: inserted {0} missing agent entry/entries: {1}" -f $ocInserted.Count, ($ocInserted -join ', ')) }
         }
     }

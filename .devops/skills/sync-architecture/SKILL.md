@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 7
-updated: 2026-09-13
+version: 8
+updated: 2026-09-18
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -68,14 +68,21 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
   and runs the verification gates (prefix, UTF-8, wiki lint). Report gate failures verbatim —
   never suppress them with `-NoVerify` unless the user insists.
 - **Registry propagation.** A sync rewrites the target's `opencode.json` model values and its
-  `base-context.md` registry rows, and **inserts** rows the target is missing (machinery v40+),
-  so a template-side Model Registry growth reaches an already-bootstrapped satellite with no
-  manual edit. The same holds for the `opencode.json` agent block: an entry the target already
+  `base-context.md` registry rows, **inserts** rows the target is missing (machinery v40+),
+  and **prunes** rows for keys the source retired (machinery T1-E2.07+) — rows only, prose
+  untouched — so a template-side Model Registry retirement reaches an already-bootstrapped
+  satellite with no manual edit instead of leaving its prefix check red. The same holds
+  for the `opencode.json` agent block: an entry the target already
   carries is never restructured (permissions, key order and formatting stay as authored — only
-  its `model` value is stamped), but a registry key the target has **never authored** is
+  its `model` value is stamped), **except** the locked-preset host's structural
+  `permission.task` allow-list, which is stamped from the seed — but a registry key the target has **never authored** is
   **inserted** whole from the target's own synced seed (machinery v41+), so a newly shipped
   agent arrives runnable instead of arriving as a file the runtime never mounts. `BINDING-SKIP`
   now means only that neither the target nor the seed could supply an entry — still a loud
   failure in the target's own `check-parcel-prefix.ps1`.
-- After any machinery edit in the template repo itself, the wrap-up discipline bumps per-skill
+- A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
+  declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.
+- **Version discipline.** A skill's `version` MUST bump with any `SKILL.md` or reference change.
+  Without the bump `-Check` reports `DRIFT` ("locally customized?") on stale machinery instead
+  of `UPGRADE`, and operators learn to overwrite real local edits. After any machinery edit in the template repo itself, the wrap-up discipline bumps per-skill
   `version` / `machinery-version`; this skill only consumes those numbers, never edits them.

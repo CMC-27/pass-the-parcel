@@ -274,6 +274,66 @@ if ($SelfTest) {
             if ($LASTEXITCODE -ne 0) { throw "selftest: prune-dir re-sync failed (exit $LASTEXITCODE)" }
             if (Test-Path $staleDir) { $fail += "prune_dirs failed: $($stPruneDirs[0]) still present after re-sync" }
         }
+        # --- T1-E2.07 fixture: retirement transport (registry prune + skill prune mask + structural task stamp)
+        # Plant the three pre-retirement states GRID-Link carried at the 54 -> 59 pull,
+        # then assert one sync converges all three: the orphan registry row is pruned
+        # (F1), the stale skill-internal file reports PRUNE and never a skill DRIFT (F2),
+        # and the old parcel-sprint task allow-list is stamped from the seed (F3).
+        $rtBcDir = Join-Path $tmp '.opencode/plans'
+        New-Item -ItemType Directory -Force -Path $rtBcDir | Out-Null
+        Copy-Item (Join-Path $srcRoot '.opencode/plans/base-context.md') (Join-Path $tmp '.opencode/plans/base-context.md') -Force
+        $rtBc = Join-Path $tmp '.opencode/plans/base-context.md'
+        $rtBcRaw = [System.IO.File]::ReadAllText($rtBc)
+        if ($rtBcRaw -match '\| parcel-fast \|') {
+            $fail += "selftest T1-E2.07: target already carries a parcel-fast row; fixture not isolated"
+        } else {
+            $rtBcEol = if ($rtBcRaw -match "`r`n") { "`r`n" } else { "`n" }
+            $rtBcRaw = $rtBcRaw.TrimEnd("`r", "`n") + $rtBcEol + "| parcel-fast | orchestration | Retired Orchestrator | retired/parcel-fast |" + $rtBcEol
+            [System.IO.File]::WriteAllText($rtBc, $rtBcRaw, (New-Object System.Text.UTF8Encoding($false)))
+            Write-Output "SELFTEST fixture: orphan registry row 'parcel-fast' planted"
+        }
+        $rtStaleSkill = Join-Path $tmp '.devops/skills/wiki-bootstrap/references/qa-14-testing-standards.md'
+        New-Item -ItemType Directory -Force -Path (Split-Path $rtStaleSkill) | Out-Null
+        Set-Content -Path $rtStaleSkill -Value "stale" -NoNewline
+        Write-Output "SELFTEST fixture: stale skill-internal file planted"
+        $rtOcPath = Join-Path $tmp 'opencode.json'
+        $rtOcRaw = [System.IO.File]::ReadAllText($rtOcPath)
+        $rtPsM = [regex]::Match($rtOcRaw, '"parcel-sprint"\s*:\s*\{')
+        if (-not $rtPsM.Success) {
+            $fail += "selftest T1-E2.07: parcel-sprint entry missing from target opencode.json"
+        } else {
+            $rtPsOpen = $rtOcRaw.IndexOf('{', $rtPsM.Index); $rtPsClose = Find-MatchingBrace $rtOcRaw $rtPsOpen
+            $rtPsBlock = $rtOcRaw.Substring($rtPsOpen, $rtPsClose - $rtPsOpen + 1)
+            if ($rtPsBlock -notmatch '"wiki-writer":\s*"allow"') {
+                $fail += "selftest T1-E2.07: target parcel-sprint already lacks wiki-writer; fixture not isolated"
+            } else {
+                $rtPsNew = $rtPsBlock -replace ',\s*"wiki-writer":\s*"allow"', ''
+                $rtOcRaw = $rtOcRaw.Remove($rtPsOpen, $rtPsClose - $rtPsOpen + 1).Insert($rtPsOpen, $rtPsNew)
+                [System.IO.File]::WriteAllText($rtOcPath, $rtOcRaw, (New-Object System.Text.UTF8Encoding($false)))
+                Write-Output "SELFTEST fixture: parcel-sprint task allow-list aged (wiki-writer removed)"
+            }
+        }
+        $stOutRt = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.07: -Check reported IN SYNC with retirement states planted (exit 0)" }
+        if (-not ($stOutRt -match 'PRUNE')) { $fail += "selftest T1-E2.07: -Check did not report PRUNE for the stale skill-internal file" }
+        if ($stOutRt -match 'DRIFT') { $fail += "selftest T1-E2.07: -Check reported DRIFT instead of PRUNE for a retired skill-internal file" }
+        if (-not ($stOutRt -match 'skill\s+wiki-bootstrap\s+CURRENT')) { $fail += "selftest T1-E2.07: wiki-bootstrap skill did not report CURRENT beside its PRUNE" }
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E2.07: convergence re-sync failed (exit $LASTEXITCODE)" }
+        if ([System.IO.File]::ReadAllText($rtBc) -match '\| parcel-fast \|') { $fail += "selftest T1-E2.07: orphan registry row survived the sync (F1 delete pass failed)" }
+        if (Test-Path $rtStaleSkill) { $fail += "selftest T1-E2.07: stale skill-internal file survived the sync (F2 prune failed)" }
+        $rtOcAfter = [System.IO.File]::ReadAllText($rtOcPath)
+        $rtPsM2 = [regex]::Match($rtOcAfter, '"parcel-sprint"\s*:\s*\{')
+        $rtPs2Open = $rtOcAfter.IndexOf('{', $rtPsM2.Index); $rtPs2Close = Find-MatchingBrace $rtOcAfter $rtPs2Open
+        if ($rtOcAfter.Substring($rtPs2Open, $rtPs2Close - $rtPs2Open + 1) -notmatch '"wiki-writer":\s*"allow"') {
+            $fail += "selftest T1-E2.07: parcel-sprint task allow-list was not stamped from the seed (F3 stamp failed)"
+        }
+        try { $null = $rtOcAfter | ConvertFrom-Json } catch { $fail += "selftest T1-E2.07: target opencode.json invalid after structural stamp" }
+        $rtHash1 = @((Get-FileHash $rtBc -Algorithm SHA256).Hash, (Get-FileHash $rtOcPath -Algorithm SHA256).Hash)
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E2.07: idempotence re-sync failed (exit $LASTEXITCODE)" }
+        $rtHash2 = @((Get-FileHash $rtBc -Algorithm SHA256).Hash, (Get-FileHash $rtOcPath -Algorithm SHA256).Hash)
+        if (($rtHash1 -join '|') -ne ($rtHash2 -join '|')) { $fail += "selftest T1-E2.07: second sync moved base-context.md or opencode.json (retirement transport not idempotent)" }
         # End-to-end -Check gate: immediately after a successful sync the target must
         # report IN SYNC (manifest stamped, prefix-locked agents excluded from the hash).
         # This guards both post-sync bookkeeping bugs: the phantom UPGRADE from an
@@ -375,7 +435,11 @@ if ($Check) {
         $ignore = @($prunePaths | Where-Object { $_.StartsWith($dirPrefix) } | ForEach-Object { $_.Substring($dirPrefix.Length) })
         Compare-Item 'dir' $dir (Join-Path $srcRoot $dir) (Join-Path $tgtRoot $dir) $ignore
     }
-    foreach ($slug in $portableSkills) { Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") }
+    foreach ($slug in $portableSkills) {
+        $skillPrefix = ".devops/skills/$slug/"
+        $skillIgnore = @($prunePaths | Where-Object { $_.StartsWith($skillPrefix) } | ForEach-Object { $_.Substring($skillPrefix.Length) })
+        Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") $skillIgnore
+    }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
     Test-PrunePresent -TgtRoot $tgtRoot -Manifest $manifest
 
