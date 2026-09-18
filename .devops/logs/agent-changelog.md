@@ -11,6 +11,13 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-18 - PO wording: what/where/when/why + linked artefacts
+
+**Why:** User's own words replace my paraphrase in `communication-rules.md` — the PO wants what, where, when and why, with artefacts linked for reference and review. Folded into machinery 62 (unsynced, no bump). Skips: Phases 2–6 (one-line reword, nothing new).
+**Ref:** `8fe6953`
+
+---
+
 ## 2026-09-18 - Retirement transport gaps (T1-E2.07, machinery 62 -> 63)
 
 **Why:** Adds travelled but retirements stranded: registry delete pass, skill prune mask + declaration, structural task stamp, version discipline + v9 — next satellite pull self-heals (GRID-Link 54→59 findings). Skips: Phases 2–3 (no `src/`, no `.wiki/` delta); one process lesson routed (mid-session trunk collision).
