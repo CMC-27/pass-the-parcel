@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-18 - T1-E4.02 closed as resolved-by-direct-fix
 
 **Why:** The parked topology review never ran as a parcel because its concrete misfire was already fixed directly: `e80950e` (one-orchestrator-delegates-phase-groups, 15 files) plus this session's reviewer `edit: allow` unblock. Registered as Completed with the residual audit named as deferred by operator choice. Triage Panel back to queue clear.
-**Ref:** working tree (uncommitted; baseline `df228de`)
+**Ref:** `aeaa0de`
 
 ---
 
