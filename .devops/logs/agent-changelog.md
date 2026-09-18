@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-18 - Retirement transport gaps (T1-E2.07, machinery 62 -> 63)
 
 **Why:** Adds travelled but retirements stranded: registry delete pass, skill prune mask + declaration, structural task stamp, version discipline + v9 — next satellite pull self-heals (GRID-Link 54→59 findings). Skips: Phases 2–3 (no `src/`, no `.wiki/` delta); one process lesson routed (mid-session trunk collision).
-**Ref:** `2dceac1` (plan), wrap-up pending
+**Ref:** `2dceac1` (plan) + `572649a` (wrap-up, machinery 63)
 
 ---
 
