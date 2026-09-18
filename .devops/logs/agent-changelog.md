@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-18 - User-facing conversation is dev-to-PO (machinery 60 -> 61)
 
 **Why:** User found agent chat overly technical (senior-to-senior). New canonical rule in `communication-rules.md` § User-facing conversation — practical outcomes first, no unexplained jargon; pointed at from `AGENTS.md:11`, live `base-context.md:10` (prefix re-synced to 9 agents), and both seed templates so new satellites inherit it. Existing satellites keep local `base-context.md`/`AGENTS.md` (only registry rows force-push), so they need the one-liner added manually. Skips: Phases 2–4 (docs/process-only, no plan); Phase 5–6 (nothing new — preference codified as the rule itself).
-**Ref:** `PENDING_HASH`
+**Ref:** `b409757`
 
 ---
 
