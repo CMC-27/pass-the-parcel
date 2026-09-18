@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-19 - T1-E2.02 ruled won't-fix, parked plan retired
 
 **Why:** Operator ruling per Managed Simplicity: 370-line script sits under the 400-line threshold, so the split's three new wiring points exceed the benefit. Parked file retired to `.devops/archive/`; register Completed; `REFACTORING.md` row to WATCH. Backlog open queue fully clear (T1/T2/T3).
-**Ref:** working tree (uncommitted)
+**Ref:** `8a096ce`
 
 ---
 
