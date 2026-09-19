@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 9
-updated: 2026-09-18
+version: 10
+updated: 2026-09-20
 ---
 
 # Sprint Run — Batch Queue Runner

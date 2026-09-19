@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 18
-updated: 2026-09-18
+version: 19
+updated: 2026-09-20
 
 SEED TEMPLATE — copy to <satellite root>/.opencode/plans/base-context.md and customize.
 

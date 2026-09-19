@@ -11,6 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-20 - Model routing inverted: no agent declares a model (machinery 66 -> 67)
+
+**Why:** `T1-E1.03`'s registry-canonical force-stamp is reversed — the third position on this axis after `T1-E1.01`, and the first to **delete** the binding rather than relocate it. All 11 frontmatter `model:` lines and all 11 `opencode.json` values are gone; the registry drops to two cells (key + capability class) as the recommendation input for a new **run-time** question — per gate (A/B/C/D) in `MULTI`, one per batch under `@sprint-run`. The guarding gate was **moved, never deleted** (`@Managed Simplicity`): `check-parcel-prefix` now asserts **absence** (`NOMODEL`) and `sync-architecture` strips instead of stamping. Runtime asymmetry stated, not blurred: VS Code honours a spawn-time model, opencode cannot (#6651 open) and halts explicitly.
+**Ref:** `32179bb`
+
 ## 2026-09-18 - In-place single-claim execution, worktree retired (machinery 64 -> 66)
 
 **Why:** Operator runs one sprint / one plan at a time and verifies in the single dev server — a worktree would need a second server to check. Claim protocol is now in-place only (no worktree, no plan branch); `@sprint-run` deviations 4 -> 3; skills + seeds bumped; prefix re-inlined ×9 (PASS). Gates: wiki_lint 0, claims 0 stale, fanout 0 unauthorised, 62 fixtures OK.

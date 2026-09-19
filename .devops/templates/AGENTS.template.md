@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 16
-updated: 2026-09-18
+version: 17
+updated: 2026-09-20
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
