@@ -282,7 +282,7 @@ When the journey is complete (or manually halted by the user), **append to the s
 * **Governance check:** numbering / naming / frontmatter / link hygiene per [.wiki/rules/](../../../.wiki/rules/README.md); company-specific facts stay in the satellite's company knowledge area.
 ```
 
-> The plan is then executed under the [pass-the-parcel](../pass-the-parcel/SKILL.md) workflow (one phase-group per session, human gates A–D) and archived via [agent-wrap-up](../agent-wrap-up/SKILL.md) when complete. Structural issues found during the session (broken links, orphans, frontmatter defects) are re-checked with [wiki-lint](../wiki-lint/SKILL.md). Notable, reusable findings should be offered to [knowledge-capture](../knowledge-capture/SKILL.md).
+> The plan is then executed under the [pass-the-parcel](../pass-the-parcel/SKILL.md) workflow (one session owns the plan end-to-end, human gates A–D) and archived via [agent-wrap-up](../agent-wrap-up/SKILL.md) when complete. Structural issues found during the session (broken links, orphans, frontmatter defects) are re-checked with [wiki-lint](../wiki-lint/SKILL.md). Notable, reusable findings should be offered to [knowledge-capture](../knowledge-capture/SKILL.md).
 
 ---
 

@@ -139,7 +139,7 @@ When the final "have we got all context" question is answered `A. We are good`:
 
 3. **Draft the template/pattern** (e.g. `.wiki/templates/<pattern>.md` v2) for Gate A review — front-loaded per [document-structure](../../../.wiki/rules/document-structure.md), link-not-copy, company-agnostic.
 
-4. **Handoff to pass-the-parcel:** the plan carries state via its State Dashboard; execution waits for Gate A/B/C per the [pass-the-parcel](../pass-the-parcel/SKILL.md) lifecycle (one phase-group per session).
+4. **Handoff to pass-the-parcel:** the plan carries state via its State Dashboard; execution waits for Gate A/B/C per the [pass-the-parcel](../pass-the-parcel/SKILL.md) lifecycle. One session owns the plan: the orchestrator advances group to group in the session it started in — spawning per group in `MULTI`, running inline in `SINGLE` — and stops only at a gate.
 
 ---
 

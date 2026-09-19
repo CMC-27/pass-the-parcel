@@ -11,6 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-20 - One session owns the plan; session-rotation phrasing retired (machinery 67 -> 68)
+
+**Why:** `T1-E4.02`'s direct fix (`e80950e`) removed the session-rotation rule but never stated its replacement, and three live docs kept the `one phase-group per session` wording — so the orchestrator re-derived the retired rule and handed the operator an *"open a fresh session / say continue"* baton, twice, on `T1-E1.04`. The positive rule now lives once in `@pass-the-parcel` § Review Gates item 1 (v25 -> v26) and is mirrored into the shared prefix + seed (all 9 locked agents), the orchestrator body, and the plan template's State & Gates boilerplate (*records state, never a handoff instruction*); the three fragments (`q-and-a`, `true-or-false`, `18-knowledge-capture.md`) are swept, and *Strict Context Isolation* is redefined as the **sub-agent's** cold context. Proved by a scoped live-surface grep: the four stale phrases return **0** hits (`.devops/archive/**` + `.devops/logs/**` excluded). Gates: `check-parcel-prefix` PASS x9 / NOMODEL x11, `check-utf8-agents` ALL CLEAN (181 files), `wiki_lint` 0, `wiki_claims` 0 stale, `rule_fanout` 0 unauthorised across 8 rules.
+**Ref:** _stamp at wrap-up_
+
 ## 2026-09-20 - Model routing inverted: no agent declares a model (machinery 66 -> 67)
 
 **Why:** `T1-E1.03`'s registry-canonical force-stamp is reversed — the third position on this axis after `T1-E1.01`, and the first to **delete** the binding rather than relocate it. All 11 frontmatter `model:` lines and all 11 `opencode.json` values are gone; the registry drops to two cells (key + capability class) as the recommendation input for a new **run-time** question — per gate (A/B/C/D) in `MULTI`, one per batch under `@sprint-run`. The guarding gate was **moved, never deleted** (`@Managed Simplicity`): `check-parcel-prefix` now asserts **absence** (`NOMODEL`) and `sync-architecture` strips instead of stamping. Runtime asymmetry stated, not blurred: VS Code honours a spawn-time model, opencode cannot (#6651 open) and halts explicitly.

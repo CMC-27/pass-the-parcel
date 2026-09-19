@@ -310,6 +310,8 @@ triage: SINGLE              # MULTI | SINGLE — commit-time topology recommenda
 ## 📍 State & Gates (CACHE-ANCHORED — update ONLY this section at gate transitions)
 
 > **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above AND the frozen **Plan Settings** block at the top stay byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
+>
+> **This section records state, never a handoff instruction** — a plan is never a baton between sessions. The orchestrator advances group to group in the session it started in; see `@pass-the-parcel` § Review Gates.
 
 | Metric | Value |
 |---|---|

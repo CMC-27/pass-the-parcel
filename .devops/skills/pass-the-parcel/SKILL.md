@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 25
+version: 26
 updated: 2026-09-20
 ---
 
@@ -175,10 +175,12 @@ Full contract: `.devops/rules/plan-lifecycle.md` § Deviations and the `sprint-r
 
 To prevent context inflation and ensure complete control over design and execution, the agent **MUST** adhere to strict execution boundaries:
 
-1. **Delegation & gate halts:**
-   - One orchestrator owns the plan end-to-end and delegates **one phase grouping at a time** (scoping, planning, or executing) to its sub-agent.
-   - Once a phase grouping is integrated into the plan, the orchestrator **halts at the gate for the verdict** and resumes on approval. It never skips past an uncleared gate and never touches code before Gate C clearance.
+1. **One session, one plan — delegation & gate halts:**
+   - **One session owns the plan.** The orchestrator drives it end-to-end **in the session it was started in**. It never asks the operator to open a new session, start a fresh conversation, or "say continue" between phase groups — that is a defect, not a handoff.
+   - **Between groups it stays in-session:** `MULTI` spawns the next `ptp-*` subagent; `SINGLE` plays the next persona **inline**. *Strict Context Isolation* names the **sub-agent's** cold context (it reads the plan and exits) — never an instruction to rotate the operator's session.
+   - Integrate the handback into the plan, then **halt at the gate for the verdict** and resume on approval **in the same session**. It never skips past an uncleared gate and never touches code before Gate C clearance.
    - Sub-agents never advance the pipeline; only the orchestrator does.
+   - **Never write a session-handoff note into a plan** — the plan records state, not a baton.
    
 2. **The Mandatory Review Gates (A-D):**
    - **Gate A (Scope):** Stop after completing **Phases 1-3** (+ Phase 3.5 in AUTO mode). Present the scope perimeter (In-Scope/Out-of-Scope), the Phase 3 Q&A record, and any conflict warnings. **If rejected:** set Status → `PHASE_1`, Gate A → `REJECTED`, append rejection reasons to the plan, re-run Group A on the affected questions.

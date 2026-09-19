@@ -47,7 +47,9 @@
 
 **Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
-- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same per-group delegation, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single `ptp-parcel-fast` run (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline **in the same session** (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same per-group delegation, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single `ptp-parcel-fast` run (see `.devops/rules/plan-lifecycle.md` § Deviations).
+
+**One session, one plan.** The orchestrator stays in the session it started in and advances group to group there — spawning the next `ptp-*` subagent (`MULTI`) or running the next persona inline (`SINGLE`); a new session is **never** requested of the operator, and a handoff note is **never** written into a plan. See `@pass-the-parcel` § Review Gates.
 
 **Selection is driven by task complexity** (blast radius, contract/schema change, reversibility/risk, ambiguity, novelty). All signals low -> propose `SINGLE`; any signal high -> `MULTI`. The orchestrator **recommends**, the user **confirms** at plan start — unless the orchestrator runs a **locked preset** that fixes one or both axes (see **Orchestrator Presets** in the orchestrator prefix). Full contract: `@pass-the-parcel` § Agent Topology.
 
