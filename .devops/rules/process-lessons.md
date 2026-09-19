@@ -3,7 +3,7 @@ title: Process & Tooling Lessons
 tags: [dev, rules, process, lessons, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-18
+last-reviewed: 2026-09-20
 related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-capture/SKILL.md, ../skills/knowledge-consolidation/SKILL.md]
 ---
 
@@ -32,7 +32,7 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 
 - **[2026-09-16] A stated non-negotiable is reversed as a mode, never by drift** — Phase 3's one-question-at-a-time rule (KC rule 8) charged the user one round-trip per decision; where the ask surface accepts a question *array* the whole decision surface is answerable in one sitting. *Do instead:* make it a mode (batched where the surface supports it, sequential otherwise; the final "is this all the context required?" confirm stays standalone), record the rationale here, and sweep **every** surface that restates it — the rule lived in seven live places, and a partial flip is indistinguishable from drift.
 
-- **[2026-09-16] Verify a rule's retirement across EVERY live surface, not just the plan's declared writes** — `T1-E3.07` retired the negative `AUTO` test and grepped only the prefix + `ptp-parcel-fast`, so its "mirror gone" claim was true only of the surfaces it looked at; the same sentence survived in `pass-the-parcel/SKILL.md`, `plan-lifecycle.md` and `parcel.agent.md`. *Do instead:* grep the rule's **distinctive phrase** over the whole machinery surface (`.devops/{agents,skills,rules}`, `.opencode/plans/base-context.md` + its seed, `HOW-TO.md`) and count live copies **before** claiming retirement — and have the Gate D evidence cite the surfaces swept, not just the match count.
+- **[2026-09-16] Verify a rule's retirement across EVERY live surface, not just the plan's declared writes** — `T1-E3.07` retired the negative `AUTO` test and grepped only the prefix + `ptp-parcel-fast`, so its "mirror gone" claim was true only of the surfaces it looked at; the same sentence survived in `pass-the-parcel/SKILL.md`, `plan-lifecycle.md` and `parcel.agent.md`. *Do instead:* grep the rule's **distinctive phrase** over the whole machinery surface (`.devops/{agents,skills,rules}`, `.opencode/plans/base-context.md` + its seed, `HOW-TO.md`) and count live copies **before** claiming retirement — and have the Gate D evidence cite the surfaces swept, not just the match count. **And state the replacement:** a removal with no positive rule leaves a vacuum the next run fills with the nearest plausible reading (`T1-E4.03`: session-rotation survived a correct sweep and was re-derived, because nothing said what had replaced it). **Keep that check quotation-safe** — a guard must not contain the token it forbids, or the zero-hit test can never be zero.
 
 - **[2026-09-16] In a self-referential sprint a plan's `touches` goes stale as its siblings land** — waves 1 and 2 of Sprint 9 each found 2-4 authored files missing from the claim front-matter: surfaces named in the plan's own Constraints/steps, *plus* files that became the canonical home only **after** an earlier wave landed (E3.06 moved the AUTO clause into `plan-lifecycle.md`, which E3.07 then had to declare). *Do instead:* re-verify `touches` against the plan's body **and** against the live canonical-home convention immediately before claiming — a claim-time amendment is a protocol deviation, not a bookkeeping fix.
 

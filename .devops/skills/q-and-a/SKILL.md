@@ -1,8 +1,8 @@
 ---
 name: q-and-a
 description: Make sure to use this skill whenever the user mentions "Q&A", "gather requirements", "ask me questions", "requirements discovery", "interview me", or wants a new concept, template, pattern or process defined via a dedicated <slug>-QA.md log, one question at a time with the interactive question tool. Use it for Gate A discovery, when a new concept/template/pattern needs to be defined, or when you need to capture exactly what the SME needs before authoring. Companion to true-or-false (Q&A gathers, True/False confirms).
-version: 3
-updated: 2026-09-06
+version: 4
+updated: 2026-09-20
 ---
 
 # Q&A — Requirements Gathering

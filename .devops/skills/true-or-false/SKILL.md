@@ -1,8 +1,8 @@
 ---
 name: true-or-false
 description: Make sure to use this skill whenever the user mentions "true or false", "validate the wiki", "does the knowledge base match", "is this accurate", "step-by-step validation", "check against reality", or wants to validate knowledge-base/process docs against human intent one step at a time with a dual SME (plain language) + Knowledge Curator (document proof) lens. Use it to eliminate AI-fabricated or unsourced content, surface stale, wrong or dead knowledge, validate a workflow or journey step-by-step, or check a process document against live practice.
-version: 5
-updated: 2026-09-17
+version: 6
+updated: 2026-09-20
 ---
 
 # True or False — Knowledge Base Alignment Workflow
