@@ -1,7 +1,6 @@
 ---
 description: "Parcel Product Reviewer sub-agent. Executes Phase 7 of a parcel plan by loading the ptp-smooth-operator skill and auditing the Phase 5 plan for UX friction, scope containment, and user-journey alignment."
 tools: [read, edit, search]
-model: DeepSeek V4.1 Flash
 user-invocable: false
 ---
 > **PREFIX-LOCKED:** Canonical shared prefix for all parcel/ptp agents. The **shared prefix** (everything above the ORCHESTRATOR-ONLY block) is inlined byte-for-byte after the YAML frontmatter of every `.devops/agents/parcel.agent.md`, `.devops/agents/parcel-sprint.agent.md` and `.devops/agents/ptp-*.subagent.md` file. The **ORCHESTRATOR-ONLY block** (delegation map + model registry + orchestrator presets) is inlined only into the orchestrator agents (`parcel.agent.md`, `parcel-sprint.agent.md`). Do NOT edit either block in any agent file — edit this file and re-sync (see `scripts/check-parcel-prefix.ps1`). Each `ptp-*` agent also embeds its skill verbatim between `<!-- EMBED:START -->` / `<!-- EMBED:END -->` markers — regenerate with `-Sync`.

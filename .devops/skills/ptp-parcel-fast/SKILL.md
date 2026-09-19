@@ -39,7 +39,9 @@ A plan whose own text instructs a per-plan counter bump is **overruled by this s
 
 ## Plan Settings writer (frozen preset)
 
-The chain's **first** action — at claim time, before Phase 1 — writes the plan's `## ⚙️ Plan Settings` block as the locked preset: `Mode=AUTO`, `Agents=SINGLE`. This closes the gap where plan-start config had no assigned writer under the batch path. The host (`parcel-sprint`) never authors it, and it is frozen thereafter.
+The chain's **first** action — at claim time, before Phase 1 — writes the plan's `## ⚙️ Plan Settings` block as the locked preset: `Mode=AUTO`, `Agents=SINGLE`, and `Models=<the batch model the host handed down>`. This closes the gap where plan-start config had no assigned writer under the batch path. The host (`parcel-sprint`) never authors it, and it is frozen thereafter.
+
+**The `Models` value is handed down, never chosen here.** The batch host asks one model question for the whole batch at `@sprint-run` § 1 step 7 and passes the answer to this runner. Record it verbatim: `CLI default` when the operator declined, otherwise the concrete model the operator selected. This runner **never** asks the question itself and never substitutes a model of its own — a batch that silently runs on a different model than the operator chose is the failure this contract prevents. If the runtime cannot honour a concrete override, the host's stop-the-line (§ 5) fires before this runner is spawned.
 
 **Record the flag in that same block.** When the claimed plan's claim front-matter carries `triage: MULTI`, the provenance line written with the preset must **name the flag** and state plainly that this run is `SINGLE` under the batch preset with **no independent review** — the operator accepted that risk at the fork (`@sprint-run` § 1), and the record belongs in the plan, not in the conversation log. Recording it at claim time is the one legal moment (the block is written once); Gate D then reads the risk instead of discovering it. Canonical semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 

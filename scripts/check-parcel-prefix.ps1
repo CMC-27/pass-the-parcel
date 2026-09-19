@@ -7,10 +7,9 @@ param(
     Verifies (and optionally repairs) the PREFIX-LOCKED byte-for-byte contract
     between .opencode/plans/base-context.md and every PREFIX-LOCKED agent file
     (.devops/agents/parcel*.agent.md + .devops/agents/ptp-*.subagent.md), the
-    verbatim skill-embed contract inside each ptp-* agent file, and model-binding
-    agreement across every binding surface: the live Model Registry, the seed
-    registry, every binding file's frontmatter, opencode.json, and the seed
-    opencode config.
+    verbatim skill-embed contract inside each ptp-* agent file, and the
+    model-ABSENCE invariant across every binding surface: no binding file
+    frontmatter, neither opencode config, and no registry row may declare a model.
 
 .DESCRIPTION
     The pass-the-parcel pipeline relies on a byte-for-byte identical shared prefix
@@ -19,7 +18,7 @@ param(
     CRLF/LF corruption) silently destroys the cache benefit.
 
     base-context.md carries an optional ORCHESTRATOR-ONLY block (delegation map +
-    model registry). Content ABOVE that block is the shared prefix (inlined into all
+    capability-class registry). Content ABOVE that block is the shared prefix (inlined into all
     locked agents); the full file (markers stripped) is the orchestrator prefix (inlined
     into the orchestrator agents only). If the markers are absent, every agent gets the full
     canonical prefix (backward compatible).
@@ -30,25 +29,23 @@ param(
 
     Agents physically live in .devops/agents/ as VS Code custom agent files
     (parcel.agent.md / parcel-sprint.agent.md = selectable, ptp-*.subagent.md = subagents). Each carries
-    YAML frontmatter (description/tools/model/user-invocable) followed by the
+    YAML frontmatter (description/tools/user-invocable) followed by the
     PREFIX-LOCKED prefix and the agent-unique content (everything from the first
     "## Delegated Skill:" heading, or "You are the" for the orchestrator).
 
-    Model bindings propagate one way: the Model Registry in base-context.md is the
-    only source, and agent frontmatter + opencode.json are derived projections
-    (force-stamped by sync-architecture.ps1 on every sync). Every binding surface is
-    validated: each registry key must resolve to a binding file and vice versa; each
-    binding file's frontmatter `model:` must equal the registry VS Code column;
-    opencode.json `agent.<key>.model` must equal the registry opencode column; the
-    seed registry (.devops/templates/base-context.template.md) must agree cell-for-cell
-    with the live registry; and the seed opencode config
-    (.devops/templates/opencode.template.json) must carry the same models — no
-    placeholders. A missing/empty opencode `agent` block is a FAIL (the pre-v20
-    VS Code-only opt-out is retired).
+    Model routing is INHERITED (T1-E1.04). No agent declares a model; every agent runs on the
+    model selected in the CLI / picker. The `## Model Registry` in base-context.md is now a
+    CAPABILITY-CLASS reference (two cells per row) that feeds the run-time selection question -
+    it is not a binding. This script asserts the invariant by ABSENCE, reporting `NOMODEL` per
+    clean binding surface and failing on:
+      - a `model:` line in any binding file's frontmatter;
+      - an `agent.<key>.model` in opencode.json or its seed;
+      - a registry row carrying anything other than exactly two cells;
+      - a registry key with no agent file, or a binding file with no registry row (coverage).
 
     Binding files (parcel* / ptp-* / wiki-*) are resolved from registry keys, NOT from
     the PREFIX-LOCKED file list: wiki-writer.agent.md and wiki-verifier.subagent.md
-    carry bindings but no shared prefix, so they must never enter the prefix pass.
+    carry no shared prefix, so they must never enter the prefix pass.
 
     Without -Sync:  prints PASS/FAIL per agent file and exits non-zero if any drift.
     With -Sync:     rebuilds each agent file's prefix from base-context.md and refreshes
@@ -104,13 +101,19 @@ if (-not $agentFiles) { throw "No PREFIX-LOCKED agent files found (parcel*.agent
 
 $failures = @()
 
-# --- Model binding registry (see .devops/skills/model-routing/SKILL.md) ---
-# Parse the canonical Model Registry table: | Agent key | Capability class | VS Code model | opencode model |
-# Each agent file's frontmatter `model:` must equal the value in the column matching its runtime.
-$modelBindings = @{}
+# --- Capability-class registry (see .devops/skills/model-routing/SKILL.md) ---
+# Parse the canonical `## Model Registry` table: | Agent key | Capability class |
+# Rows must carry EXACTLY TWO cells. A model column is the failure this check now asserts -
+# the invariant inverted in T1-E1.04: no binding surface may declare a concrete model.
+$registryKeys = @{}
 foreach ($line in ($canonical -split "`n")) {
-    if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
-        $modelBindings[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
+    if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|') {
+        $cells = @(($line.Trim().Trim('|') -split '\|') | ForEach-Object { $_.Trim() })
+        if ($cells.Count -ne 2) {
+            $failures += "registry row must carry exactly 2 cells - found $($cells.Count) for key '$($cells[0])' in .opencode/plans/base-context.md"
+        } else {
+            $registryKeys[$cells[0]] = $cells[1]
+        }
     }
 }
 
@@ -205,9 +208,14 @@ foreach ($file in $agentFiles) {
 
 }
 
-# --- Model binding pass (declarative routing; see model-routing skill) ---
+# --- Model-absence pass (INVERTED; see model-routing skill §4) ---
 # Decoupled from the prefix pass on purpose: binding files include the wiki-* agents,
-# which carry `model:` frontmatter but NOT the shared PREFIX-LOCKED prefix.
+# which carry no shared PREFIX-LOCKED prefix.
+# The invariant is now ABSENCE. No binding surface may declare a concrete model:
+#   (a) a `model:` line in any binding file's frontmatter  -> FAIL
+#   (b) an `agent.<key>.model` in either config            -> FAIL
+#   (c) a third cell in any registry row                   -> FAIL (checked above)
+# Coverage stays bidirectional: key-without-file and file-without-row both FAIL.
 $bindingFiles = @{}
 foreach ($bf in @(Get-ChildItem -Path $agentsDir -File -ErrorAction SilentlyContinue)) {
     if ($bf.Name -notmatch '\.(agent|subagent)\.md$') { continue }
@@ -216,10 +224,15 @@ foreach ($bf in @(Get-ChildItem -Path $agentsDir -File -ErrorAction SilentlyCont
     $bindingFiles[$bKey] = $bf
 }
 
-foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+foreach ($key in ($registryKeys.Keys | Sort-Object)) {
     if (-not $bindingFiles.ContainsKey($key)) {
         $failures += "Model Registry key '$key' has no agent file in .devops/agents/ ($key.agent.md or $key.subagent.md)"
-        continue
+    }
+}
+
+foreach ($key in ($bindingFiles.Keys | Sort-Object)) {
+    if (-not $registryKeys.ContainsKey($key)) {
+        $failures += "$($bindingFiles[$key].Name): no Model Registry row for '$key' - every binding file needs a row in base-context.md"
     }
     $bfile = $bindingFiles[$key]
     $braw = [System.IO.File]::ReadAllText($bfile.FullName) -replace "`r`n", "`n"
@@ -229,59 +242,43 @@ foreach ($key in ($modelBindings.Keys | Sort-Object)) {
         if ($bclose -ge 0) { $bfm = $braw.Substring(0, $bclose + 5) }
     }
     $bModelMatch = [regex]::Match($bfm, '(?m)^model:\s*(.+?)\s*$')
-    if (-not $bModelMatch.Success) {
-        $failures += "$($bfile.Name): frontmatter has no 'model:' line but a registry row exists"
+    if ($bModelMatch.Success) {
+        $failures += "$($bfile.Name): model binding declared - frontmatter must not carry 'model:' (found '$($bModelMatch.Groups[1].Value.Trim('`', ' '))'). See model-routing skill section 4."
     } else {
-        $bActual = $bModelMatch.Groups[1].Value.Trim('`', ' ')
-        $bExpected = $modelBindings[$key]['vscode']
-        if ($bActual -ne $bExpected) {
-            $failures += "$($bfile.Name): model binding mismatch - frontmatter '$bActual' != registry '$bExpected' (vscode). See model-routing skill section 3."
-        } else {
-            Write-Output "MODEL $bActual  $($bfile.Name)"
-        }
-    }
-}
-foreach ($key in ($bindingFiles.Keys | Sort-Object)) {
-    if (-not $modelBindings.ContainsKey($key)) {
-        $failures += "$($bindingFiles[$key].Name): no Model Registry row for '$key' - every binding file needs a row in base-context.md"
+        Write-Output "NOMODEL $($bfile.Name)"
     }
 }
 
 # --- Seed registry <-> live registry alignment ---
-# The seed a satellite authors from must describe the same bindings the template runs,
-# otherwise a bootstrapped satellite starts misaligned. Blank cells are a FAIL: there is
-# no legal "unbound seed".
+# The seed a satellite authors from must describe the same capability classes the template
+# runs, so a bootstrapped satellite starts aligned. Rows are 2 cells; a model column is a FAIL.
 $seedRegistryPath = Join-Path $root '.devops\templates\base-context.template.md'
 if (-not (Test-Path $seedRegistryPath)) {
     $failures += "seed registry not found: .devops/templates/base-context.template.md"
 } else {
     $seedText = ([System.IO.File]::ReadAllText($seedRegistryPath)) -replace "`r`n", "`n"
-    $seedBindings = @{}
+    $seedKeys = @{}
     foreach ($line in ($seedText -split "`n")) {
-        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
-            $seedBindings[$Matches[1]] = @{ vscode = $Matches[3]; opencode = $Matches[4] }
-        }
-    }
-    foreach ($key in ($modelBindings.Keys | Sort-Object)) {
-        if (-not $seedBindings.ContainsKey($key)) {
-            $failures += "seed base-context.template.md: no registry row for '$key'"
-            continue
-        }
-        foreach ($col in @('vscode', 'opencode')) {
-            $sv = $seedBindings[$key][$col]
-            $lv = $modelBindings[$key][$col]
-            if ([string]::IsNullOrWhiteSpace($sv)) {
-                $failures += "seed base-context.template.md: registry row '$key' has a blank $col model"
-            } elseif ($sv -ne $lv) {
-                $failures += "seed base-context.template.md: registry row '$key' $col '$sv' != live registry '$lv'"
+        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|') {
+            $cells = @(($line.Trim().Trim('|') -split '\|') | ForEach-Object { $_.Trim() })
+            if ($cells.Count -ne 2) {
+                $failures += "seed base-context.template.md: registry row must carry exactly 2 cells - found $($cells.Count) for key '$($cells[0])'"
+            } else {
+                $seedKeys[$cells[0]] = $cells[1]
             }
         }
     }
-    foreach ($key in ($seedBindings.Keys | Sort-Object)) {
-        if (-not $modelBindings.ContainsKey($key)) {
+    foreach ($key in ($registryKeys.Keys | Sort-Object)) {
+        if (-not $seedKeys.ContainsKey($key)) {
+            $failures += "seed base-context.template.md: no registry row for '$key'"
+        }
+    }
+    foreach ($key in ($seedKeys.Keys | Sort-Object)) {
+        if (-not $registryKeys.ContainsKey($key)) {
             $failures += "seed base-context.template.md: registry row '$key' has no live registry row"
         }
     }
+    Write-Output "SEED-REGISTRY ok  ($($seedKeys.Count) capability-class rows)"
 }
 
 # --- Seed opencode config must carry the same bindings (no placeholders) ---
@@ -294,24 +291,20 @@ if (-not (Test-Path $seedOcPath)) {
         if (-not $seedOc) {
             $failures += "seed opencode.template.json: no agent block"
         } else {
-            foreach ($key in ($modelBindings.Keys | Sort-Object)) {
+            $seedDeclared = 0
+            foreach ($key in ($registryKeys.Keys | Sort-Object)) {
                 $seedProp = $seedOc.PSObject.Properties[$key]
-                $seedExpected = $modelBindings[$key]['opencode']
                 if (-not $seedProp) {
                     $failures += "seed opencode.template.json: no agent entry for '$key'"
                     continue
                 }
                 $seedVal = [string]$seedProp.Value.model
-                if (-not $seedVal) {
-                    $failures += "seed opencode.template.json: agent '$key' has no model (registry expects '$seedExpected')"
-                } elseif ($seedVal -eq '<your provider/model>') {
-                    $failures += "seed opencode.template.json: agent '$key' still has the placeholder model '<your provider/model>'"
-                } elseif ($seedVal -ne $seedExpected) {
-                    $failures += "seed opencode.template.json: agent '$key' model '$seedVal' != registry '$seedExpected'"
-                } else {
-                    Write-Output "SEED-OC-MODEL $seedVal  agent.$key"
+                if ($seedVal) {
+                    $failures += "seed opencode.template.json: agent '$key' declares model '$seedVal' - no agent may declare a model"
+                    $seedDeclared++
                 }
             }
+            if ($seedDeclared -eq 0) { Write-Output "NOMODEL seed opencode.template.json" }
         }
     } catch {
         $failures += "seed opencode.template.json: not valid JSON ($($_.Exception.Message))"
@@ -321,11 +314,11 @@ if (-not (Test-Path $seedOcPath)) {
 Write-Output "---"
 Write-Output ("Canonical source: " + $canonicalPath)
 
-# --- opencode.json <-> Model Registry validation ---
-# Every registry key must exist in the target's agent block with a model matching the
-# registry's opencode column and not the unresolved `<your provider/model>` placeholder.
-# An absent opencode.json, or an absent/empty `agent` block, is a FAIL: the pre-v20
-# VS Code-only opt-out is retired (bindings propagate to all three surfaces).
+# --- opencode.json: no agent may declare a model ---
+# Every registry key must exist in the target's agent block (coverage retained).
+# A declared `model` on ANY agent entry - registry key or not - is a FAIL: the invariant is
+# now absence, so a stray model is as wrong as a mismatched one. An absent opencode.json, or
+# an absent/empty `agent` block, is still a FAIL (the VS Code-only opt-out is retired).
 $ocPath = Join-Path $root 'opencode.json'
 if (-not (Test-Path $ocPath)) {
     $failures += "opencode.json: not present - every satellite carries it (seed: .devops/templates/opencode.template.json)"
@@ -335,26 +328,22 @@ if (-not (Test-Path $ocPath)) {
         $ocAgents = $oc.agent
         $agentProps = if ($ocAgents) { @($ocAgents.PSObject.Properties) } else { @() }
         if ($agentProps.Count -eq 0) {
-            $failures += "opencode.json: no 'agent' block - model binding requires it (seed: .devops/templates/opencode.template.json)"
+            $failures += "opencode.json: no 'agent' block - every satellite carries one (seed: .devops/templates/opencode.template.json)"
         } else {
-            foreach ($key in ($modelBindings.Keys | Sort-Object)) {
-                $prop = $ocAgents.PSObject.Properties[$key]
-                if (-not $prop) {
+            foreach ($key in ($registryKeys.Keys | Sort-Object)) {
+                if (-not $ocAgents.PSObject.Properties[$key]) {
                     $failures += "opencode.json: no agent entry for registry key '$key'"
-                    continue
-                }
-                $val = [string]$prop.Value.model
-                $expected = $modelBindings[$key]['opencode']
-                if (-not $val) {
-                    $failures += "opencode.json: agent '$key' has no model (registry expects '$expected')"
-                } elseif ($val -eq '<your provider/model>') {
-                    $failures += "opencode.json: agent '$key' still has the placeholder model '<your provider/model>'"
-                } elseif ($val -ne $expected) {
-                    $failures += "opencode.json: agent '$key' model '$val' != registry '$expected'"
-                } else {
-                    Write-Output "OC-MODEL $val  agent.$key"
                 }
             }
+            $ocDeclared = 0
+            foreach ($p in $agentProps) {
+                $val = [string]$p.Value.model
+                if ($val) {
+                    $failures += "opencode.json: agent '$($p.Name)' declares model '$val' - no agent may declare a model"
+                    $ocDeclared++
+                }
+            }
+            if ($ocDeclared -eq 0) { Write-Output "NOMODEL opencode.json" }
         }
     } catch {
         $failures += "opencode.json: not valid JSON ($($_.Exception.Message))"
@@ -366,4 +355,4 @@ if ($failures.Count -gt 0) {
     $failures | ForEach-Object { Write-Output "  $_" }
     exit 1
 }
-Write-Output "OK: all PREFIX-LOCKED agents share a byte-identical prefix, every binding surface agrees, and the seed surfaces match the live registry."
+Write-Output "OK: all PREFIX-LOCKED agents share a byte-identical prefix, no binding surface declares a model, and the seed surfaces match the live registry."

@@ -4,15 +4,18 @@
 
 function Get-RegistryBindings {
     # Parse a `## Model Registry` table out of a base-context file:
-    # key -> @{class;vscode;opencode} (class is the capability-class cell, used when
-    # INSERTING a row for a key the target registry does not carry yet).
+    # key -> @{class=<capability class>}. Rows must carry EXACTLY two cells; a row with the
+    # retired model columns is skipped here and fails loudly in check-parcel-prefix.ps1.
+    # Used by the sync to keep the target's capability-class table in step with the source
+    # (rows INSERTED for source growth, PRUNED for source retirement).
     param([string]$Path)
     $map = @{}
     if (-not (Test-Path $Path)) { return $map }
     $text = ([System.IO.File]::ReadAllText($Path)) -replace "`r`n", "`n"
     foreach ($line in ($text -split "`n")) {
-        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|') {
-            $map[$Matches[1]] = @{ class = $Matches[2]; vscode = $Matches[3]; opencode = $Matches[4] }
+        if ($line -match '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|') {
+            $cells = @(($line.Trim().Trim('|') -split '\|') | ForEach-Object { $_.Trim() })
+            if ($cells.Count -eq 2) { $map[$cells[0]] = @{ class = $cells[1] } }
         }
     }
     return $map
@@ -95,20 +98,19 @@ function Add-TargetAgentEntry {
 }
 
 function Update-TargetModelBindings {
-    # Force-propagate the SOURCE Model Registry into the target's binding surfaces:
-    # (1) the target's registry table rows (rewritten, plus rows INSERTED for keys the
-    # target lacks - registry growth must reach an existing satellite - and rows
-    # DELETED for keys the source retired, so a retirement does not leave the
-    # target gate-failing), (2) each target agent file's frontmatter `model:` line,
-    # (3) each present target opencode.json `agent.<key>.model` value, plus (4) the
-    # structural `permission.task` allow-list of the locked-preset host `parcel-sprint`.
-    # There is no preservation branch: a satellite-side rebind is transient by contract.
-    # ponytail: naive 4-cell registry row rewrite keyed on the first cell - a reordered or
-    # 3-cell table is left alone and fails loudly in check-parcel-prefix instead.
-    # ponytail: missing agent entries are inserted whole from the target's own synced seed;
-    # an entry the satellite already authored only ever has its `model` value rewritten.
-    # A target whose `agent` object cannot be located (empty object / hand-minified JSON) is
-    # still not repaired - it reports BINDING-SKIP and the validator FAILs loudly.
+    # Propagate the SOURCE capability-class registry into the target, and REMOVE every
+    # concrete model binding from it (T1-E1.04 - the invariant is now absence):
+    # (1) the target's registry table rows (rewritten to 2 cells, rows INSERTED for source
+    #     growth, rows DELETED for source retirement),
+    # (2) any `model:` line in a target agent file's frontmatter is REMOVED,
+    # (3) any `agent.<key>.model` in the target's opencode.json is REMOVED,
+    # (4) the structural `permission.task` allow-list of the locked-preset host
+    #     `parcel-sprint` is stamped (unchanged - it is not a model binding).
+    # ponytail: the removal is a member-line delete keyed on the exact `model` JSON key -
+    # a model smuggled under another key is not detected; the target's own
+    # check-parcel-prefix.ps1 fails loudly instead. JSON validity is re-checked after the
+    # strip and the edit is REVERTED if it would not parse, so a satellite is never left
+    # with a broken config.
     param([string]$SrcRoot, [string]$TgtRoot, [switch]$DryRun)
     $srcRegistry = Get-RegistryBindings (Join-Path $SrcRoot '.opencode/plans/base-context.md')
     if ($srcRegistry.Count -eq 0) {
@@ -116,16 +118,15 @@ function Update-TargetModelBindings {
         return
     }
     if ($DryRun) {
-        Write-Output ("DRYRUN would stamp {0} model binding(s) into the target" -f $srcRegistry.Count)
+        Write-Output ("DRYRUN would reconcile {0} capability-class row(s) and strip model bindings from the target" -f $srcRegistry.Count)
         return
     }
 
     # 1. Target registry table (repo-specific file: rows only, prose untouched).
-    #    Existing rows are REWRITTEN to the source binding; rows for keys the target
-    #    does not carry are INSERTED after the last existing registry row, so a
-    #    template-side registry growth (e.g. v39's 10 -> 12 rows) reaches an
-    #    already-bootstrapped satellite instead of leaving the target's own
-    #    check-parcel-prefix.ps1 permanently red (`no Model Registry row for '<key>'`).
+    #    Rows are REWRITTEN to the 2-cell shape (dropping any retired model columns), rows
+    #    for keys the target lacks are INSERTED after the last existing row so template-side
+    #    growth still reaches a bootstrapped satellite, and rows for keys the source retired
+    #    are DELETED so a retirement does not leave the target gate-failing.
     $tgtBc = Join-Path $TgtRoot '.opencode/plans/base-context.md'
     $rows = 0
     if (Test-Path $tgtBc) {
@@ -135,23 +136,20 @@ function Update-TargetModelBindings {
         $present = @{}
         $lastRowIdx = -1
         for ($i = 0; $i -lt $lines.Count; $i++) {
-            if ($lines[$i] -notmatch '^\|\s*([a-z0-9-]+)\s*\|') { continue }
-            $rk = $Matches[1]
+            if ($lines[$i] -notmatch '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|') { continue }
+            $cells = @(($lines[$i].Trim().Trim('|') -split '\|') | ForEach-Object { $_.Trim() })
+            $rk = $cells[0]
             $present[$rk] = $true
             $lastRowIdx = $i
             if (-not $srcRegistry.ContainsKey($rk)) { continue }
-            $cls = ([regex]::Match($lines[$i], '^\|\s*[a-z0-9-]+\s*\|\s*([^|]+?)\s*\|')).Groups[1].Value
-            $newRow = "| $rk | $cls | $($srcRegistry[$rk]['vscode']) | $($srcRegistry[$rk]['opencode']) |"
+            $newRow = "| $rk | $($srcRegistry[$rk]['class']) |"
             if ($lines[$i] -ne $newRow) { $lines[$i] = $newRow; $rows++ }
         }
-        # Insert rows for keys the target registry is missing. ponytail: anchored on the
-        # last existing registry row; a re-laid-out table is not detected - the target's
-        # check-parcel-prefix fails loud instead of a row being silently misplaced.
         $missing = @($srcRegistry.Keys | Where-Object { -not $present.ContainsKey($_) } | Sort-Object)
         if ($lastRowIdx -ge 0 -and $missing.Count -gt 0) {
             $insertAt = $lastRowIdx + 1
             foreach ($mk in $missing) {
-                $lines.Insert($insertAt, "| $mk | $($srcRegistry[$mk]['class']) | $($srcRegistry[$mk]['vscode']) | $($srcRegistry[$mk]['opencode']) |")
+                $lines.Insert($insertAt, "| $mk | $($srcRegistry[$mk]['class']) |")
                 $insertAt++
                 $rows++
             }
@@ -159,15 +157,14 @@ function Update-TargetModelBindings {
         }
         # Delete rows for keys the source registry has retired (machinery T1-E2.07): a
         # retirement must reach an already-bootstrapped satellite, or its own
-        # check-parcel-prefix fails `Model Registry key '<key>' has no agent file` and
-        # the next pull exits 1. ponytail: keyed on the same 4-cell binding-row shape
-        # Get-RegistryBindings parses - any other table row is left alone even when its
-        # first cell is lowercase. Prose is untouched; only rows are removed.
+        # check-parcel-prefix fails `Model Registry key '<key>' has no agent file`.
+        # ponytail: keyed on the same bare-key row shape Get-RegistryBindings parses - the
+        # backticked `## Orchestrator Presets` rows are never matched, and prose is untouched.
         $pruned = @()
         for ($i = $lines.Count - 1; $i -ge 0; $i--) {
-            $pm = [regex]::Match($lines[$i], '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|')
-            if (-not $pm.Success) { continue }
-            if (-not $srcRegistry.ContainsKey($pm.Groups[1].Value)) { $pruned += $pm.Groups[1].Value; $lines.RemoveAt($i); $rows++ }
+            if ($lines[$i] -notmatch '^\|\s*(parcel[a-z0-9-]*|ptp-[a-z0-9-]+|wiki-[a-z0-9-]+)\s*\|') { continue }
+            $pk = @(($lines[$i].Trim().Trim('|') -split '\|') | ForEach-Object { $_.Trim() })[0]
+            if (-not $srcRegistry.ContainsKey($pk)) { $pruned += $pk; $lines.RemoveAt($i); $rows++ }
         }
         if ($pruned.Count -gt 0) {
             Write-Output ("BINDINGS: pruned {0} stale registry row(s): {1}" -f $pruned.Count, (($pruned | Sort-Object) -join ', '))
@@ -179,33 +176,37 @@ function Update-TargetModelBindings {
         Write-Output 'BINDINGS: target has no base-context.md yet - registry not stamped'
     }
 
-    # 2. Target agent frontmatter.
+    # 2. Target agent frontmatter: strip any `model:` line (the absence invariant).
+    #    Frontmatter-scoped so a `model:` string in the agent body is never touched.
     $files = 0
     foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
         $target = Join-Path $TgtRoot ".devops/agents/$key.agent.md"
         if (-not (Test-Path $target)) { $target = Join-Path $TgtRoot ".devops/agents/$key.subagent.md" }
         if (-not (Test-Path $target)) { Write-Output "BINDING-SKIP $key (no agent file in target)"; continue }
         $fraw = [System.IO.File]::ReadAllText($target) -replace "`r`n", "`n"
-        $m = [regex]::Match($fraw, '(?m)^model:\s*(.+?)\s*$')
-        if (-not $m.Success) { Write-Output "BINDING-SKIP $key (no model: line in $key)"; continue }
-        $want = $srcRegistry[$key]['vscode']
-        if ($m.Groups[1].Value -ne $want) {
-            $fraw = $fraw.Remove($m.Index, $m.Length).Insert($m.Index, "model: $want")
-            [System.IO.File]::WriteAllText($target, $fraw, (New-Object System.Text.UTF8Encoding($false)))
-            $files++
+        $flines = [System.Collections.Generic.List[string]]($fraw -split "`n")
+        if ($flines.Count -lt 3 -or $flines[0] -ne '---') {
+            Write-Output "BINDING-SKIP $key (target agent file has no frontmatter)"; continue
+        }
+        $fEnd = -1
+        for ($j = 1; $j -lt $flines.Count; $j++) { if ($flines[$j] -eq '---') { $fEnd = $j; break } }
+        if ($fEnd -lt 0) { Write-Output "BINDING-SKIP $key (target agent frontmatter unterminated)"; continue }
+        $stripped = 0
+        for ($j = $fEnd - 1; $j -ge 1; $j--) {
+            if ($flines[$j] -match '^model:\s') { $flines.RemoveAt($j); $stripped++ }
+        }
+        if ($stripped -gt 0) {
+            [System.IO.File]::WriteAllText($target, ($flines -join "`n"), (New-Object System.Text.UTF8Encoding($false)))
+            $files += $stripped
         }
     }
 
-    # 3. Target opencode.json (repo-specific). Entries the target ALREADY carries: only the
-    #    `model` value is rewritten - permissions, key order and formatting stay as authored -
-    #    EXCEPT the locked-preset host's `permission.task` allow-list (step 4 below), which
-    #    is structural, like `model`. Entries for registry keys the target has NEVER
-    #    authored: inserted whole from the target's own synced seed, then stamped.
-    #    Entries for registry keys the target has NEVER authored: inserted whole from the
-    #    target's own synced seed, then stamped. A key the satellite never authored carries no
-    #    local intent to preserve, so the seed's permission block is the sanctioned default
-    #    (machinery v41 - the ponytail ceiling's own named upgrade path; the ceiling's
-    #    guarantee, "never restructure an entry the satellite authored", still holds).
+    # 3. Target opencode.json (repo-specific). Every `"model"` member line is REMOVED so the
+    #    target declares no binding. Entries for registry keys the target has NEVER authored
+    #    are still inserted whole from the target's own synced seed (a satellite that never
+    #    authored the key carries no local intent to preserve), and the locked-preset host's
+    #    `permission.task` allow-list (step 4) is still stamped - it is structural, not a model.
+    #    The strip is VALIDATED: a JSON that no longer parses is reverted rather than shipped.
     $ocTarget = Join-Path $TgtRoot 'opencode.json'
     $ocCount = 0
     $ocInserted = @()
@@ -231,14 +232,24 @@ function Update-TargetModelBindings {
                 $ocRaw = $added.Text
                 $ocInserted += $key
             }
-            foreach ($key in ($srcRegistry.Keys | Sort-Object)) {
-                $wantOc = $srcRegistry[$key]['opencode']
-                $pattern = '("' + [regex]::Escape($key) + '"\s*:\s*\{[^}]*?"model"\s*:\s*")([^"]*)(")'
-                $hit = [regex]::Match($ocRaw, $pattern)
-                if (-not $hit.Success) { Write-Output "BINDING-SKIP $key (model value not locatable in target opencode.json)"; continue }
-                if ($hit.Groups[2].Value -ne $wantOc) {
-                    $ocRaw = $ocRaw.Remove($hit.Index, $hit.Length).Insert($hit.Index, $hit.Groups[1].Value + $wantOc + $hit.Groups[3].Value)
-                    $ocCount++
+            # 3b. Strip every `"model": "..."` member line from the target config, then prove
+            #     the result still parses. A strip that would break the JSON is REVERTED and
+            #     reported - a satellite is never left holding a config it cannot load.
+            $ocStripped = $ocRaw
+            $ocLines = [System.Collections.Generic.List[string]]($ocStripped -split "`n")
+            $strippedLines = 0
+            for ($j = $ocLines.Count - 1; $j -ge 0; $j--) {
+                if ($ocLines[$j] -match '^\s*"model"\s*:\s*"') { $ocLines.RemoveAt($j); $strippedLines++ }
+            }
+            if ($strippedLines -gt 0) {
+                $candidate = ($ocLines -join "`n")
+                $parses = $true
+                try { $null = $candidate | ConvertFrom-Json } catch { $parses = $false }
+                if ($parses) {
+                    $ocRaw = $candidate
+                    $ocCount = $strippedLines
+                } else {
+                    Write-Output "BINDING-SKIP opencode.json (stripping $strippedLines model member(s) would break the JSON - reverted; fix the file by hand)"
                 }
             }
             # 4. Structural task stamp (machinery T1-E2.07): the locked-preset host's
@@ -299,5 +310,5 @@ function Update-TargetModelBindings {
             if ($ocInserted.Count -gt 0) { Write-Output ("BINDINGS: inserted {0} missing agent entry/entries: {1}" -f $ocInserted.Count, ($ocInserted -join ', ')) }
         }
     }
-    Write-Output "BINDINGS: stamped/inserted $rows registry row(s), $files frontmatter line(s), $ocCount opencode model value(s)"
+    Write-Output "BINDINGS: reconciled $rows registry row(s), stripped $files frontmatter model line(s), stripped $ocCount opencode model member(s)"
 }

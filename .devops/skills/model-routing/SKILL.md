@@ -1,34 +1,33 @@
 ---
 name: model-routing
-description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, rebinding a ptp-* subagent, "which model for", or editing the Model Registry in base-context.md. Guides the per-subagent model choice for the parcel architecture and applies the binding edit safely (frontmatter + registry + prefix sync + validation).
-version: 9
-updated: 2026-09-18
+description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, "which model for", or asking which model a run should use. Guides model choice for the parcel architecture under inherited routing — no agent declares a model, and the operator selects per gate or per batch at run time.
+version: 10
+updated: 2026-09-20
 ---
 
-# SKILL: Model Routing (per-subagent model binding)
+# SKILL: Model Routing (inherited routing + run-time selection)
 
-The parcel architecture uses **declarative model routing**: each agent and subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator **never** selects models at spawn time — it delegates by subagent name only, and the model follows automatically from the subagent's frontmatter.
+The parcel architecture uses **inherited routing**. No agent or subagent declares a model; every agent runs on **the model selected in the CLI / picker**. Where a run actually spawns subagents, the **operator chooses** which model each gate uses, at run time.
 
-## 1. Binding architecture (how models are attached)
+This **supersedes registry-canonical binding** (`T1-E1.03`, 2026-09-13), which itself reversed `T1-E1.01` (2026-09-03, abstract capability slots). The lineage is recorded so the axis is never re-litigated blind: `.01` relocated the binding machinery and it kept growing; `.03` made the registry the single force-stamped source; this revision **deletes** the binding entirely rather than moving it again.
 
-There is exactly **one** source of a model binding, and **two derived runtime surfaces** that must always agree with it:
+## 1. Model resolution (there is no binding surface)
 
-| Layer | File | Format | Example |
-|---|---|---|---|
-| **Canonical registry (the source)** | `.opencode/plans/base-context.md` → `## Model Registry` table | both columns | one row per binding file |
-| *derived* Runtime binding | `.devops/agents/<key>.agent.md` / `<key>.subagent.md` (VS Code) | display name | `model: Qwen3.8 Flash` |
-| *derived* Runtime binding | `opencode.json` → `agent.<key>.model` (opencode) | provider ID | `"opencode-go/qwen3.8-flash"` |
-| *seed mirror* | `.devops/templates/base-context.template.md` + `.devops/templates/opencode.template.json` | same as the registry | cell-for-cell identical |
+| Layer | What it is | Where it lives |
+|---|---|---|
+| **Inherited default** | the model selected in the CLI / picker — the answer for every agent unless an override is passed | the runtime session |
+| **Run-time override** | the operator's per-gate or per-batch choice for **one run** | the plan's frozen `Plan Settings.Models` row, or the batch report |
+| **Capability class** | a *recommendation* label, not a binding — it shapes the question's guidance | `## Model Registry` in `.opencode/plans/base-context.md` (key + capability class, two cells) |
 
 Rules:
 
-1. **Binding files are `parcel*`, `ptp-*` and `wiki-*` agent files** in `.devops/agents/` (`wiki-writer.agent.md`, `wiki-verifier.subagent.md` included). Each needs a registry row; each registry row needs a file. Both directions are a hard failure when violated.
-2. **Bindings are template-owned and force-propagated.** `@sync-architecture` stamps the source registry into every target's three surfaces on each sync — there is no preservation branch: existing rows are rewritten, a registry row the target's `base-context.md` lacks is **inserted** (machinery v40+), and a row for a key the source retired is **pruned** (machinery T1-E2.07+) — rows only, prose untouched. The locked-preset host's `permission.task` allow-list is likewise **structural** and stamped from the seed. A satellite-side edit is **transient**: the next sync reverts it. Rebind in the template (registry + seed mirror), not in the satellite.
-3. **The orchestrator never passes `model:` to `runSubagent`.** Passing a model imperatively violates the prefix's "no hardcoded model names" rule and creates a second source of truth.
-4. **The registry is the validation source**, not a runtime lookup: the runtimes read the two derived surfaces, and `scripts/check-parcel-prefix.ps1` proves all three agree (plus the seed mirror).
-5. **Naming convention:** VS Code frontmatter uses the model's display name (`Qwen3.8 Flash`); opencode mirrors use the provider-qualified ID (`opencode-go/qwen3.8-flash`). Both must reference the *same underlying model*.
+1. **No agent declares a model.** Not agent frontmatter, not `opencode.json`/its seed, not the registry table. `scripts/check-parcel-prefix.ps1` asserts this by **absence** and reports `NOMODEL` per clean surface.
+2. **A model is never hardcoded anywhere in the machinery.** The only place a model name appears is a plan's `Plan Settings.Models` row (and the batch report) — ephemeral, per-run, never synced, never stamped.
+3. **The registry survives only as a capability-class reference.** It feeds the run-time question's guidance; it is not a source of truth for any model.
+4. **Nothing propagates.** `@sync-architecture` reconciles the capability-class rows and **strips** any model it finds in a satellite; there is no stamping direction left.
+5. **A model that cannot be honoured is never substituted silently.** Where a runtime cannot accept a spawn-time model, the run halts and says so (see §3).
 
-## 2. Choosing a model for a subagent (decision matrix)
+## 2. Choosing a model (the recommendation matrix)
 
 Ask four questions about the subagent's actual work, in order:
 
@@ -37,7 +36,7 @@ Ask four questions about the subagent's actual work, in order:
 3. **Output fidelity** — does it write code to disk, or only markdown into the plan/review files?
 4. **Cost sensitivity** — does it run once per plan, or in loops (revision rounds, re-reviews)?
 
-Map the answers to a capability class, then pick the cheapest model that satisfies all four:
+Map the answers to a capability class — the label recorded in the registry — then recommend the cheapest model that satisfies all four. **This matrix produces a recommendation for a human, not a binding.**
 
 | Capability class | Profile | Typical fit in the parcel pipeline |
 |---|---|---|
@@ -52,31 +51,42 @@ Map the answers to a capability class, then pick the cheapest model that satisfi
 
 Anti-patterns:
 
-- **Don't default everything to the strongest model.** Context-hunter reads far more tokens than it reasons about; a heavyweight model there multiplies cost for no quality gain.
-- **Don't bind the adversarial reviewer to the same concrete model as the planner without checking §2 question 2.** Review value comes from reasoning-capability asymmetry — if both bindings resolve to the same model, confirm the planner's model is genuinely the stronger reasoner, or rebind one. (Sharing a model is permitted; sharing a *blind spot* is what costs you.)
-- **Don't bind by vendor loyalty.** Bind by the capability class the subagent's phase actually demands, and re-evaluate when a phase's scope changes.
+- **Don't set every gate to the strongest model.** Context-hunter reads far more tokens than it reasons about; a heavyweight model there multiplies cost for no quality gain.
+- **Don't pick the adversarial reviewer on the same model as the planner without checking §2 question 2.** Review value comes from reasoning-capability asymmetry. Sharing a model is permitted; sharing a *blind spot* is what costs you.
+- **Don't choose by vendor loyalty.** Choose by the capability class the gate's work actually demands.
 
-When every agent is deliberately routed to a single model (e.g., one provider model is available across the whole pipeline), the matrix collapses: apply the same binding to all rows of the registry and note the uniform routing in the registry prose, so reviewers don't mistake it for drift.
+## 3. Selecting models for a run (the only procedure)
 
-## 3. Editing a binding (the only safe procedure)
+Models are chosen **per run**, by the operator, through the ask tool. There is no file to edit.
 
-Bindings are edited **in the template**, never in a satellite — a satellite-side edit is reverted by the next sync (§1 rule 2).
+| Path | Who asks | Granularity |
+|---|---|---|
+| `parcel` in `MULTI` | the orchestrator, at plan start, after `Mode`/`Agents` are confirmed | **per gate** — A / B / C / D, four questions at most |
+| `parcel` in `SINGLE` | nobody — `SINGLE` spawns no subagents | recorded `N/A — no subagent spawns` |
+| `@sprint-run` | the batch host, in the informed preview, **before** the single yes/no | **one answer for the whole batch** — each `ptp-parcel-fast` runs Phases 1→9 inline on a single model |
 
-1. **Decide per subagent** using §2 — record the rationale (one line) in the plan's `decision_log.md` if this happens mid-parcel-run.
-2. **Edit the source registry** — `.opencode/plans/base-context.md` → the `## Model Registry` row (VS Code column + opencode column). Then mirror it in `.devops/templates/base-context.template.md` and `.devops/templates/opencode.template.json`; `check-parcel-prefix.ps1` fails if the seed mirror disagrees.
-3. **Never** hand-edit the binding surfaces in a satellite. In the template workspace the derived files are updated by the two commands below.
-4. **Re-sync the prefix** so the updated registry is inlined byte-for-byte into every orchestrator agent file:
-   `powershell -File scripts\check-parcel-prefix.ps1 -Sync`
-5. **Verify:** run `powershell -File scripts\check-parcel-prefix.ps1` — all files must PASS *and* report a `MODEL` line for every binding file (12 today) plus `SEED-OC-MODEL` for every registry key. Non-zero exit = fix before commit.
-6. **Propagate:** `powershell -File scripts\sync-architecture.ps1 -Target <satellite>` (or `pull-architecture.ps1` from the satellite) stamps the registry, the agent frontmatter and `opencode.json` in the target; registry rows the target lacks are **inserted** (machinery v40+), rows for keys the source retired are **pruned** (machinery T1-E2.07+), and a registry key its `agent` block has **never carried** is **inserted** whole from the target's synced seed (machinery v41+) — an entry the satellite already authored is never restructured, only its `model` value is stamped, **except** the locked-preset host's structural `permission.task` allow-list, which is stamped from the seed. A key missing from both the target and the seed is reported as `BINDING-SKIP` and fails that target's own check.
-7. **No orchestrator changes.** `parcel.agent.md`'s workflow text never mentions concrete models; if it does, that is drift — remove it.
+1. **Enumerate the available models from the provider**, never from a hardcoded list:
+   `https://opencode.ai/zen/go/v1/models` returns an OpenAI-shaped payload —
+   `{"object":"list","data":[{"id":"deepseek-v4.1-flash","object":"model",...}]}`. Offer `CLI default` first (the recommended answer), then the ids.
+2. **Map gates to their subagents** using the delegation map — **A** = `ptp-context-hunter` (+ `ptp-phase3-answerer` in `AUTO`), **B** = `ptp-high-visionary`, **C** = `ptp-grumpy-architect` + `ptp-smooth-operator`, **D** = `ptp-code-surgeon`. Four gate questions, never one per subagent.
+3. **Record the answer** in the plan's frozen `Plan Settings.Models` row — `CLI default` or `per-gate: A=<model>, B=<model>, C=<model>, D=<model>` — or, on the batch path, in `sprint_run_report.md` and then in each runner's `Plan Settings` (the runner records what it was handed; it never chooses).
+4. **Pass the model at spawn time only where the runtime supports it.** Runtime capability differs and must not be blurred:
+
+| Runtime | Spawn-time model | Behaviour |
+|---|---|---|
+| **VS Code** | **supported** — `runSubagent` gained an optional `model` parameter in **1.116.0** (vscode issue #298380, closed) | pass the operator's choice per gate |
+| **opencode** | **not supported** — issue **#6651** and PR **#11377** are both open; the subagent tool exposes no model parameter | on a concrete override, **halt**; on `CLI default`, proceed normally |
+
+5. **Halt loudly on an unhonourable override.** Never a silent no-op and never a silent downgrade: name the limitation, and offer *proceed with inherit* or *run on the supporting runtime*. This is the edge case **accepted out loud** rather than engineered around — deliberately **not** solved by duplicating agent files per model, which would reintroduce exactly the hardcoding this design removes.
 
 ## 4. Validation contract
 
-`scripts/check-parcel-prefix.ps1` validates **six surfaces**: the live registry, the seed registry, each binding file's frontmatter, `opencode.json`, the seed opencode config, and (separately) prefix integrity for the PREFIX-LOCKED agents.
+`scripts/check-parcel-prefix.ps1` asserts the invariant by **absence**, and also proves the prefix invariant is untouched:
 
-- **Prefix integrity** — the inlined prefix matches `base-context.md` byte-for-byte, and each `ptp-*` agent's embedded skill matches its `SKILL.md`. `wiki-*` files carry no prefix and never enter this pass.
-- **Model binding** — every registry key resolves to an agent file and vice versa; each file's frontmatter `model:` equals the registry VS Code column; `opencode.json` `agent.<key>.model` equals the registry opencode column; the seed registry agrees cell-for-cell with the live registry; the seed opencode config carries the same models. A missing/empty `agent` block (or a missing `opencode.json`) is a **FAIL**, not a SKIP — the pre-v20 VS Code-only opt-out is retired.
-- **Placeholders are fatal** — `<your provider/model>` anywhere in a seed or live config fails the check. There is no legal unbound state.
+- **No model declared** — reports `NOMODEL` for each clean binding surface and fails on: a `model:` line in any binding file's frontmatter (11 files); an `agent.<key>.model` in `opencode.json` or its seed; a registry row carrying anything other than exactly two cells.
+- **Coverage retained** — every registry key must resolve to a binding file and every binding file to a registry row; both directions still fail loudly.
+- **Seed parity retained** — the seed registry and seed config are still compared against the live surfaces, now for *absence* and the 2-cell shape rather than for matching values.
+- **Prefix integrity unchanged** — the inlined prefix must match `base-context.md` byte-for-byte, and each `ptp-*` agent's embedded skill must match its `SKILL.md`. `wiki-*` files carry no prefix and never enter this pass.
+- **Sync strips, never stamps** — `sync-architecture.ps1` removes any model it finds in a satellite and re-validates the resulting JSON, reverting rather than shipping an unparsable config. Its `-SelfTest` proves the absence contract.
 
-If validation fails after a manual edit, the registry row and a derived surface disagree — fix whichever one reflects the intended binding (usually the derived file was edited instead of the registry, or `-Sync` was skipped).
+If validation fails after a manual edit, something declared a model that must not. Remove the declaration; do not "fix" the check.

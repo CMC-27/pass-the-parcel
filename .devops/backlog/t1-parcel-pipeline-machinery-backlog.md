@@ -16,7 +16,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T1-E1.04 | Dynamic subagent model selection — no agent declares a model | **Executed → `PHASE_9`, Gate D `OPEN`** (awaiting the human verdict; not yet archived) | Reverses T1-E1.03: deletes every hardcoded model binding, keeps the registry as a capability-class reference, and asks the operator per gate / per batch at run time. `machinery-version 66 → 67`. Delivered `AUTO` + `SINGLE` (`triage: MULTI`) — no independent reviewer. | [plan](../plans/t1-e1.04-dynamic-model-selection-plan.md) |
 
 ### Completed
 
@@ -24,7 +24,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 |------|-------|----------|------|---------|
 | T1-E1.01 | Reconcile model registry | 2026-09-03 | Model Registry replaced with abstract capability slots (`planning` / `review-heavy` / `execution`); concrete model binding is satellite configuration in `opencode.json`. **Reversed 2026-09-13 by T1-E1.03** — the registry is now the single source and sync force-stamps the fleet. | [plan](../archive/t1-e1.01-reconcile-model-registry-plan.md) |
 | T1-E1.02 | Parcel-Fast locked preset | 2026-09-13 | New selectable orchestrator `parcel-fast` ships a **locked preset** (`Mode=AUTO`, `Agents=SINGLE`): it skips the Mode/Topology questions, runs inline personas, and is bound `task: deny` so `SINGLE` is enforced structurally. Preset declared in the `## Orchestrator Presets` table of `base-context.md`; executed as a direct machinery session. | — (no plan file) |
-| T1-E1.03 | Registry-canonical model bindings | 2026-09-13 | The `## Model Registry` in `base-context.md` becomes the **single source**; agent frontmatter `model:` and `opencode.json` `agent.<key>.model` are derived and **force-stamped** by sync (no preservation branch). Registry grows 10 → 12 rows (`wiki-writer`, `wiki-verifier`); the pre-v39 VS Code-only opt-out is retired. **Supersedes T1-E1.01.** Follow-up T1-E2.03 adds missing-row insertion so the growth reaches existing satellites. | [plan](../archive/t1-e1.03-model-binding-propagation-plan.md) |
+| T1-E1.03 | Registry-canonical model bindings | 2026-09-13 | The `## Model Registry` in `base-context.md` becomes the **single source**; agent frontmatter `model:` and `opencode.json` `agent.<key>.model` are derived and **force-stamped** by sync (no preservation branch). Registry grows 10 → 12 rows (`wiki-writer`, `wiki-verifier`); the pre-v39 VS Code-only opt-out is retired. **Supersedes T1-E1.01.** Follow-up T1-E2.03 adds missing-row insertion so the growth reaches existing satellites. **Superseded by T1-E1.04** (2026-09-20). | [plan](../archive/t1-e1.03-model-binding-propagation-plan.md) |
 
 ## E2 — Governance & Transport Integrity
 

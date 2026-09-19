@@ -81,26 +81,26 @@
 | 8-9 | `ptp-code-surgeon` | execution | Executed code + verification proof |
 | batch (sprint queue) | `ptp-parcel-fast` (spawned by `parcel-sprint` only) | execution | One plan run Phases 1-9 -> `PHASE_9` (`claim_status: GATE_D_USER_APPROVAL`), Gate D `OPEN` |
 
-## Model Registry (per-subagent bindings — no hardcoded model names in prose)
-Model routing is **declarative**: each agent/subagent file carries its own `model:` line in YAML frontmatter, and the runtime mounts that file on that model. The orchestrator delegates by subagent name only and NEVER passes a model at spawn time. Each subagent is chosen independently — use the `@model-routing` skill's decision matrix when (re)binding.
+## Model Registry (capability classes — no agent declares a model)
+Model routing is **inherited**: no agent or subagent carries a `model:` line in its frontmatter, and no `opencode.json` carries an `agent.<key>.model`. Every agent runs on **the model selected in the CLI / picker**. Where a run spawns subagents, the orchestrator asks the operator which model each gate should use and passes it at spawn time **on runtimes that support it**; where the runtime cannot honour the choice, the run halts explicitly rather than substituting silently.
 
-Canonical binding table (validated by `scripts/check-parcel-prefix.ps1`; VS Code column = `.devops/agents/*.agent.md|*.subagent.md` frontmatter, opencode column = the opencode runtime — `opencode.json` `agent.<key>.model`). **This table is the single source of truth** — the frontmatter and `opencode.json` bindings are derived from it, and `@sync-architecture` force-stamps all three surfaces into every satellite on each sync. To change a binding, edit this table (and its seed mirror), run `check-parcel-prefix.ps1 -Sync`, then sync: a satellite-side edit is transient and is reverted by the next sync. Current template routing: **all models route to DeepSeek V4.1 Flash** (uniform binding by user direction, 2026-09-11 — capability classes are retained for future rebinding):
+This table survives as a **capability-class reference only** — it is the recommendation input for that run-time question, never a binding. `scripts/check-parcel-prefix.ps1` validates its **shape and coverage**: exactly two cells per row, every registry key resolving to a binding file and every binding file to a row.
 
-| Agent key | Capability class | VS Code model | opencode model |
-|---|---|---|---|
-| parcel | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-context-hunter | retrieval/inventory | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-phase3-answerer | retrieval/Q&A | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-high-visionary | deep planning/authoring | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-grumpy-architect | adversarial review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-smooth-operator | product review | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-code-surgeon | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| parcel-sprint | orchestration | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| ptp-parcel-fast | execution | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| wiki-writer | deep planning/authoring | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
-| wiki-verifier | independent audit | DeepSeek V4.1 Flash | opencode-go/deepseek-v4.1-flash |
+| Agent key | Capability class |
+|---|---|
+| parcel | orchestration |
+| ptp-context-hunter | retrieval/inventory |
+| ptp-phase3-answerer | retrieval/Q&A |
+| ptp-high-visionary | deep planning/authoring |
+| ptp-grumpy-architect | adversarial review |
+| ptp-smooth-operator | product review |
+| ptp-code-surgeon | execution |
+| parcel-sprint | orchestration |
+| ptp-parcel-fast | execution |
+| wiki-writer | deep planning/authoring |
+| wiki-verifier | independent audit |
 
-**Binding rule:** every binding agent's `model:` in its frontmatter MUST equal its row above (correct column for the runtime), and `opencode.json` `agent.<key>.model` MUST equal the opencode column. `scripts/check-parcel-prefix.ps1` fails on any mismatch, on a registry key with no agent file, on a binding file with no row, and on a seed registry or seed opencode config that disagrees with this table. Agents MUST NOT assume a specific vendor model exists — read your own configured model if asked. To change a binding, follow the `@model-routing` skill §3 (registry row + `-Sync` + validation; satellites receive it on their next sync).
+**Binding rule (inverted).** No binding surface may declare a model — not agent frontmatter, not `opencode.json` or its seed, not this table. A `model:` line in any binding file, an `agent.<key>.model` in either config, or a third cell in any row above is a **hard failure** of `scripts/check-parcel-prefix.ps1`, which reports `NOMODEL` per clean surface. Agents MUST NOT assume a specific vendor model exists — read your own inherited model if asked. To choose models for a run, follow the `@model-routing` skill §3 (the run-time selection step); to change an agent's **capability class**, see §2 of the same skill.
 
 ## Orchestrator Presets (locked Mode / Topology)
 Each orchestrator agent declares its Plan Settings defaults here. At plan start, read **your own row**:

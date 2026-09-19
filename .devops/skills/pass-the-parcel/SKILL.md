@@ -138,8 +138,8 @@ Pass-the-parcel is a **thin orchestrator**. Each phase group delegates to a spec
 | F | Wrap Up | `Lead Context Architect` | `agent-wrap-up` | orchestration | global | — |
 | — | batch (sprint queue) | `Batch Host` | `ptp-parcel-fast` | execution | per-plan runner (spawned by `parcel-sprint`) | D |
 
-**Model Registry (registry-canonical, template-owned):**
-Model routing is owned by the **Model Registry** in `.opencode/plans/base-context.md` (inlined into every orchestrator agent via the PREFIX-LOCKED ORCHESTRATOR-ONLY block). The registry is the single source; each binding file's frontmatter `model:` and `opencode.json` `agent.<key>.model` are **derived** and force-stamped into satellites by `@sync-architecture` on every sync — a satellite-side rebind is transient and is reverted by the next sync. Capability classes: `orchestration`, `retrieval/inventory`, `retrieval/Q&A`, `deep planning/authoring`, `adversarial review`, `product review`, `execution`, `independent audit`. Binding files are the `parcel*` / `ptp-*` / `wiki-*` agents in `.devops/agents/`; use the `@model-routing` skill to (re)bind. Agents MUST NOT assume a specific vendor model exists — when asked which model you run on, read your own configured model.
+**Model routing (inherited + run-time selection):**
+No agent declares a model. Every agent runs on **the model selected in the CLI / picker**. Where a run spawns subagents the **operator chooses** the model — **per gate** (A/B/C/D) for `parcel` in `MULTI`, or **one for the whole batch** under `@sprint-run` — recorded in the plan's frozen `Plan Settings.Models` row and passed at spawn time only on runtimes that support it (VS Code does; opencode does not, and halts explicitly rather than substituting). The `## Model Registry` in `.opencode/plans/base-context.md` survives as a **capability-class reference** that feeds the question's recommendation — it is not a binding. `scripts/check-parcel-prefix.ps1` asserts the invariant by **absence**. Use the `@model-routing` skill to choose models for a run. Agents MUST NOT assume a specific vendor model exists — read your own inherited model if asked.
 
 > **Canonical copy:** This delegation map + model registry is inlined into every parcel/ptp agent via the PREFIX-LOCKED header (`.opencode/plans/base-context.md`). When editing the map, update `base-context.md` and run `scripts\check-parcel-prefix.ps1 -Sync` to re-inline it — then mirror the change here.
 
@@ -215,10 +215,11 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
    - **Status** → `PHASE_1`
    - **Active Persona** → `Scoper`
    - **Gate A** → `OPEN`.
-6. Proceed to **Group A** (Phases 1-3). A committed plan may carry pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the Fresh Context Rule in the `ptp-context-hunter` skill. The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
+6. **Choose models (plan start).** When `Agents = MULTI`, ask the operator **per gate** (A/B/C/D — four questions at most) using the capability-class matrix in `@model-routing` §2 as guidance; offer `CLI default` first, then the models enumerated from the provider endpoint. When `Agents = SINGLE`, no subagent is spawned: record `Models: N/A — no subagent spawns` and ask nothing. Record the answer in the frozen **`Plan Settings`** block before Phase 1 begins. Full procedure and the runtime-capability branch: `@model-routing` §3.
+7. Proceed to **Group A** (Phases 1-3). A committed plan may carry pre-populated context — use it for Phases 1-2, but **Phase 3 MUST still be re-run interactively** per the Fresh Context Rule in the `ptp-context-hunter` skill. The pre-populated Phase 3 answers serve as reference only — they do not exempt the agent from asking questions.
 
 ### GROUP A: Scoping & Context (Phases 1-3)
-* **Capability class:** per delegation map row (Model Registry in base-context)
+* **Capability class:** capability class per delegation map row (`## Model Registry` in base-context)
 * **Goal:** Understand intent, locate context, resolve ambiguities.
 * **Pre-Step — Plan Initialization:** If this is a fresh feature, instantiate `.devops/plans/<code>-<slug>-plan.md` from the [canonical template](../../plans/template-plan.md) and add the claim front-matter block (`.devops/rules/plan-lifecycle.md` § Claim Front-Matter). This gives the plan the **full scaffold** (Phases 1-10 + State & Gates at bottom) from the start — all downstream agents rely on this structure. If this item was committed to a sprint, **do not overwrite it** — skip directly to executing the sub-skill to preserve the pre-populated context. Set initial **State & Gates** section (bottom): **Status** → `PHASE_1`, **Active Persona** → `Scoper`.
 * **Steps:**
@@ -233,7 +234,7 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
 * **HALT POINT (Gate A — Scope):** Once the final validation question is answered Yes and Phase 3 is fully populated, set **Status** → `PHASE_3`, **Active Persona** → `Scoper`, and halt. Present the scope perimeter + Phase 3 Q&A record at **Gate A**. The user approves the scope before planning begins. On rejection: Status → `PHASE_1`, Gate A → `REJECTED`, re-run the affected questions.
 
 ### GROUP B: Wiki Spec & Implementation Planning (Phases 4-5)
-* **Capability class:** per delegation map row (Model Registry in base-context)
+* **Capability class:** capability class per delegation map row (`## Model Registry` in base-context)
 * **Goal:** Write the wiki requirements spec FIRST (Phase 4), then build the implementation plan to meet it (Phase 5). No code snippets except exact string literals.
 * **Steps:**
   * **Phase 4 (Wiki Requirements & Acceptance Criteria):**
@@ -252,7 +253,7 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
     * **Capability class:** adversarial review (see Model Registry)
     * **CRITICAL:** Initialize and execute the **`ptp-grumpy-architect`** skill as a **Spec & Logic Audit** of the text-based architecture produced in Phase 5. Evaluate: system contracts, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, logical completeness, security perimeter, and architectural anti-patterns. **Do not expect or demand source code snippets in the plan file.** Reject on logical gaps or bloat.
   * **Phase 7 (Smooth Operator Product Review):**
-    * **Capability class:** per delegation map row (Model Registry in base-context)
+    * **Capability class:** capability class per delegation map row (`## Model Registry` in base-context)
     * **CRITICAL:** Initialize and execute the **`ptp-smooth-operator`** skill to audit the Phase 5 plan. Ensure strict alignment with user journey, 4 core states, and scope containment. Reject on UX friction.
 * **Deterministic Rejection State (Gate C):**
   * **Pass:** Phase 6 log clean → proceed to Phase 7 (PO Intent Check) → set `PHASE_7` → halt at Gate C for user sign-off.
@@ -280,7 +281,7 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
 * **COMPLETION:** Phase 10 done when user provides explicit sign-off.
 
 ### GROUP F: Wrap Up (Document Tweaks, Spec Reconciliation & Close-Out)
-* **Capability class:** per delegation map row (Model Registry in base-context)
+* **Capability class:** capability class per delegation map row (`## Model Registry` in base-context)
 * **Goal:** Document all tweaks from Phase 10, promote captured lessons to the knowledge log, reconcile the wiki against what was actually built, and close out the plan.
 * **Steps:**
   * **Wrap Up:**

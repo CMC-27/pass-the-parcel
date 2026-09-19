@@ -48,20 +48,21 @@ param(
     this bookkeeping, -Check would report a phantom UPGRADE forever after every successful
     sync, because the manifest itself is not on the portable surface.
 
-    It also force-propagates the source Model Registry into the target's three binding
-    surfaces (registry rows in base-context.md, agent frontmatter `model:` lines, and
-    opencode.json agent.<key>.model values). Model bindings are template-owned: there is
-    no preservation branch. The target's registry table is REWRITTEN for keys it already
-    carries and rows are INSERTED for keys it lacks, so a template-side registry growth
-    reaches an already-bootstrapped satellite. The opencode.json surface is treated the
-    same way: an entry the target already carries has only its `model` value rewritten
-    (permissions, key order and formatting stay as authored), while an entry for a registry
-    key the target has NEVER authored is INSERTED whole from the target's own synced seed
+    It also reconciles the source capability-class registry into the target and STRIPS
+    every concrete model binding from it (T1-E1.04 - the invariant is now absence). No agent
+    declares a model; every agent inherits the model selected in the CLI / picker. The
+    target's registry table is REWRITTEN to the two-cell shape, rows are INSERTED for keys
+    the source added, and rows are DELETED for keys the source retired, so template-side
+    registry growth and retirement both reach an already-bootstrapped satellite. Any
+    `model:` line in a target agent file's frontmatter is REMOVED, and any
+    agent.<key>.model member in the target's opencode.json is REMOVED (the strip is
+    JSON-validated and reverted rather than left unparsable). An entry for a registry key
+    the target has NEVER authored is still INSERTED whole from the target's own synced seed
     (.devops/templates/opencode.template.json) - so a newly shipped agent arrives runnable
     instead of arriving as a file the runtime never mounts. A missing key therefore
-    self-heals on a normal pull. BINDING-SKIP now means only that neither the target nor
-    the seed could supply an entry - still a loud failure in the target's own
-    check-parcel-prefix.ps1 run. This runs BEFORE prefix regeneration.
+    self-heals on a normal pull. BINDING-SKIP means neither the target nor the seed could
+    supply an entry - still a loud failure in the target's own check-parcel-prefix.ps1 run.
+    This runs BEFORE prefix regeneration.
 
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
@@ -76,8 +77,9 @@ param(
 
     The repo-specific surface is NOT copied: base-context.md, opencode.json, AGENTS.md and the
     wiki content itself embed the target's own layout, task lookup and permissions. base-context.md
-    and opencode.json ARE edited in place, but only for model bindings (registry rows and
-    agent.<key>.model values) - never copied wholesale, never restructured. After the
+    and opencode.json ARE edited in place, but only to reconcile the capability-class registry
+    rows and to REMOVE model bindings (registry row shape, agent frontmatter `model:` lines and
+    agent.<key>.model members) - never copied wholesale, never restructured. After the
     portable surface is copied, the script regenerates each agent's PREFIX-LOCKED prefix from
     the TARGET's own .opencode/plans/base-context.md so the cache anchor always matches the
     local workspace.
@@ -152,7 +154,7 @@ if ($SelfTest) {
         }
         & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
         if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
-        # --- F8 assertions: inserted key present + model stamped, sibling untouched, idempotent
+        # --- F8 assertions: inserted key present with NO model, sibling untouched, idempotent
         if ($stPick) {
             $stOcPath = Join-Path $tmp 'opencode.json'
             $stOcRaw = [System.IO.File]::ReadAllText($stOcPath)
@@ -165,8 +167,8 @@ if ($SelfTest) {
                 if (-not $stProp) {
                     $fail += "selftest F8: '$stPick' was not inserted into the target opencode.json"
                 } else {
-                    $stWantModel = $stSrcRegistry[$stPick]['opencode']
-                    if ([string]$stProp.Value.model -ne $stWantModel) { $fail += "selftest F8: inserted '$stPick' model '$($stProp.Value.model)' != registry '$stWantModel'" }
+                    # T1-E1.04: the invariant is ABSENCE - an inserted entry must carry no model.
+                    if ([string]$stProp.Value.model) { $fail += "selftest F8: inserted '$stPick' declares model '$($stProp.Value.model)' - no agent may declare a model" }
                 }
                 $k1 = [regex]::Match($stOcRaw, '"' + [regex]::Escape($stKeep) + '"\s*:\s*\{')
                 if (-not $k1.Success) {
@@ -227,8 +229,9 @@ if ($SelfTest) {
             foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
         }
         if ($stTgtV -ne $stSrcV) { $fail += "manifest stamp failed: target machinery-version '$stTgtV' vs source '$stSrcV'" }
-        # Model binding propagation: every source registry key's frontmatter binding must
-        # land in the target's agent file (guards the force-stamp / no-preservation contract).
+        # Model ABSENCE propagation (T1-E1.04): no target agent file may carry a `model:` line
+        # after a sync, and no target opencode.json agent entry may declare a model. Guards the
+        # strip contract (the old force-stamp direction is retired).
         $stSrcRegistry = Get-RegistryBindings (Join-Path $srcRoot '.opencode/plans/base-context.md')
         if ($stSrcRegistry.Count -eq 0) { $fail += "selftest: source Model Registry parsed as empty" }
         foreach ($bk in ($stSrcRegistry.Keys | Sort-Object)) {
@@ -236,10 +239,18 @@ if ($SelfTest) {
             if (-not (Test-Path $bTgt)) { $bTgt = Join-Path $tmp ".devops/agents/$bk.subagent.md" }
             if (-not (Test-Path $bTgt)) { $fail += "binding file missing in target: $bk"; continue }
             $bm = [regex]::Match(([System.IO.File]::ReadAllText($bTgt) -replace "`r`n", "`n"), '(?m)^model:\s*(.+?)\s*$')
-            $bWant = $stSrcRegistry[$bk]['vscode']
-            if (-not $bm.Success -or $bm.Groups[1].Value -ne $bWant) {
-                $bGot = if ($bm.Success) { $bm.Groups[1].Value } else { '<no model: line>' }
-                $fail += "binding not propagated for $bk (target frontmatter '$bGot' != registry '$bWant')"
+            if ($bm.Success) { $fail += "model binding survived the sync for $bk (target frontmatter still declares '$($bm.Groups[1].Value)')" }
+        }
+        $stTgtOc = Join-Path $tmp 'opencode.json'
+        if (Test-Path $stTgtOc) {
+            $stTgtOcJson = $null
+            try { $stTgtOcJson = ([System.IO.File]::ReadAllText($stTgtOc)) | ConvertFrom-Json } catch { $stTgtOcJson = $null }
+            if (-not $stTgtOcJson) {
+                $fail += "selftest: target opencode.json invalid after sync"
+            } else {
+                foreach ($p in @($stTgtOcJson.agent.PSObject.Properties)) {
+                    if ([string]$p.Value.model) { $fail += "model binding survived the sync for opencode agent '$($p.Name)' ('$($p.Value.model)')" }
+                }
             }
         }
         # Prune test: plant a retired file, assert -Check reports PRUNE (not a parent-dir
@@ -288,7 +299,7 @@ if ($SelfTest) {
             $fail += "selftest T1-E2.07: target already carries a parcel-fast row; fixture not isolated"
         } else {
             $rtBcEol = if ($rtBcRaw -match "`r`n") { "`r`n" } else { "`n" }
-            $rtBcRaw = $rtBcRaw.TrimEnd("`r", "`n") + $rtBcEol + "| parcel-fast | orchestration | Retired Orchestrator | retired/parcel-fast |" + $rtBcEol
+            $rtBcRaw = $rtBcRaw.TrimEnd("`r", "`n") + $rtBcEol + "| parcel-fast | orchestration |" + $rtBcEol
             [System.IO.File]::WriteAllText($rtBc, $rtBcRaw, (New-Object System.Text.UTF8Encoding($false)))
             Write-Output "SELFTEST fixture: orphan registry row 'parcel-fast' planted"
         }
@@ -518,10 +529,10 @@ Invoke-PrunePlan -TgtRoot $tgtRoot -Plan $prunePlan -DryRun:$DryRun
 # 3c. Stamp the target's manifest with the source machinery-version (post-sync bookkeeping).
 Update-TargetManifestVersion -TgtRoot $tgtRoot -SrcRoot $srcRoot -Version $scalars['machinery-version'] -DryRun:$DryRun
 
-# 3d. Force-propagate the source Model Registry into the target's binding surfaces
-# (registry rows + agent frontmatter + opencode.json model values). Must run BEFORE the
+# 3d. Reconcile the source capability-class registry into the target and STRIP every concrete
+# model binding from it (registry rows + agent frontmatter + opencode.json). Must run BEFORE the
 # PREFIX-LOCKED regeneration below, so the regenerated orchestrator prefixes inline the
-# stamped registry rather than a stale one.
+# reconciled table rather than a stale one.
 Update-TargetModelBindings -SrcRoot $srcRoot -TgtRoot $tgtRoot -DryRun:$DryRun
 
 if ($skipped.Count -gt 0) {
