@@ -3,7 +3,7 @@ title: Process & Tooling Lessons
 tags: [dev, rules, process, lessons, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-17
+last-reviewed: 2026-09-18
 related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-capture/SKILL.md, ../skills/knowledge-consolidation/SKILL.md]
 ---
 
@@ -18,6 +18,8 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 ---
 
 ## Parcel & Sprint Mechanics
+
+- **[2026-09-18] Single-plan operators run in place — worktree isolation only pays for parallel sprints** — one sprint / one plan at a time means a worktree just costs a second dev server to verify, so the claim protocol is in-place only (no worktree, no plan branch, deviations 4 → 3). *Do instead:* gate any `git worktree` revival on genuine parallel execution, and default everything else to the trunk.
 
 - **[2026-09-18] Verify a claim commit carries content, not just renames** — `git mv` stages the rename while working-tree edits stay unstaged, so a bare `git commit` records a content-empty claim (0 insertions) and the claim front-matter lives only in the working tree. *Do instead:* `git add` the plan file explicitly and check `git show --stat HEAD` after every claim commit — amend when the stat is rename-only.
 

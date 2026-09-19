@@ -11,7 +11,7 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
-## 2026-09-18 - In-place single-claim execution, worktree retired (machinery 64 -> 65)
+## 2026-09-18 - In-place single-claim execution, worktree retired (machinery 64 -> 66)
 
 **Why:** Operator runs one sprint / one plan at a time and verifies in the single dev server — a worktree would need a second server to check. Claim protocol is now in-place only (no worktree, no plan branch); `@sprint-run` deviations 4 -> 3; skills + seeds bumped; prefix re-inlined ×9 (PASS). Gates: wiki_lint 0, claims 0 stale, fanout 0 unauthorised, 62 fixtures OK.
 **Ref:** `c75e20c`
