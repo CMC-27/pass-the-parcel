@@ -57,6 +57,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 |------|-------|--------|-------------|------|
 | T1-E3.12 | Sprint-close business report | QUEUED | `@sprint-close` produces only engineering history; business stakeholders get nothing. The fix was authored and proven at the GRID-Link satellite (`sprint-close` v7 → v8, live example at Sprint 12). Because `.devops/skills/**` is portable, the satellite edit is overwritten on next sync — this parcel lands the improvement template-side. | [plan](./t1-e3.12-sprint-close-business-report-backlog.md) |
 | T1-E3.13 | Phase 9 gate invocation can hang the batch runner | QUEUED | Phase 9 gate commands are nowhere required to be **one-shot**, and `@test-and-deploy` prescribes `npm test` — watch mode on a Vitest satellite (`"test": "vitest"`). A live `@sprint-run` hung there; the killed runner left a debris state (`PHASE_9` body / `CLAIMED` front-matter / empty evidence / no `plan:` commit) that no rule can resume. | [plan](./t1-e3.13-phase9-gate-invocation-hang-backlog.md) |
+| T1-E3.14 | `wiki_claims.py check` is gated nowhere | QUEUED | The drift gate ships and is invoked by **nothing**: Phase 7a hard-stops on `wiki_lint.py --quiet` + `wiki_claims.py coverage`, and the plan template's Phase 9 names no claims gate. `coverage` green + `check` red reads as "verified". Live instance: GRID-Link 2026-09-22, 5 stale claims after a claimed symbol changed. | [plan](./t1-e3.14-wiki-claims-check-ungated-backlog.md) |
 
 ### Completed
 
