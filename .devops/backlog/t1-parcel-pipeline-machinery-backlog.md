@@ -55,7 +55,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| *—* | *(E3 open queue empty — all shipped items below)* | — | — | — |
+| T1-E3.12 | Sprint-close business report | QUEUED | `@sprint-close` produces only engineering history; business stakeholders get nothing. The fix was authored and proven at the GRID-Link satellite (`sprint-close` v7 → v8, live example at Sprint 12). Because `.devops/skills/**` is portable, the satellite edit is overwritten on next sync — this parcel lands the improvement template-side. | [plan](./t1-e3.12-sprint-close-business-report-backlog.md) |
 
 ### Completed
 

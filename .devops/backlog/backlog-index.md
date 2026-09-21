@@ -19,7 +19,9 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-*(queue clear — no triaged items; next candidate surfaces via `@backlog` or sprint retro)*
+- **🟢 LATER — T1-E3.12 Sprint-close business report:** the non-technical sprint summary was authored and proven at the GRID-Link satellite (`sprint-close` v8 + the Sprint 12 live example at `.devops/archive/sprints/sprint-12-showcase-slice/business-report.md`), but `.devops/skills/**` is portable — the satellite edit is overwritten on the next sync unless the improvement lands template-side here. Scope and reference implementation: [t1-e3.12](./t1-e3.12-sprint-close-business-report-backlog.md).
+
+No other triaged items remain queued; next candidates surface via `@backlog` or sprint retro.
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
