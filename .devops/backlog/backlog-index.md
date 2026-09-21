@@ -19,6 +19,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
+- **🟡 NEXT — T1-E3.13 Phase 9 gate invocation can hang the batch runner:** a live `@sprint-run` (GRID-Link, 2026-09-22) hung on `npx vitest` — watch mode, because the satellite's `package.json` carries `"test": "vitest"`, the default shape for this machinery's own stated stack — and `@test-and-deploy` Step 4 prescribes exactly that form. The cancelled runner then left a state the lifecycle does not name and no rule can resume. Small, high-clarity fix (F1 is one invocation form; F2 adds the missing one-shot + timeout line to the batch path). Scope, three findings and the F3 resume hole: [t1-e3.13](./t1-e3.13-phase9-gate-invocation-hang-backlog.md).
 - **🟢 LATER — T1-E3.12 Sprint-close business report:** the non-technical sprint summary was authored and proven at the GRID-Link satellite (`sprint-close` v8 + the Sprint 12 live example at `.devops/archive/sprints/sprint-12-showcase-slice/business-report.md`), but `.devops/skills/**` is portable — the satellite edit is overwritten on the next sync unless the improvement lands template-side here. Scope and reference implementation: [t1-e3.12](./t1-e3.12-sprint-close-business-report-backlog.md).
 
 No other triaged items remain queued; next candidates surface via `@backlog` or sprint retro.
