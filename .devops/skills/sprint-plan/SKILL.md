@@ -1,8 +1,8 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 6
-updated: 2026-09-16
+version: 7
+updated: 2026-09-23
 ---
 
 # Sprint Planning
@@ -137,7 +137,8 @@ For each committed item:
 
 1. `git mv` its parked plan from `.devops/backlog/<code>-<slug>-backlog.md` (legacy: `.devops/backlog/<slug>-backlog.md`) to `.devops/sprints/sprint-{n}-<slug>/{code}-{slug}-plan.md` — the move is the signal that it is committed.
 2. Add/replace the claim front-matter at the top of the moved file (`code`, `sprint: sprint-{n}-<slug>`, `claim_status: QUEUED`, `touches`, `depends_on`, `triage` from § 4c). Leave `owner` / `claimed_at` / `last_touch` empty until claimed. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
-3. Remove the item from the Triage Panel in `backlog-index.md` (it is tracked by the sprint now).
+3. **Draft the user story (stories).** For each committed plan, write one or more short user stories into the moved plan's front-matter as a `stories:` row — the "as the owner/user, I…" framing that what the plan delivers means to the person who owns it. Where the plan already carries acceptance criteria, derive the story from them (the criteria say what will be verifiable; the story says who it is for and why); otherwise draft it from the operator's intent line in the plan body. One story per line of the list; leave the row off only when the plan is pure machinery with no owner effect — a skipped story is a silent one, so record the reason in the plan body instead.
+4. Remove the item from the Triage Panel in `backlog-index.md` (it is tracked by the sprint now).
 
 > **Queue order is the first claim order, not an execution dependency.** Record the rows in the order you intend the runner to try them. `@sprint-run` evaluates eligibility immediately before **each** claim and iterates to a fixpoint (`.devops/skills/sprint-run/SKILL.md` § 2), so a plan listed *above* the dependency it needs is still reached once that dependency is satisfied — by archive (`claim_status: COMPLETE`) or by `GATE_D_USER_APPROVAL` (executed to `PHASE_9`, Gate D `OPEN`). Do **not** topologically sort the queue; state the intent and let the runner resolve it.
 >

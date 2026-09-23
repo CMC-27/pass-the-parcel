@@ -96,6 +96,9 @@ triage: SINGLE              # MULTI | SINGLE — commit-time topology recommenda
 |---|---|
 | | |
 
+**User Story (criteria trace to it):**
+The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time (§ 6) — is the input the acceptance criteria are written against: every criterion is checked against the story ("as the owner, I …"), not just the mechanics, and the trace closes the loop at `@sprint-close` § 5 (the story is what the user-acceptance walk presents first). A plan carrying no `stories:` row writes its criteria from the operator's intent line instead.
+
 **Acceptance Criteria:**
 | # | Criterion (behavior) | Test Target |
 |---|---|---|
