@@ -116,7 +116,7 @@ graph TD
 | `@true-or-false` | Product | Validate requirements against codebase reality |
 | `@knowledge-capture` | Knowledge | Record tribal knowledge and decisions |
 | `@skill-creator` | Knowledge | Create and iterate on new agent skills |
-| `@sync-architecture` | Machinery | Pull template machinery updates into a satellite workspace |
+| `@sync-architecture` | Machinery | Pull template machinery updates into a satellite workspace; report satellite feedback upstream (parcel feedback outbox) |
 
 ---
 
@@ -152,6 +152,9 @@ Record the source once — `scripts\pull-architecture.ps1 -Source <path-or-git-u
 
 ### Versioning
 Each skill carries an integer `version:` + `updated:` date in its frontmatter; `.devops/sync-manifest.yaml` carries one `machinery-version:` covering agents/rules/scripts/templates as a coordinated set. `@agent-wrap-up` owns the bump discipline: modify a portable file → bump its version (and `machinery-version` for non-skill surfaces) → satellites see `UPGRADE`, not `DRIFT`. In a **batch**, that discipline collapses to **one** `machinery-version:` increment for the whole batch, taken by the follow-up batch wrap-up from the value live at that moment — nested inside a batch, the per-plan path would have N writers reading one stale base (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*).
+
+### Parcel feedback (satellite → template)
+The reverse direction of the sync: when a satellite agent spots a template-worthy issue or improvement, it invokes the "Report parcel feedback upstream" step of `@sync-architecture` and drafts one parked-plan-shaped item per finding into a local `feedback/` outbox — shaped exactly as this repo's parked plans (`type: backlog`, `claim_status: QUEUED`, Findings with evidence, What-the-fix-does, Open question), so the hand-carry is copy-only. No credentials, no automation: at the next sync the operator copies each item as `.devops/backlog/<code>-<slug>-backlog.md`, registers it via `@backlog` in the theme register + Triage Panel, and deletes the outbox item. Full procedure: `.devops/skills/sync-architecture/SKILL.md` § 5.
 
 ### Model selection
 

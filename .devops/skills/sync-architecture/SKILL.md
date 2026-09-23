@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 9
-updated: 2026-09-18
+version: 10
+updated: 2026-09-23
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -60,6 +60,59 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    `AGENTS.md`, `opencode.json`, `.opencode/plans/base-context.md` — then
    `scripts\check-parcel-prefix.ps1 -Sync` once parcel agents exist.
 
+## 5. Report parcel feedback upstream
+
+The reverse direction of the sync: when a satellite agent spots an issue or improvement
+meant for the **template** repo mid-session (a machinery defect, a skill gap, a doc drift),
+do not hold it in conversation — draft it where the operator can carry it in one action.
+
+1. **Invoke the step** when the finding is template-worthy (it would change a portable
+   surface: `.devops/**`, rule layers, scripts, templates). Satellite-local app concerns
+   stay satellite-local — the fold-candidates protocol (hold, do not edit the template
+   locally) is the *stance*; this outbox is its *transport*.
+2. **Draft the item** into a `feedback/` directory at the satellite repo root — one `.md`
+   file per finding, shaped exactly as this template's parked plan so the hand-carry is
+   copy-only:
+
+   ```
+   feedback/<slug>-feedback.md
+   ---
+   code: TBD          # template assigns the stable T{theme}-E{epic}.{impl} at registration
+   type: backlog
+   claim_status: QUEUED
+   ---
+
+   # Backlog: <title>
+
+   **Discovered:** <date> — one sentence of context.
+
+   ## Findings
+   | # | Gap | Evidence | Impact |
+
+   ## What the fix does
+   <the operator's/actionable intent, or "open">
+
+   ## Open question
+   <what the template side must decide, if anything>
+   ```
+
+3. **Operator carry contract** (human-gated, no automation): at the next template sync,
+   the operator hand-carries each outbox item into the template repo — copy it as
+   `.devops/backlog/<code>-<slug>-backlog.md`, register it in the owning theme register
+   and the Triage Panel via `@backlog`, then delete the outbox item. "Reviewed" = triaged
+   to a tier (🔴/🟡/🟢/⚪) or committed to a sprint by `@sprint-plan`.
+
+### Rules
+
+- **No secrets/credentials in feedback items** — the portable surface is secret-free; a
+  drafted item travels through operator hands and must carry findings and evidence only.
+- **The outbox is a message queue, not a plan queue** — lifecycle states apply only once
+  the item is landed and claimed in a template repo; a `feedback/` file in the satellite
+  is debris, and a sync legitimately leaves it untouched (target-only file survives).
+- `ponytail:` one shape, no per-item template file shipped — the skill carries the draft
+  shape inline instead of adding a template artefact, and items carry a placeholder code
+  rather than inventing satellite-side code space.
+
 ## Rules
 
 - `-Check` never writes; it is always safe to run first. Prefer starting any sync request with
@@ -80,7 +133,7 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
   agent arrives runnable instead of arriving as a file the runtime never mounts. `BINDING-SKIP`
   now means only that neither the target nor the seed could supply an entry — still a loud
   failure in the target's own `check-parcel-prefix.ps1`.
-- **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §6 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
+- **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §8 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
 - A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
   declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.
 - **Version discipline.** A skill's `version` MUST bump with any `SKILL.md` or reference change.
