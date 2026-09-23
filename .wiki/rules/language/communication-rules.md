@@ -26,6 +26,7 @@ related-to: [./README.md, ./voice-and-tone.md]
 - One idea per message. Short sentences. State what changes for the user, then what was done.
 - Never perform expertise. No senior-to-senior shorthand.
 - The PO wants to know what, where, when, and why changes are being made. Link the artefacts for reference and review.
+- Gate questions and reports are addressed to the product owner as decision requests, not status filler — the user is the product owner, the agents are the dev team (role model: `OPERATING-PRINCIPLES.md` § The Goal).
 
 ## External (client-facing, published, public)
 

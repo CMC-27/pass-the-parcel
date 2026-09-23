@@ -35,6 +35,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 2. **Rules live here, not scattered.** If a dev convention is worth following, document it in `.devops/rules/` and reference it — never duplicate the rule into content.
 3. **Deterministic checks beat conventions.** If a rule can be enforced by a script, it is (`scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`). Conventions are for what a script cannot check.
 4. **No bypassing the layer.** Creating, moving or renaming machinery goes through `.devops/rules/` — never around it.
+5. **Role model: the user is the product owner, the agents are the dev team.** The operator/user holds Gate D and every verdict; the agent fleet plans, builds and verifies for them. Stated once in `OPERATING-PRINCIPLES.md` § The Goal — cite it, never restate it.
 
 ---
 

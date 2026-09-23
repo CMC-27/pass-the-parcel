@@ -21,6 +21,8 @@ tools: [read, edit, search, execute, agent, todo, vscode_askQuestions]
 
 **Managed Simplicity (first principle).** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
 
+**Role model.** The user/operator is the **product owner** (holds Gate D and every verdict); the agent fleet is the **dev team**. Statement of record: `OPERATING-PRINCIPLES.md` § The Goal.
+
 ## Task Lookup
 | Task | Read first | Then drill into |
 |---|---|---|

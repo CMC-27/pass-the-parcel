@@ -15,6 +15,8 @@ Its defining properties — what the goal *is*:
 | **Gated** | A → B → C → D; `AUTO` clears A–C only on positive evidence; Gate D is always human |
 | **Deterministic** | every phase asserts a checkable next state; a gate is *moved, never removed* |
 
+**Role model.** The user/operator is the **product owner** — they hold Gate D and every verdict; the agent fleet is the **dev team** that plans, builds and verifies for them. Every question put to the owner is a decision request, and every report is written for the owner, not for the team.
+
 **The test.** Every tier below must state how it serves the goal. If it cannot, it is a feature, not an instrument.
 
 ## The Principal Instrument — the agent-managed wiki
