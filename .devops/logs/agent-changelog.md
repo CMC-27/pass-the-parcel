@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-23 - Sprint-close register links repaired to archive-relative paths
 
 **Why:** `sprint-close` §8 told the close to link the sprint's artifacts as bare `[business report](business-report.md)` / `[user testing](user-testing.md)`. From `.devops/backlog/SPRINTS.md` those resolve to `.devops/backlog/…` — dead links, and nothing lints `.devops/backlog/` so they would have shipped silently. Sprint 10's close is the **first** to write these links (sprints 8–9 archived with only `sprint.md`), so there was no correct row to copy from. Both hrefs now read `../archive/sprints/sprint-{n}-<slug>/…`, matching the retro link's full-path form and the existing rows. Skill `version: 10 → 11`; skills are gated by their own version (`scripts/lib/sync-manifest.ps1` § skill), so **no `machinery-version` bump** — confirmed against the transport gate, not assumed.
-**Ref:** `<pending>`
+**Ref:** `cb4a76e`
 
 ## 2026-09-23 - Sprint 10 wave 3 (final): the owner loop closes — story → dev → user test → report (E3.16)
 
