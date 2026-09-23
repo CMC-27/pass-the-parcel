@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-23 - Sprint 10 batch 1: business report lands template-side; Phase 9 gate hang fixed (E3.12 + E3.13)
 
 **Why:** First batch-run of Sprint 10's owner-loop queue. E3.12: `@sprint-close` v7→v8 adds the stakeholder-facing Step 5 "Write the Business Report" (per-outcome/epic/theme grouping, tone rules, show-and-tell), the archive carries `business-report.md`, and the `SPRINTS.md` row links it — the satellite-proven fix landed template-side so the next sync propagates it instead of overwriting it. E3.13: `@test-and-deploy` v6 mandates the one-shot, non-interactive gate invocation (`vitest run` / `--run` / `CI=true`) that killed the live GRID-Link hang; gate-invocation hygiene + the named interrupted-run resume contract now live **once** in `plan-lifecycle.md` (§ Gate Invocation Hygiene, § Interrupted Run — Phase 9 only, never re-run 1–8, never fabricate evidence), cited by `ptp-parcel-fast` v9, `sprint-run` v11 and `template-plan.md`. Batch ran 2 of 7 plans — the other 5 are `touches`-blocked until these archive; a zero-eligible fixpoint is the normal terminal state, the wrap-up cadence un-blocks the next run. Confirmation gate passed 5/5 assertions per plan; repo gates green (prefix NOMODEL×11, utf8 188 clean, lint 0, claims 0 stale); `machinery-version` 68→69 (single batch writer).
-**Ref:** `<ref>`
+**Ref:** `e4f1ad8..0e39ef5` (wrap-up pair)
 
 ## 2026-09-20 - One session owns the plan; session-rotation phrasing retired (machinery 67 -> 68)
 
