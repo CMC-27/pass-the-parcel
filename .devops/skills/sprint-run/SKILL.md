@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 10
-updated: 2026-09-20
+version: 11
+updated: 2026-09-23
 ---
 
 # Sprint Run — Batch Queue Runner
@@ -87,6 +87,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 - Per claim: `scripts/sprint_eligible.py` exits non-zero (no or multiple ACTIVE sprint rows, an unparsable plan file, a failed shared-reader import). The host halts and reports the stderr cause — it never reasons the predicate out from prose on the failed path.
 - Per plan: a self-review `**REJECTED:**` at the inline Phase 6 checkpoint (never an inline `PHASE_5_REVISION` loop).
 - Per plan: `PHASE_8_FAILED` (rollback after two failed self-healing attempts).
+- Per plan: a runner **cancelled mid-Phase 9** — the interruption debris (`body Status: PHASE_9` + `claim_status: CLAIMED` + empty evidence, no `plan:` commit). Resume per `.devops/rules/plan-lifecycle.md` § Interrupted Run: on re-run, re-adopt (§ 1 step 4) and complete **Phase 9 only** — never a `SKIP`, never re-run Phases 1-8, never fabricate evidence. Long/unbounded gate commands inside a plan are prevented upstream at the source (`.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene, honoured by `@test-and-deploy` § 2).
 - Per plan: the `ptp-parcel-fast` subagent returns `HALT <code>: <cause>`.
 - Per batch: a concrete model was chosen at § 1 step 7 and the runtime **cannot honour spawn-time model selection** — halt with the limitation named, offering *proceed with inherit* or *run on the supporting runtime*. Never a silent downgrade: a batch that quietly runs on a different model than the operator chose is the failure this clause exists to prevent.
 - Per batch: the operator **deferred** a flagged `MULTI`-worthy plan at § 1 step 7 — the **yield**. The batch stops at that plan's slot (§ 3 step 4); plans already run keep their terminal `PHASE_9` state. This is a halt for the human — **never a skip** (it is not in the skip table) and **never a deviation** (`.devops/rules/plan-lifecycle.md` § Deviations stays at three).

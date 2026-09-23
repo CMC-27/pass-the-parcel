@@ -1,8 +1,8 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single run per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 8
-updated: 2026-09-20
+version: 9
+updated: 2026-09-23
 ---
 
 # SKILL: Per-Plan Fast Runner (`ptp-parcel-fast`)
@@ -58,7 +58,7 @@ This single-run Phases 1→9 chain replaces the default per-group delegation (se
 - `PHASE_8_FAILED` (rollback after two failed self-healing attempts) → return `HALT <code>: PHASE_8_FAILED`.
 - An `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** → return `HALT <code>: unproven <gate> — <missing artifact>`. Never repaired inline, never downgraded to a skip.
 - A self-review `**REJECTED:**` at the inline Phase 6 checkpoint, or a Phase 3.5 `Unresolvable:` → return `HALT <code>: <cause>`. **Never** start an inline `PHASE_5_REVISION` loop — revision belongs to a fresh Group B run, not this locked chain.
-- A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` without re-running.
+- A plan whose bottom `Status` is already `PHASE_9` at entry → return `SKIP <code>: already PHASE_9` — **only** when `claim_status` is `GATE_D_USER_APPROVAL` (batched, awaiting Gate D) or `COMPLETE`. A body-`PHASE_9` plan still carrying `claim_status: CLAIMED` with empty Phase 9 evidence (the interruption debris) is **never** a skip: resume per `.devops/rules/plan-lifecycle.md` § Interrupted Run — complete Phase 9 only (re-run the missing gates honestly, fill the evidence table, make the `plan: <code>` commit), never re-run Phases 1-8, never fabricate evidence.
 - A plan whose `depends_on` is unmet at entry → return `SKIP <code>: unmet depends_on`. A code is **satisfied** when it is present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`; any other state (still `QUEUED`, or `CLAIMED` below `PHASE_9`) is unmet. This is the **same rule** the host applies in `sprint-run` § 2 clause 2, whose executable embodiment is `scripts/sprint_eligible.py` — the two layers must not diverge, which is why neither restates the rule: they cite `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 
 ## Output contract
@@ -73,4 +73,4 @@ Never advance past `PHASE_9`, never flip Gate D, never reorder or re-run a skipp
 
 ## Safety
 
-Validation at trust boundaries, error handling, and the Gate D human sign-off are **not** simplifiable. The batch defers Gate D — it never skips it.
+Validation at trust boundaries, error handling, and the Gate D human sign-off are **not** simplifiable. The batch defers Gate D — it never skips it. Gate commands are **one-shot, non-interactive, bounded** — `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene; a watch-mode or open-ended command killed by its host is interruption debris, resumed per § Interrupted Run, not a code defect.

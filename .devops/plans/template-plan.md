@@ -242,6 +242,8 @@ triage: SINGLE              # MULTI | SINGLE — commit-time topology recommenda
 > [ ] Type-generation re-run if schema/API changes
 
 **Test Report:**
+> Gate commands are **one-shot, non-interactive, bounded** — never a watch-mode or open-ended invocation; a gate expected to exceed the executing tool's default timeout carries an explicit extended timeout (or runs backgrounded, result read once). Canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene.
+
 - [ ] Lint pass (exit 0)
 - [ ] Tests pass (exit 0)
 - [ ] Build pass (exit 0)

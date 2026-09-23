@@ -166,6 +166,19 @@ An `AUTO` gate clears **only on positive, presence-based evidence**. The test is
 >
 > `ponytail:` ceiling — the test proves an artifact is *present and referenced*, never that it is *correct* (a self-review row citing `AC 1` passes even if the reasoning is thin). Upgrade path = an independent reviewer in `SINGLE` — still open: `T1-E3.10` shipped the **MULTI-worthy flag + yield** instead, so a `MULTI`-worthy plan *escapes* `SINGLE` by operator choice rather than gaining a reviewer inside it.
 
+## Gate Invocation Hygiene (canonical — cite it, never restate it)
+
+Validation/gate commands are **one-shot, non-interactive, bounded**: a command that never returns (test-runner watch mode, a dev server, an interactive prompt) is the *failure to detect*, not a preference — and a suite expected to outlast the executing tool's default timeout must be invoked with an **explicit extended timeout**, or backgrounded and the result read once. The concrete one-shot invocations and how to derive them from a watch-shaped script live in `@test-and-deploy` § 2 (the teaching surface); every other gate surface cites this section. This applies to every path that runs gates: `@pass-the-parcel` manual runs, the `@sprint-run` batch path (`ptp-parcel-fast`), and pre-push validation.
+
+## Interrupted Run (resume contract — canonical)
+
+A per-plan runner may be cancelled **mid-Phase 9** (gate command killed by a timeout budget, its host, or its operator). The debris is named so it can be resumed:
+
+- **Signature:** plan **body** `Status: PHASE_9` **but** `claim_status: CLAIMED` **and** the Phase 9 evidence table empty or missing the exact `plan: <code>` commit.
+- **Resume (host or re-spawned runner):** complete **Phase 9 only** — re-run any missing gate commands honestly, fill the evidence table, then make the `plan: <code>` commit and set `claim_status: GATE_D_USER_APPROVAL`. **Never** re-run Phases 1-8, never fabricate evidence, never restart the plan.
+- **Never a silent `SKIP`:** the runner's `already PHASE_9 → SKIP` guard applies only to a plan already at `claim_status: GATE_D_USER_APPROVAL` (batched, awaiting Gate D) or `COMPLETE`; the signature above routes to the resume, not the skip.
+- `@sprint-run` § 1 step 4 (orphan re-adoption) resumes the same way from the recorded `Status` when the body has **not** reached `PHASE_9`.
+
 ## Rules
 
 1. **The plan is the only state.** Never carry workflow state in conversation; always read the plan first and update it before halting.

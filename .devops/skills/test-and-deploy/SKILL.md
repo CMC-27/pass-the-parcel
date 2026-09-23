@@ -1,8 +1,8 @@
 ---
 name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
-version: 5
-updated: 2026-09-17
+version: 6
+updated: 2026-09-23
 ---
 
 # NPM Test, Lint, and GitHub Deployment Pipeline
@@ -27,7 +27,7 @@ Run all three to ensure zero regressions, formatting errors, or build breaks bef
 1. Launch all three as background jobs. Redirect each stream's full output to a log file (e.g. `.agent-logs/lint.log`, `test.log`, `build.log`); return only a pass/fail flag per job.
 2. Poll each job **once** at completion — never stream or repeatedly poll output. That polling discipline is what prevents overrun, not call count.
 3. **Lint Verification** (`npm run lint`): if there are fixable lint errors, run `npm run lint -- --fix` (or the equivalent project command), then re-verify. If non-fixable errors persist, read `lint.log`, halt the execution, present the logs to the user, and prompt them to resolve the errors.
-4. **Unit & Integration Tests** (`npm test` or `npm run test`): on failure, read `test.log`, do NOT proceed. Halt execution, print the failure details, and prompt for bug remediation.
+4. **Unit & Integration Tests — one-shot, non-interactive.** Invoke the suite in run-once mode: `npm test -- --run` or `npx vitest run` (Vitest), `CI=true npm test`, or the project's equivalent — never bare `npm test` alone, which on a watch-shaped script (`"test": "vitest"` opens watch mode and never returns) is a **detected failure of the script, not an operator mistake**: check `package.json`'s `test` script for a watch shape and use the run-once derivation. On failure, read `test.log`, do NOT proceed. Halt execution, print the failure details, and prompt for bug remediation. A suite expected to outlast the executing tool's default timeout runs backgrounded (`Start-Job`, per § 2) with the result read once. Canonical rule: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene.
 5. **Build Verification** (`npm run build`): on failure, read `build.log`, halt, and prompt the user to fix TypeScript or bundler errors.
 
 ### 2b. Machinery Integrity Gate (required before any push)
