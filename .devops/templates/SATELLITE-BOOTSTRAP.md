@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 13
-updated: 2026-09-17
+version: 14
+updated: 2026-09-23
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -40,7 +40,7 @@ Copy and customize (the sync never overwrites these):
 | Seed (in `.devops/templates/`) | Copy to | Then |
 |---|---|---|
 | `AGENTS.template.md` | `AGENTS.md` | fill task-lookup rows + app rules 1–4 |
-| `opencode.template.json` | `opencode.json` | delete the `_comment` array; **keep the `agent` block** — it ships pre-bound and `@sync-architecture` re-stamps the model values on every pull (a missing/empty block fails `check-parcel-prefix.ps1`) |
+| `opencode.template.json` | `opencode.json` | delete the `_comment` array; **keep the `agent` block** — it ships with **no model values** (none are allowed: every agent inherits the CLI/picker model, see `@model-routing` §3) and `@sync-architecture` strips any model it finds on a pull (a missing/empty block fails `check-parcel-prefix.ps1`) |
 | `base-context.template.md` | `.opencode/plans/base-context.md` | fill core rules / task lookup |
 | `SPRINTS.template.md` | `.devops/backlog/SPRINTS.md` | sprint register — leave index empty until first `@sprint-plan` |
 | `sprint.template.md` | *(no copy)* | reference seed for the single `sprint.md`; `@sprint-plan` writes it into `.devops/sprints/sprint-{n}-<slug>/` |
@@ -53,12 +53,12 @@ Copy and customize (the sync never overwrites these):
 > `agent` block (the old seed told them to). That layout is **no longer supported** —
 > `check-parcel-prefix.ps1` fails with `opencode.json: no 'agent' block`. Restore it by
 > re-copying `.devops/templates/opencode.template.json` to `opencode.json`, keeping your own
-> `permission` blocks, then delete the `_comment` array. Model values are re-stamped by sync,
-> so never hand-bind them here (`@model-routing` §3).
+> `permission` blocks, then delete the `_comment` array. No model belongs in this file —
+> sync strips any it finds, and every agent inherits the CLI/picker model (`@model-routing` §3).
 >
 > **Migration (Model Registry rows, v40+):** a satellite bootstrapped before machinery v39
 > authored its `base-context.md` from the 10-row seed, so it lacks the `wiki-writer` /
-> `wiki-verifier` rows that the binding pass now requires (its own `check-parcel-prefix.ps1`
+> `wiki-verifier` rows that the registry check now requires (its own `check-parcel-prefix.ps1`
 > would fail `no Model Registry row for 'wiki-writer'`). Since machinery v40 the sync
 > **inserts** any registry row the target is missing, after the last existing row, so a
 > normal pull repairs it — no manual edit needed. Pulling with an older sync engine, add the
@@ -66,14 +66,14 @@ Copy and customize (the sync never overwrites these):
 > `.devops/templates/base-context.template.md`) before the target's check will pass.
 >
 > **Migration (new agent keys, v41+):** a satellite that pulls with an engine older than v41
-> keeps the old binding behaviour — a registry key its `opencode.json` `agent` block has never
+> keeps the pre-v41 entry handling — a registry key its `opencode.json` `agent` block has never
 > carried is reported `BINDING-SKIP` and its own `check-parcel-prefix.ps1` fails, so the pull
 > exits 1 even though the agent's file landed (the runtime mounts agents from `opencode.json`,
 > not by scanning `.devops/agents/`). Since machinery v41 the sync **inserts** that missing
 > entry whole, sourced from the target's own synced
 > `.devops/templates/opencode.template.json`, so a newly shipped agent arrives runnable on a
-> normal pull. An entry the satellite already authored is never restructured — only its `model`
-> value is re-stamped. Repairing by hand (older engine): copy the key's block out of the seed
+> normal pull. An entry the satellite already authored is never restructured — and no model
+> travels with it (sync strips any it finds). Repairing by hand (older engine): copy the key's block out of the seed
 > into `opencode.json`.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:

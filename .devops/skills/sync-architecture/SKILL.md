@@ -1,7 +1,7 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 10
+version: 11
 updated: 2026-09-23
 ---
 
@@ -79,8 +79,7 @@ do not hold it in conversation — draft it where the operator can carry it in o
    ---
    code: TBD          # template assigns the stable T{theme}-E{epic}.{impl} at registration
    type: backlog
-   claim_status: QUEUED
-   ---
+   claim_status: QUEUED   # field + enum canon: .devops/rules/plan-lifecycle.md § Claim Front-Matter
 
    # Backlog: <title>
 
