@@ -16,7 +16,7 @@ description: "Make the repo credible and self-explanatory as a public GitHub tem
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T3-E1.02 | Satellite "parcel feedback" pathway | QUEUED | A defined route for satellite agents to push issues/improvements into this template's backlog immediately, context and evidence attached, ready for triage — replacing operator hand-carry. | [plan](./t3-e1.02-parcel-feedback-pathway-backlog.md) |
 
 ### Completed
 
