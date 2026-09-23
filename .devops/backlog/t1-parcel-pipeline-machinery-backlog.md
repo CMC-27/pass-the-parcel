@@ -56,6 +56,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
 | T1-E3.18 | The `stories:` trace has no gate behind it | QUEUED | Surfaced closing T1-E3.16: the new `stories:` front-matter row is drafted at `@sprint-plan` commit time and read by `@sprint-close` §5, but nothing asserts a committed plan carries one (or a recorded skip reason) and nothing can tell whether a criterion traces to a story. Consumer degrades gracefully, so the miss is invisible. Open question: gate it, or measure compliance first? | [plan](./t1-e3.18-stories-trace-ungated-backlog.md) |
+| T1-E3.19 | The wave-forecast table drifts from the live eligibility predicate | QUEUED | Sprint 10 retro **Drop** line: `@sprint-plan` §4b mandates a predicted wave table in `sprint.md`, and it has been wrong three sprints running (sprint 10 predicted 3 waves, delivered 2→4→1) while reading as authoritative — the eligibility script's live JSON is the real contract. But the table's `Flag` column IS load-bearing (`@sprint-run` §1's MULTI fork), so the fix keeps the flags and drops/demotes the wave prediction. Larger find: the sprint template has **two homes** that already disagree — `sprint-plan/SKILL.md:96-132` includes `## Delivery Model`, `.devops/templates/sprint.template.md` v3 omits it. | [plan](./t1-e3.19-wave-forecast-drift-backlog.md) |
 
 ### Completed
 

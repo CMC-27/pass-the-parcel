@@ -21,6 +21,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 - *(Sprint 10 "owner-loop" holds all seven previously-triaged items plus four new operator items; next candidates surface via `@backlog` or sprint retro.)*
 - 🟢 **LATER** · **T1-E3.18** — The `stories:` trace has no gate behind it (surfaced closing `T1-E3.16`; gate it or measure compliance first). [plan](./t1-e3.18-stories-trace-ungated-backlog.md)
+- 🟢 **LATER** · **T1-E3.19** — The wave-forecast table drifts from the live eligibility predicate (Sprint 10 retro Drop; also surfaces the sprint template's two disagreeing homes). [plan](./t1-e3.19-wave-forecast-drift-backlog.md)
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 

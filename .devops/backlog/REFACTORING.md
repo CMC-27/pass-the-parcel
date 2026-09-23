@@ -58,6 +58,27 @@ rank | source                                                  | lines | imp | f
    5 | scripts\check-parcel-prefix.ps1                         |   370 |   - |   - |      - | (no test) |  1.4
 ```
 
+### Machinery scan — 2026-09-23 (sprint 10 close, all roots)
+
+```
+node scripts/spaghetti-monster-scan.cjs
+no src/ tree in this workspace — skipping (nothing to scan there)
+=== TOP 40 SOURCE+TEST RISK (unified kill list) ===
+roots: src/ (app) + scripts/, .devops/skills/, .devops/agents/, .devops/templates/ (machinery)
+non-ECMAScript rows (`imp`/`fn`/`CCN` shown as `-`) are ranked on line count only.
+
+rank | source                                   | lines | imp | fn | CCN(h) | test      | risk
+   1 | scripts\spaghetti-monster-scan.cjs       |   261 |   2 |   8 |     81 | (no test) | 51.0
+   2 | scripts\sync-architecture.ps1            |   572 |   - |   - |      - | (no test) |  5.4
+   3 | scripts\wiki_claims.py                   |   484 |   - |   - |      - | (no test) |  3.7
+   4 | scripts\sprint_eligible.py               |   463 |   - |   - |      - | (no test) |  3.3
+   5 | scripts\wiki_lint_checks.py              |   423 |   - |   - |      - | (no test) |  2.5
+   6 | scripts\tests\test_sprint_eligible.py    |   410 |   - |   - |      - | (no test) |  2.2
+   7 | scripts\check-parcel-prefix.ps1          |   359 |   - |   - |      - | (no test) |  1.2
+```
+
+**No new Kill List rows.** Sprint 10's touched surface (47 paths) was machinery markdown and prose — 7 skills, 9 agents, `.devops/rules/*`, one template, plans/logs — and none of it crosses the 400-line warn. No `scripts/` file was touched this sprint, so the standing rows below are unchanged in kind: `spaghetti-monster-scan.cjs` (🔴 OPEN) and `wiki_claims.py` (🔴 OPEN) were not in scope, and `sync-architecture.ps1`'s drift 561 → 572 predates this sprint (untouched since `T1-E4.03`). Two archived plans read 404/420 lines and `agent-changelog.md` 478 — all historical records or logs, outside the refactoring lane.
+
 Two caveats, both load-bearing when reading this table:
 
 - **`CCN(h)` is a regex heuristic, not an AST count.** It counts `if (`/`case`/`for (`/`&&`/`||`/`?`/`??` occurrences, including those *inside regex literals* — so it is inflated for regex-heavy files (rank 1 is the scanner itself). Treat line count as the reliable column and the CCN figure as a pointer, not a measurement.
@@ -102,11 +123,13 @@ Two caveats, both load-bearing when reading this table:
 
 | Metric | Value | Last Checked |
 |--------|-------|-------------|
-| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-16 |
-| Total tests | 0 | 2026-09-16 |
-| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-16 |
-| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-16 |
-| Lint warnings | 0 | 2026-09-16 |
+| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-23 |
+| Total tests | 0 | 2026-09-23 |
+| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-23 |
+| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-23 |
+| Lint warnings | 0 | 2026-09-23 |
+
+Gate set at sprint 10 close, all exit `0`: `wiki_lint.py --quiet` · `wiki_claims.py check` (0 stale) · `wiki_claims.py coverage` (no `src/` tree — nothing to cover) · `check-parcel-prefix.ps1` (PASS ×9, NOMODEL ×12, seed ok) · `check-utf8-agents.ps1` (ALL CLEAN, 182 files).
 
 The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
 

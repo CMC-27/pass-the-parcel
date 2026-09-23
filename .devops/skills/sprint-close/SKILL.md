@@ -1,7 +1,7 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, walks the operator one-by-one through the sprint''s manual user tests (user-testing.md), writes the business report, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 11
+version: 12
 updated: 2026-09-23
 ---
 
@@ -133,10 +133,10 @@ Before archiving (§7), write a plain-language business report for business stak
 A closed sprint is a historical record: move the whole sprint folder to the archive.
 
 1. `git mv .devops/sprints/sprint-{n}-<slug>/sprint.md .devops/archive/sprints/sprint-{n}-<slug>/sprint.md` (create the target folder).
-2. Move §5's `business-report.md` alongside it: `git mv .devops/sprints/sprint-{n}-<slug>/business-report.md .devops/archive/sprints/sprint-{n}-<slug>/business-report.md`. If the report was skipped, the retro records why (Step 5) - never a silent skip.
-3. Move §5's `user-testing.md` alongside them the same way: `git mv .devops/sprints/sprint-{n}-<slug>/user-testing.md .devops/archive/sprints/sprint-{n}-<slug>/user-testing.md`. If the walk never ran, the retro records why (Step 5) - never a silent skip — same rule as the report's.
+2. Move §5's `business-report.md` alongside it — `git mv` when the file is already tracked, otherwise a plain `Move-Item` (this close **creates** the artifact, so it is usually untracked and `git mv` refuses with "not under version control"). If the report was skipped, the retro records why (Step 5) - never a silent skip.
+3. Move §5's `user-testing.md` alongside them the same way (`git mv` if tracked, else `Move-Item`). If the walk never ran, the retro records why (Step 5) - never a silent skip — same rule as the report's.
 4. Shipped plans are **not** moved here — they already archived to `.devops/archive/` root individually at wrap-up (see `.devops/rules/plan-lifecycle.md` rule 6). They are linked to the sprint by the `sprint:` front-matter field.
-5. Remove the now-empty `.devops/sprints/sprint-{n}-<slug>/` directory.
+5. **Only then** remove the now-empty `.devops/sprints/sprint-{n}-<slug>/` directory — after confirming all three files exist at the archive path. A recursive delete on a partially-moved folder destroys the untracked artifacts, and there is no committed copy to recover them from.
 
 ## 8. Update the Registers
 
