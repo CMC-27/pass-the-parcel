@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 2
+version: 3
 updated: 2026-09-23
 
 sprint.template.md — seed for a single sprint record.
@@ -9,8 +9,10 @@ The @sprint-plan skill writes this to
 The @sprint-close skill appends the Retro section and flips status to "closed".
 One file, open → close → retro. There is no separate retro.md.
 At close, @sprint-close also writes business-report.md into the sprint folder
-(a plain-language report for business stakeholders) so the archive move carries
-it; it is never present while the sprint is open.
+(a plain-language report for business stakeholders) and walks the operator
+through user-testing.md (the sprint's manual tests, one-by-one) so both
+artefacts are carried by the archive move; neither is present while the
+sprint is open.
 -->
 ---
 type: "sprint"
