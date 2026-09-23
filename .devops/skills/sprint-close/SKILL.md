@@ -1,8 +1,8 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 7
-updated: 2026-09-18
+version: 8
+updated: 2026-09-23
 ---
 
 # Sprint Close — Retrospective & Hygiene Ritual
@@ -35,7 +35,7 @@ This is the process trigger that keeps refactoring out of the feature backlog:
 
 **Scan scope — app source *and* machinery.** `scripts/spaghetti-monster-scan.cjs` walks `src/` (the app surface) **plus** the machinery roots `scripts/`, `.devops/skills/`, `.devops/agents/`, `.devops/templates/`, under the same thresholds. A missing root prints a one-line skip and exits `0` — never a crash, and never a silent skip. Rows whose `imp`/`fn`/`CCN` columns show `-` are non-ECMAScript files (`.ps1`/`.py`/`.md`): they are ranked on **line count only**, which is the load-bearing signal for the machinery pass. Read `-` as "not measured", never as "clean".
 
-**The refactoring lane is opt-in per repo.** Step 3's promotion — and § 6's "Ensure REFACTORING.md reflects the scan results" — need `.devops/backlog/REFACTORING.md` to exist (adopted from `.devops/templates/REFACTORING.template.md`). If it does **not** exist, do not create it implicitly: run the scan anyway and write its findings into the retro's **New Refactoring Items** section, stating plainly that the register is absent, so the lane is dormant and the flags have nowhere to land. A skipped promotion is a *recorded* decision — never a silent one.
+**The refactoring lane is opt-in per repo.** Step 3's promotion — and § 7's "Ensure REFACTORING.md reflects the scan results" — need `.devops/backlog/REFACTORING.md` to exist (adopted from `.devops/templates/REFACTORING.template.md`). If it does **not** exist, do not create it implicitly: run the scan anyway and write its findings into the retro's **New Refactoring Items** section, stating plainly that the register is absent, so the lane is dormant and the flags have nowhere to land. A skipped promotion is a *recorded* decision — never a silent one.
 
 The scan output does NOT create new feature-backlog items. It only feeds REFACTORING.md.
 
@@ -84,21 +84,55 @@ There is **no separate `retro.md`**. Append a `## Retro` section to the existing
 {List files flagged by the close-of-sprint scan. Confirm they were added to the Kill List.}
 ```
 
-## 5. Archive the Sprint Record
+## 5. Write the Business Report
+
+Before archiving (§6), write a plain-language business report for business stakeholders: the people the sprint served, not the dev team. This is the one close-ritual output that speaks to users, sponsors, and practitioners outside the pipeline.
+
+1. **Where and when.** Write `business-report.md` into the sprint folder (`.devops/sprints/sprint-{n}-<slug>/`) BEFORE the §6 archive move, so the same move carries it into `.devops/archive/sprints/sprint-{n}-<slug>/` automatically. The report is sprint-folder debris, not a plan: no plan-lifecycle rule applies to it.
+2. **Audience and grouping.** Business users and practitioners, never developers. Group the report per outcome/epic/theme - never per parcel code. A stakeholder must be able to read it with zero pipeline knowledge.
+3. **Reusable outline.** Fill every section; skip nothing silently:
+
+   ```markdown
+   # Sprint {n} ({Name}): Business Report
+
+   ## What this sprint set out to do
+   {One sentence: the sprint goal in plain language.}
+
+   ## What was delivered
+   {Per theme/epic: what changed and who benefits. No parcel codes.}
+
+   ## Wins
+   {2-4 concrete improvements, stated as benefits.}
+
+   ## Quality
+   {One short paragraph: delivered totals, test counts, capacity accuracy - the trust-building numbers only. No machinery thresholds.}
+
+   ## Open items for the owner
+   {Non-development actions the operator still owns, each with its ask.}
+
+   ## What's next
+   {Where the work goes next; link the sprint record and retro.}
+   ```
+
+4. **Tone rules.** Benefit language throughout. Only trust-building numbers: delivered totals, test counts, capacity percentage. Machinery thresholds and machinery vocabulary - parcel, Gate D, Kill List, spaghetti scan - stay out of the report entirely.
+5. **Show-and-tell before archiving.** Present the report to the operator and get a nod before §6 moves the folder; §7 then links it from the sprint's register row. If the report is skipped, the retro records why - never a silent skip.
+
+## 6. Archive the Sprint Record
 
 A closed sprint is a historical record: move the whole sprint folder to the archive.
 
 1. `git mv .devops/sprints/sprint-{n}-<slug>/sprint.md .devops/archive/sprints/sprint-{n}-<slug>/sprint.md` (create the target folder).
-2. Shipped plans are **not** moved here — they already archived to `.devops/archive/` root individually at wrap-up (see `.devops/rules/plan-lifecycle.md` rule 6). They are linked to the sprint by the `sprint:` front-matter field.
-3. Remove the now-empty `.devops/sprints/sprint-{n}-<slug>/` directory.
+2. Move §5's `business-report.md` alongside it: `git mv .devops/sprints/sprint-{n}-<slug>/business-report.md .devops/archive/sprints/sprint-{n}-<slug>/business-report.md`. If the report was skipped, the retro records why (Step 5) - never a silent skip.
+3. Shipped plans are **not** moved here — they already archived to `.devops/archive/` root individually at wrap-up (see `.devops/rules/plan-lifecycle.md` rule 6). They are linked to the sprint by the `sprint:` front-matter field.
+4. Remove the now-empty `.devops/sprints/sprint-{n}-<slug>/` directory.
 
-## 6. Update the Registers
+## 7. Update the Registers
 
-- In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Update `last_sprint`.
+- In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Link §5's business report in the same row's Retro cell, next to the retro link (`[business report](business-report.md)`). Update `last_sprint`.
 - Ensure REFACTORING.md reflects the scan results (Step 2) — when the register exists; otherwise the retro's **New Refactoring Items** section carries them, with the register's absence stated.
 - Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC. **Template-side step:** both homes (`.devops/rules/**`, `.devops/skills/**`) are on the portable surface, so a pull replaces them wholesale — a satellite **reports** fold candidates upward and does not attempt the edit locally.
 - Do NOT auto-open the next sprint. Tell the user the current one is closed and they can run `@sprint-plan` when ready, carrying forward the "capacity accuracy" line so the next plan suggests a better budget.
 
-## 7. Hand Off
+## 8. Hand Off
 
 Summarise: goal met?, what carried forward, top refactoring flags, and the calibrated capacity number for next time. Point the user to `@sprint-plan` to open the next cycle.

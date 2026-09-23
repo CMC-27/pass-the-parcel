@@ -1,13 +1,16 @@
 <!--
 type: template
-version: 1
-updated: 2026-09-13
+version: 2
+updated: 2026-09-23
 
 sprint.template.md — seed for a single sprint record.
 The @sprint-plan skill writes this to
 .devops/sprints/sprint-{n}-<slug>/sprint.md when a sprint opens.
 The @sprint-close skill appends the Retro section and flips status to "closed".
 One file, open → close → retro. There is no separate retro.md.
+At close, @sprint-close also writes business-report.md into the sprint folder
+(a plain-language report for business stakeholders) so the archive move carries
+it; it is never present while the sprint is open.
 -->
 ---
 type: "sprint"

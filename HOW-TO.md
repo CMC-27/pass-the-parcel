@@ -78,6 +78,7 @@ As implementation concludes, the agent must document what it learned and clean u
 *   **`@knowledge-consolidation`**: Periodically structures, de-duplicates, and archives local developer knowledge into indexed snippets.
 *   **`@agent-wrap-up`**: Runs final workspace state synchronization. It reviews modified files, updates logs, archives the plan, and closes the active loop.
 *   **`@spaghetti-monster`**: Scans for high-complexity code regions and packages them into backlog parcel plans for later refactoring.
+*   **`@sprint-close`**: Closes the committed sprint: retro into `sprint.md`, the hygiene scan, and a plain-language business report for business stakeholders, filed with the archived sprint record.
 
 ---
 
