@@ -11,6 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-23 - Sprint-close register links repaired to archive-relative paths
+
+**Why:** `sprint-close` §8 told the close to link the sprint's artifacts as bare `[business report](business-report.md)` / `[user testing](user-testing.md)`. From `.devops/backlog/SPRINTS.md` those resolve to `.devops/backlog/…` — dead links, and nothing lints `.devops/backlog/` so they would have shipped silently. Sprint 10's close is the **first** to write these links (sprints 8–9 archived with only `sprint.md`), so there was no correct row to copy from. Both hrefs now read `../archive/sprints/sprint-{n}-<slug>/…`, matching the retro link's full-path form and the existing rows. Skill `version: 10 → 11`; skills are gated by their own version (`scripts/lib/sync-manifest.ps1` § skill), so **no `machinery-version` bump** — confirmed against the transport gate, not assumed.
+**Ref:** `<pending>`
+
 ## 2026-09-23 - Sprint 10 wave 3 (final): the owner loop closes — story → dev → user test → report (E3.16)
 
 **Why:** The sprint's last parcel, run alone once its `touches` blockers archived. `@sprint-plan` v6→7 §6 now drafts one or more owner-voice stories per committed plan into a `stories:` front-matter row (derived from the plan's acceptance criteria where present, from the operator's intent line otherwise); `template-plan.md` Phase 4 gains the "User Story (criteria trace to it)" input so criteria are checked against the story, not just the mechanics; `@sprint-close` v9→10 §5 item 2 cites the field (story presented first, criteria fallback) with **no renumber** — anchored to E3.15's pre-built sentence exactly as its hand-off directed. Smallest surface held: no persona/agent cascade (Q1 — 11 files and `-Sync` ×9 for one guidance line the template scaffold already carries), no `plan-lifecycle.md` edit (outside `touches`; it does not enumerate optional rows). **Sprint 10 is now 7/7 delivered, 11/11 pts** — every committed parcel `COMPLETE` + archived. Follow-up parked as `T1-E3.18` (the `stories:` row has no gate behind it). Confirmation gate 5/5; repo gates green (lint 0, claims 0 stale, prefix PASS×9/NOMODEL×12, utf8 182 clean); `machinery-version` 70→71 (single batch writer).

@@ -1,7 +1,7 @@
 ---
 name: sprint-close
 description: 'Make sure to use this skill whenever the user mentions closing a sprint, ending a sprint, sprint retrospective, "we finished the sprint", /sprint-close, wrap up the cycle, or when all committed parcel plans in the active sprint reach COMPLETE. Runs the end-of-sprint ritual: appends the retro into the single sprint.md, triggers a spaghetti-monster scan of everything touched this sprint to refresh REFACTORING.md, captures lessons, walks the operator one-by-one through the sprint''s manual user tests (user-testing.md), writes the business report, moves the sprint.md to .devops/archive/sprints/sprint-{n}-<slug>/, and updates SPRINTS.md. This skill CLOSES a sprint — it does not plan one (@sprint-plan) or execute parcels (@pass-the-parcel).'
-version: 10
+version: 11
 updated: 2026-09-23
 ---
 
@@ -140,7 +140,7 @@ A closed sprint is a historical record: move the whole sprint folder to the arch
 
 ## 8. Update the Registers
 
-- In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Link §6's business report and §5's `user-testing.md` in the same row's Retro cell, next to the retro link (`[business report](business-report.md)` / `[user testing](user-testing.md)`). Update `last_sprint`.
+- In `SPRINTS.md`: change the sprint row status to `✅ CLOSED` and set the retro link to the archived `sprint.md` (`.devops/archive/sprints/sprint-{n}-<slug>/sprint.md#retro`). Link §6's business report and §5's `user-testing.md` in the same row's Retro cell, next to the retro link, with paths relative to `.devops/backlog/`: `[business report](../archive/sprints/sprint-{n}-<slug>/business-report.md)` / `[user testing](../archive/sprints/sprint-{n}-<slug>/user-testing.md)`. Update `last_sprint`.
 - Disposition the walk's failures: for each failed or blocked user-acceptance test, add an actionable row to the owning theme register in `.devops/backlog/` (or record explicitly that none failed — never silent). The retro records the count; the register rows carry the fix.
 - Ensure REFACTORING.md reflects the scan results (Step 2) — when the register exists; otherwise the retro's **New Refactoring Items** section carries them, with the register's absence stated.
 - Review `.devops/rules/process-lessons.md`: fold each matured machinery rule into its owning skill or `plan-lifecycle.md` and delete it from the register, so the staging register stays small (~25 entries) instead of becoming a second KC. **Template-side step:** both homes (`.devops/rules/**`, `.devops/skills/**`) are on the portable surface, so a pull replaces them wholesale — a satellite **reports** fold candidates upward and does not attempt the edit locally.
