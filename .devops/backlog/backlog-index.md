@@ -19,7 +19,8 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-- *(empty — Sprint 10 "owner-loop" holds all seven previously-triaged items plus four new operator items; next candidates surface via `@backlog` or sprint retro.)*
+- *(Sprint 10 "owner-loop" holds all seven previously-triaged items plus four new operator items; next candidates surface via `@backlog` or sprint retro.)*
+- 🟢 **LATER** · **T1-E3.18** — The `stories:` trace has no gate behind it (surfaced closing `T1-E3.16`; gate it or measure compliance first). [plan](./t1-e3.18-stories-trace-ungated-backlog.md)
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
