@@ -19,9 +19,15 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-- *(Sprint 10 "owner-loop" holds all seven previously-triaged items plus four new operator items; next candidates surface via `@backlog` or sprint retro.)*
+- *(Sprint 10 closed 2026-09-23 — 7/7 delivered, archived. The 2026-09-24 GRID-Link field audit parked six new items below; T1-E3.18/E3.19 carry over.)*
+- 🟡 **NEXT** · **T3-E1.03** — The deterministic CI gates stop at the template border (field finding 7: satellite CI is app-only; the README claim is template-side). [plan](./t3-e1.03-ci-gate-transportability-backlog.md)
+- 🟡 **NEXT** · **T1-E2.08** — Tiered machinery versioning + ordering-aware transport (field finding 4: counter divergence 78 vs 72; equality-only sync cannot tell behind from ahead). [plan](./t1-e2.08-tiered-machinery-versioning-backlog.md)
+- 🟡 **NEXT** · **T1-E5.01** — MICRO topology — the sanctioned small-change pathway (operator priority; field-calibrated: ~45% SINGLE + 35 ad-hoc runs). [plan](./t1-e5.01-micro-topology-backlog.md)
 - 🟢 **LATER** · **T1-E3.18** — The `stories:` trace has no gate behind it (surfaced closing `T1-E3.16`; gate it or measure compliance first). [plan](./t1-e3.18-stories-trace-ungated-backlog.md)
 - 🟢 **LATER** · **T1-E3.19** — The wave-forecast table drifts from the live eligibility predicate (Sprint 10 retro Drop; also surfaces the sprint template's two disagreeing homes). [plan](./t1-e3.19-wave-forecast-drift-backlog.md)
+- 🟢 **LATER** · **T1-E5.02** — The changelog becomes a generated index; plans are the source of truth (operator ruling; GRID-Link field evidence: changelog spans 8 days, plans span months). [plan](./t1-e5.02-changelog-generated-index-backlog.md)
+- 🟢 **LATER** · **T1-E3.20** — The batch preset silently overrules a sprint's recorded Mode rulings (2026-09-13 lesson; promoted by the field audit). [plan](./t1-e3.20-batch-preset-overrule-check-backlog.md)
+- 🟢 **LATER** · **T3-E1.04** — CORE satellite profile — measured onboarding reduction (~18 of 36 skills carry the pipeline in the field). [plan](./t3-e1.04-core-satellite-profile-backlog.md)
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 

@@ -33,7 +33,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T1-E2.08 | Tiered machinery versioning + ordering-aware transport | QUEUED | The counter becomes `major.minor.patch` (first value `1.0.73`) with a deterministic diff-based bump rule; the dual numbering collapses (manifest value = release-log label); the sync check becomes ordering-aware (target-ahead is halt-and-reconcile, never `UPGRADE`); majors become mandatory satellite pull milestones. Field finding: GRID-Link stamps 78 vs 72 with zero release rows — equality-only comparison cannot tell behind from ahead. | [plan](./t1-e2.08-tiered-machinery-versioning-backlog.md) |
 
 ### Completed
 
@@ -57,6 +57,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 |------|-------|--------|-------------|------|
 | T1-E3.18 | The `stories:` trace has no gate behind it | QUEUED | Surfaced closing T1-E3.16: the new `stories:` front-matter row is drafted at `@sprint-plan` commit time and read by `@sprint-close` §5, but nothing asserts a committed plan carries one (or a recorded skip reason) and nothing can tell whether a criterion traces to a story. Consumer degrades gracefully, so the miss is invisible. Open question: gate it, or measure compliance first? | [plan](./t1-e3.18-stories-trace-ungated-backlog.md) |
 | T1-E3.19 | The wave-forecast table drifts from the live eligibility predicate | QUEUED | Sprint 10 retro **Drop** line: `@sprint-plan` §4b mandates a predicted wave table in `sprint.md`, and it has been wrong three sprints running (sprint 10 predicted 3 waves, delivered 2→4→1) while reading as authoritative — the eligibility script's live JSON is the real contract. But the table's `Flag` column IS load-bearing (`@sprint-run` §1's MULTI fork), so the fix keeps the flags and drops/demotes the wave prediction. Larger find: the sprint template has **two homes** that already disagree — `sprint-plan/SKILL.md:96-132` includes `## Delivery Model`, `.devops/templates/sprint.template.md` v3 omits it. | [plan](./t1-e3.19-wave-forecast-drift-backlog.md) |
+| T1-E3.20 | The batch preset silently overrules a sprint's recorded Mode rulings | QUEUED | The locked `AUTO`+`SINGLE` preset overwrites each plan's frozen Plan Settings at claim time; the MULTI-worthy fork catches topology but not a `USER-MANAGED` ruling, so a sprint's explicit mode decision can be silently overruled (2026-09-13 lesson; promoted by the GRID-Link field audit). Fix: an advisory `mode_conflicts` key in `sprint_eligible.py` + one consolidated operator fork in `sprint-run` § 1. | [plan](./t1-e3.20-batch-preset-overrule-check-backlog.md) |
 
 ### Completed
 
@@ -96,3 +97,20 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 |------|-------|----------|------|---------|
 | T1-E4.03 | One session owns the plan (retire session-rotation phrasing) | 2026-09-20 | Completes `T1-E4.02`'s direct fix, which had **removed** the session-rotation rule without stating its replacement. The **positive** rule now lives once in `@pass-the-parcel` § Review Gates item 1 (v25→v26) and is mirrored into the shared prefix + seed (all 9 locked agents), the orchestrator body and the plan template's State & Gates boilerplate (*records state, never a handoff instruction*); the three surviving stale phrases are swept (`q-and-a`, `true-or-false`, `18-knowledge-capture.md`), and *Strict Context Isolation* is **redefined** as the sub-agent's cold context — never a rotation of the operator's session. Proved by a scoped live-surface grep: four stale phrases, **0** hits (archive + logs excluded). `SINGLE` + `AUTO` by operator direction, so **no independent reviewer**; one machinery lesson routed (*removing a rule is not replacing it*). `machinery-version 67 → 68`. | [plan](../archive/t1-e4.03-session-ownership-plan.md) |
 | T1-E4.01 | Machinery surface budget & Managed Simplicity | 2026-09-17 | Adds the counterweight the template was missing: **Managed Simplicity** as the first principle (`.devops/rules/managed-simplicity.md`), a report-only **surface-budget report** (`scripts/rule_fanout.py` + the `.devops/rules/surface-budget.md` registry) that measures rule fan-out on one declared metric over the machinery surface, and then applies both. Rule fan-out **59 → 2** unauthorised restatement sites across the six registered rules; `sync-architecture.ps1` **995 → 485** (five dot-sourced `scripts/lib/` modules) and `wiki_lint.py` **485 → 60**, both proven line-for-line against pre-split goldens with a byte-compared `--fix` scenario; the encoding gate **18.41 s → 0.57 s** with a fixed EOF blind spot and `.devops/archive` off the recurring scan (`-All` on demand); the coverage gate **moved, never died** (`python scripts/wiki_claims.py coverage`); four skills, two scripts and the generated `docs/wiki-graph.md` retired; new **`prune_dirs`** so a retired skill folder actually leaves an already-synced satellite (proven against a pre-retirement target: 7 PRUNE → deleted → IN SYNC). Two CI assertions were lost with their subjects and both are named in the dated `MATURITY.md` row; `MATURITY.md` gains **Axis 7** and re-scores Axis 2 and Axis 5. `machinery-version 55 → 56`. | [plan](../archive/t1-e4.01-machinery-surface-budget-plan.md) |
+
+## E5 — Change-Scale Pathway & Records
+
+> **Origin:** the operator's 2026-09-24 direction — a sanctioned pathway for small changes without full-parcel overhead, with the plan file remaining the single source of truth ("the agent changelog eventually dies out"). Field-calibrated by the GRID-Link audit ([`../audits/grid-link-field-audit-2026-09-24.md`](../audits/grid-link-field-audit-2026-09-24.md)): ~45% of 346 archived parcels ran `SINGLE`, 35 explicit ad-hoc runs, and the template already lands direct fixes with recorded skips — the light path exists in practice, unsanctioned.
+
+### Open
+
+| Code | Title | Status | Description | Plan |
+|------|-------|--------|-------------|------|
+| T1-E5.01 | MICRO topology — the sanctioned small-change pathway | QUEUED | A third `Agents` topology value: a collapsed parcel (phases 2-8 rendered as marked `N/A — MICRO` sections carrying the eligibility line), no new lifecycle states, Gate B carries eligibility + plan, Gate D always halts; `triage` gains `MICRO`; the batch preset is untouched (manual path only); wrap-up = patch bump. Eligibility scripted, calibrated from the field ad-hoc set. | [plan](./t1-e5.01-micro-topology-backlog.md) |
+| T1-E5.02 | The changelog becomes a generated index; plans are the source of truth | QUEUED | One line per change (code, date, summary, plan link), written at wrap-up from the plan, never independently authored; rule 5's "read the last 3 entries" survives untouched (the payload changes, not the rule); the Why lives once, in the plan. Field evidence: GRID-Link's changelog spans 8 days while its plans span months. | [plan](./t1-e5.02-changelog-generated-index-backlog.md) |
+
+### Completed
+
+| Code | Title | Resolved | Note | Archive |
+|------|-------|----------|------|---------|
+| _(none)_ | | | | |

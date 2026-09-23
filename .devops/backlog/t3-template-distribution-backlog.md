@@ -16,7 +16,8 @@ description: "Make the repo credible and self-explanatory as a public GitHub tem
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T3-E1.03 | The deterministic CI gates stop at the template border | QUEUED | `validate.yml` is not portable and satellite CI is app-only (GRID-Link field finding 7), so the guardrails instrument is a local convention in the field and README's "on every push" claim is template-side only. Fix: a transportable machinery-gates surface — reusable workflow / composite action / documented wiring — the smallest a satellite can adopt without restructuring its own CI. | [plan](./t3-e1.03-ci-gate-transportability-backlog.md) |
+| T3-E1.04 | CORE satellite profile — measured onboarding reduction | QUEUED | A declared manifest profile (`CORE` vs `FULL`) so a satellite installs the parcel core + guardrail scripts without the full 34-skill library; membership from the 2026-09-24 field audit's measured usage (~18 of 36 skills carry the pipeline in GRID-Link), not opinion; `FULL` stays the default so existing satellites are unchanged. | [plan](./t3-e1.04-core-satellite-profile-backlog.md) |
 
 ### Completed
 

@@ -3,7 +3,7 @@ title: Audits
 tags: [devops, audits, state, true-or-false, q-and-a, ui-inventory]
 status: active
 owner: Wiki Owner
-last-reviewed: 2026-09-06
+last-reviewed: 2026-09-24
 related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/SKILL.md, ../skills/ui-inventory-scanner/SKILL.md]
 ---
 
@@ -18,6 +18,7 @@ related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/S
 | `true-or-false-<slug>-YYYY-MM-DD.md` | `@true-or-false` | Step-by-step knowledge-base validation log (Progress table, Q&A log, Change Plan Items, Verification Summary) |
 | `<slug>-QA-YYYY-MM-DD.md` | `@q-and-a` | Requirements discovery log (Progress table, Q&A log, Synthesis) |
 | `ui-inventory-<element>-YYYY-MM-DD.md` | `@ui-inventory-scanner` | UI element inventory report (summary stats, inventory table, anomalies) |
+| `<slug>-field-audit-YYYY-MM-DD.md` | Operator-directed audit session | Satellite/field audit report (method, findings, promoted parcels, measurement limits) — evidence base for backlog intake |
 
 ## Rules
 
@@ -29,4 +30,4 @@ related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/S
 
 ---
 
-*Last reviewed 2026-09-06.*
+*Last reviewed 2026-09-24.*
