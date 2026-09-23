@@ -11,6 +11,11 @@ All changes made by AI agents are tracked chronologically below.
 
 ---
 
+## 2026-09-23 - Core functionality + core principle audit: remediation lands (machinery 71→72)
+
+**Why:** Read-only audit of the machinery + the principle set found every gate green but three live docs still promising the retired force-stamp model-binding story; `f4bd88b` sweeps them by **concept vocabulary** (the 2026-09-20 reversal's V12 grep checked one spelling — `re-stamps`/`pre-bound`/`ship concrete`/`old binding behaviour` survived; lesson routed to `process-lessons.md`), declares the `claim_status` `sync-architecture` surface in `surface-budget.md` with its `plan-lifecycle.md` pointer (fanout back to **0 unauthorised ×8**), and refreshes `MATURITY.md` (re-dated, Axis 1 lever `T1-E3.18`, Axis 3 truth, history row — grades unchanged). Skips: no `src/` → Phases 2–3; no plan followed → Phase 4; no new orphan/backlog match → Phase 5; zero KC entries → Phase 6 consolidation no-op (F4's sprint-close bump was recorded concurrently by the sprint-close session; F6 claims-coverage thinness stays Axis 5 grade C). Gate D = operator instruction "proceed with these recommendations" — the human sign-off the `.devops/rules/` footers require. Gates: lint 0, claims 0 stale, coverage OK, prefix PASS×9/NOMODEL×11, utf8 182 clean, 62 fixtures OK, fanout 0 unauthorised, `-SelfTest` OK, mv 72 recorded. Foreign commit `a9069d0` landed mid-session — fix set verified not swept.
+**Ref:** `f4bd88b`
+
 ## 2026-09-23 - Sprint-close register links repaired to archive-relative paths
 
 **Why:** `sprint-close` §8 told the close to link the sprint's artifacts as bare `[business report](business-report.md)` / `[user testing](user-testing.md)`. From `.devops/backlog/SPRINTS.md` those resolve to `.devops/backlog/…` — dead links, and nothing lints `.devops/backlog/` so they would have shipped silently. Sprint 10's close is the **first** to write these links (sprints 8–9 archived with only `sprint.md`), so there was no correct row to copy from. Both hrefs now read `../archive/sprints/sprint-{n}-<slug>/…`, matching the retro link's full-path form and the existing rows. Skill `version: 10 → 11`; skills are gated by their own version (`scripts/lib/sync-manifest.ps1` § skill), so **no `machinery-version` bump** — confirmed against the transport gate, not assumed.
