@@ -14,7 +14,7 @@ All changes made by AI agents are tracked chronologically below.
 ## 2026-09-23 - Sprint 10 wave 3 (final): the owner loop closes — story → dev → user test → report (E3.16)
 
 **Why:** The sprint's last parcel, run alone once its `touches` blockers archived. `@sprint-plan` v6→7 §6 now drafts one or more owner-voice stories per committed plan into a `stories:` front-matter row (derived from the plan's acceptance criteria where present, from the operator's intent line otherwise); `template-plan.md` Phase 4 gains the "User Story (criteria trace to it)" input so criteria are checked against the story, not just the mechanics; `@sprint-close` v9→10 §5 item 2 cites the field (story presented first, criteria fallback) with **no renumber** — anchored to E3.15's pre-built sentence exactly as its hand-off directed. Smallest surface held: no persona/agent cascade (Q1 — 11 files and `-Sync` ×9 for one guidance line the template scaffold already carries), no `plan-lifecycle.md` edit (outside `touches`; it does not enumerate optional rows). **Sprint 10 is now 7/7 delivered, 11/11 pts** — every committed parcel `COMPLETE` + archived. Follow-up parked as `T1-E3.18` (the `stories:` row has no gate behind it). Confirmation gate 5/5; repo gates green (lint 0, claims 0 stale, prefix PASS×9/NOMODEL×12, utf8 182 clean); `machinery-version` 70→71 (single batch writer).
-**Ref:** `<pending — this wrap-up commit>`
+**Ref:** `c051398` (wrap-up set)
 
 ## 2026-09-23 - Sprint 10 wave 2: claims gate + user-testing walk + owner framing + feedback pathway (E3.14/15/17/E1.02)
 
