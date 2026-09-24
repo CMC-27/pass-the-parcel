@@ -1,11 +1,12 @@
 <!--
 type: template
-version: 3
-updated: 2026-09-23
+version: 4
+updated: 2026-09-25
 
-sprint.template.md — seed for a single sprint record.
+sprint.template.md — the CANONICAL seed for a single sprint record.
 The @sprint-plan skill writes this to
-.devops/sprints/sprint-{n}-<slug>/sprint.md when a sprint opens.
+.devops/sprints/sprint-{n}-<slug>/sprint.md when a sprint opens, and cites this
+file as the single home of the record's shape (the skill carries no inline copy).
 The @sprint-close skill appends the Retro section and flips status to "closed".
 One file, open → close → retro. There is no separate retro.md.
 At close, @sprint-close also writes business-report.md into the sprint folder
@@ -39,6 +40,27 @@ closed: ""
 | # | Code | Plan | Size | Source tier | Link |
 |---|------|------|------|-------------|------|
 | 1 | {T..} | {title} | {S/M/L} | 🔴 NOW | [{code}-{slug}-plan.md]({code}-{slug}-plan.md) |
+
+## Delivery Model
+
+The § 4c triage flags for the committed set, plus the eligibility predicate's own recorded output. **Never a hand-derived wave count.**
+
+| Code | Size | Flag | Signals that fired |
+|------|------|------|--------------------|
+| {T..} | {S/M/L} | {`MULTI` / `—`} | {the signals that fired, or `none — all five low`} |
+
+> **`Flag`** is the § 4c triage recommendation for that plan (`MULTI` / `—`), with the signals that fired named in the row. A `MULTI` row in a `@sprint-run` batch is surfaced as an **accept batch risk / defer to manual** fork before the first claim (`@sprint-run` § 1) — the batch's locked `AUTO` + `SINGLE` preset cannot honour the recommendation.
+
+**Predicate snapshot** — recorded at commit time, once the committed plans are in this folder and before the sprint is registered in `SPRINTS.md`:
+
+`python scripts/sprint_eligible.py --sprint-dir .devops/sprints/sprint-{n}-<slug>`
+
+- `claim_order`: {the script's `claim_order` array, verbatim}
+- `skipped`: {the script's `skipped` rows, verbatim}
+
+> **Forecast, never a schedule:** the snapshot is exact at the moment it is taken and stale the moment the first claim lands. `@sprint-run` § 2 re-evaluates the predicate against the live `.devops/plans/` immediately before **each** claim, so the executed set may differ. A non-zero exit from the command above is a **stop** — fix the plan file it names; never re-derive the predicate by hand.
+
+**Accepted cost:** one Gate D verdict and one wrap-up per wave — not one consolidated verdict; a committed plan holds its files from claim until its wrap-up archives it, and the number of waves is whatever the live predicate produces.
 
 ## Explicitly Out of Scope
 {List the tempting-but-not-now items, each with a one-line reason. This is the anti-scope-creep contract.}

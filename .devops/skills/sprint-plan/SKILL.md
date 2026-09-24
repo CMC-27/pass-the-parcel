@@ -1,7 +1,7 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 8
+version: 9
 updated: 2026-09-25
 ---
 
@@ -54,15 +54,17 @@ For every candidate, confirm it belongs in a *feature* sprint vs *refactoring*:
 
 Flag any misfiled item and ask the user before committing it.
 
-### 4b. Wave preflight — mutual `touches` overlap (mandatory, before anything moves)
+### 4b. Wave preflight — mutual `touches` overlap (mandatory, before the sprint is registered)
 
-Test the candidate set **against itself**, not only against the plans already in `.devops/plans/`. Use the canonical **Write-Set Overlap Predicate** in `.devops/rules/plan-lifecycle.md` § Claim Protocol — the same definition `@sprint-run` § 2 re-evaluates immediately before each claim. Cite it; do not restate it in a second dialect, and never relax it to make the queue look batchable.
+Test the candidate set **against itself**, not only against the plans already in `.devops/plans/`. The predicate is canonical in `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Write-Set Overlap Predicate* — the same definition `@sprint-run` § 2 re-evaluates immediately before each claim. **Cite it; do not restate it in a second dialect, and never relax it to make the queue look batchable.**
 
 1. Take the candidates in intended queue order (the order they will appear in § 5's Committed Scope table).
-2. **Simulate the claim fixpoint.** Walk the set in order; a plan is claimable on a pass only if its `touches` overlap **neither** a plan already in `.devops/plans/` **nor** a plan claimed on an earlier pass. Claim the first claimable plan and continue the walk; when the walk ends, start a new pass over the still-unclaimed set. Repeat until nothing is claimable. This mirrors `@sprint-run` § 2 exactly — a prediction of it, never a replacement.
-3. **Each pass is one wave.** Record the decomposition in `sprint.md` § Delivery Model: wave number, code, size.
-4. **State the accepted cost in that same section, explicitly:** N waves means **N Gate D verdicts and N wrap-ups**, not one consolidated verdict — an executed plan stays in `.devops/plans/` at `claim_status: GATE_D_USER_APPROVAL` until its verdict plus wrap-up archives it, and it keeps blocking its overlaps until then.
-5. If the wave count is unacceptable, fix it **here, while it is still cheap** — trim the set, reorder it, or split a plan's `touches` off the shared surface. Do not commit on a promise of one batch pass. A queue that cannot batch itself is a planning fact, not a run-time surprise.
+2. **Run the predicate, do not hand-derive it.** Once § 6 has moved the plans into the sprint folder, run:
+   `python scripts/sprint_eligible.py --sprint-dir .devops/sprints/sprint-{n}-<slug>`
+   It is the predicate's executable embodiment and it is authoritative for `@sprint-run` § 2, so its output **is** the preflight answer — a hand-walk is a second dialect that drifts. `--sprint-dir` exists for exactly this window: it reads the queue before the sprint is ACTIVE. **A non-zero exit is a stop** — fix the plan file it names; never re-derive the predicate by hand.
+3. **Record the snapshot in `sprint.md` § Delivery Model** — the script's `claim_order` and `skipped`, verbatim, labelled a **forecast**. Never present it as the schedule, and never record a wave count derived by hand.
+4. **State the accepted cost in that same section, explicitly:** every wave means **one Gate D verdict and one wrap-up**, not one consolidated verdict — an executed plan stays in `.devops/plans/` at `claim_status: GATE_D_USER_APPROVAL` until its verdict plus wrap-up archives it, and it keeps blocking its overlaps until then. The number of waves is whatever the live predicate produces, not a number this section predicts.
+5. If the snapshot shows a set that will not batch, fix it **here, while it is still cheap** — trim the set, reorder it, or split a plan's `touches` off the shared surface. The moves are reversible `git mv`s and § 7 has not registered the sprint yet. Do not commit on a promise of one batch pass. A queue that cannot batch itself is a planning fact, not a run-time surprise.
 
 ### 4c. Multi-worthy triage flag (mandatory, at commit)
 
@@ -75,61 +77,9 @@ Scoring a candidate's complexity is part of committing it. Run this in the same 
 
 ## 5. Write sprint.md
 
-Create `.devops/sprints/sprint-{n}-<slug>/sprint.md` from the template below. Fill every placeholder. The out-of-scope section is mandatory — it is what prevents mid-sprint scope creep. The Committed Scope table is the **queue**: it lists what is committed, and each row links to the plan file that now lives in this folder.
+Create `.devops/sprints/sprint-{n}-<slug>/sprint.md` from the canonical seed at [`.devops/templates/sprint.template.md`](../../templates/sprint.template.md). Read that file before writing a sprint record — it is the single home of the record's shape; do not copy or restate it here. Fill every placeholder. The out-of-scope section is mandatory — it is what prevents mid-sprint scope creep. The Committed Scope table is the **queue**: it lists what is committed, and each row links to the plan file that now lives in this folder.
 
 **Chunked write (mandatory):** `sprint.md` is large — do NOT send it in one `write`. Create it with a small skeleton `write` (frontmatter + the `##`/`###` section headings, each with a unique placeholder such as `<!-- FILL:goal -->`), then fill each placeholder with its own small `edit`. Cap each call at ~60–100 lines; split a long section with sub-placeholders if needed. `write` overwrites, so never re-issue the whole file — after a stall, `read` what landed and continue with the next section. See AGENTS.md, Chunked Write Discipline.
-
-### Template: `.devops/sprints/sprint-{n}-<slug>/sprint.md`
-
-```markdown
----
-type: "sprint"
-sprint: {n}
-name: "{Sprint Name}"
-slug: "{kebab-slug}"
-status: "open"
-capacity_points: {total}
-created: "{YYYY-MM-DD}"
-closed: ""
----
-
-# Sprint {n}: {Sprint Name}
-
-## Goal
-{One sentence: what will be true at the end of this sprint that isn't now.}
-
-## Capacity
-- Budget: {points} pts ({Small/Standard/Large})
-- Committed: {points} pts across {count} plans
-- Buffer: {remaining} pts held for spillover / discovery
-
-## Committed Scope (queue)
-| # | Code | Plan | Size | Source tier | Link |
-|---|------|------|------|-------------|------|
-| 1 | {T..} | {title} | {S/M/L} | 🔴 NOW | [{code}-{slug}-plan.md]({code}-{slug}-plan.md) |
-
-## Delivery Model
-{Wave decomposition predicted by the § 4b preflight — one row per wave. Write a single wave / "one batch pass" only when the set is mutually disjoint.}
-
-| Wave | Plan | Size | Flag | Steps |
-|------|------|------|------|-------|
-| 1 | {T..} | {S/M/L} | {`MULTI` / `—`} | preview → claim → spawn `ptp-parcel-fast` → `PHASE_9` → verdict + wrap-up |
-
-> **`Flag`** is the § 4c triage recommendation for that plan (`MULTI` / `—`), with the signals that fired named in the row. A `MULTI` row in a `@sprint-run` batch is surfaced as an **accept batch risk / defer to manual** fork before the first claim (`@sprint-run` § 1) — the batch's locked `AUTO` + `SINGLE` preset cannot honour the recommendation.
-
-**Accepted cost:** {N} serial waves = {N} Gate D verdicts and {N} wrap-ups — not one consolidated verdict; a committed plan holds its files from claim until its wrap-up archives it.
-
-## Explicitly Out of Scope
-{List the tempting-but-not-now items, each with a one-line reason. This is the anti-scope-creep contract.}
-
-## Definition of Done (sprint-level)
-- [ ] All committed parcel plans reach COMPLETE and are archived
-- [ ] Full test suite green, lint clean, build exit 0
-- [ ] Sprint closed via @sprint-close (retro appended to this file + spaghetti scan run)
-
-## Risks / Unknowns
-{Anything that could blow up a plan's estimate this sprint.}
-```
 
 ## 6. Move Committed Plans into the Queue
 
@@ -139,10 +89,11 @@ For each committed item:
 2. Add/replace the claim front-matter at the top of the moved file (`code`, `sprint: sprint-{n}-<slug>`, `claim_status: QUEUED`, `touches`, `depends_on`, `triage` from § 4c). Leave `owner` / `claimed_at` / `last_touch` empty until claimed. See `.devops/rules/plan-lifecycle.md` § Claim Front-Matter.
 3. **Draft the user story (stories).** For each committed plan, write one or more short user stories into the moved plan's front-matter as a `stories:` row — the "as the owner/user, I…" framing that what the plan delivers means to the person who owns it. Where the plan already carries acceptance criteria, derive the story from them (the criteria say what will be verifiable; the story says who it is for and why); otherwise draft it from the operator's intent line in the plan body. One story per line of the list; leave the row off only when the plan is pure machinery with no owner effect — a skipped story is a silent one, so record the reason in the plan body instead. **Then assert the legal state before this step closes:** every moved plan carries a `stories:` row **or** a `Story skip — rationale:` line in its body — a plan with neither is not committed. Presence is what is asserted; the reason's merits are the operator's to judge.
 4. Remove the item from the Triage Panel in `backlog-index.md` (it is tracked by the sprint now).
+5. **Record the predicate snapshot.** Now that the plans exist in this folder, run the § 4b step 2 command and paste its `claim_order` and `skipped` into `sprint.md` § Delivery Model, labelled a **forecast**. The sprint record is not complete without it, and § 4b step 5's trim/reorder call is made on it — the moves are reversible `git mv`s and § 7 has not registered the sprint yet.
 
 > **Queue order is the first claim order, not an execution dependency.** Record the rows in the order you intend the runner to try them. `@sprint-run` evaluates eligibility immediately before **each** claim and iterates to a fixpoint (`.devops/skills/sprint-run/SKILL.md` § 2), so a plan listed *above* the dependency it needs is still reached once that dependency is satisfied — by archive (`claim_status: COMPLETE`) or by `GATE_D_USER_APPROVAL` (executed to `PHASE_9`, Gate D `OPEN`). Do **not** topologically sort the queue; state the intent and let the runner resolve it.
 >
-> **Mutual `touches` overlap serialises a queue — measure it in § 4b, then say so here.** Plans committed together whose `touches` overlap are admitted one at a time, so the sprint needs N sequential waves rather than one batch pass. The § 4b preflight predicts N at commit time (recorded in `sprint.md` § Delivery Model) using the canonical predicate in `.devops/rules/plan-lifecycle.md` § Claim Protocol.
+> **Mutual `touches` overlap serialises a queue — the predicate measures it in § 4b; the snapshot records it here.** Plans committed together whose `touches` overlap are admitted one at a time, so the sprint needs sequential waves rather than one batch pass. The § 4b snapshot records the predicate's own answer at commit time (`sprint.md` § Delivery Model) — a **forecast**, never a schedule; the live predicate at claim time is the contract (`.devops/rules/plan-lifecycle.md` § Claim Protocol).
 
 If a committed item has no plan file yet, tell the user to create it with `@backlog` first — do not hand-write an empty plan.
 
