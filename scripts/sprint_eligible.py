@@ -19,7 +19,7 @@ Overrides:
 Output contract:
     exit 0 -> ONE JSON object on stdout, keys: schema, root, sprint, sprint_dir,
               queue, eligible, claim_order, parallel_groups, skipped, in_flight,
-              orphans, already_phased, complexity, counts
+              orphans, already_phased, complexity, mode_conflicts, counts
     exit 1 -> a single "sprint_eligible: <cause>" line on stderr and NO JSON.
               A non-zero exit is a stop-the-line for @sprint-run: never fall back to
               reasoning the predicate out from prose.
@@ -41,6 +41,18 @@ as "reserved_surfaces" so the host can present it. A lane is a CLASSIFICATION, n
 execution namespace: every path runs in place, one claim at a time, and
 therefore still claims one plan at a time.
 
+"mode_conflicts" is ADVISORY data too (schema sprint-eligible/1, added by T1-E3.20):
+one entry per queued plan, {"authored", "preset", "conflict"}. It surfaces the batch
+preset's overrule risk - a plan whose AUTHORED Plan Settings Mode disagrees with the
+batch's locked preset Mode - so the host can present it in the SAME operator answer as
+the MULTI-worthy fork and a recorded Mode ruling is never silently replaced at claim
+time. The preset Mode is DEFINED in .opencode/plans/base-context.md section
+Orchestrator Presets (parcel-sprint -> AUTO) and .devops/rules/plan-lifecycle.md
+section Deviations (the locked preset is a named deviation); this script cites those
+homes and does not fork a second written dialect. Like "complexity" and "lanes" it is
+data for the host, never a clause of the eligibility predicate: a conflict never
+changes the eligible set.
+
 Read-only by construction: this script never writes, claims, archives or flips a gate.
 
 ponytail: ceilings (deliberate, documented - see plan-lifecycle.md section Claim Protocol)
@@ -54,6 +66,9 @@ ponytail: ceilings (deliberate, documented - see plan-lifecycle.md section Claim
     this script deliberately does not re-derive (T1-E3.10 owns the flag, not a scorer).
   (The mid-path-wildcard overlap ceiling recorded here until T1-E3.11 is CLOSED: the
   matcher is segment-wise and a mid-path `*` or `**` is detected. See segment_overlap.)
+  - "mode_conflicts" reports, it never blocks: an accepted preset overrule runs
+    exactly as today, now with the operator informed. The check adds a signal at the
+    EXISTING fork, not a fourth deviation - the batch preset stays locked.
 """
 
 import argparse
@@ -83,6 +98,12 @@ BLAST_RADIUS_MAX = 3
 BLAST_RADIUS = "blast-radius"
 CODE_RE = re.compile(r"^([a-z]+\d*-e\d+\.\d+)", re.IGNORECASE)
 STATUS_RE = re.compile(r"^\|\s*\*\*Status\*\*\s*\|\s*`([^`]+)`", re.MULTILINE)
+# The batch path's locked preset Mode. DEFINED in .opencode/plans/base-context.md
+# section Orchestrator Presets (parcel-sprint -> AUTO) and
+# .devops/rules/plan-lifecycle.md section Deviations (the locked preset is a named
+# deviation); cited here, never restated as a second dialect.
+BATCH_PRESET_MODE = "AUTO"
+MODE_RE = re.compile(r"^\|\s*\*\*Mode\*\*\s*\|\s*`([^`]+)`", re.MULTILINE)
 ACTIVE_MARK = "\U0001F7E2 ACTIVE"
 LINK_RE = re.compile(r"\]\(([^)]+)\)")
 
@@ -254,8 +275,45 @@ def complexity_for(rec: dict, queue: list) -> dict:
     }
 
 
+def mode_conflict_for(rec: dict) -> dict:
+    """The batch-preset overrule check (advisory) - one entry per queued plan.
+
+    The batch path's locked preset Mode is DEFINED in
+    .opencode/plans/base-context.md section Orchestrator Presets (parcel-sprint -> AUTO)
+    and .devops/rules/plan-lifecycle.md section Deviations (the locked preset is a named
+    deviation); this function cites those homes and does not restate their semantics. The
+    AUTHORED intent is the plan's frozen Plan Settings Mode row (rec["mode"]), which the
+    batch runner overwrites only at claim time - after this key is computed.
+
+    A plan whose authored Mode disagrees is surfaced to the operator BEFORE the first
+    claim, in the same fork as the MULTI-worthy flag, so a recorded USER-MANAGED ruling
+    is never silently replaced. This is ADVISORY data (the complexity / parallel_groups
+    precedent), never a clause of the eligibility predicate: a conflict never changes the
+    eligible set. An unrecognised present value flags rather than hides (fail-safe) - the
+    risk it guards is a SILENT overrule and a spurious flag costs one operator glance.
+    """
+    authored = rec["mode"] or None
+    return {
+        "authored": authored,
+        "preset": BATCH_PRESET_MODE,
+        "conflict": authored is not None and authored.upper() != BATCH_PRESET_MODE,
+    }
+
+
 def status_of(body: str) -> str:
     m = STATUS_RE.search(body)
+    return m.group(1).strip() if m else ""
+
+
+def mode_of(body: str) -> str:
+    """The plan's AUTHORED Plan Settings Mode row, or "" when the plan carries none.
+
+    A queued plan has not been claimed, so this reads the authored intent; the batch
+    runner writes its own Mode into the block only at claim time, after this key is
+    computed. A backlog-style committed plan carries no Plan Settings block at all -
+    "" is the honest answer, never an error.
+    """
+    m = MODE_RE.search(body)
     return m.group(1).strip() if m else ""
 
 
@@ -280,6 +338,7 @@ def load_plan(path: Path, root: Path, require_claim: bool) -> dict:
         "path": rel(path, root),
         "claim_status": claim,
         "status": status_of(body),
+        "mode": mode_of(body),
         "sprint": (fm.get("sprint") or "").strip(),
         "triage": (fm.get("triage") or "").strip().upper(),
         "touches": [normalize(e) for e in list_field(block, "touches") if e.strip()],
@@ -433,6 +492,7 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
         "orphans": orphans,
         "already_phased": already_phased,
         "complexity": {r["code"]: complexity_for(r, queue) for r in queue},
+        "mode_conflicts": {r["code"]: mode_conflict_for(r) for r in queue},
         "counts": {
             "queue": len(queue),
             "eligible": len(eligible),
@@ -440,6 +500,7 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
             "skipped": len(skipped),
             "in_flight": len(in_flight),
             "multi_worthy": sum(1 for r in queue if complexity_for(r, queue)["multi_worthy"]),
+            "mode_conflicts": sum(1 for r in queue if mode_conflict_for(r)["conflict"]),
         },
     }
 

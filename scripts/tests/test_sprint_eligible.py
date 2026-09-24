@@ -39,7 +39,7 @@ depends_on: [{depends}]
 triage: {triage}
 ---
 # {code}
-
+{settings}
 ## 9 Phase 9: Verify Changes
 
 ## State & Gates
@@ -48,6 +48,18 @@ triage: {triage}
 |---|---|
 | **Status** | `{status}` |
 | **Version** | `v0.1.0` |
+"""
+
+# A frozen Plan Settings block (the authored Mode ruling T1-E3.20 reads). Omitted
+# from the fixture plan unless a case asks for one - a committed backlog-style plan
+# carries none, which is exactly the "authored: None" case.
+SETTINGS_TEMPLATE = """
+## ⚙️ Plan Settings (FROZEN — set at plan start, read before any phase)
+
+| Setting | Value | Meaning |
+|---|---|---|
+| **Mode** | `{mode}` | the authored Mode ruling |
+| **Agents** | `SINGLE` | topology |
 """
 
 SPRINTS_TEMPLATE = """---
@@ -79,7 +91,7 @@ class Tree:
         )
 
     def plan(self, folder: Path, code: str, claim="QUEUED", status="QUEUED",
-             touches=(), depends=(), with_code=True, triage=""):
+             touches=(), depends=(), with_code=True, triage="", mode=""):
         body = PLAN_TEMPLATE.format(
             code=code if with_code else "",
             sprint=SPRINT,
@@ -88,6 +100,7 @@ class Tree:
             touches=", ".join(json.dumps(t) for t in touches),
             depends=", ".join(json.dumps(d) for d in depends),
             triage=triage,
+            settings=SETTINGS_TEMPLATE.format(mode=mode) if mode else "",
         )
         if not with_code:
             body = body.replace("code: \n", "")
@@ -133,6 +146,14 @@ def complexity(payload_obj, code):
         return payload_obj["complexity"][code]
     except KeyError:
         raise AssertionError(f"{code} has no complexity entry")
+
+
+def mode_conflicts(payload_obj, code):
+    """One plan's advisory mode_conflict entry (T1-E3.20's batch-preset overrule check)."""
+    try:
+        return payload_obj["mode_conflicts"][code]
+    except KeyError:
+        raise AssertionError(f"{code} has no mode_conflicts entry")
 
 
 class SprintEligibleTestCase(unittest.TestCase):
@@ -302,7 +323,7 @@ class SprintEligibleTestCase(unittest.TestCase):
         for key in ("schema", "root", "sprint", "sprint_dir", "queue", "eligible",
                     "claim_order", "parallel_groups", "lanes", "reserved_surfaces",
                     "skipped", "in_flight",
-                    "orphans", "already_phased", "complexity", "counts"):
+                    "orphans", "already_phased", "complexity", "mode_conflicts", "counts"):
             self.assertIn(key, out)
         self.assertEqual(out["counts"]["queue"], 0)
         self.assertEqual(out["sprint"], SPRINT)
@@ -363,6 +384,48 @@ class SprintEligibleTestCase(unittest.TestCase):
         out = payload(run(self.root))
         self.assertTrue(all(complexity(out, c)["multi_worthy"] for c in counts))
         self.assertEqual(out["counts"]["multi_worthy"], 6)
+
+    # --- T1-E3.20: the batch-preset overrule check (advisory "mode_conflicts" data) ---
+
+    def test_user_managed_ruling_conflicts_with_the_batch_preset(self):
+        # The authored Plan Settings Mode is what the batch preset would overrule.
+        self.tree.queued("T1-E1.01", mode="USER-MANAGED")
+        out = payload(run(self.root))
+        self.assertEqual(mode_conflicts(out, "T1-E1.01"),
+                         {"authored": "USER-MANAGED", "preset": "AUTO", "conflict": True})
+        self.assertEqual(out["counts"]["mode_conflicts"], 1)
+
+    def test_authored_auto_does_not_conflict(self):
+        self.tree.queued("T1-E1.01", mode="AUTO")
+        self.tree.queued("T1-E1.02", touches=["b/2.py"])
+        out = payload(run(self.root))
+        self.assertEqual(mode_conflicts(out, "T1-E1.01"),
+                         {"authored": "AUTO", "preset": "AUTO", "conflict": False})
+        # one entry per queued plan, even when nothing conflicts
+        self.assertEqual(sorted(out["mode_conflicts"]), ["T1-E1.01", "T1-E1.02"])
+        self.assertEqual(out["counts"]["mode_conflicts"], 0)
+
+    def test_plan_without_plan_settings_reports_no_authored_mode(self):
+        # A committed backlog-style plan carries no Plan Settings block: None, not an error.
+        self.tree.queued("T1-E1.01")
+        out = payload(run(self.root))
+        self.assertEqual(mode_conflicts(out, "T1-E1.01"),
+                         {"authored": None, "preset": "AUTO", "conflict": False})
+
+    def test_mode_conflicts_is_advisory_not_a_predicate(self):
+        # A recorded USER-MANAGED ruling is flagged but NEVER blocks the claim.
+        self.tree.queued("T1-E1.01", mode="USER-MANAGED")
+        out = payload(run(self.root))
+        self.assertTrue(mode_conflicts(out, "T1-E1.01")["conflict"])
+        self.assertEqual(out["eligible"], ["T1-E1.01"])
+        self.assertEqual(out["claim_order"], ["T1-E1.01"])
+        self.assertEqual(out["skipped"], [])
+
+    def test_unrecognised_authored_mode_fails_safe_to_a_conflict(self):
+        # Any present non-AUTO value flags: the risk is a silent overrule.
+        self.tree.queued("T1-E1.01", mode="TURBO")
+        out = payload(run(self.root))
+        self.assertTrue(mode_conflicts(out, "T1-E1.01")["conflict"])
 
     def test_explicit_sprint_dir_bypasses_the_active_row(self):
         idle = Tree(Path(self._tmp.name) / "idle", active=False)
