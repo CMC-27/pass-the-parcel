@@ -1,0 +1,70 @@
+name: Machinery Gates
+
+# The satellite-shaped copy of the template's deterministic machinery gates.
+#
+# This file travels. It is listed in .devops/sync-manifest.yaml `portable_files`, so a
+# sync materialises it into a satellite's .github/workflows/ and GitHub runs it on that
+# satellite's next push - no wiring step, no configuration, no secret. The precedent is
+# .github/workflows/wiki-refresh.yml, which already travels the same way.
+#
+# THE SPLIT RULE - stated once, here, in the portable file that travels beside every
+# reader. The template's validate.yml cites this header and does not restate it:
+#
+#   * invariant everywhere -> runs here. Prefix integrity, UTF-8 agent encoding, wiki
+#     lint, claims coverage and claims drift assert the machinery or the content, which
+#     are properties of any workspace that carries the machinery.
+#   * template-identity -> stays in the template's validate.yml. Three steps there assert
+#     artefacts only the template owns:
+#       - `sync-architecture.ps1 -SelfTest` asserts the TEMPLATE's portable-set mirror.
+#       - the machinery-version discipline check asserts the TEMPLATE's release log
+#         records its own counter. A satellite's release log is its own app-release
+#         series, never sync-stamped, so this check would fail on a correctly-wired
+#         satellite.
+#       - the scripts/tests/ fixture suites - scripts/tests/ is not on the portable
+#         surface, so a satellite has nothing to run.
+#
+# The gate commands are not duplicated here: each step calls a portable script that owns
+# its own behaviour. No `workflow_call`, no cross-repo `uses:`, no secrets.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Parcel prefix integrity (PREFIX-LOCKED contract)
+        shell: pwsh
+        run: ./scripts/check-parcel-prefix.ps1
+
+      - name: UTF-8 mojibake guard (agent runbooks)
+        shell: pwsh
+        run: ./scripts/check-utf8-agents.ps1
+
+      - name: Wiki lint (skipped until .wiki/core exists)
+        # A fresh satellite has no wiki content yet: the synced structure manifest declares
+        # anchors that cannot exist, so linting there is a false positive. This is the same
+        # guard the transport itself uses (scripts/lib/sync-verify.ps1).
+        run: |
+          if [ -d .wiki/core ]; then
+            python scripts/wiki_lint.py --quiet
+          else
+            echo "SKIP: wiki lint not applicable yet (no .wiki/core content)"
+          fi
+
+      - name: Wiki coverage gate (graceful no-op until src/ exists)
+        run: python scripts/wiki_claims.py coverage
+
+      - name: Claims drift check (grounded evidence)
+        run: python scripts/wiki_claims.py check

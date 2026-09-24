@@ -49,7 +49,7 @@ The plan moves through ten phases in six groups. Groups A and B **plan**, Group 
 | 🧭 | **Stateless 10-phase pipeline** | Phases, gates, and lifecycle states are defined once and enforced across the skills and agents. |
 | 🛑 | **Four hard gates** | A Scope → B Spec & Plan → C Peer Reviews → D Implementation. `AUTO` mode auto-clears A–C; **Gate D always waits for a human**. |
 | 📚 | **Agent-first wiki** | Governance rules, a deterministic linter, and grounded claims keep the knowledge base honest as the code changes. |
-| 🔒 | **Deterministic CI gates** | Prefix integrity, UTF-8, wiki lint, coverage, claims drift, and a transport self-test on every push. |
+| 🔒 | **Deterministic CI gates** | Prefix integrity, UTF-8, wiki lint, coverage, and claims drift on every push — in this template **and in every satellite**, because the gate workflow travels with the portable surface. The template additionally self-tests its sync engine. |
 | 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`AHEAD`/`MIGRATION`/`DRIFT` verdicts — ordering-aware, so a pull never silently rewinds a satellite's counter. |
 | 🧰 | **A skill library** | Planning, review, wiki maintenance, backlog, sprints, audits, and design — all as plain `SKILL.md` packages. |
 

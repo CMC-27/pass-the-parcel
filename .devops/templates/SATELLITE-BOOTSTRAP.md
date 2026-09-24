@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 14
-updated: 2026-09-23
+version: 15
+updated: 2026-09-25
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -11,7 +11,7 @@ satellite of the template repo. After step 4, ongoing updates are pulls, not boo
 
 You are in a NEW (satellite) workspace that wants the parcel machinery. The template repo is
 the single source of truth for `.devops/skills`, `.devops/agents`, `.wiki/rules`,
-`.devops/rules`, `.devops/templates`, `.vscode`, and the sync scripts.
+`.devops/rules`, `.devops/templates`, `.vscode`, `.github/workflows`, and the sync scripts.
 
 ## 1. One-time bootstrap (push — the pull script doesn't exist here yet)
 
@@ -109,11 +109,15 @@ Expect `VERIFIED` (exit 0). `[FAIL]` rows name exactly what is missing or mis-wi
 (`AGENTS.md` machinery markers, `opencode.json` keys, `base-context.md`, the wiki anchor,
 missing machinery); `[WARN]` rows are advisory (e.g. `.ptp-source` not yet recorded).
 
-> **Your CI is yours to wire.** `.github/workflows/validate.yml` is not on the portable surface —
-> only the template repo runs it. Copy its steps (or an equivalent subset) into a satellite
-> workflow; the checks themselves ride in the synced `scripts/check-parcel-prefix.ps1`, so
-> `powershell -NoProfile -File scripts\check-parcel-prefix.ps1` is the minimum gate to run on
-> every push. It now also validates the seed surfaces and fails on a missing `agent` block.
+> **Your CI gates arrive with the machinery.** `.github/workflows/machinery-gates.yml` is on the
+> portable surface, so the sync materialises it into `.github/workflows/` and GitHub runs it on
+> every push — no wiring step, no secret, no configuration. It runs the invariant gates: parcel
+> prefix integrity, UTF-8 agent encoding, wiki lint (skipped until `.wiki/core` exists, so a fresh
+> satellite is not a false red), wiki coverage and claims drift. The template's own `validate.yml`
+> is its superset and is deliberately not shipped: the steps it adds — the transport self-test, the
+> machinery-version discipline check, the `scripts/tests/` fixture suites — assert artefacts only
+> the template owns. The split rule is stated in the shipped workflow's header. `check-parcel-prefix.ps1`
+> also validates the seed surfaces and fails on a missing `agent` block — the same gate your CI now runs.
 
 ## 5. Wiki evidence layer (optional)
 

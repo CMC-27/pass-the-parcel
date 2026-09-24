@@ -80,6 +80,11 @@ portable_files:
   - scripts/sprint_eligible.py
   - scripts/rule_fanout.py
   - .github/workflows/wiki-refresh.yml
+  # The satellite-shaped machinery gate: the invariant subset of validate.yml (prefix,
+  # UTF-8, wiki lint, coverage, claims) as a workflow file, so it runs on a satellite's
+  # next push with no wiring step - the wiki-refresh.yml precedent above. The split rule
+  # and the three template-identity exclusions are stated in its own header.
+  - .github/workflows/machinery-gates.yml
   # The canonical plan scaffold. Named by the shared prefix (.opencode/plans/base-context.md)
   # and by five shipped skills, so it must ride with them; the only file under .devops/plans/
   # that transports (active plans are repo-specific).
