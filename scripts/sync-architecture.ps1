@@ -24,11 +24,15 @@ param(
         prune_dirs:         directories deleted from the target if present, recursively
                             (retired skill folders; portable skills are derived, so a
                             removed folder is otherwise never compared and never deleted)
-        machinery-version:  integer version of the dirs/files/agents/rules set; drives
-                            UPGRADE vs DRIFT classification for non-skill items
+        machinery-version:  the transport set version (major.minor.patch, dotted-tolerant);
+                            the comparison is ORDERING-AWARE - behind -> UPGRADE, ahead ->
+                            AHEAD and a lineage shape crossing -> MIGRATION (both halt-and-
+                            reconcile). Drives UPGRADE vs DRIFT classification for non-skill items
 
     -Check compares source vs target per manifest item (SHA256 per file + version metadata)
-    and prints a CURRENT/UPGRADE/DRIFT/MISSING/PRUNE/SOURCE-ABSENT verdict table without writing.
+    and prints a CURRENT/UPGRADE/AHEAD/MIGRATION/DRIFT/MISSING/PRUNE/SOURCE-ABSENT verdict
+    table without writing. AHEAD and MIGRATION are halt-and-reconcile verdicts: an equality-only
+    test cannot tell behind from ahead, which is how a target-ahead counter is silently rewound.
     A retired file still present in the target is a PRUNE verdict, and like every other
     non-CURRENT verdict it makes -Check exit 1. Prune files are excluded from their parent
     directory's comparison, so a lingering retired file surfaces as PRUNE rather than a
@@ -46,7 +50,10 @@ param(
     After copying, the script stamps the TARGET's own .devops/sync-manifest.yaml with the
     source machinery-version (installing a copy of the manifest on first sync). Without
     this bookkeeping, -Check would report a phantom UPGRADE forever after every successful
-    sync, because the manifest itself is not on the portable surface.
+    sync, because the manifest itself is not on the portable surface. Before writing anything
+    it pre-flights the counter ordering and HALTS when the target is ahead of, or
+    shape-incompatible with, the source - a target-ahead counter is never silently rewound;
+    the reconcile recipe is printed and the operator writes the value by hand.
 
     It also reconciles the source capability-class registry into the target and STRIPS
     every concrete model binding from it (T1-E1.04 - the invariant is now absence). No agent
@@ -223,10 +230,10 @@ if ($SelfTest) {
         # Manifest stamping: the target's machinery-version must now match the source's,
         # otherwise -Check reports a phantom UPGRADE after every successful sync.
         $stSrcV = $null; $stTgtV = $null
-        foreach ($line in Get-Content $stManifestPath) { if ($line -match '^machinery-version:\s*(\d+)') { $stSrcV = $Matches[1]; break } }
+        foreach ($line in Get-Content $stManifestPath) { if ($line -match '^machinery-version:\s*(\d+(?:\.\d+)*)') { $stSrcV = $Matches[1]; break } }
         $stTgtManifest = Join-Path $tmp '.devops/sync-manifest.yaml'
         if (Test-Path $stTgtManifest) {
-            foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+)') { $stTgtV = $Matches[1]; break } }
+            foreach ($line in Get-Content $stTgtManifest) { if ($line -match '^machinery-version:\s*(\d+(?:\.\d+)*)') { $stTgtV = $Matches[1]; break } }
         }
         if ($stTgtV -ne $stSrcV) { $fail += "manifest stamp failed: target machinery-version '$stTgtV' vs source '$stSrcV'" }
         # Model ABSENCE propagation (T1-E1.04): no target agent file may carry a `model:` line
@@ -351,6 +358,34 @@ if ($SelfTest) {
         # unstamped manifest and the eternal agents DRIFT from the regenerated prefix.
         & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
         if ($LASTEXITCODE -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
+        # --- T1-E2.08 fixture: the ordering-aware counter (behind / ahead / shape crossing) ---
+        # Plant an AHEAD value in the target manifest and assert three things: -Check reports
+        # AHEAD (never UPGRADE), -Check exits non-zero, and a SYNC halts BEFORE writing so the
+        # target value is never silently rewound. Then plant a shape-crossed value, assert
+        # MIGRATION + non-zero, and restore the source value so later fixtures stay isolated.
+        $mvSrcRaw = Get-Content -Raw $stManifestPath
+        $mvSrc = [regex]::Match($mvSrcRaw, '(?m)^machinery-version:\s*(\d+(?:\.\d+)*)').Groups[1].Value
+        $mvAhead = if ($mvSrc -match '\.') { "$mvSrc.1" } else { [string]([int]$mvSrc + 1) }
+        $mvShape = if ($mvSrc -match '\.') { '99' } else { '1.0.73' }
+        $mvTgtPath = Join-Path $tmp '.devops/sync-manifest.yaml'
+        [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvAhead"))
+        Write-Output "SELFTEST fixture T1-E2.08: target counter planted AHEAD ($mvSrc -> $mvAhead)"
+        $mvOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a target-ahead counter (exit 0)" }
+        if (-not ($mvOut -match 'AHEAD')) { $fail += "selftest T1-E2.08: -Check did not report AHEAD for a target-ahead counter" }
+        if ($mvOut -match 'meta\s+machinery-version\s+UPGRADE') { $fail += "selftest T1-E2.08: -Check mislabelled a target-ahead counter as UPGRADE" }
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: sync proceeded against a target-ahead counter (no halt)" }
+        $mvAfterAhead = [regex]::Match([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*(\d+(?:\.\d+)*)').Groups[1].Value
+        if ($mvAfterAhead -ne $mvAhead) { $fail += "selftest T1-E2.08: sync rewound an ahead counter ($mvAhead -> $mvAfterAhead)" }
+        [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvShape"))
+        Write-Output "SELFTEST fixture T1-E2.08: target counter planted shape-crossed ($mvShape vs source $mvSrc)"
+        $mvOut2 = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a shape-crossed counter (exit 0)" }
+        if (-not ($mvOut2 -match 'MIGRATION')) { $fail += "selftest T1-E2.08: -Check did not report MIGRATION for a shape-crossed counter" }
+        [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvSrc"))
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
+        if ($LASTEXITCODE -ne 0) { $fail += "selftest T1-E2.08: -Check not IN SYNC after restoring the counter to the source value" }
         # Claims checker smoke: the ported script must execute in a satellite against
         # the synced .wiki/rules corpus and report clean (imports wiki_lint, same dir).
         if (Test-Path (Join-Path $tmp 'scripts/wiki_claims.py')) {
@@ -429,15 +464,18 @@ if ($Check) {
     Write-Output "  target : $tgtRoot"
     Write-Output ""
 
-    # Header item: machinery-version itself.
+    # Header item: machinery-version itself. ORDERING-AWARE - behind -> UPGRADE (pull),
+    # ahead -> AHEAD and a lineage shape crossing -> MIGRATION (both halt-and-reconcile).
+    # An equality-only test cannot tell behind from ahead, which is how a target-ahead
+    # counter is silently rewound by the next pull (GRID-Link 78 vs template 72).
     $srcMachV = $scalars['machinery-version']
     $tgtMachV = Get-ManifestMachineVersion $tgtRoot
-    if ($null -eq $tgtMachV) {
-        Add-Verdict 'meta' 'machinery-version' 'MISSING' "target manifest absent or has no machinery-version (source: $srcMachV)"
-    } elseif ([string]$tgtMachV -ne [string]$srcMachV) {
-        Add-Verdict 'meta' 'machinery-version' 'UPGRADE' "target $tgtMachV -> source $srcMachV"
-    } else {
-        Add-Verdict 'meta' 'machinery-version' 'CURRENT' "$srcMachV"
+    switch (Compare-MachineryVersion ([string]$tgtMachV) ([string]$srcMachV)) {
+        'absent'    { Add-Verdict 'meta' 'machinery-version' 'MISSING' "target manifest absent or has no machinery-version (source: $srcMachV)" }
+        'behind'    { Add-Verdict 'meta' 'machinery-version' 'UPGRADE' "target $tgtMachV -> source $srcMachV (target behind)" }
+        'ahead'     { Add-Verdict 'meta' 'machinery-version' 'AHEAD' "target $tgtMachV is AHEAD of source $srcMachV - halt and reconcile: confirm the target has no release rows in the diverged range, then write $srcMachV into its manifest by hand; the sync never rewinds a counter it did not earn" }
+        'migration' { Add-Verdict 'meta' 'machinery-version' 'MIGRATION' "target '$tgtMachV' vs source '$srcMachV' - lineage shape crossed (integer vs dotted); halt and reconcile by hand before pulling" }
+        default     { Add-Verdict 'meta' 'machinery-version' 'CURRENT' "$srcMachV" }
     }
 
     $prunePaths = @($manifest['prune_files'] | ForEach-Object { $_.Replace('\','/') })
@@ -460,7 +498,7 @@ if ($Check) {
     $counts = @{}
     foreach ($v in $script:verdicts) { $counts[$v.Verdict] = 1 + [int]$counts[$v.Verdict] }
     $bad = 0
-    foreach ($b in @('UPGRADE', 'DRIFT', 'MISSING', 'SOURCE-ABSENT', 'PRUNE')) { $bad += [int]$counts[$b] }
+    foreach ($b in @('UPGRADE', 'DRIFT', 'MISSING', 'SOURCE-ABSENT', 'PRUNE', 'AHEAD', 'MIGRATION')) { $bad += [int]$counts[$b] }
     Write-Output ""
     Write-Output ("Summary: " + (($counts.GetEnumerator() | Sort-Object Name | ForEach-Object { "$($_.Key)=$($_.Value)" }) -join ' '))
     if ($bad -eq 0) {
@@ -470,6 +508,28 @@ if ($Check) {
         Write-Output "OUT OF SYNC"
         exit 1
     }
+}
+
+# --- pre-flight: the counter ordering. A target AHEAD of, or shape-incompatible with, the
+# source must halt BEFORE any write: the stamp pass would otherwise rewind a counter the
+# target earned, and a partial pull is worse than none. The reconcile recipe is printed -
+# the script never rewrites a counter it did not earn (GRID-Link 78 vs template 72).
+$pfSrcV = $scalars['machinery-version']
+$pfTgtV = Get-ManifestMachineVersion $tgtRoot
+$pfCmp = Compare-MachineryVersion ([string]$pfTgtV) ([string]$pfSrcV)
+if ($pfCmp -eq 'ahead' -or $pfCmp -eq 'migration') {
+    Write-Output ""
+    if ($pfCmp -eq 'ahead') {
+        Write-Output "HALT: target machinery-version $pfTgtV is AHEAD of source $pfSrcV."
+    } else {
+        Write-Output "HALT: machinery-version lineage shape differs - target '$pfTgtV' vs source '$pfSrcV'."
+    }
+    Write-Output "Reconcile recipe (operator action):"
+    Write-Output "  1. Confirm the target's .devops/logs/version-history.md records no release row in the diverged range"
+    Write-Output "     (a rewound counter must not orphan a recorded release)."
+    Write-Output "  2. Write 'machinery-version: $pfSrcV' into the target's .devops/sync-manifest.yaml by hand."
+    Write-Output "  3. Re-run this sync. This run wrote nothing."
+    exit 1
 }
 
 $copied = 0

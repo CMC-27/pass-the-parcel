@@ -20,8 +20,29 @@
 #   excluded_skills:   skill slugs NOT synced. Portable skills are DERIVED: every folder
 #                      in .devops/skills minus this list. Adding a skill needs no manifest
 #                      edit; only exclusions do.
-#   machinery-version: integer bumped whenever agents/rules/scripts/templates change as a
-#                      set; drives UPGRADE vs DRIFT for non-skill items in -Check.
+#   machinery-version: the TRANSPORT SET version - one honest number, template-owned, stamped
+#                      into the target by sync. Format major.minor.patch (dotted-tolerant: an
+#                      integer is also accepted while the two-release migration is staged).
+#                      Bump rule, read mechanically from the diff: patch = routine improvement
+#                      (default); minor = a new capability surface (a path with no prior
+#                      registry/manifest row); major = operator-contract change - the diff
+#                      intersects the reserved-surfaces set (`.devops/rules/plan-lifecycle.md`
+#                      § Claim Protocol -> Reserved Surfaces & the Lane Model; cited, never
+#                      re-listed here). Ceremony attaches to the level: patch = a one-line
+#                      release row, no CHANGELOG entry, no tag; major = full row + CHANGELOG +
+#                      tag. A major is a MANDATORY pull milestone for every satellite - the
+#                      downhill half of the feedback loop. The value IS the release-log Version
+#                      column: one number, one writer (the wrap-up, per batch), one check
+#                      (`.github/workflows/validate.yml`).
+#                      Ordering-aware: -Check reports behind as UPGRADE, ahead as AHEAD and a
+#                      lineage shape crossing as MIGRATION; the last two halt-and-reconcile, so
+#                      a pull never silently rewinds a counter the target earned.
+#                      MIGRATION STATUS: release A (this release) keeps an INTEGER value - the
+#                      script that runs during a satellite pull is the satellite's own (old)
+#                      one, whose (\d+) stamp would corrupt a dotted value into 1.0.73.0.73.
+#                      Release B flips this line to 1.0.73 (major 1; patch 73 continues the
+#                      count) - a one-line change, because every reader is already
+#                      dotted-tolerant and a shape crossing halts instead of misreading.
 #
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.

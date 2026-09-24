@@ -2,20 +2,30 @@
 type: "core"
 name: "Version History"
 status: "stable"
-description: "Formal release log and 3-level versioning strategy for the application."
+description: "Formal release log and the machinery tiered versioning strategy for the transport set."
 ---
 
 # Version History & Policy
 
-This log records the formal releases, deployments, and the 3-level versioning strategy enforced across the application.
+This log records the formal releases, deployments, and the **machinery tiered versioning strategy** enforced across the transportable machinery.
 
-## 📌 Versioning Strategy (3-Level System)
+## 📌 Machinery Versioning Strategy (`major.minor.patch`)
 
-All versioning follows the semantic hierarchy configured within the `/Test-and-Deploy` pipeline:
+`machinery-version` is the **transport set version** — the identity of the portable machinery (skills, agents, rules, scripts, templates) that syncs into a satellite. It is **template-owned and sync-stamped**: a satellite never bumps it, and a satellite never counts its own application releases into it (the satellite's app release identity lives in the satellite's own log and is never stamped by sync).
 
-1. **Level 1 (Major)**: User-directed primary versions (e.g., `1.02.003` -> `2.00.000`). Triggered for fundamental architectural updates, paradigm shifts, or major product milestones. Resets both minor and patch levels to double/triple zero padding.
-2. **Level 2 (Minor)**: New feature versions (e.g., `1.02.003` -> `1.03.003`). Adds `.01` to Level 2 versioning (allowing up to 99 level 2 versions), while preserving the patch level as-is. Prompted and confirmed when introducing discrete new features, capabilities, or major screen flows.
-3. **Level 3 (Patch)**: Automated deployment versions (e.g., `1.02.003` -> `1.02.004`). Adds `.001` to Level 3 versioning (allowing up to 999 level 3 versions), while preserving the minor level as-is. Automatically bumped on every routine code deployment or patch push if no major/minor bump is specified.
+The manifest value **is** the `Version` column of the Release Log below: **one number, one writer, one check** (the writer is the wrap-up, once per batch; the check is `.github/workflows/validate.yml`). The historical `v0.x.y` label series retires with release B of the migration.
+
+**Bump rule — read mechanically from the diff:**
+
+1. **Patch** (default) — a routine improvement. Ceremony: a one-line release row. No `CHANGELOG.md` entry, no tag.
+2. **Minor** — a **new capability surface**: a path that has no prior registry or manifest row. Ceremony: a release row naming the capability.
+3. **Major** — an **operator-contract change**: the diff intersects the reserved-surfaces set (`.devops/rules/plan-lifecycle.md` § Claim Protocol -> *Reserved Surfaces & the Lane Model*; cited, never re-listed here). Ceremony: a full row + a `CHANGELOG.md` entry + a tag. **A major is a mandatory pull milestone for every satellite** — the downhill half of the feedback loop.
+
+**Ordering-aware transport.** `-Check` compares the two counters by **ordering**, not by equality: target-behind -> `UPGRADE`; target-ahead -> `AHEAD`; a lineage shape crossing -> `MIGRATION`; equal -> `CURRENT`. `AHEAD` and `MIGRATION` **halt-and-reconcile** (exit 1), and a sync refuses to write before they are resolved — a counter the target earned is never silently rewound.
+
+**Migration status (two releases).** Release A (the current release) ships the dotted-tolerant parser, the ordering-aware verdict and the exact-value CI check **while the value stays an integer**: the script that runs during a satellite pull is the satellite's own (old) one, whose `(\d+)` stamp would corrupt a dotted value into `1.0.73.0.73`. Release B flips the value to `1.0.73` (major 1; patch 73 continues the count) — a one-line change, because every reader is already dotted-tolerant and a shape crossing halts instead of misreading.
+
+**Machinery lineage:** `... -> 71 -> 72 -> 73 -> 1.0.73` (release B). Patch 73 continues the integer count, so the flip re-numbers no history.
 
 ---
 

@@ -44,10 +44,49 @@ function Get-ManifestMachineVersion {
     param([string]$Root)
     $mp = Join-Path $Root '.devops/sync-manifest.yaml'
     if (-not (Test-Path $mp)) { return $null }
+    # Dotted-tolerant: the tiered scheme is major.minor.patch. Returned as a STRING - a
+    # [int] cast would truncate 1.0.73 to 1 and make the ordering check lie.
     foreach ($line in Get-Content $mp) {
-        if ($line -match '^machinery-version:\s*(\d+)') { return [int]$Matches[1] }
+        if ($line -match '^machinery-version:\s*(\d+(?:\.\d+)*)') { return $Matches[1] }
     }
     return $null
+}
+
+function Get-VersionShape {
+    # 'dotted' (major.minor[.patch]) / 'integer' / 'absent' / 'malformed'. The SHAPE, not the
+    # magnitude, decides comparability: the tiered lineage crosses a boundary once
+    # (integer 73 -> 1.0.73), and a numeric comparison across that crossing is meaningless
+    # (73 > 1.0.73). Callers halt-and-reconcile on 'migration' instead of guessing.
+    param([string]$Value)
+    if ([string]::IsNullOrWhiteSpace($Value)) { return 'absent' }
+    if ($Value -notmatch '^\d+(\.\d+)*$') { return 'malformed' }
+    if ($Value -match '\.') { return 'dotted' }
+    return 'integer'
+}
+
+function Compare-MachineryVersion {
+    # Ordering-aware comparison of two machinery-version values. Returns one of:
+    #   'absent'    - target carries no value (first install)
+    #   'equal'     - same value
+    #   'behind'    - target older than source -> UPGRADE (pull)
+    #   'ahead'     - target newer than source -> AHEAD (halt-and-reconcile; NEVER a silent rewind)
+    #   'migration' - shapes differ, or a value is unparsable -> halt-and-reconcile
+    # Only same-shape values are ordered numerically; a shape crossing is never ordered.
+    param([string]$Target, [string]$Source)
+    $ts = Get-VersionShape $Target
+    if ($ts -eq 'absent') { return 'absent' }
+    $ss = Get-VersionShape $Source
+    if ($ts -eq 'malformed' -or $ss -eq 'malformed' -or $ts -ne $ss) { return 'migration' }
+    $t = @($Target -split '\.' | ForEach-Object { [int]$_ })
+    $s = @($Source -split '\.' | ForEach-Object { [int]$_ })
+    $n = [Math]::Max($t.Count, $s.Count)
+    for ($i = 0; $i -lt $n; $i++) {
+        $tv = if ($i -lt $t.Count) { $t[$i] } else { 0 }
+        $sv = if ($i -lt $s.Count) { $s[$i] } else { 0 }
+        if ($tv -lt $sv) { return 'behind' }
+        if ($tv -gt $sv) { return 'ahead' }
+    }
+    return 'equal'
 }
 
 function Update-TargetManifestVersion {
@@ -56,6 +95,9 @@ function Update-TargetManifestVersion {
     # phantom UPGRADE forever. The manifest is not on the portable surface (satellites may
     # carry target-local notes in it), so only the version line is rewritten in place; a
     # missing manifest (first-time install) is seeded verbatim from the source.
+    # Ordering guard: the CALLER (sync-architecture.ps1) pre-flights the counter and halts
+    # before any write when the target is ahead of, or shape-incompatible with, the source,
+    # so this stamp only ever moves a target FORWARD - never a silent rewind.
     param([string]$TgtRoot, [string]$SrcRoot, [string]$Version, [switch]$DryRun)
     if (-not $Version) { Write-Host 'SKIP: source manifest has no machinery-version - target not stamped'; return }
     $tgtManifest = Join-Path $TgtRoot '.devops/sync-manifest.yaml'
@@ -68,10 +110,10 @@ function Update-TargetManifestVersion {
         return
     }
     $raw = [System.IO.File]::ReadAllText($tgtManifest)
-    if ($raw -match '(?m)^machinery-version:\s*(\d+)') {
+    if ($raw -match '(?m)^machinery-version:\s*(\d+(?:\.\d+)*)') {
         if ($Matches[1] -eq $Version) { return }
         if ($DryRun) { Write-Output "DRYRUN would bump machinery-version $($Matches[1]) -> $Version"; return }
-        $raw = [regex]::Replace($raw, '(?m)^machinery-version:\s*\d+', "machinery-version: $Version")
+        $raw = [regex]::Replace($raw, '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $Version")
         [System.IO.File]::WriteAllText($tgtManifest, $raw)
         Write-Output "STAMPED .devops/sync-manifest.yaml machinery-version $($Matches[1]) -> $Version"
     } else {
@@ -169,8 +211,16 @@ function Compare-Item {
             Add-Verdict $Kind $Name 'DRIFT' "target v$tv vs source v$sv (locally customized?)"
         }
     } else {
-        if ($null -eq $tgtMachV -or [string]$tgtMachV -ne [string]$srcMachV) {
-            Add-Verdict $Kind $Name 'UPGRADE' 'machinery-version differs'
+        # Ordering-aware: 'behind'/'absent' -> UPGRADE (pull); 'ahead' -> AHEAD and
+        # 'migration' -> MIGRATION (both halt-and-reconcile); equal values with differing
+        # hashes stay DRIFT (locally customized at the same counter).
+        $cmp = Compare-MachineryVersion ([string]$tgtMachV) ([string]$srcMachV)
+        if ($cmp -eq 'ahead') {
+            Add-Verdict $Kind $Name 'AHEAD' 'target ahead of source machinery-version'
+        } elseif ($cmp -eq 'migration') {
+            Add-Verdict $Kind $Name 'MIGRATION' 'machinery-version lineage shape differs'
+        } elseif ($cmp -eq 'behind' -or $cmp -eq 'absent') {
+            Add-Verdict $Kind $Name 'UPGRADE' 'target behind source machinery-version'
         } else {
             Add-Verdict $Kind $Name 'DRIFT' 'hashes differ at same machinery-version'
         }

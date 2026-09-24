@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 11
-updated: 2026-09-23
+version: 12
+updated: 2026-09-25
 ---
 
 # Sprint Run — Batch Queue Runner
@@ -100,7 +100,7 @@ When the eligible set is drained, write one report at `.opencode/plans/run-sprin
 
 - one row per run plan carrying **code + title**, terminal Status, touched files, Phase 9 verification evidence, and the plan's **lane** (`serial` / `parallel`);
 - a **Skipped / deferred** table — every non-run plan with its reason (unmet `depends_on` — still `QUEUED` or in-flight `CLAIMED`; `touches` overlap; pre-existing `PHASE_9`; dependency cycle; claim-time queue-pairwise overlap), plus a **`DEFERRED-MANUAL`** row for any plan the operator deferred at § 1 step 7 — its code, the topology it needs (`MULTI`), the dependents it strands (the `blocks` closure from the script's `complexity` output), and the resume path;
-- a **What to do next** block covering all three exits — **approved** → run the **follow-up batch wrap-up**: one separate, operator-invoked invocation of `@agent-wrap-up` (`SKILL.md` § Batch Scope) over the whole batched set. It is never an inline continuation of this loop; per-plan `@agent-wrap-up` stays valid and composes, and either path retires each plan to `COMPLETE` and archives it. **That wrap-up also owns the batch's single `machinery-version` increment** — read from `.devops/sync-manifest.yaml` at that moment, never a value captured earlier (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*); this loop never bumps it, and neither does any runner it spawned. **A plan that fails the operator's test** → retry or `PHASE_5_REVISION`; **batch halted** → fix the cause, or abandon-claim the orphan back to `QUEUED`, then re-run `@sprint-run`. A **`DEFERRED-MANUAL` yield** takes the same exit: deliver the deferred plan through `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run` (it re-runs the preflight and recomputes the fork from live state).
+- a **What to do next** block covering all three exits — **approved** → run the **follow-up batch wrap-up**: one separate, operator-invoked invocation of `@agent-wrap-up` (`SKILL.md` § Batch Scope) over the whole batched set. It is never an inline continuation of this loop; per-plan `@agent-wrap-up` stays valid and composes, and either path retires each plan to `COMPLETE` and archives it. **That wrap-up also owns the batch's single `machinery-version` increment** — read from `.devops/sync-manifest.yaml` at that moment, never a value captured earlier, and with the **level rule** applied and recorded (patch / minor / major; `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*); this loop never bumps it, and neither does any runner it spawned. **A plan that fails the operator's test** → retry or `PHASE_5_REVISION`; **batch halted** → fix the cause, or abandon-claim the orphan back to `QUEUED`, then re-run `@sprint-run`. A **`DEFERRED-MANUAL` yield** takes the same exit: deliver the deferred plan through `@pass-the-parcel` in `MULTI`, then re-invoke `@sprint-run` (it re-runs the preflight and recomputes the fork from live state).
 
 On `HALT`, **emit the partial report immediately** — completed plans at `PHASE_9`, the stop point, the cause, the resume path — instead of waiting for the queue to drain. Echo the **complete body** in chat: the report path is gitignored/ephemeral and cannot be linked from tracked docs.
 

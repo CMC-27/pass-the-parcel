@@ -50,7 +50,7 @@ The plan moves through ten phases in six groups. Groups A and B **plan**, Group 
 | 🛑 | **Four hard gates** | A Scope → B Spec & Plan → C Peer Reviews → D Implementation. `AUTO` mode auto-clears A–C; **Gate D always waits for a human**. |
 | 📚 | **Agent-first wiki** | Governance rules, a deterministic linter, and grounded claims keep the knowledge base honest as the code changes. |
 | 🔒 | **Deterministic CI gates** | Prefix integrity, UTF-8, wiki lint, coverage, claims drift, and a transport self-test on every push. |
-| 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`DRIFT` verdicts. |
+| 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`AHEAD`/`MIGRATION`/`DRIFT` verdicts — ordering-aware, so a pull never silently rewinds a satellite's counter. |
 | 🧰 | **A skill library** | Planning, review, wiki maintenance, backlog, sprints, audits, and design — all as plain `SKILL.md` packages. |
 
 ## Quickstart (5 minutes)
@@ -77,6 +77,8 @@ powershell -NoProfile -File $env:TEMP\ptp\scripts\sync-architecture.ps1 -Target 
 powershell -NoProfile -File scripts\pull-architecture.ps1 -Check   # read-only drift report
 powershell -NoProfile -File scripts\pull-architecture.ps1          # pull updates
 ```
+
+The machinery version is **one honest, ordering-aware number** (`major.minor.patch`, template-owned and sync-stamped). `-Check` distinguishes *behind* (`UPGRADE` — pull) from *ahead* (`AHEAD` — halt and reconcile), and a **major** release is a mandatory pull milestone for every satellite. A target that is ahead is never silently rewound: the sync refuses to write and prints the one-line reconcile recipe (`.devops/logs/version-history.md` § Machinery Versioning Strategy).
 
 ## Repository map
 

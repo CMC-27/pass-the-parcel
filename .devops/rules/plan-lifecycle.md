@@ -88,6 +88,9 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 
 - **Manual / per-plan path:** `@agent-wrap-up` Phase 7b owns it — one increment covering that plan's portable-surface changes, with the literal recorded in `.devops/logs/version-history.md`.
 - **`@sprint-run` batch path:** the **follow-up batch wrap-up** owns it — **one** increment for the whole batch (`@agent-wrap-up` § Batch Scope), read from `.devops/sync-manifest.yaml` **at that moment**, never a value captured earlier. A plan runner **never** bumps the counter: N runners reading the same base is precisely the collision this rule removes. Legacy per-plan increments inside one batch are harmless — the contract is *strictly increasing values, each recorded*, not a count.
+- **Value shape & ordering (`major.minor.patch`).** The counter is a **tiered tuple, compared element-wise and only within one shape** — an integer and a dotted value are never ordered against each other (the migration crosses that boundary once: `73 -> 1.0.73`). `-Check` reports behind as `UPGRADE`, ahead as `AHEAD` and a shape crossing as `MIGRATION`; the last two **halt-and-reconcile** and a sync refuses to write before they are resolved, so a counter the target earned is never silently rewound. The value **is** the release-log `Version` column — one number, one writer, one check.
+- **The level rule.** The increment's level is read mechanically from the diff: **patch** = a routine improvement (the default); **minor** = a new capability surface (a path with no prior registry/manifest row); **major** = an operator-contract change — the diff intersects the reserved-surfaces set (§ *Reserved Surfaces & the Lane Model* above). Ceremony attaches to the level: patch = a one-line release row; major = a full row + a `CHANGELOG.md` entry + a tag, and a major is a mandatory pull milestone for every satellite.
+- **Migration staging.** The tiered value ships in **two releases**: release A carries the dotted-tolerant parser and the ordering-aware verdict while the value stays an integer — the script that runs during a satellite pull is the satellite's *own* (old) one, whose `(\d+)` stamp would corrupt a dotted value mid-pull; release B flips the value, one line. The scheme's canonical homes are `.devops/logs/version-history.md` § *Machinery Versioning Strategy* and the `.devops/sync-manifest.yaml` header; this section owns the **writer** and the **monotonicity** rules only.
 - **The prefix regenerate is not part of this.** `check-parcel-prefix.ps1 -Sync` stays with the plan that edits a reserved prefix surface, because deferring it would leave a red `check-parcel-prefix.ps1` in the window the next claim's green-baseline preflight inspects. The batch host owns the **invariant** (exit `0` at every claim boundary), not the repair.
 
 ### Write-Set Overlap Predicate (canonical — cite it, never restate it)
@@ -200,4 +203,4 @@ The batch path's eligibility predicate (**every `depends_on` satisfied per § Cl
 
 ---
 
-*Last reviewed 2026-09-16. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-24. Changes to these rules require human sign-off.*

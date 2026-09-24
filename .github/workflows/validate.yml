@@ -87,12 +87,16 @@ jobs:
           import re, sys
           from pathlib import Path
           manifest = Path('.devops/sync-manifest.yaml').read_text(encoding='utf-8')
-          m = re.search(r'^machinery-version:\s*(\d+)\s*$', manifest, re.MULTILINE)
+          m = re.search(r'^machinery-version:\s*(\d+(?:\.\d+)*)\s*$', manifest, re.MULTILINE)
           if not m:
-              sys.exit('machinery-version missing from .devops/sync-manifest.yaml')
-          mv = int(m.group(1))
+              sys.exit('machinery-version missing (or malformed) in .devops/sync-manifest.yaml')
+          mv = m.group(1)
           hist = Path('.devops/logs/version-history.md').read_text(encoding='utf-8')
-          if f'machinery-version: {mv}' not in hist:
+          # Exact-value anchored: the recorded literal must not be a PREFIX of a longer version.
+          # (?!\d) blocks '72' matching '721' and '1.0.73' matching '1.0.734'; (?!\.\d) blocks
+          # '1.0.73' matching '1.0.73.1'. A sentence period ('machinery-version: 72.') still passes.
+          # The old substring test is what let the manifest and the release log drift apart.
+          if not re.search(r'machinery-version:\s*' + re.escape(mv) + r'(?!\d)(?!\.\d)', hist):
               sys.exit(f'FAIL: version-history.md records no release row for machinery-version {mv}')
           print(f'OK: machinery-version {mv} is recorded in version-history.md')
           EOF
