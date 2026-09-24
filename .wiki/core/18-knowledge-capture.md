@@ -33,7 +33,7 @@ claims:
 | 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production | Sync | ❌ |
 | 4 | Portable machinery carries no absolute paths or machine-specific config | Sync | ✅ |
 | 5 | Normalize CRLF→LF before hashing files across git boundaries on Windows | Sync | ✅ |
-| 6 | Versioning = integer counters only; portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
+| 6 | Versioning is one tiered counter (`major.minor.patch`, currently `73`; release B flips it to `1.0.73`); portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
 | 7 | Never edit PREFIX-LOCKED surfaces directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync`; no agent declares a model | Parcel | ✅ |
 | 8 | Phase 3 sends its whole decision surface in one questionnaire where the ask surface supports it; one call per question otherwise | Parcel | ❌ |
 | 9 | Measure a gate's actual cost before optimizing agent token spend around it | Process | ✅ |
@@ -56,7 +56,7 @@ _(Stable rules derived from prior decisions. Grouped by theme.)_
 
 ### Sync & Versioning
 - **Farthest-evolved consumer wins**: when template and satellite diverge, port the satellite's battle-tested machinery back; app-specific content stays in the consumer. *(2026-09-03)* No exception remains: agent models are now inherited from the CLI selection (see § Agents & Models), so the old model-binding carve-out has no subject.
-- **Post-sync bookkeeping self-heals**: sync stamps the target manifest's `machinery-version:` in place; `-Check` hashes only agent-unique content (frontmatter stripped), so per-repo prefix regeneration never reports phantom DRIFT. *(2026-09-06)*
+- **Post-sync bookkeeping self-heals**: sync stamps the target manifest's `machinery-version:` in place when the target is **behind**; a target *ahead* of the source now halts-and-reconciles instead of being silently rewound (ordering-aware `-Check`, `T1-E2.08`); `-Check` hashes only agent-unique content (frontmatter stripped), so per-repo prefix regeneration never reports phantom DRIFT. *(2026-09-06, revised 2026-09-25)*
 - **Transport completeness** (F8/F9, machinery v41): the sync must materialise every reference it ships *and* repair every derived surface it owns. A path named by the shared prefix or a shipped skill is portable — the canonical plan scaffold `.devops/plans/template-plan.md` joins `portable_files` because the prefix and five skills name it. A surface the template owns is repaired for keys the satellite has **never authored**: a registry key missing from the target's `opencode.json` `agent` block is inserted whole from the target's own synced seed, so a newly shipped agent arrives runnable — while an entry the satellite authored is never restructured. This supersedes the `ponytail:` ceiling recorded in `T1-E1.03`, which named exactly this upgrade path. *(2026-09-13)*
 
 ### Parcel Pipeline
