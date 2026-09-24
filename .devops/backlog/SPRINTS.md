@@ -3,7 +3,7 @@ type: "process"
 name: "Sprint Register"
 status: "active"
 description: "Index of all sprints. A sprint is a time-boxed container of parcel plans drawn from the triaged backlog, closed by a retrospective + spaghetti scan."
-last_sprint: "10"
+last_sprint: "11"
 ---
 # 🏃 Pass the Parcel — Sprint Register
 
@@ -85,6 +85,7 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 | 8 | Sprint Lifecycle Hardening | Make "executed to Gate D" a first-class machine-checkable plan state, give the batch host a coalesced wrap-up, and collapse the fast lane to a single subagent-only entity. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md) | [retro](../archive/sprints/sprint-8-sprint-lifecycle-hardening/sprint.md#retro) |
 | 9 | Batch Hardening | Harden the batch pipeline end to end: positive-evidence AUTO gates, batched Phase 3 clarification, a tested eligibility predicate replacing four prose copies, MULTI-worthy flagging before an unattended run, and two-lane concurrency with host-owned version bumps. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-9-batch-hardening/sprint.md) | [retro](../archive/sprints/sprint-9-batch-hardening/sprint.md#retro) |
 | 10 | Owner Loop | Fix the Phase 9 gate hang, gate the claims drift check, and close the owner loop: parcel-feedback pathway, sprint-plan user stories, sprint-close user-manual testing, the business report template-side, and canonical product-owner framing. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-10-owner-loop/sprint.md) | [retro](../archive/sprints/sprint-10-owner-loop/sprint.md#retro) · [business report](../archive/sprints/sprint-10-owner-loop/business-report.md) · [user testing](../archive/sprints/sprint-10-owner-loop/user-testing.md) |
+| 11 | Machinery Streamline | Deliver the whole GRID-Link field-audit set: tiered versioning with ordering-aware transport, the MICRO small-change path, transportable CI gates, the stories + preset gates, the changelog index, the CORE profile, and honest wave data — one three-wave sprint. | 🟢 ACTIVE | [sprint.md](../sprints/sprint-11-machinery-streamline/sprint.md) | — |
 
 ---
 
