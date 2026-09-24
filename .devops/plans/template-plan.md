@@ -8,6 +8,7 @@ last_touch: "{YYYY-MM-DD}"
 touches: ["{path/glob}", "..."]
 depends_on: ["{code}", "..."]
 triage: SINGLE              # MULTI | SINGLE — commit-time topology recommendation (@sprint-plan § 4c); NOT the frozen Plan Settings `Agents`
+stories: ["{As the owner, I want …, so …}"]   # drafted at @sprint-plan § 6 commit time; omit only with a recorded `Story skip — rationale:` line in the body
 ---
 # Parcel Plan: T{theme}-E{epic}.{impl} - [Title]
 ## Theme-Epic: T{theme} - {Theme Name}, E{epic} - {Epic Name}
@@ -97,7 +98,7 @@ triage: SINGLE              # MULTI | SINGLE — commit-time topology recommenda
 | | |
 
 **User Story (criteria trace to it):**
-The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time (§ 6) — is the input the acceptance criteria are written against: every criterion is checked against the story ("as the owner, I …"), not just the mechanics, and the trace closes the loop at `@sprint-close` § 5 (the story is what the user-acceptance walk presents first). A plan carrying no `stories:` row writes its criteria from the operator's intent line instead.
+The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time (§ 6) — is the input the acceptance criteria are written against: every criterion is checked against the story ("as the owner, I …"), not just the mechanics, and the trace closes the loop at `@sprint-close` § 5 (the story is what the user-acceptance walk presents first). A plan carrying no `stories:` row records why in its body — `Story skip — rationale: <why it is pure machinery with no owner effect>` — and writes its criteria from the operator's intent line instead. A skip is recorded, never silent.
 
 **Acceptance Criteria:**
 | # | Criterion (behavior) | Test Target |
