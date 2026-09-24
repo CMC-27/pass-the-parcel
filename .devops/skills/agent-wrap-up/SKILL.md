@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 18
+version: 19
 updated: 2026-09-25
 ---
 
@@ -52,7 +52,7 @@ Wrap-up normally closes **one** plan. The **batch scope** closes a sprint's whol
 
 **Input.** A list of plan codes. Omitted → every plan in `.devops/plans/` carrying `claim_status: GATE_D_USER_APPROVAL`. An empty list is a no-op, not an error.
 
-**Rule — every phase once, except Phase 4.** Phases 0, 1, 2, 3, 5, 6 and 7a/7b run **once for the batch** exactly as written below: one diff, one changelog entry naming the theme, one wiki reconciliation, one backlog sweep, one consolidation, one gate pass. Only **Phase 4** iterates, once per plan in the input list. Batch scope is a *scope* on this skill — this skill remains the **only** wrap-up owner. Never create a second wrap-up skill.
+**Rule — every phase once, except Phase 4.** Phases 0, 1, 2, 3, 5, 6 and 7a/7b run **once for the batch** exactly as written below: one diff, one index line per plan, one wiki reconciliation, one backlog sweep, one consolidation, one gate pass. Only **Phase 4** iterates, once per plan in the input list. Batch scope is a *scope* on this skill — this skill remains the **only** wrap-up owner. Never create a second wrap-up skill.
 
 **Rule — one `machinery-version` increment for the whole batch.** This is the counter's single writer for a batch (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*). Read the live value from `.devops/sync-manifest.yaml` **at the moment of the bump** — never a value read earlier, and never a value a member plan recorded — increment once, and record that literal in `.devops/logs/version-history.md`. **Apply the level rule when incrementing** and record the level with the row: **patch** = a routine improvement (the default, and a one-line row); **minor** = a new capability surface (a path with no prior registry/manifest row); **major** = an operator-contract change — the diff intersects the reserved-surfaces set — which takes a full row + a `CHANGELOG.md` entry + a tag, and is a mandatory pull milestone for every satellite. N per-plan runners each reading the same base is the collision this removes; per-skill `version:` bumps remain **per modified file**. If a member plan already bumped under the legacy per-plan rule, do not treat that as a conflict: increment once anyway, because the contract is *strictly increasing values, each recorded*, not a count. The prefix regenerate is **not** part of this — it stays with the plan that edited a reserved prefix surface.
 
@@ -75,28 +75,26 @@ A plan failing **any** assertion is **carry-forward** — excluded from the batc
 ### Phase 0: Mechanical Diff (Evidence, Not Memory)
 Before writing anything, establish **what actually changed** — never rely on recall.
 
-1. **Enumerate changed files mechanically**: run `git diff --name-only <last-wrap-up-ref>..HEAD` (use the commit hash of the last wrap-up, or `git log --oneline -1` on `.devops/logs/agent-changelog.md` to find it). If no prior ref exists, diff against the session's starting commit.
+1. **Enumerate changed files mechanically**: run `git diff --name-only <last-wrap-up-ref>..HEAD`. The baseline is the last commit that touched the changelog — `git log --oneline -1 -- .devops/logs/agent-changelog.md` (an index entry carries no hash; the plan it links does). If no prior ref exists, diff against the session's starting commit.
 2. **Classify each changed file** into a wiki domain: `.wiki/` target (features / components / logic / database / core), `.devops/` process file, or other.
 3. **Carry this list into Phases 2 and 3** — it is the authoritative work inventory. Every `src/` file in the diff MUST map to a wiki doc update or an explicit "no doc needed" decision recorded in the changelog entry.
 
 > **Why this phase exists:** wrap-up used to rely on the working agent's memory of "what's new". Memory-based inventories silently drop files, which is how entire feature areas (e.g., the proposals engine suite) went undocumented while lint stayed green.
 
 ### Phase 1: The Audit Log (`.devops/logs/agent-changelog.md`)
-The changelog records **when and why** — never *what files*. File inventories are derivable from each entry's `ref` commit (`git show --stat <ref>`) and already live in the plan's Completion Note; duplicating them here is what made the log unreadable (2026-09-09 audit: ~42% of its lines were file bullets).
+The changelog is a **thin index**, not a record: one line per change, **written from the plan**. The Why is authored once, in the plan — never re-authored here. The index exists for one job only: the cold-start recent-state signal (`AGENTS.md` rule 5, *"read the last 3 entries"*), which the append-only order makes the 3 **most recent** changes.
 
-1.  **Add Lean Entry**: Create a new section, **max 5 content lines**:
+1.  **Add index line**: append **one line per change** to the end of the file's `## Index` block, in the exact format:
 
     ```markdown
-    ## YYYY-MM-DD - Short outcome title
-
-    **Why:** [1–3 lines — the decision, the lesson, or the reason it mattered. What changed is implied by the title + ref.]
-    **Ref:** `<commit-hash>`
+    - **YYYY-MM-DD** · `CODE` · <one-line summary> · [plan](<repo-relative path>)
     ```
 
-    - One line per session, not per change: multiple plans closed in one session get one entry naming the theme.
-    - No "Files Modified" list, no "Agent" line, no "Database/API Changes: None" filler. Schema changes worth flagging go in the Why line ("added X column; backfill script at …").
-    - Deep detail belongs where it already lives: the archived plan (Completion Note) and git history.
-2.  **Size check (warning only)**: after adding the entry, check `(Get-Content .devops/logs/agent-changelog.md).Count`. If it exceeds **500 lines**, warn the user in one line — "agent-changelog is over the 500-line guideline (currently _n_ lines); consider archiving old entries manually" — and stop. **Never auto-prune or move entries**: automated pruning was tried on 2026-09-09 and corrupted the log's structure; the cap is a soft guideline enforced by human judgment only.
+    - Read the summary **from the plan** (its Completion Note / Phase 9 record) — the Why is never composed here. A session with no plan cites its direct-fix commit instead of a plan link.
+    - A batch appends **one line per plan**, never one line for the theme.
+    - No `**Why:**`, no `**Skips:**`, no `**Ref:**`, no file list, no "Agent" line — deep detail already lives in the archived plan and git history, and the plan link is the ref.
+    - Entries dated before 2026-09-25 are the pre-index narrative record: **preserved as history, never retro-edited** (`.devops/rules/process-lessons.md`).
+2.  **Size check (warning only)**: after adding the line, check `(Get-Content .devops/logs/agent-changelog.md).Count`. If it exceeds **500 lines**, warn the user in one line — "agent-changelog is over the 500-line guideline (currently _n_ lines); consider archiving old entries manually" — and stop. **Never auto-prune or move entries**: automated pruning was tried on 2026-09-09 and corrupted the log's structure; the cap is a soft guideline enforced by human judgment only.
 
 ### Phase 2: Wiki Docs (Reconcile Code Against Spec)
 With the spec-first pipeline, docs for planned behavior were already written in parcel Phase 4 (marked `status: in-progress`). Wrap-up **reconciles** rather than retro-documents.
@@ -169,7 +167,7 @@ On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 Mutations that keep downstream tooling honest. Do all three, then close out.
 1. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
 2. **Machinery version bump (template repo only — satellites inherit, never bump)**: for each modified file under `.devops/skills/` or `.devops/templates/`, bump its frontmatter `version:` by 1 and refresh `updated:` to today; for each modified file under `scripts/`, `.devops/agents/`, `.devops/rules/`, or `.wiki/rules/`, bump `machinery-version:` once in `.devops/sync-manifest.yaml` — applying the **level rule** (patch = routine improvement, the default; minor = a new capability surface; major = an operator-contract change, i.e. the diff intersects the reserved-surfaces set) and recording the level with the release row (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*; scheme in `.devops/logs/version-history.md` § *Machinery Versioning Strategy*). Without this, satellites see `DRIFT` instead of `UPGRADE` on the next `-Check`. A satellite run of this skill skips this step entirely: the next pull stamps the satellite's manifest with the source `machinery-version`, so a satellite-side bump is inert and is stamped back down. **Batch scope override:** the `machinery-version:` increment happens **once for the whole set**, from the value live at that moment (see § Batch Scope — *one `machinery-version` increment*); the per-file skill `version:` bumps are unchanged and stay per modified file. The prefix `-Sync` is **not** wrapped up here — it belongs to the plan that edited a reserved prefix surface, so a red `check-parcel-prefix.ps1` is never carried into this step.
-3. **Record the wrap-up ref**: note the current commit hash in the changelog entry so the next Phase 0 diff has a clean baseline.
+3. **Record the wrap-up ref**: the index line links the plan, whose Phase 9 record carries the exact commit — nothing more is written into the changelog; the commit that lands the changelog is the next Phase 0 baseline (`git log --oneline -1 -- .devops/logs/agent-changelog.md`).
 
 ---
 

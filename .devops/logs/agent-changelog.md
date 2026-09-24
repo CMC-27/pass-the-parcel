@@ -9,6 +9,8 @@ description: "Chronological record of all AI agent actions, changes, and audits.
 
 All changes made by AI agents are tracked chronologically below.
 
+> **This file is a thin index from 2026-09-25 forward.** One line per change, appended under `## Index` at the foot; the Why is authored once, in the plan — never re-authored here. Entries above the `## Index` boundary are the **pre-index narrative record**: preserved as history, never retro-edited. `AGENTS.md` rule 5's *"last 3 entries"* are the Index's last lines.
+
 ---
 
 ## 2026-09-25 - Sprint 11 wave 1 (batch): tiered machinery versioning + the `stories:` gate (T1-E2.08, T1-E3.18)
@@ -496,4 +498,10 @@ All changes made by AI agents are tracked chronologically below.
 **Summary:** Reviewed the knowledge-capture system per user request: measured 269-line KC growing ~9 lines/day with zero consolidations ever applied (wrap-up only appended; the documented consolidation handoff existed in no executable surface). Fixed the loop (wrap-up Phase 7 now runs tidy consolidation), made consolidation cheap enough to actually fire (two modes, surgical-only default), moved leanness upstream to capture time, and adopted the user's policy: KC holds only edge cases with future practical use, never pointers, never wiki duplicates, hard 500-line caps on both KC and the agent changelog, deterministic short entries. Verification: `check-utf8-agents.ps1` ALL CLEAN (114 files), `wiki_lint.py --quiet` exit 0, `check-parcel-prefix.ps1` PASS ×7 byte-identical. **Wrap-up ref:** `b0ca295`
 
 ---
+
+## Index (2026-09-25 forward)
+
+> **One line per change:** `- **YYYY-MM-DD** · \`CODE\` · <one-line summary> · [plan](<repo-relative path>)`. Written at wrap-up from the plan — never independently authored; the Why lives once, in the plan. Append at the end (oldest-first), so the last entries are the most recent changes (`AGENTS.md` rule 5). Entries above this boundary are the pre-index narrative record — preserved as history, never retro-edited.
+
+<!-- New index entries go here. -->
 
