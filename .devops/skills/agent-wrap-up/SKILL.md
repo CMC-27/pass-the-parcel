@@ -87,7 +87,7 @@ The changelog is a **thin index**, not a record: one line per change, **written 
 1.  **Add index line**: append **one line per change** to the end of the file's `## Index` block, in the exact format:
 
     ```markdown
-    - **YYYY-MM-DD** · `CODE` · <one-line summary> · [plan](<repo-relative path>)
+    - **YYYY-MM-DD** · `CODE` · <one-line summary> · [plan](<path relative to this file>)
     ```
 
     - Read the summary **from the plan** (its Completion Note / Phase 9 record) — the Why is never composed here. A session with no plan cites its direct-fix commit instead of a plan link.

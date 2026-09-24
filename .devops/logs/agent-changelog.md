@@ -501,7 +501,7 @@ All changes made by AI agents are tracked chronologically below.
 
 ## Index (2026-09-25 forward)
 
-> **One line per change:** `- **YYYY-MM-DD** · \`CODE\` · <one-line summary> · [plan](<repo-relative path>)`. Written at wrap-up from the plan — never independently authored; the Why lives once, in the plan. Append at the end (oldest-first), so the last entries are the most recent changes (`AGENTS.md` rule 5). Entries above this boundary are the pre-index narrative record — preserved as history, never retro-edited.
+> **One line per change:** `- **YYYY-MM-DD** · \`CODE\` · <one-line summary> · [plan](<path relative to this file>)`. Written at wrap-up from the plan — never independently authored; the Why lives once, in the plan. Append at the end (oldest-first), so the last entries are the most recent changes (`AGENTS.md` rule 5). Entries above this boundary are the pre-index narrative record — preserved as history, never retro-edited.
 
 <!-- New index entries go here. -->
 
