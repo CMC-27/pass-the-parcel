@@ -504,4 +504,8 @@ All changes made by AI agents are tracked chronologically below.
 > **One line per change:** `- **YYYY-MM-DD** · \`CODE\` · <one-line summary> · [plan](<path relative to this file>)`. Written at wrap-up from the plan — never independently authored; the Why lives once, in the plan. Append at the end (oldest-first), so the last entries are the most recent changes (`AGENTS.md` rule 5). Entries above this boundary are the pre-index narrative record — preserved as history, never retro-edited.
 
 <!-- New index entries go here. -->
+- **2026-09-25** · `T1-E3.19` · The sprint wave forecast becomes a labelled snapshot of the predicate that actually decides, not a hand-derived guess; the sprint template's two homes reconcile to one · [plan](../archive/t1-e3.19-wave-forecast-drift-plan.md)
+- **2026-09-25** · `T1-E3.20` · The batch's single operator checkpoint now names mode overrules too — an advisory `mode_conflicts` key joins the MULTI-worthy fork · [plan](../archive/t1-e3.20-batch-preset-overrule-check-plan.md)
+- **2026-09-25** · `T1-E5.02` · The changelog becomes a thin append-only index and the Why is authored once, in the plan · [plan](../archive/t1-e5.02-changelog-generated-index-plan.md)
+- **2026-09-25** · `T3-E1.03` · The deterministic gates travel — a portable `machinery-gates.yml` runs the invariant subset in every satellite on every push · [plan](../archive/t3-e1.03-ci-gate-transportability-plan.md)
 

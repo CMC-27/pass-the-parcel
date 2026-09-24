@@ -12,7 +12,6 @@ closed: ""
 # Sprint 11: Machinery Streamline
 
 ## Goal
-## Goal
 Deliver the entire GRID-Link field-audit set in one three-wave sprint: honest tiered versioning with ordering-aware transport, a sanctioned MICRO path for small changes with the plan as the single record, and every guardrail the template advertises (CI gates, stories trace, preset acceptance, CORE profile, honest wave data) actually travelling to satellites.
 
 ## Capacity
@@ -35,7 +34,6 @@ Deliver the entire GRID-Link field-audit set in one three-wave sprint: honest ti
 > Queue order is the first claim order, not an execution dependency: blockers lead (T1-E2.08 opens waves 2-3), and `@sprint-run` re-evaluates eligibility immediately before each claim against the canonical predicate in `.devops/rules/plan-lifecycle.md` § Claim Protocol.
 
 ## Delivery Model
-## Delivery Model
 
 Wave decomposition predicted by the § 4b preflight — a prediction of the canonical Write-Set Overlap Predicate's fixpoint, never a replacement; `@sprint-run` re-evaluates the predicate live before each claim.
 
@@ -54,7 +52,6 @@ Wave decomposition predicted by the § 4b preflight — a prediction of the cano
 
 **Accepted cost:** 3 serial waves = **3 Gate D verdicts and 3 wrap-ups** — not one consolidated verdict; a committed plan holds its files from claim until its wrap-up archives it, so wave 2 stays blocked until wave 1 archives (and wave 3 until wave 2). A zero-eligible pass between waves is a normal terminal state, not a stall — the wrap-up cadence unblocks the next wave.
 
-## Explicitly Out of Scope
 ## Explicitly Out of Scope
 - **Kill List refactoring slice** — opt-in declined at planning; the `@sprint-close` scan still runs as normal and feeds REFACTORING.md
 - **The GRID-Link pull + counter-rewind decision** — operator action, deliberately after T1-E2.08 lands; re-measure the counter first (the satellite was mid-parcel at audit time)
