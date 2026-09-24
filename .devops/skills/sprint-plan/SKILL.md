@@ -1,7 +1,7 @@
 ---
 name: sprint-plan
 description: Make sure to use this skill whenever the user mentions sprint planning, starting a sprint, "what's our next sprint", /sprint-plan, committing scope, scoping a development cycle, or wants to pull triaged backlog items into a time-boxed batch of plans. Reads the backlog Triage Panel + REFACTORING.md Kill List, confirms capacity with the user, writes .devops/sprints/sprint-{n}-<slug>/sprint.md, moves committed plans into that folder as the sprint queue, and registers the row in SPRINTS.md. This skill PLANS a sprint — it does NOT execute parcels (that is @pass-the-parcel) or close them (@sprint-close).
-version: 9
+version: 10
 updated: 2026-09-25
 ---
 
@@ -70,10 +70,11 @@ Test the candidate set **against itself**, not only against the plans already in
 
 Scoring a candidate's complexity is part of committing it. Run this in the same pass as § 4b:
 
-1. **Score the canonical five signals** — blast radius, contract change, risk & reversibility, ambiguity, novelty. The table, its low/high bounds, and the "all low → `SINGLE`; any high → `MULTI`" rule live in `@pass-the-parcel` § Agent Topology → *Complexity Triage*: **cite them; never restate a second dialect here.**
+1. **Score the canonical five signals** — blast radius, contract change, risk & reversibility, ambiguity, novelty. The table, its low/high bounds, and the "all low → `SINGLE`; any high → `MULTI`" rule live in `@pass-the-parcel` § Agent Topology → *Complexity Triage*: **cite them; never restate a second dialect here.** The recommendation is one of **three** values — `MULTI` / `SINGLE` / `MICRO` — where `MICRO` is the all-five-signals-low case that also stays inside the *Complexity Triage* LOW bound: its bounds, gate set and collapsed rendering are canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane* (cite it, never restate it).
 2. **Record the recommendation in `sprint.md`** § Delivery Model — the `Flag` column (`MULTI` / `—`) plus the names of the signals that fired.
-3. **Write it into the plan's claim front-matter** as `triage: MULTI` or `triage: SINGLE` (§ 6 step 2 does this on the moved file). It is a **recommendation**, not the plan's frozen `Plan Settings` `Agents` row — that row is written at plan start and is what the pipeline obeys. The manual path reads `triage` as the recommendation to confirm.
+3. **Write it into the plan's claim front-matter** as `triage: MULTI`, `triage: SINGLE` or `triage: MICRO` (§ 6 step 2 does this on the moved file). It is a **recommendation**, not the plan's frozen `Plan Settings` `Agents` row — that row is written at plan start and is what the pipeline obeys. The manual path reads `triage` as the recommendation to confirm.
 4. **Say what the flag buys.** A `MULTI` flag on a plan committed to a `@sprint-run` batch means the batch **cannot honour it** — its preset is locked `AUTO` + `SINGLE` — so the plan is presented for an **accept batch risk / defer to manual** fork before the first claim (`@sprint-run` § 1, `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*). Flag honestly: an under-scored plan is still caught by the mechanical backstop (`scripts/sprint_eligible.py`'s `complexity` key — a plan declaring more than 3 `touches`), but the *reason* is lost.
+5. **`MICRO` is never a sprint-queue value.** A micro-eligible item is the **between-sprint** change path (`.devops/rules/plan-lifecycle.md` § *Micro Lane*) — record the `MICRO` recommendation on the parked plan and leave it out of the Committed Scope table. Committing one would make the batch run it as the full `SINGLE` parcel it already is, paying exactly the ceremony `MICRO` exists to avoid.
 
 ## 5. Write sprint.md
 

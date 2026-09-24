@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
-description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports two topologies — `MULTI` (comprehensive plan) and `SINGLE` (fast plan) — chosen by task complexity.
-version: 26
-updated: 2026-09-20
+description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports three topologies — `MICRO` (collapsed small-change record), `SINGLE` (fast plan) and `MULTI` (comprehensive plan) — chosen by task complexity.
+version: 27
+updated: 2026-09-25
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -16,7 +16,7 @@ Execute highly complex multi-agent engineering workflows with minimal token usag
 * User invokes the `/parcel` command or mentions "pass the parcel" or "parcel mode".
 * User requests a complex feature that requires multiple design, review, coding, and testing steps, while demanding token-efficiency.
 * Agent detects a long-running or multi-agent task and wants to structure it to avoid context inflation and conversation memory creep.
-* User wants a **fast plan** (`SINGLE` topology) for a low-complexity task, or a **comprehensive plan** (`MULTI` topology) for a high-complexity one — see § Agent Topology for how the choice is made.
+* User wants a **fast plan** (`SINGLE` topology) for a low-complexity task, or a **comprehensive plan** (`MULTI` topology) for a high-complexity one — see § Agent Topology for how the choice is made. A small, reversible, local change inside the *Complexity Triage* LOW bound may instead take the **`MICRO`** record — one canonical section in `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
 ---
 
@@ -68,18 +68,18 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 
 ## Agent Topology (SINGLE vs MULTI — fast plan vs comprehensive plan)
 
-Pass-the-parcel runs in **one of two topologies**, chosen by **task complexity** at plan start — unless the orchestrator runs a **locked preset** that fixes it (see § Orchestrator Presets). Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file.
+Pass-the-parcel runs in **one of three topologies**, chosen by **task complexity** at plan start — unless the orchestrator runs a **locked preset** that fixes it (see § Orchestrator Presets). Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file. `MICRO` is the lightest of the three and is **manual-path only** — its definition, bounds and gate set are canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
-| | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** |
-|---|---|---|
-| Who works | Orchestrator delegates each phase group to its `ptp-*` sub-agent | Orchestrator executes each phase group inline, playing the persona itself |
-| Sub-agent spawns | Yes (`task` per group) | None |
-| Group C reviews | Independent, context-isolated reviewers (grumpy-architect + smooth-operator) | **Skipped** -> inline self-review checkpoint logged in the Phase 6 section |
-| Phase 4 | Dedicated wiki spec | Folded into Phase 5 (or conditional skip) |
-| Gates | A -> B -> C -> D (4 hard stops) | A -> B (spec + plan + self-review, one approval) -> D; Gate C `N/A` |
-| Token cost | High (each sub-agent cold-starts and re-reads the plan) | Low (no sub-agent cold-starts) |
-| Best for | Wide blast radius, contract/schema change, ambiguity, irreversibility, novel patterns | Local, low-risk, <= 3 files, existing patterns reused |
-| Field value | `Agents: MULTI` | `Agents: SINGLE` |
+| | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** | `MICRO` — **collapsed small-change record** |
+|---|---|---|---|
+| Who works | Orchestrator delegates each phase group to its `ptp-*` sub-agent | Orchestrator executes each phase group inline, playing the persona itself | Orchestrator inline; the record is collapsed and the eligibility asserted |
+| Sub-agent spawns | Yes (`task` per group) | None | None |
+| Group C reviews | Independent, context-isolated reviewers (grumpy-architect + smooth-operator) | **Skipped** -> inline self-review checkpoint logged in the Phase 6 section | `N/A — MICRO` — eligibility is by definition local, reversible and reviewed by nobody but the author |
+| Phase 4 | Dedicated wiki spec | Folded into Phase 5 (or conditional skip) | `N/A — MICRO` (Phase 2-8 collapse to markers) |
+| Gates | A -> B -> C -> D (4 hard stops) | A -> B (spec + plan + self-review, one approval) -> D; Gate C `N/A` | B (eligibility assertion + micro plan, one approval) -> D; Gates A and C `N/A (MICRO)` |
+| Token cost | High (each sub-agent cold-starts and re-reads the plan) | Low (no sub-agent cold-starts) | Lowest (a collapsed record; one planning halt) |
+| Best for | Wide blast radius, contract/schema change, ambiguity, irreversibility, novel patterns | Local, low-risk, <= 3 files, existing patterns reused | **The between-sprint change** — a small, reversible, local edit inside the LOW bound (bounds canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane*) |
+| Field value | `Agents: MULTI` | `Agents: SINGLE` | `Agents: MICRO` |
 
 **Non-negotiables in BOTH topologies:**
 - Same plan file (`.devops/plans/[code]-[slug]-plan.md`), same lifecycle states, same State & Gates section.
@@ -114,6 +114,7 @@ A locked preset is enforced **structurally** wherever the runtime can express it
 
 - **`MULTI`:** `Group A (ptp-context-hunter)` -> Gate A -> `Group B (ptp-high-visionary)` -> Gate B -> `Group C (ptp-grumpy-architect + ptp-smooth-operator)` -> Gate C -> `Group D (ptp-code-surgeon)` -> Gate D -> Group E/F.
 - **`SINGLE`:** `Group A (orchestrator as Scoper)` -> Gate A -> `Group B (orchestrator as High-Visionary)` -> **Gate B** (spec + plan + inline self-review, one approval) -> `Group D (orchestrator as Executor)` -> Gate D -> Group E/F. Phase 4 folds into Phase 5 unless a wiki delta applies; Phases 6-7 render as `N/A — SINGLE topology; self-review logged`.
+- **`MICRO`:** `Group A (orchestrator as Scoper — Phase 1 only)` -> `Group B (orchestrator as High-Visionary)` -> **Gate B** (the eligibility assertion + the micro plan, one approval) -> `Group D (orchestrator as Executor)` -> Gate D. Gates A and C render `N/A (MICRO)`; Phases 2, 3, 4, 6, 7 and 8 render `N/A — MICRO` markers each carrying the eligibility line, and the micro plan renders in the Phase 5 marker section. Canonical definition: `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
 Record the chosen topology in the plan's **Plan Settings** `Agents` row at the **TOP** of the plan file (frozen config — never the bottom State & Gates).
 
@@ -188,7 +189,7 @@ To prevent context inflation and ensure complete control over design and executi
    - **Gate C (Peer Reviews):** Stop after completing **Phases 6-7** (Grumpy Architect Spec & Logic Audit + Product Owner review). Present findings and required fixes. **If a review failed, set `PHASE_5_REVISION` and return to Group B — do not proceed to execution.** Wait for approval before proceeding to execution.
    - **Gate D (Implementation):** Stop after completing **Phases 8-9** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off. **On rollback:** Status → `PHASE_8_FAILED`; the orchestrator routes retry / revision / user decision.
    - **AUTO mode:** the orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — the canonical contract is `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract (cited, never restated here). An unproven gate is a **stop-the-line**, never a `REJECTED` verdict and never a silent skip. **Gate D always requires the human.**
-   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
+   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). In `MICRO`, Gates A and C are recorded `N/A (MICRO)`, Phases 2-8 render as marked `N/A — MICRO` markers carrying the eligibility line, and Gate B carries the eligibility assertion plus the micro plan — canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane*. Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
 
 ---
 
@@ -204,7 +205,7 @@ To maximize token-savings during interaction and within the plan updates, agents
 
 ## Execution Steps
 
-> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology). If a **locked preset** fixes `SINGLE`, that dispatch is mandatory (the runtime `task: deny` enforces it).
+> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology). In `MICRO`, the same inline dispatch applies with the collapsed rendering (`N/A — MICRO` markers) and Gates A and C `N/A (MICRO)` — canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane*. If a **locked preset** fixes `SINGLE`, that dispatch is mandatory (the runtime `task: deny` enforces it).
 
 ### Claim & Pick-up Flow (Pre-Phase 1)
 Work enters the pipeline from a sprint queue. Do not start a plan that is neither committed to a sprint nor claimed.

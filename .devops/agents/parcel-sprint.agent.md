@@ -53,9 +53,10 @@ tools: [read, edit, search, execute, agent, todo, vscode_askQuestions]
 
 **Modes:** `USER-MANAGED` (default — every gate halts for the user) / `AUTO` (orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — see `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract; Gate D always requires the human).
 
-**Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE`. This axis is **independent of `Mode`**:
+**Agents (topology axis — the second, orthogonal axis):** `MULTI` (default) / `SINGLE` / `MICRO`. This axis is **independent of `Mode`**:
 - `MULTI` = **comprehensive plan** — orchestrator delegates each phase group to its `ptp-*` sub-agent; Groups C run as independent, context-isolated reviewers.
 - `SINGLE` = **fast plan** — orchestrator executes each phase group's persona inline **in the same session** (no `task` spawns); Group C collapses to a self-review checkpoint. Same plan file, same lifecycle states, same per-group delegation, same Gate D human sign-off — except the `@sprint-run` batch path, which runs one plan's Phases 1→9 in a single `ptp-parcel-fast` run (see `.devops/rules/plan-lifecycle.md` § Deviations).
+- `MICRO` = **collapsed small-change record** — the lightest of the three and **manual-path only** (never committed to a sprint queue): eligibility is asserted, Gates A and C are `N/A`, and Phases 2-8 render as marked `N/A — MICRO` sections carrying the eligibility line. Bounds, gate set and rendering are canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
 **One session, one plan.** The orchestrator stays in the session it started in and advances group to group there — spawning the next `ptp-*` subagent (`MULTI`) or running the next persona inline (`SINGLE`); a new session is **never** requested of the operator, and a handoff note is **never** written into a plan. See `@pass-the-parcel` § Review Gates.
 

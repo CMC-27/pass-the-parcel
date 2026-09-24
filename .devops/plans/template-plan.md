@@ -7,7 +7,7 @@ claimed_at: ""
 last_touch: "{YYYY-MM-DD}"
 touches: ["{path/glob}", "..."]
 depends_on: ["{code}", "..."]
-triage: SINGLE              # MULTI | SINGLE — commit-time topology recommendation (@sprint-plan § 4c); NOT the frozen Plan Settings `Agents`
+triage: SINGLE              # MULTI | SINGLE | MICRO — commit-time topology recommendation (@sprint-plan § 4c); NOT the frozen Plan Settings `Agents`
 stories: ["{As the owner, I want …, so …}"]   # drafted at @sprint-plan § 6 commit time; omit only with a recorded `Story skip — rationale:` line in the body
 ---
 # Parcel Plan: T{theme}-E{epic}.{impl} - [Title]
@@ -18,7 +18,7 @@ stories: ["{As the owner, I want …, so …}"]   # drafted at @sprint-plan § 6
 | Setting | Value | Meaning |
 |---|---|---|
 | **Mode** | `USER-MANAGED` | `USER-MANAGED` (every gate halts for the user) or `AUTO` (orchestrator auto-clears Gates A-C; Gate D always halts) — the mode vocabulary is canon in `.opencode/plans/base-context.md` |
-| **Agents** | `MULTI` | `MULTI` (comprehensive — full `ptp-*` delegation, 4 gates) or `SINGLE` (fast — inline personas, Group C skipped, Gates B+C merged at Gate B, Gate C `N/A`) |
+| **Agents** | `MULTI` | `MULTI` (comprehensive — full `ptp-*` delegation, 4 gates) / `SINGLE` (fast — inline personas, Group C skipped, Gates B+C merged at Gate B, Gate C `N/A`) / `MICRO` (collapsed small-change record — eligibility asserted, Gates A and C `N/A (MICRO)`, the micro plan in the Phase 5 marker; canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane*) |
 | **Models** | `CLI default` | Per-gate subagent models for **this run**. One of: `CLI default` (inherit the model selected in the CLI / picker — the answer when the operator declines); `per-gate: A=<model>, B=<model>, C=<model>, D=<model>`; or `N/A — no subagent spawns` (under `Agents: SINGLE`, which spawns nothing). Recorded once, never edited after plan start |
 
 > **Frozen config — read before executing ANY phase.** These three settings govern the entire pipeline and are never edited after plan start; they sit at the TOP so no session can miss them. Mutable runtime state (Status / Active Persona / gates) lives ONLY in the cache-anchored `## 📍 State & Gates` section at the bottom. See `@pass-the-parcel` § Agent Topology. **Preset provenance:** the orchestrator agent may set these from a **locked preset** (e.g. `parcel-sprint` locks `AUTO` + a per-plan `SINGLE`); when it does, the selection question is skipped and the preset values are recorded here.
@@ -33,6 +33,7 @@ stories: ["{As the owner, I want …, so …}"]   # drafted at @sprint-plan § 6
 > - Halt points are HARD STOPS - each gate blocks all subsequent phases.
 > - Persona matches Status - use the State Lifecycle table in pass-the-parcel skill.
 > - Read **Plan Settings** above before acting; the topology there governs which gates apply. See `@pass-the-parcel` § Agent Topology.
+> - **`Agents: MICRO` collapses the scaffold** — Phases 2, 3, 4, 6, 7 and 8 render as `N/A — MICRO` sections each carrying the eligibility line, the micro plan renders in the Phase 5 marker section, and Gates A and C are recorded `N/A (MICRO)`. Canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane* — cite it, do not restate it.
 >
 > **🔒 CACHE-ANCHORED:** The **Plan Settings** block above is frozen config; the mutable State Dashboard + Gate Log live in the **last section** (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
 
@@ -341,5 +342,7 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 | D | Implementation verified (Phases 8-9) | `OPEN` |
 
 > Gate flips: rows flip `OPEN` → `APPROVED`/`REJECTED` ONLY after the user's (or AUTO verification's) verdict, recorded by the orchestrator. Executing agents halt with their gate `OPEN`. Rejection routes: A -> `PHASE_1`; B/C -> `PHASE_5_REVISION`; D/rollback -> `PHASE_8_FAILED`. Never edit rows above this section for gate bookkeeping.
+>
+> **`Agents: MICRO`:** rows A and C record `N/A (MICRO)` (never `APPROVED`) and row B carries the eligibility assertion plus the micro plan — `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
 > **This section is the LAST section in the file. All gate bookkeeping happens here.**

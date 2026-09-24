@@ -19,7 +19,7 @@ Overrides:
 Output contract:
     exit 0 -> ONE JSON object on stdout, keys: schema, root, sprint, sprint_dir,
               queue, eligible, claim_order, parallel_groups, skipped, in_flight,
-              orphans, already_phased, complexity, mode_conflicts, counts
+              orphans, already_phased, complexity, mode_conflicts, triage_values, counts
     exit 1 -> a single "sprint_eligible: <cause>" line on stderr and NO JSON.
               A non-zero exit is a stop-the-line for @sprint-run: never fall back to
               reasoning the predicate out from prose.
@@ -27,11 +27,20 @@ Output contract:
 "complexity" is ADVISORY data (like "parallel_groups"), not part of the eligibility
 predicate: one entry per queued plan, {"triage", "signals", "multi_worthy", "blocks"}.
 The MULTI-worthy flag is the UNION of a declared triage recommendation (the plan's
-claim front-matter `triage: MULTI|SINGLE`, written by @sprint-plan at commit time) and
-a mechanical backstop on the plan's own declared `touches` breadth. The signals are
+claim front-matter `triage: MULTI|SINGLE|MICRO`, written by @sprint-plan at commit time)
+and a mechanical backstop on the plan's own declared `touches` breadth. The signals are
 DEFINED in .devops/skills/pass-the-parcel/SKILL.md section Agent Topology ->
 *Complexity Triage* ("blast radius: <= 3 files, one domain" is low); this script cites
 that definition and does not fork a second written dialect.
+
+MICRO is the third and lightest value of that vocabulary: it is the exact INVERSE of the
+MULTI-worthy flag and is MANUAL-PATH ONLY, so the batch path can neither honour nor
+deliver it - its bounds, gate set and collapsed rendering are DEFINED in
+.devops/rules/plan-lifecycle.md section *Micro Lane*. It is deliberately NOT a signal
+here: a `triage: MICRO` plan never fires multi_worthy on the declared value alone, and
+the blast-radius backstop still applies. "triage_values" echoes the legal vocabulary
+(the "reserved_surfaces" precedent) so the value set is explicit rather than implied by
+which strings happen to be compared.
 
 "lanes" is ADVISORY data too (schema sprint-eligible/1, added by T1-E3.11): one entry
 per queued plan, "serial" or "parallel". The Reserved Surface Set that forces the
@@ -69,6 +78,9 @@ ponytail: ceilings (deliberate, documented - see plan-lifecycle.md section Claim
   - "mode_conflicts" reports, it never blocks: an accepted preset overrule runs
     exactly as today, now with the operator informed. The check adds a signal at the
     EXISTING fork, not a fourth deviation - the batch preset stays locked.
+  - "triage_values" is an echo of the legal vocabulary, never a validation pass: an
+    unrecognised value still fails open to the mechanical backstop (never a halt), and
+    MICRO is only named, never gated here (plan-lifecycle.md section Micro Lane owns it).
 """
 
 import argparse
@@ -94,6 +106,12 @@ CLAIMED = "CLAIMED"
 DONE = "GATE_D_USER_APPROVAL"
 PHASE_9 = "PHASE_9"
 TRIAGE_MULTI = "MULTI"
+TRIAGE_SINGLE = "SINGLE"
+# The third value, and the only one the batch path cannot deliver: MICRO is the
+# manual/between-sprint record. Its bounds and gate set are DEFINED in
+# .devops/rules/plan-lifecycle.md section *Micro Lane*; cited here, never restated.
+TRIAGE_MICRO = "MICRO"
+TRIAGE_VALUES = (TRIAGE_MULTI, TRIAGE_SINGLE, TRIAGE_MICRO)
 BLAST_RADIUS_MAX = 3
 BLAST_RADIUS = "blast-radius"
 CODE_RE = re.compile(r"^([a-z]+\d*-e\d+\.\d+)", re.IGNORECASE)
@@ -264,6 +282,9 @@ def complexity_for(rec: dict, queue: list) -> dict:
     files") is computed here, as the canonical definition of MULTI-worthy stays there.
     An unrecognised `triage` value never errors - it simply does not fire the declared
     signal, so the backstop still applies (fail open, never halt a batch on a typo).
+    `MICRO` is one of the three recognised values (TRIAGE_VALUES) and behaves like an
+    absent field here: it is the INVERSE of MULTI-worthy and is manual-path only, so it
+    never fires the declared signal and the blast-radius backstop still governs.
     """
     signals = [BLAST_RADIUS] if len(rec["touches"]) > BLAST_RADIUS_MAX else []
     multi_worthy = rec["triage"] == TRIAGE_MULTI or bool(signals)
@@ -493,6 +514,10 @@ def compute(root: Path, slug: str, folder: Path) -> dict:
         "already_phased": already_phased,
         "complexity": {r["code"]: complexity_for(r, queue) for r in queue},
         "mode_conflicts": {r["code"]: mode_conflict_for(r) for r in queue},
+        # The legal `triage` vocabulary, echoed (the "reserved_surfaces" precedent):
+        # MICRO is named here so it is an explicit value, not an unrecognised string
+        # that happens to behave the same way. See plan-lifecycle.md section Micro Lane.
+        "triage_values": sorted(TRIAGE_VALUES),
         "counts": {
             "queue": len(queue),
             "eligible": len(eligible),
