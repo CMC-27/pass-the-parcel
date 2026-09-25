@@ -3,7 +3,7 @@ type: "process"
 name: "Code Quality & Refactoring Register"
 status: "active"
 description: "Living audit of code complexity, coupling, and test health. Process-driven — items enter here from end-of-cycle checks, not roadmap planning."
-last_scan: "2026-09-18"
+last_scan: "2026-09-25"
 ---
 # 🔧 Pass the Parcel — Code Quality & Refactoring Register
 
@@ -84,6 +84,29 @@ Two caveats, both load-bearing when reading this table:
 - **`CCN(h)` is a regex heuristic, not an AST count.** It counts `if (`/`case`/`for (`/`&&`/`||`/`?`/`??` occurrences, including those *inside regex literals* — so it is inflated for regex-heavy files (rank 1 is the scanner itself). Treat line count as the reliable column and the CCN figure as a pointer, not a measurement.
 - **`-` means "not measured", not "clean".** Non-ECMAScript files (`.ps1`/`.py`/`.md`) are ranked on line count only; the CCN/import/export regexes are ECMAScript-shaped and would report prose noise as complexity.
 
+### Machinery scan — 2026-09-25 (sprint 11 close, all roots)
+
+```
+node scripts/spaghetti-monster-scan.cjs
+no src/ tree in this workspace — skipping (nothing to scan there)
+=== TOP 40 SOURCE+TEST RISK (unified kill list) ===
+roots: src/ (app) + scripts/, .devops/skills/, .devops/agents/, .devops/templates/ (machinery)
+non-ECMAScript rows (`imp`/`fn`/`CCN` shown as `-`) are ranked on line count only.
+
+rank | source                                   | lines | imp | fn | CCN(h) | test      | risk
+   1 | scripts\spaghetti-monster-scan.cjs       |   261 |   2 |   8 |     81 | (no test) | 51.0
+   2 | scripts\sync-architecture.ps1            |   757 |   - |   - |      - | (no test) |  9.1
+   3 | scripts\sprint_eligible.py               |   549 |   - |   - |      - | (no test) |  5.0
+   4 | scripts\wiki_claims.py                   |   484 |   - |   - |      - | (no test) |  3.7
+   5 | scripts\tests\test_sprint_eligible.py    |   473 |   - |   - |      - | (no test) |  3.5
+   6 | scripts\wiki_lint_checks.py              |   423 |   - |   - |      - | (no test) |  2.5
+   7 | scripts\check-parcel-prefix.ps1          |   359 |   - |   - |      - | (no test) |  1.2
+```
+
+**One new Kill List row: `scripts/sync-architecture.ps1` — now 757 lines, 🔴 OPEN.** Sprint 11's two reserved-surface parcels grew it **561 → 757** (+196): `T1-E2.08` added the ordering-aware `-Check` verdict, the dotted-tolerant readers, the `AHEAD` reconcile recipe and two `-SelfTest` fixtures; `T3-E1.04` added the profile-aware check/copy path, tiered-out prune behaviour and a third fixture. It sits **43 lines below the >800 critical** threshold; the split precedent (`T1-E4.01` W6) stands and the margin is now thin.
+
+Touched, already flagged, counts refreshed: `scripts/sprint_eligible.py` **463 → 549** (T1-E3.20's `mode_conflicts`, T1-E5.01's MICRO vocabulary) and `scripts/tests/test_sprint_eligible.py` **410 → 473** (fixtures **29 → 34**). Untouched this sprint: `spaghetti-monster-scan.cjs` (261 — identical to sprint 10's scan), `wiki_claims.py` (484), `wiki_lint_checks.py` (423), `check-parcel-prefix.ps1` (359).
+
 ### Kill List (ranked by risk × effort)
 
 | File | Lines | CCN(h) | Imports | Status | Plan | Flagged by |
@@ -94,10 +117,10 @@ Two caveats, both load-bearing when reading this table:
 | `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
 | `scripts/check-parcel-prefix.ps1` | 370 | — | — | ⚪ WATCH | — | Pre-existing (`T1-E2.02`, ruled won't-fix 2026-09-19); under the 400-line threshold, tracked for branch-count trend only |
 | `scripts/wiki_claims.py` | 484 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — crossed >400 warn (coverage subcommand growth); was WATCH |
-| `scripts/sprint_eligible.py` | 463 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — new file above warn (predicate + lanes + complexity) |
+| `scripts/sprint_eligible.py` | 549 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — new file above warn (predicate + lanes + complexity); 463 → **549** by sprint 11 close (+T1-E3.20 `mode_conflicts`, +T1-E5.01 MICRO) |
 | `scripts/wiki_lint_checks.py` | 423 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — split product above warn; trend only |
-| `scripts/tests/test_sprint_eligible.py` | 410 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — fixture growth 18→29; test, not product |
-| `scripts/sync-architecture.ps1` | 561 | — | — | ⚪ WATCH | `T1-E4.01` W6 | Sprint 9 close, 2026-09-18 — regrew 497→561 (+T1-E2.07 prune/mask/stamp); split precedent stands, trend only |
+| `scripts/tests/test_sprint_eligible.py` | 473 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — fixture growth 18→29; 410 → **473** (fixtures **29 → 34**) by sprint 11 close; test, not product |
+| `scripts/sync-architecture.ps1` | 757 | — | — | 🔴 OPEN | — | Sprint 11 close, 2026-09-25 — regrew **561 → 757** (+T1-E2.08 tiered versioning & ordering-aware transport; +T3-E1.04 the profile tier). Now **43 lines from the >800 critical**; the split precedent (`T1-E4.01` W6) is the standing fix |
 
 **Status legend:** 🔴 OPEN (flagged, no plan) · 🟡 PLANNED (plan file exists) · 🔄 IN PROGRESS · ✅ RESOLVED (move to the Completed table) · ⚪ WATCH (below threshold, tracked for trend).
 
@@ -123,13 +146,13 @@ Two caveats, both load-bearing when reading this table:
 
 | Metric | Value | Last Checked |
 |--------|-------|-------------|
-| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-23 |
-| Total tests | 0 | 2026-09-23 |
-| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-23 |
-| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-23 |
-| Lint warnings | 0 | 2026-09-23 |
+| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-25 |
+| Total tests | 0 | 2026-09-25 |
+| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-25 |
+| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-25 |
+| Lint warnings | 0 | 2026-09-25 |
 
-Gate set at sprint 10 close, all exit `0`: `wiki_lint.py --quiet` · `wiki_claims.py check` (0 stale) · `wiki_claims.py coverage` (no `src/` tree — nothing to cover) · `check-parcel-prefix.ps1` (PASS ×9, NOMODEL ×12, seed ok) · `check-utf8-agents.ps1` (ALL CLEAN, 182 files).
+Gate set at sprint 11 close, all exit `0`: `wiki_lint.py --quiet` · `wiki_claims.py check` (0 stale) · `wiki_claims.py coverage` (no `src/` tree — nothing to cover) · `check-parcel-prefix.ps1` (PASS ×9, NOMODEL ×11, seed ok) · `check-utf8-agents.ps1` (ALL CLEAN, 182 files) · `sync-architecture.ps1 -SelfTest` (5 dirs, 34 skills, 19 files) · four fixture suites OK — `test_sprint_eligible` **34** (was 29), `test_check_utf8_agents` 10, `test_wiki_claims_coverage`, `test_rule_fanout` 18 · `rule_fanout.py` **0 unauthorised ×8**.
 
 The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
 
