@@ -50,7 +50,7 @@ The plan moves through ten phases in six groups. Groups A and B **plan**, Group 
 | 🛑 | **Four hard gates** | A Scope → B Spec & Plan → C Peer Reviews → D Implementation. `AUTO` mode auto-clears A–C; **Gate D always waits for a human**. |
 | 📚 | **Agent-first wiki** | Governance rules, a deterministic linter, and grounded claims keep the knowledge base honest as the code changes. |
 | 🔒 | **Deterministic CI gates** | Prefix integrity, UTF-8, wiki lint, coverage, and claims drift on every push — in this template **and in every satellite**, because the gate workflow travels with the portable surface. The template additionally self-tests its sync engine. |
-| 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`AHEAD`/`MIGRATION`/`DRIFT` verdicts — ordering-aware, so a pull never silently rewinds a satellite's counter. |
+| 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`AHEAD`/`MIGRATION`/`DRIFT` verdicts — ordering-aware, so a pull never silently rewinds a satellite's counter. A satellite also declares its own **skill tier** — `FULL` (the default: the whole library) or `CORE` (the 18 measured pipeline-carrying skills) — and `CORE`→`FULL` is purely additive. |
 | 🧰 | **A skill library** | Planning, review, wiki maintenance, backlog, sprints, audits, and design — all as plain `SKILL.md` packages. |
 
 ## Quickstart (5 minutes)
@@ -64,7 +64,7 @@ The plan moves through ten phases in six groups. Groups A and B **plan**, Group 
 
 **Add it to an existing repository**
 
-Run the one-time bootstrap from the template, then author the three repo-specific files from the seeds. The full checklist — including the `VERIFIED` confirmation step — is in [`.devops/templates/SATELLITE-BOOTSTRAP.md`](.devops/templates/SATELLITE-BOOTSTRAP.md):
+Run the one-time bootstrap from the template, then author the three repo-specific files from the seeds. The full checklist — including the `VERIFIED` confirmation step — is in [`.devops/templates/SATELLITE-BOOTSTRAP.md`](.devops/templates/SATELLITE-BOOTSTRAP.md). Prefer the pipeline only? Declare `profile: CORE` in your own `.devops/sync-manifest.yaml` and the pull installs the 18 pipeline-carrying skills instead of all 34 — the agents, rules and guardrail scripts travel either way, and switching back to `FULL` is purely additive.
 
 ```powershell
 git clone <this-repo-url> $env:TEMP\ptp

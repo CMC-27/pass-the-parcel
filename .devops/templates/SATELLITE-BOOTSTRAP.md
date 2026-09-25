@@ -1,6 +1,6 @@
 <!--
 type: template
-version: 15
+version: 16
 updated: 2026-09-25
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
@@ -82,6 +82,16 @@ If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefi
 powershell -NoProfile -File scripts\check-parcel-prefix.ps1 -Sync
 ```
 
+**Choose your skill tier (optional).** The sync materialises the whole skill library by
+default (`profile: FULL`). A satellite that wants only the pipeline declares `profile: CORE` in
+its **own** `.devops/sync-manifest.yaml` — the file a sync never overwrites (only its
+`machinery-version:` line is stamped) — and the next pull installs the 18 measured
+pipeline-carrying skills instead of all 34. Every **agent**, every **rule** and every
+**guardrail script** still travels: directories and standalone files are not tiered. A skill your
+tier does not carry is never reported `MISSING`, and one you no longer want is reported `PRUNE`
+and removed on the next pull — so switching back to `FULL` is purely additive. An unrecognised
+value halts the pull rather than guessing. The full semantics live in the manifest's own header.
+
 ## 3. Record the template source for future pulls
 
 ```powershell
@@ -97,7 +107,8 @@ powershell -NoProfile -File scripts\pull-architecture.ps1 -Check
 ```
 
 Expect every row `CURRENT` and `IN SYNC` (exit 0). Any `DRIFT` = you customized a portable
-file locally — diff it before overwriting. Any `MISSING` = re-run step 1.
+file locally — diff it before overwriting. Any `MISSING` = re-run step 1. A `CORE` target is no
+exception: a skill your tier does not carry is simply not compared, never reported `MISSING`.
 
 Then confirm the authored surface is wired correctly:
 

@@ -52,6 +52,71 @@ function Get-ManifestMachineVersion {
     return $null
 }
 
+function Get-RepoProfile {
+    # Read a repo's OWN declared skill tier from its manifest (T3-E1.04). An absent manifest,
+    # or an absent `profile:` key, returns $null - the caller falls back target -> source ->
+    # FULL, so a satellite that has never heard of the key behaves exactly as before. The
+    # value is normalised and VALIDATED in Get-SkillTier, the single place a tier means
+    # anything.
+    param([string]$Root)
+    $mp = Join-Path $Root '.devops/sync-manifest.yaml'
+    if (-not (Test-Path $mp)) { return $null }
+    $man = Read-Manifest $mp
+    if ($man.Scalars.Contains('profile')) { return [string]$man.Scalars['profile'] }
+    return $null
+}
+
+function Get-SkillTier {
+    # The ONE derivation of the effective portable skill set. Returns
+    # @{ Profile; Effective; TieredOut }:
+    #   FULL -> Effective = every skill folder minus excluded_skills; TieredOut = none
+    #   CORE -> Effective = that set intersected with the SOURCE's `core_skills:` membership;
+    #           TieredOut = the remainder (compared nowhere, and PRUNE where present)
+    # The profile is the TARGET's declaration, falling back to the SOURCE's, then FULL. An
+    # unrecognised value HALTS (a wrong tier is a trust-boundary defect, never a silent
+    # default), as does CORE declared against an empty membership. Both consumers (-Check and
+    # the copy loop) read this one object, so a second dialect of the rule cannot appear.
+    param([string]$SrcRoot, [string]$TgtRoot)
+    $full = @(Get-ChildItem (Join-Path $SrcRoot '.devops/skills') -Directory | ForEach-Object { $_.Name })
+    $srcMan = Read-Manifest (Join-Path $SrcRoot '.devops/sync-manifest.yaml')
+    $excluded = @($srcMan.Lists['excluded_skills'])
+    $portable = @($full | Where-Object { $excluded -notcontains $_ })
+    $raw = Get-RepoProfile -Root $TgtRoot
+    if (-not $raw) { $raw = Get-RepoProfile -Root $SrcRoot }
+    if (-not $raw) { $raw = 'FULL' }
+    $profile = ([string]$raw).Trim().ToUpperInvariant()
+    if ($profile -ne 'FULL' -and $profile -ne 'CORE') {
+        throw "unknown profile '$raw' in $TgtRoot/.devops/sync-manifest.yaml - expected FULL or CORE"
+    }
+    if ($profile -eq 'FULL') { return @{ Profile = 'FULL'; Effective = $portable; TieredOut = @() } }
+    $core = @($srcMan.Lists['core_skills'])
+    if ($core.Count -eq 0) {
+        throw "profile is CORE but core_skills is empty in $SrcRoot/.devops/sync-manifest.yaml"
+    }
+    # ponytail: membership integrity (every core_skills slug resolving to a live folder) is
+    # asserted by -SelfTest in the template's own CI rather than thrown here - the list is
+    # authored only in the template, so a satellite is never reddened by a template-side typo.
+    # Ceiling: a mistyped slug silently narrows a CORE install until that assertion fires.
+    return @{
+        Profile   = 'CORE'
+        Effective = @($portable | Where-Object { $core -contains $_ })
+        TieredOut = @($portable | Where-Object { $core -notcontains $_ })
+    }
+}
+
+function Get-EffectivePruneManifest {
+    # The manifest's prune lists PLUS the tier's tiered-out skill dirs, so the existing prune
+    # module (Get-PrunePlan / Test-PrunePresent) needs no change at all: a tiered-out skill
+    # present in the target is planned, reported PRUNE, and deleted on sync - the same
+    # mechanism as a folder retired upstream.
+    param($Manifest, $Tier)
+    $dirs = @($Manifest['prune_dirs'])
+    if ($Tier -and $Tier.TieredOut) {
+        foreach ($slug in @($Tier.TieredOut)) { $dirs += ".devops/skills/$slug" }
+    }
+    return @{ prune_files = @($Manifest['prune_files']); prune_dirs = $dirs }
+}
+
 function Get-VersionShape {
     # 'dotted' (major.minor[.patch]) / 'integer' / 'absent' / 'malformed'. The SHAPE, not the
     # magnitude, decides comparability: the tiered lineage crosses a boundary once

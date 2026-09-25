@@ -49,6 +49,50 @@
 
 machinery-version: 74
 
+# Skill tiering (T3-E1.04). A satellite declares how much of the skill library it carries;
+# the sync respects it. This is DATA, not prose - the engine reads these two keys, and no
+# other surface restates the rule.
+#   profile:      THIS repo's tier. FULL (default - every skill, today's behaviour) or CORE
+#                 (the pipeline set below). A satellite sets CORE in its OWN copy of this
+#                 file; a sync rewrites only its machinery-version line, so the declaration
+#                 survives every pull. Read from the TARGET; absent -> the source's value.
+#   core_skills:  The CORE membership - TEMPLATE-published, read from the SOURCE. Measured
+#                 from the plan record (~18 of the 34 shipped skills participate in the
+#                 pipeline; .devops/audits/grid-link-field-audit-2026-09-24.md finding 5),
+#                 never asserted by opinion. A skill the measurement cannot see
+#                 (conversational / operator-invoked) is CORE-excluded by default; the
+#                 documented opt-in is profile: FULL, which is purely additive.
+#                 Membership integrity (every slug resolves to a live skill folder) is
+#                 asserted by `sync-architecture.ps1 -SelfTest`, not thrown at run time.
+#                 Refresh this list on a recorded trigger - a fresh field audit, or a
+#                 material change in the satellite population - as a data edit.
+# Semantics: a CORE target compares and installs only its effective set; an un-installed
+# tiered-out skill is never MISSING (it is simply not compared), and a tiered-out skill
+# PRESENT in a CORE target is PRUNE (redundant by the target's own declaration) - the
+# existing prune mechanism, so a downgrade deletes it and a return to FULL restores it
+# additively. Directories and standalone files are NOT tiered: every agent and every
+# guardrail script is pipeline, and the measured surplus is the skill library.
+profile: FULL
+core_skills:
+  - agent-wrap-up
+  - backlog
+  - knowledge-capture
+  - pass-the-parcel
+  - ptp-code-surgeon
+  - ptp-context-hunter
+  - ptp-grumpy-architect
+  - ptp-high-visionary
+  - ptp-parcel-fast
+  - ptp-phase3-answerer
+  - ptp-smooth-operator
+  - spaghetti-monster
+  - sprint-close
+  - sprint-plan
+  - sprint-run
+  - test-and-deploy
+  - wiki-lint
+  - wiki-writer
+
 portable_dirs:
   - .wiki/rules
   - .devops/rules

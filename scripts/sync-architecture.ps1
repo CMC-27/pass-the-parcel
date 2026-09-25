@@ -18,7 +18,8 @@ param(
 
         portable_dirs:      directories copied recursively (overwrite) into the target
         excluded_skills:    skill slugs NOT portable (portable skills are derived:
-                            every folder in .devops/skills minus this exclusion list)
+                            every folder in .devops/skills minus this exclusion list, then
+                            intersected with core_skills when the target is profile: CORE)
         portable_files:     standalone files copied verbatim into the target
         prune_files:        files deleted from the target if present (retired upstream)
         prune_dirs:         directories deleted from the target if present, recursively
@@ -28,6 +29,23 @@ param(
                             the comparison is ORDERING-AWARE - behind -> UPGRADE, ahead ->
                             AHEAD and a lineage shape crossing -> MIGRATION (both halt-and-
                             reconcile). Drives UPGRADE vs DRIFT classification for non-skill items
+        profile:            the skill tier THIS repo carries - FULL (default: every skill) or
+                            CORE (the pipeline set). A satellite declares CORE in its own copy
+                            of the manifest; the sync reads it from the TARGET, falling back to
+                            the source's value, so a satellite that has never set the key is
+                            unchanged. An unrecognised value HALTS before anything is written.
+        core_skills:        the CORE membership - template-published DATA read from the SOURCE,
+                            never from the target (measured from the plan record; the manifest
+                            header cites the evidence). A skill the measurement cannot see is
+                            CORE-excluded by default, and the opt-in is profile: FULL.
+
+    PROFILE-AWARE COMPARISON: the effective skill set is derived in exactly one place
+    (Get-SkillTier, scripts/lib/sync-manifest.ps1) - the source's skills minus excluded_skills,
+    intersected with core_skills when the target declares CORE. -Check and the copy path both
+    consume that one set, so an un-installed tiered-out skill is never MISSING (it is simply
+    not compared), while a tiered-out skill PRESENT in a CORE target reports PRUNE and is
+    deleted by a sync - the existing prune mechanism, so a downgrade is reversible by
+    declaring FULL again (purely additive). Directories and standalone files are not tiered.
 
     -Check compares source vs target per manifest item (SHA256 per file + version metadata)
     and prints a CURRENT/UPGRADE/AHEAD/MIGRATION/DRIFT/MISSING/PRUNE/SOURCE-ABSENT verdict
@@ -394,6 +412,109 @@ if ($SelfTest) {
         } else {
             $fail += "wiki_claims.py missing from target scripts/"
         }
+        # --- T3-E1.04 fixture: the skill tier (`profile: FULL | CORE`) -----------------------
+        # A satellite declares how much of the library it carries; the sync respects it. Proves
+        # the contracts that would otherwise ship silently wrong: CORE narrows the compared set,
+        # an un-installed tiered-out skill is never MISSING, a PRESENT one is PRUNE and a sync
+        # sheds it, FULL restores it additively, and an unknown value HALTS naming itself.
+        # Runs LAST: it leaves the temp target back at `profile: FULL`.
+        $stCore = @($stMan.Lists['core_skills'])
+        $stFullOnly = @($stSkills | Where-Object { $stCore -notcontains $_ })
+        if ($stCore.Count -eq 0) {
+            $fail += "T3-E1.04: source manifest declares no core_skills"
+        } elseif ($stFullOnly.Count -eq 0) {
+            $fail += "T3-E1.04: core_skills covers the whole library - no tier left to test"
+        } else {
+            foreach ($slug in $stCore) {
+                if ($stSkills -notcontains $slug) { $fail += "T3-E1.04: core_skills entry '$slug' resolves to no source skill folder" }
+            }
+            if ($stCore.Count -ge $stSkills.Count) { $fail += "T3-E1.04: core_skills is not a strict subset of the portable set" }
+            $stTgtManifest = Join-Path $tmp '.devops/sync-manifest.yaml'
+            function Set-FixtureProfile {
+                # A satellite's OWN declaration: rewrite the key in place, exactly as an operator
+                # would. The sync must never clobber it (it rewrites only machinery-version).
+                param([string]$Value)
+                $raw = [System.IO.File]::ReadAllText($stTgtManifest)
+                if ($raw -match '(?m)^profile:') {
+                    $raw = [regex]::Replace($raw, '(?m)^profile:.*$', "profile: $Value")
+                } else {
+                    $raw = $raw.TrimEnd() + "`r`nprofile: $Value`r`n"
+                }
+                [System.IO.File]::WriteAllText($stTgtManifest, $raw)
+            }
+            $stProbe = $stFullOnly[0]
+            # (iii) CORE: the present FULL-only skills are PRUNE (never MISSING) and a sync sheds
+            # them; the CORE set survives and -Check is then IN SYNC with no MISSING at all.
+            Set-FixtureProfile 'CORE'
+            Write-Output "SELFTEST fixture T3-E1.04: target profile set to CORE (full-only probe '$stProbe')"
+            $stCoreOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+            if ($LASTEXITCODE -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with tiered-out skills present (exit 0)" }
+            if (-not ($stCoreOut -match 'PRUNE')) { $fail += "T3-E1.04: -Check did not report PRUNE for a present tiered-out skill" }
+            if ($stCoreOut -match 'MISSING') { $fail += "T3-E1.04: -Check reported MISSING under a CORE profile" }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: CORE sync failed (exit $LASTEXITCODE)" }
+            foreach ($slug in $stFullOnly) {
+                if (Test-Path (Join-Path $tmp ".devops/skills/$slug")) { $fail += "T3-E1.04: tiered-out skill '$slug' survived the CORE sync"; break }
+            }
+            foreach ($slug in $stCore) {
+                if (-not (Test-Path (Join-Path $tmp ".devops/skills/$slug"))) { $fail += "T3-E1.04: CORE skill '$slug' was pruned by the tier switch"; break }
+            }
+            $stCoreCheck = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC for a settled CORE target" }
+            if ($stCoreCheck -match 'MISSING') { $fail += "T3-E1.04: an un-installed tiered-out skill was reported MISSING (it must not be compared at all)" }
+            if ($stCoreCheck -match [regex]::Escape($stProbe)) { $fail += "T3-E1.04: -Check named the tiered-out skill '$stProbe'" }
+            # (iv) a tiered-out skill PRESENT in a CORE target: PRUNE, then deleted by a sync.
+            $stStaleSkill = Join-Path $tmp ".devops/skills/$stProbe"
+            New-Item -ItemType Directory -Force -Path $stStaleSkill | Out-Null
+            Set-Content -Path (Join-Path $stStaleSkill 'SKILL.md') -Value "stale" -NoNewline
+            $stPruneOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
+            if ($LASTEXITCODE -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with a tiered-out skill present (exit 0)" }
+            if (-not ($stPruneOut -match 'PRUNE')) { $fail += "T3-E1.04: -Check did not report PRUNE for a tiered-out skill present in a CORE target" }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: tier prune re-sync failed (exit $LASTEXITCODE)" }
+            if (Test-Path $stStaleSkill) { $fail += "T3-E1.04: the tiered-out skill survived the sync (tier prune failed)" }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
+            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the tier prune" }
+            # (v) CORE -> FULL is purely additive: the tiered-out skill comes back, byte-identical.
+            Set-FixtureProfile 'FULL'
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: FULL restore sync failed (exit $LASTEXITCODE)" }
+            $stProbeFile = Join-Path $stStaleSkill 'SKILL.md'
+            if (-not (Test-Path $stProbeFile)) {
+                $fail += "T3-E1.04: declaring FULL did not re-materialise the tiered-out skill (not additive)"
+            } else {
+                $hSrc = (Get-FileHash (Join-Path $srcRoot ".devops/skills/$stProbe/SKILL.md") -Algorithm SHA256).Hash
+                $hTgt = (Get-FileHash $stProbeFile -Algorithm SHA256).Hash
+                if ($hSrc -ne $hTgt) { $fail += "T3-E1.04: the restored skill '$stProbe' differs from its source (restore is not a clean copy)" }
+            }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
+            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the FULL restore" }
+            # (vi) an unknown profile HALTS loudly, naming the value, and exits non-zero. The
+            # child's streams are redirected at the PROCESS level: a native command's stderr
+            # routed through PowerShell's error stream is not reliably catchable under
+            # $ErrorActionPreference = 'Stop', and this fixture must assert the halt, not
+            # swallow it.
+            Set-FixtureProfile 'BOGUS'
+            $stBogusOutFile = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".out")
+            $stBogusErrFile = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".err")
+            $stBogusProc = Start-Process -FilePath $shellExe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stBogusOutFile -RedirectStandardError $stBogusErrFile
+            $stBogusMsg = ([System.IO.File]::ReadAllText($stBogusOutFile) + "`n" + [System.IO.File]::ReadAllText($stBogusErrFile))
+            Remove-Item $stBogusOutFile, $stBogusErrFile -Force -ErrorAction SilentlyContinue
+            if ($stBogusProc.ExitCode -eq 0) { $fail += "T3-E1.04: -Check accepted an unknown profile value (exit 0)" }
+            if ($stBogusMsg -notmatch 'unknown profile') { $fail += "T3-E1.04: the unknown-profile halt did not carry the engine's message (got: $stBogusMsg)" }
+            if ($stBogusMsg -notmatch 'BOGUS') { $fail += "T3-E1.04: the unknown-profile halt did not name the value" }
+            # ...and the SYNC path halts too, before writing anything (the tier resolves ahead of
+            # the copy loops), so a bad declaration can never half-install a surface.
+            $stSkillsBefore = (Get-ChildItem (Join-Path $tmp '.devops/skills') -Directory).Count
+            $stBogusSyncOut = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".sout")
+            $stBogusSyncErr = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".serr")
+            $stBogusSync = Start-Process -FilePath $shellExe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stBogusSyncOut -RedirectStandardError $stBogusSyncErr
+            Remove-Item $stBogusSyncOut, $stBogusSyncErr -Force -ErrorAction SilentlyContinue
+            if ($stBogusSync.ExitCode -eq 0) { $fail += "T3-E1.04: the sync path accepted an unknown profile value (exit 0)" }
+            $stSkillsAfter = (Get-ChildItem (Join-Path $tmp '.devops/skills') -Directory).Count
+            if ($stSkillsAfter -ne $stSkillsBefore) { $fail += "T3-E1.04: the unknown-profile sync wrote to the target ($stSkillsBefore -> $stSkillsAfter skills)" }
+            Set-FixtureProfile 'FULL'
+        }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"
             $fail | ForEach-Object { Write-Output "  $_" }
@@ -429,11 +550,15 @@ $man = Read-Manifest $manifestPath
 $manifest = $man.Lists
 $scalars = $man.Scalars
 
-# Derive the portable skill surface: all skills minus excluded_skills.
-$skillsRoot = Join-Path $srcRoot '.devops/skills'
-$allSkills = @(Get-ChildItem $skillsRoot -Directory | ForEach-Object { $_.Name })
-$excluded = @($manifest['excluded_skills'])
-$portableSkills = @($allSkills | Where-Object { $excluded -notcontains $_ })
+# The effective portable skill surface - ONE derivation, profile-aware: the source's skills
+# minus `excluded_skills`, intersected with `core_skills` when the target declares `profile:
+# CORE`. It drives BOTH the -Check comparison and the copy loop, so the two cannot disagree.
+$tier = Get-SkillTier -SrcRoot $srcRoot -TgtRoot $tgtRoot
+$portableSkills = @($tier.Effective)
+# The prune input: the manifest's retired paths PLUS the tier's tiered-out skill dirs, so a
+# downgraded CORE target sheds them through the existing PRUNE mechanism (sync-prune.ps1
+# untouched).
+$pruneManifest = Get-EffectivePruneManifest -Manifest $manifest -Tier $tier
 
 # --- verify-only mode: structural checks + machinery gates, no copying ---
 if ($Verify) {
@@ -478,7 +603,7 @@ if ($Check) {
         default     { Add-Verdict 'meta' 'machinery-version' 'CURRENT' "$srcMachV" }
     }
 
-    $prunePaths = @($manifest['prune_files'] | ForEach-Object { $_.Replace('\','/') })
+    $prunePaths = @($pruneManifest['prune_files'] | ForEach-Object { $_.Replace('\','/') })
     foreach ($dir in $manifest['portable_dirs']) {
         $dirPrefix = $dir.TrimEnd('/') + '/'
         $ignore = @($prunePaths | Where-Object { $_.StartsWith($dirPrefix) } | ForEach-Object { $_.Substring($dirPrefix.Length) })
@@ -490,7 +615,7 @@ if ($Check) {
         Compare-Item 'skill' $slug (Join-Path $srcRoot ".devops/skills/$slug") (Join-Path $tgtRoot ".devops/skills/$slug") $skillIgnore
     }
     foreach ($file in $manifest['portable_files']) { Compare-Item 'file' $file (Join-Path $srcRoot $file) (Join-Path $tgtRoot $file) }
-    Test-PrunePresent -TgtRoot $tgtRoot -Manifest $manifest
+    Test-PrunePresent -TgtRoot $tgtRoot -Manifest $pruneManifest
 
     Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f 'KIND', 'ITEM', 'VERDICT', 'DETAIL')
     foreach ($v in $script:verdicts) { Write-Output ("{0,-6} {1,-42} {2,-14} {3}" -f $v.Kind, $v.Item, $v.Verdict, $v.Detail) }
@@ -551,7 +676,7 @@ foreach ($dir in $manifest['portable_dirs']) {
     $copied++
 }
 
-# 2. Portable skills (derived: all skills minus excluded_skills; copy each folder).
+# 2. Portable skills (the profile-aware effective set; copy each folder).
 foreach ($slug in $portableSkills) {
     $s = Join-Path $srcRoot ".devops/skills/$slug"
     if (-not (Test-Path $s)) { $skipped += "missing in source: skills/$slug"; continue }
@@ -583,7 +708,7 @@ foreach ($file in $manifest['portable_files']) {
 }
 
 # 3b. Prune redundant files and directories from the target (retired upstream).
-$prunePlan = @(Get-PrunePlan -TgtRoot $tgtRoot -Manifest $manifest)
+$prunePlan = @(Get-PrunePlan -TgtRoot $tgtRoot -Manifest $pruneManifest)
 Invoke-PrunePlan -TgtRoot $tgtRoot -Plan $prunePlan -DryRun:$DryRun
 
 # 3c. Stamp the target's manifest with the source machinery-version (post-sync bookkeeping).
