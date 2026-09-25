@@ -19,7 +19,8 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-- *(Sprint 11 `machinery-streamline` committed the full triaged set — 8 plans / 30 pts / 3 waves — on 2026-09-24; the panel is empty until the next `@backlog` intake or the sprint-11 retro. [sprint.md](../sprints/sprint-11-machinery-streamline/sprint.md))*
+- *(Sprint 11 `machinery-streamline` committed the full triaged set — 8 plans / 30 pts / 3 waves — on 2026-09-24; this panel carried nothing until the 2026-09-25 intake below. [sprint.md](../sprints/sprint-11-machinery-streamline/sprint.md))*
+- 🟡 **NEXT** — `T1-E2.09` **Satellites are told to bump a counter they do not own**: the portable rules ship the `machinery-version` bump instruction while the "template-owned — a satellite never bumps" carve-out sits only on surfaces that do not transport, so satellites bump a counter they cannot own and pull into an `AHEAD` halt. Grounded by the GRID-Link field audit (satellite 78 vs template 72, zero release rows). Directly downstream of `T1-E2.08`. M · [plan](./t1-e2.09-machinery-counter-satellite-bump-drift-backlog.md)
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
@@ -29,7 +30,7 @@ Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ord
 
 | Theme | Name | Register |
 |-------|------|----------|
-| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E4 (latest: **T1-E4.01** machinery surface budget & Managed Simplicity) |
+| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E5 (latest: **T1-E2.09** the counter's bump instruction vs its satellite carve-out) |
 | T2 | Wiki System & Knowledge Layer | [t2-wiki-system-backlog.md](./t2-wiki-system-backlog.md) |
 | T3 | Template Distribution & Onboarding | [t3-template-distribution-backlog.md](./t3-template-distribution-backlog.md) |
 

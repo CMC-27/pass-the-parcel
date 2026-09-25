@@ -33,7 +33,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| — | — | — | *(empty — the E2 backlog is drained; every E2 item is delivered or resolved)* | — |
+| T1-E2.09 | Satellites are told to bump a counter they do not own | QUEUED | The portable surface ships the bump **instruction**, while the "template-owned, sync-stamped — a satellite never bumps" carve-out sits only on non-portable surfaces. `.devops/rules/agents-and-skills.md:62` states the step unconditionally (and its rationale is false in a satellite), which is the reported drift's source; `T1-E2.08` made the divergence loud but nothing stops it. Grounded by the GRID-Link audit finding 4 (satellite 78 vs template 72, zero release rows). | [plan](./t1-e2.09-machinery-counter-satellite-bump-drift-backlog.md) |
 
 ### Completed
 
