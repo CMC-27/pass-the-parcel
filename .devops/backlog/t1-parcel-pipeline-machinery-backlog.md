@@ -56,7 +56,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| — | — | — | *(empty — every E3 item is delivered or committed to sprint 11)* | — |
+| T1-E3.21 | Phase 9 test execution has no batching pattern | QUEUED | Phase 9 runs "the exact commands from Phase 5" and `@test-and-deploy` mandates the monolith — no sharded/affected/partitioned vocabulary anywhere, so a large satellite's batch runs N plans × full-suite sequentially. Driver parked for the first field report of batch-path suite wall-clock pain; recorded, not invented (`@Managed Simplicity`). | [plan](./t1-e3.21-phase9-test-suite-batching-backlog.md) |
 
 ### Completed
 
