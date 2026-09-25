@@ -508,4 +508,6 @@ All changes made by AI agents are tracked chronologically below.
 - **2026-09-25** · `T1-E3.20` · The batch's single operator checkpoint now names mode overrules too — an advisory `mode_conflicts` key joins the MULTI-worthy fork · [plan](../archive/t1-e3.20-batch-preset-overrule-check-plan.md)
 - **2026-09-25** · `T1-E5.02` · The changelog becomes a thin append-only index and the Why is authored once, in the plan · [plan](../archive/t1-e5.02-changelog-generated-index-plan.md)
 - **2026-09-25** · `T3-E1.03` · The deterministic gates travel — a portable `machinery-gates.yml` runs the invariant subset in every satellite on every push · [plan](../archive/t3-e1.03-ci-gate-transportability-plan.md)
+- **2026-09-25** · `T1-E5.01` · `MICRO` becomes the sanctioned third topology — a collapsed small-change record, manual-path only, with Gate B carrying the eligibility assertion · [plan](../archive/t1-e5.01-micro-topology-plan.md)
+- **2026-09-25** · `T3-E1.04` · A satellite can declare `profile: CORE` and carry only the skills it uses; `FULL` stays the default, and a tiered-out skill is never reported `MISSING` · [plan](../archive/t3-e1.04-core-satellite-profile-plan.md)
 
