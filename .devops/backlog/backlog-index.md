@@ -19,8 +19,7 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-- *(Sprint 11 `machinery-streamline` committed the full triaged set — 8 plans / 30 pts / 3 waves — on 2026-09-24; this panel carried nothing until the 2026-09-25 intake below. [sprint.md](../sprints/sprint-11-machinery-streamline/sprint.md))*
-- 🟡 **NEXT** — `T1-E2.09` **Satellites are told to bump a counter they do not own**: the portable rules ship the `machinery-version` bump instruction while the "template-owned — a satellite never bumps" carve-out sits only on surfaces that do not transport, so satellites bump a counter they cannot own and pull into an `AHEAD` halt. Grounded by the GRID-Link field audit (satellite 78 vs template 72, zero release rows). Directly downstream of `T1-E2.08`. M · [plan](./t1-e2.09-machinery-counter-satellite-bump-drift-backlog.md)
+- *(Empty — Sprint 12 `satellite-hygiene` took the 2026-09-25 intake on 2026-09-26: the NEXT item plus both parked plans, the latter two on an explicit operator promotion ruling. 3 plans / 5 pts. [sprint.md](../sprints/sprint-12-satellite-hygiene/sprint.md))*
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
