@@ -19,7 +19,10 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 ## Triage Panel
 
-- *(Empty — Sprint 12 `satellite-hygiene` took the 2026-09-25 intake on 2026-09-26: the NEXT item plus both parked plans, the latter two on an explicit operator promotion ruling. 3 plans / 5 pts. [sprint.md](../sprints/sprint-12-satellite-hygiene/sprint.md))*
+- 🟢 **LATER** · `T1-E3.22` — The manual claim path has no enumerated green baseline (`.devops/rules/plan-lifecycle.md:116` names the preflight; no surface defines it for the manual path, and the batch's two-script version misses ten of the workflow's twelve steps). Parked 2026-09-27 at the `T1-E2.09` wrap-up — observed cost: the trunk was red on `Machinery version discipline` and the claim proceeded anyway. [plan](./t1-e3.22-manual-claim-baseline-backlog.md)
+- 🟢 **LATER** · `T1-E2.10` — The counter contract's two seams (the level rule is saturated as written; the ownership invariant has no machine failure signal). Both readings are recorded; parked rather than fixed so they are not re-litigated. [plan](./t1-e2.10-counter-contract-seams-backlog.md)
+
+> Sprint 12 `satellite-hygiene` took the 2026-09-25 intake on 2026-09-26 (3 plans / 5 pts, [sprint.md](../sprints/sprint-12-satellite-hygiene/sprint.md)); **`T1-E1.05` completed 2026-09-26 and `T1-E2.09` completed 2026-09-27**, leaving `T1-E3.21` as the sprint's one outstanding item. The two rows above were parked by that wrap-up.
 
 Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ordering rules live in [`TRIAGE.md`](./TRIAGE.md).
 
@@ -29,7 +32,7 @@ Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ord
 
 | Theme | Name | Register |
 |-------|------|----------|
-| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E5 (latest: **T1-E3.21** Phase 9 test execution has no batching pattern) |
+| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E5 (latest: **T1-E3.22** The manual claim path has no enumerated green baseline) |
 | T2 | Wiki System & Knowledge Layer | [t2-wiki-system-backlog.md](./t2-wiki-system-backlog.md) |
 | T3 | Template Distribution & Onboarding | [t3-template-distribution-backlog.md](./t3-template-distribution-backlog.md) |
 
