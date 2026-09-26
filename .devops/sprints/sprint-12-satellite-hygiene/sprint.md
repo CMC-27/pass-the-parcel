@@ -25,7 +25,7 @@ Every portable surface a satellite obeys says the same true thing about the mach
 |---|------|------|------|-------------|------|
 | 1 | T1-E2.09 | Satellites are told to bump a counter they do not own | M (3) | 🟡 NEXT | [t1-e2.09-machinery-counter-satellite-plan.md](t1-e2.09-machinery-counter-satellite-plan.md) |
 | 2 | T1-E3.21 | Phase 9 test execution has no batching pattern | S (1) | 🟢 LATER (operator promotion ruling 2026-09-26, Shape A only; **same-day expansion ruling** — field report + Phase 3 Q&A recorded, write set 3→8) | [t1-e3.21-phase9-test-batching-plan.md](t1-e3.21-phase9-test-batching-plan.md) |
-| 3 | T1-E1.05 | OpenCode V2 config drift in `opencode.json` | **S (1) as committed → L (5) rescoped** | 🟢 LATER (operator promotion ruling 2026-09-26; **run 2026-09-26 → re-parked**, `touches` 4 → 10 → 11 → 13) | [t1-e1.05-opencode-v2-config-plan.md](t1-e1.05-opencode-v2-config-plan.md) |
+| 3 | T1-E1.05 | OpenCode V2 config drift in `opencode.json` | **S (1) as committed → L (5) rescoped** | 🟢 LATER (operator promotion ruling 2026-09-26; **run 2026-09-26 → re-parked**, `touches` 4 → 10 → 11 → 13) | [t1-e1.05-opencode-v2-config-plan.md](../../archive/t1-e1.05-opencode-v2-config-plan.md) |
 
 > Queue order is the first claim order, not an execution dependency: `T1-E2.09`'s dependency (`T1-E2.08`) is satisfied in `.devops/archive/`, and the predicate holds `T1-E2.09` out of the first claim order on `touches` overlap alone (via `HOW-TO.md` against T1-E1.05 and `.devops/rules/plan-lifecycle.md` against T1-E3.21) until its overlaps archive. The lanes are advisory classifications — every path runs in place serially.
 

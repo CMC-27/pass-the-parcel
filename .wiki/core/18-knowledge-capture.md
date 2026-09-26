@@ -33,7 +33,7 @@ claims:
 | 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production | Sync | ❌ |
 | 4 | Portable machinery carries no absolute paths or machine-specific config | Sync | ✅ |
 | 5 | Normalize CRLF→LF before hashing files across git boundaries on Windows | Sync | ✅ |
-| 6 | Versioning is one tiered counter (`major.minor.patch`, currently `73`; release B flips it to `1.0.73`); portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
+| 6 | Versioning is one tiered counter (`major.minor.patch`); read its **live** value from `.devops/sync-manifest.yaml` — never restate the number in prose, it goes stale on the next bump. Portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
 | 7 | Never edit PREFIX-LOCKED surfaces directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync`; no agent declares a model | Parcel | ✅ |
 | 8 | Phase 3 sends its whole decision surface in one questionnaire where the ask surface supports it; one call per question otherwise | Parcel | ❌ |
 | 9 | Measure a gate's actual cost before optimizing agent token spend around it | Process | ✅ |

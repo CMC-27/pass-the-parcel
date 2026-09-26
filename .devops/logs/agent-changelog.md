@@ -510,4 +510,5 @@ All changes made by AI agents are tracked chronologically below.
 - **2026-09-25** · `T3-E1.03` · The deterministic gates travel — a portable `machinery-gates.yml` runs the invariant subset in every satellite on every push · [plan](../archive/t3-e1.03-ci-gate-transportability-plan.md)
 - **2026-09-25** · `T1-E5.01` · `MICRO` becomes the sanctioned third topology — a collapsed small-change record, manual-path only, with Gate B carrying the eligibility assertion · [plan](../archive/t1-e5.01-micro-topology-plan.md)
 - **2026-09-25** · `T3-E1.04` · A satellite can declare `profile: CORE` and carry only the skills it uses; `FULL` stays the default, and a tiered-out skill is never reported `MISSING` · [plan](../archive/t3-e1.04-core-satellite-profile-plan.md)
+- **2026-09-26** · `T1-E1.05` · The config and its seed stop declaring the field V2 accepts but never loads and state `skills` as the V2-native flat array; the sync converges an already-bootstrapped satellite's own config on that shape, refusing loudly rather than stripping what it cannot migrate · [plan](../archive/t1-e1.05-opencode-v2-config-plan.md)
 
