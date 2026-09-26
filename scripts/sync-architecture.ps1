@@ -704,7 +704,7 @@ if ($Check) {
     switch (Compare-MachineryVersion ([string]$tgtMachV) ([string]$srcMachV)) {
         'absent'    { Add-Verdict 'meta' 'machinery-version' 'MISSING' "target manifest absent or has no machinery-version (source: $srcMachV)" }
         'behind'    { Add-Verdict 'meta' 'machinery-version' 'UPGRADE' "target $tgtMachV -> source $srcMachV (target behind)" }
-        'ahead'     { Add-Verdict 'meta' 'machinery-version' 'AHEAD' "target $tgtMachV is AHEAD of source $srcMachV - halt and reconcile: confirm the target has no release rows in the diverged range, then write $srcMachV into its manifest by hand; the sync never rewinds a counter it did not earn" }
+        'ahead'     { Add-Verdict 'meta' 'machinery-version' 'AHEAD' "target $tgtMachV is AHEAD of source $srcMachV - the commonest cause is a satellite that bumped a counter it does not own (template-owned and sync-stamped: a satellite never bumps it) - halt and reconcile: confirm the target has no release rows in the diverged range, then write $srcMachV into its manifest by hand; the sync never rewinds a counter it did not earn" }
         'migration' { Add-Verdict 'meta' 'machinery-version' 'MIGRATION' "target '$tgtMachV' vs source '$srcMachV' - lineage shape crossed (integer vs dotted); halt and reconcile by hand before pulling" }
         default     { Add-Verdict 'meta' 'machinery-version' 'CURRENT' "$srcMachV" }
     }
@@ -756,6 +756,7 @@ if ($pfCmp -eq 'ahead' -or $pfCmp -eq 'migration') {
         Write-Output "HALT: machinery-version lineage shape differs - target '$pfTgtV' vs source '$pfSrcV'."
     }
     Write-Output "Reconcile recipe (operator action):"
+    Write-Output "  0. Commonest cause: the target bumped machinery-version itself. The counter is template-owned and sync-stamped - a satellite never bumps it, so a satellite-side increment is inert and must never be defended."
     Write-Output "  1. Confirm the target's .devops/logs/version-history.md records no release row in the diverged range"
     Write-Output "     (a rewound counter must not orphan a recorded release)."
     Write-Output "  2. Write 'machinery-version: $pfSrcV' into the target's .devops/sync-manifest.yaml by hand."

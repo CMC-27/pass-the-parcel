@@ -56,6 +56,7 @@ rules:
   - auto-clear :: auto-clear :: .opencode/plans/base-context.md :: .devops/plans/template-plan.md | .devops/rules/plan-lifecycle.md | .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
   - context-isolated :: context-isolated :: .opencode/plans/base-context.md :: .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
   - Chunked Write Discipline :: Chunked Write Discipline :: AGENTS.md :: .devops/skills/sprint-plan/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md
+  - counter-ownership :: a satellite never bumps it :: .devops/rules/plan-lifecycle.md :: .devops/rules/agents-and-skills.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/sync-architecture/SKILL.md | .devops/templates/SPRINTS.template.md | HOW-TO.md
 agreement:
   - PHASE_9 :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
   - GATE_D_USER_APPROVAL :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md

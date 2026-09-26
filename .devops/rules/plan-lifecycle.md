@@ -104,6 +104,8 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 
 ### Counter Ownership (`machinery-version`)
 
+`machinery-version` is **template-owned and sync-stamped — a satellite never bumps it**. A satellite's value is a projection of the template's: the next pull stamps the source value into the satellite's manifest, so a satellite-side increment is inert (nothing records it) and reads back as `AHEAD`, a halt-and-reconcile, not an upgrade. Every rule below — the writer, the ordering, the level and the migration staging — binds the **template**.
+
 `machinery-version` is a **global monotonic counter**, so it has exactly one writer per unit of work — this is the surface where a second writer *corrupts* rather than conflicts (a stale base produces a value a predecessor already used, and the CI predicate in `.github/workflows/validate.yml` then reports a release row that does not describe the set).
 
 - **Manual / per-plan path:** `@agent-wrap-up` Phase 7b owns it — one increment covering that plan's portable-surface changes, with the literal recorded in `.devops/logs/version-history.md`.

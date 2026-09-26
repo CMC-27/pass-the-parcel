@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 12
-updated: 2026-09-26
+version: 13
+updated: 2026-09-27
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -39,9 +39,11 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    | `MISSING` | never installed here | will be created by a sync |
    | `SOURCE-ABSENT` | manifest bug in the template | report to the template repo owner |
    | `PRUNE` | retired upstream but present in the target | a sync will delete it — **counts as out of sync** |
+   | `AHEAD` | target's counter is ahead of the source | **halt-and-reconcile** — the `commonest cause` is a satellite-side bump of a counter it does not own (inert: stamped back down on the next pull); the sync refuses to write |
+   | `MIGRATION` | the two counters crossed lineage shape (integer vs dotted) | **halt-and-reconcile** by hand before pulling; the sync refuses to write |
 
    Summarize counts + the IN SYNC / OUT OF SYNC line. Exit code 1 = out of sync (any
-   `UPGRADE`/`DRIFT`/`MISSING`/`SOURCE-ABSENT`/`PRUNE` verdict). A retired file reports
+   `UPGRADE`/`DRIFT`/`MISSING`/`SOURCE-ABSENT`/`PRUNE`/`AHEAD`/`MIGRATION` verdict). A retired file reports
    `PRUNE` on its own line, never a parent-directory `DRIFT`.
 
 3b. **Interpret `-Verify` output** (never writes; exit 0 = `VERIFIED`):
@@ -148,3 +150,7 @@ do not hold it in conversation — draft it where the operator can carry it in o
   Without the bump `-Check` reports `DRIFT` ("locally customized?") on stale machinery instead
   of `UPGRADE`, and operators learn to overwrite real local edits. After any machinery edit in the template repo itself, the wrap-up discipline bumps per-skill
   `version` / `machinery-version`; this skill only consumes those numbers, never edits them.
+  The counter is **template-owned and sync-stamped — a satellite never bumps it**
+  (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*), and a
+  satellite-side bump of a counter it does not own is the `commonest cause` of an `AHEAD`
+  halt — the bump is inert and is stamped back down on the next pull.
