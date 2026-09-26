@@ -16,7 +16,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| T1-E1.05 | OpenCode V2 config drift in `opencode.json` | QUEUED | `instructions` is accepted-but-**not loaded** by V2 (masked only by ambient `AGENTS.md` discovery), and `skills.paths` is V1 shape. Both cosmetic today, load-bearing tomorrow — nothing asserts the difference between declared and loaded. Found during `T1-E1.04`. | [plan](./t1-e1.05-opencode-v2-config-defects-backlog.md) |
+| T1-E1.05 | OpenCode V2 config drift in `opencode.json` | QUEUED | `instructions` is accepted-but-**not loaded** by V2 (masked only by ambient `AGENTS.md` discovery), and `skills.paths` is V1 shape. Both cosmetic today, load-bearing tomorrow — nothing asserts the difference between declared and loaded. Found during `T1-E1.04`. **Ran 2026-09-26 (Sprint 12) and re-parked after `PHASE_8_FAILED`; rescoped to 13 files — see the plan's `⏸️ RE-PARKED` block.** | [plan](../sprints/sprint-12-satellite-hygiene/t1-e1.05-opencode-v2-config-plan.md) |
 
 ### Completed
 

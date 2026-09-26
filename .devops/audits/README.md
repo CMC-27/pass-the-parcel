@@ -3,7 +3,7 @@ title: Audits
 tags: [devops, audits, state, true-or-false, q-and-a, ui-inventory]
 status: active
 owner: Wiki Owner
-last-reviewed: 2026-09-24
+last-reviewed: 2026-09-26
 related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/SKILL.md, ../skills/ui-inventory-scanner/SKILL.md]
 ---
 
@@ -19,6 +19,7 @@ related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/S
 | `<slug>-QA-YYYY-MM-DD.md` | `@q-and-a` | Requirements discovery log (Progress table, Q&A log, Synthesis) |
 | `ui-inventory-<element>-YYYY-MM-DD.md` | `@ui-inventory-scanner` | UI element inventory report (summary stats, inventory table, anomalies) |
 | `<slug>-field-audit-YYYY-MM-DD.md` | Operator-directed audit session | Satellite/field audit report (method, findings, promoted parcels, measurement limits) — evidence base for backlog intake |
+| `<code>-parcel-run-YYYY-MM-DD.md` | **Promoted run workspace** (rule 4) | A parcel run's durable record — timeline, every independent reviewer's findings + required actions, operator rulings, lessons, open items. Written when a run's results outlive its gitignored `.opencode/plans/run-<slug>/` workspace |
 
 ## Rules
 
@@ -30,4 +31,4 @@ related-to: [../README.md, ../skills/true-or-false/SKILL.md, ../skills/q-and-a/S
 
 ---
 
-*Last reviewed 2026-09-24.*
+*Last reviewed 2026-09-26.*
