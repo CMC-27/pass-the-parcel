@@ -29,7 +29,7 @@ function Invoke-StructuralVerify {
         }
     }
 
-    # 2. opencode.json - valid JSON, wired to AGENTS.md + the skills path.
+    # 2. opencode.json - valid JSON, declaring the V2-native flat skills array.
     $ocPath = Join-Path $TgtRoot 'opencode.json'
     if (-not (Test-Path $ocPath)) {
         Line 'FAIL' 'opencode.json missing at repo root (seed: .devops/templates/opencode.template.json)'; $fail++
@@ -37,9 +37,12 @@ function Invoke-StructuralVerify {
         try {
             $cfg = Get-Content $ocPath -Raw | ConvertFrom-Json
             $ocOk = $true
-            if (-not ($cfg.instructions -contains 'AGENTS.md')) { Line 'FAIL' "opencode.json 'instructions' must include 'AGENTS.md'"; $fail++; $ocOk = $false }
-            if (-not ($cfg.skills.paths -contains '.devops/skills')) { Line 'FAIL' "opencode.json 'skills.paths' must include '.devops/skills'"; $fail++; $ocOk = $false }
-            if ($ocOk) { Line 'PASS' 'opencode.json valid; instructions + skills.paths wired' }
+            # V2-native: `skills` is a flat array of paths. Array-ness is asserted BEFORE the
+            # membership test, because a bare -contains would accept the scalar
+            # "skills": ".devops/skills" (PowerShell treats a string as a one-element collection).
+            $skillsIsArray = ($cfg.skills -is [array]) -and ($cfg.skills.Count -gt 0)
+            if (-not ($skillsIsArray -and ($cfg.skills -contains '.devops/skills'))) { Line 'FAIL' "opencode.json 'skills' is not a V2 array of paths: run a sync, or rewrite the key as the flat array by hand; it must declare '.devops/skills'"; $fail++; $ocOk = $false }
+            if ($ocOk) { Line 'PASS' "opencode.json valid; 'skills' declares '.devops/skills' as a V2 array" }
         } catch {
             Line 'FAIL' "opencode.json is not valid JSON: $($_.Exception.Message)"; $fail++
         }

@@ -11,7 +11,7 @@ This repository is configured with a structured documentation library in **`.wik
 - **`.devops/archive/`** — Completed plans (`*-plan.md` at root) + closed sprint records (`sprints/sprint-{n}-<slug>/sprint.md`)
 - **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` (Themes table + Triage Panel), theme registers `t{n}-<slug>-backlog.md`, and parked `<code>-<slug>-backlog.md` plans (`claim_status: QUEUED`); commit via `@sprint-plan`, claim into `.devops/plans/`
 - **`.devops/logs/`** — Agent changelog, version history
-- **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
+- **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills` — the V2-native **flat array** (`[".devops/skills"]`). The live config is deliberately **mixed-dialect**: `skills` is V2-native while `agent` / `prompt` / `permission` stay V1-by-normalisation (V2 loads them by normalising, so they are left exactly as authored). JSON carries no comments, so the seed's own `_comment` records this where a bootstrapping maintainer meets it first.
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-sprint.agent.md` (orchestrators; `parcel-sprint` is the locked batch host) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan fast runner, spawned only by `parcel-sprint`)
 - **`.wiki/rules/`** — Wiki governance layer — numbering, naming, frontmatter, doc-structure, link-hygiene, structure manifest + deterministic linter
 - **`.wiki/rules/language/`** — Language governance layer — voice & tone, AI rules, publication rules

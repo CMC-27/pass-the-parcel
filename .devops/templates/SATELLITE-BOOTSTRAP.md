@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 16
-updated: 2026-09-25
+version: 17
+updated: 2026-09-26
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -72,9 +72,15 @@ Copy and customize (the sync never overwrites these):
 > not by scanning `.devops/agents/`). Since machinery v41 the sync **inserts** that missing
 > entry whole, sourced from the target's own synced
 > `.devops/templates/opencode.template.json`, so a newly shipped agent arrives runnable on a
-> normal pull. An entry the satellite already authored is never restructured — and no model
-> travels with it (sync strips any it finds). Repairing by hand (older engine): copy the key's block out of the seed
-> into `opencode.json`.
+> normal pull. That sentence is scoped to **agent entries**, which the config key-shape
+> migration never restructures: an entry the satellite already authored is left exactly as
+> authored, and no model travels with it (the sync strips any it finds). The same pull also
+> **migrates** the satellite's `skills` key to the V2-native **flat array** — carrying the path
+> entries the satellite declared, verbatim — and deletes the config member V2 accepts but does
+> not load. The sync engine's own header contract in `scripts/sync-architecture.ps1` states that
+> widened contract, and any `skills` shape it cannot rewrite without destroying a declaration
+> the satellite authored is refused and reported rather than silently changed. Repairing by hand
+> (older engine): copy the key's block out of the seed into `opencode.json`.
 
 If you adopted the parcel pipeline (agents in `.devops/agents/`), lock the prefixes:
 

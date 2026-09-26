@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 11
-updated: 2026-09-23
+version: 12
+updated: 2026-09-26
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -35,7 +35,7 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    |---|---|---|
    | `CURRENT` | identical | none |
    | `UPGRADE` | newer version upstream | safe to pull |
-   | `DRIFT` | same version, different bytes | **locally customized copy — do not blindly overwrite; ask the user.** Offer to show the diff before re-running without `-Check` |
+   | `DRIFT` | same version, different bytes | **locally customized copy — do not blindly overwrite; ask the user.** Offer to show the diff before re-running without `-Check`. A `DRIFT` on a portable file whose bytes changed under an unchanged `machinery-version` is **expected while the template's wrap-up window is open** — it closes at the template's own wrap-up — and the pull's diff is the safe check |
    | `MISSING` | never installed here | will be created by a sync |
    | `SOURCE-ABSENT` | manifest bug in the template | report to the template repo owner |
    | `PRUNE` | retired upstream but present in the target | a sync will delete it — **counts as out of sync** |
@@ -47,9 +47,10 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
 3b. **Interpret `-Verify` output** (never writes; exit 0 = `VERIFIED`):
 
    - `[FAIL]` rows name exactly what is missing or mis-wired: `AGENTS.md` machinery
-     markers, `opencode.json` keys (`instructions` / `skills.paths`), `base-context.md`,
-     the wiki anchor (`.wiki/core/00-system-index.md`), or machinery a sync should have
-     materialised. Fix the named item, then re-run.
+     markers, `opencode.json`'s `skills` array (it must be the V2-native **flat array** and
+     declare `.devops/skills`), `base-context.md`, the wiki anchor
+     (`.wiki/core/00-system-index.md`), or machinery a sync should have materialised.
+     Fix the named item, then re-run.
    - `[WARN]` rows are advisory only (e.g. `.ptp-source` not yet recorded) and never fail
      the run.
    - Machinery gates run check-only (prefix check without `-Sync`, UTF-8, wiki lint).
@@ -119,19 +120,27 @@ do not hold it in conversation — draft it where the operator can carry it in o
 - A real sync regenerates PREFIX-LOCKED agent prefixes from *this* workspace's `base-context.md`
   and runs the verification gates (prefix, UTF-8, wiki lint). Report gate failures verbatim —
   never suppress them with `-NoVerify` unless the user insists.
-- **Registry propagation.** A sync rewrites the target's `opencode.json` model values and its
-  `base-context.md` registry rows, **inserts** rows the target is missing (machinery v40+),
-  and **prunes** rows for keys the source retired (machinery T1-E2.07+) — rows only, prose
-  untouched — so a template-side Model Registry retirement reaches an already-bootstrapped
-  satellite with no manual edit instead of leaving its prefix check red. The same holds
-  for the `opencode.json` agent block: an entry the target already
-  carries is never restructured (permissions, key order and formatting stay as authored — only
-  its `model` value is stamped), **except** the locked-preset host's structural
-  `permission.task` allow-list, which is stamped from the seed — but a registry key the target has **never authored** is
-  **inserted** whole from the target's own synced seed (machinery v41+), so a newly shipped
-  agent arrives runnable instead of arriving as a file the runtime never mounts. `BINDING-SKIP`
-  now means only that neither the target nor the seed could supply an entry — still a loud
-  failure in the target's own `check-parcel-prefix.ps1`.
+- **Registry propagation, model stripping & config key-shape migration.** A sync reconciles the
+  target's `base-context.md` registry rows, **inserts** rows the target is missing (machinery
+  v40+), and **prunes** rows for keys the source retired (machinery T1-E2.07+) — rows only,
+  prose untouched — so a template-side Model Registry retirement reaches an
+  already-bootstrapped satellite with no manual edit instead of leaving its prefix check red.
+  It **removes** every `model` binding it finds and never stamps one (T1-E1.04): any `model:`
+  line in a target agent file's frontmatter and any `agent.<key>.model` member in the target's
+  `opencode.json` is deleted — the strip is JSON-validated and **reverted** rather than left
+  unparsable. The same in-place `opencode.json` edit also **migrates** the `skills` key to the
+  V2-native **flat array**, carrying the path entries the satellite declared verbatim, and
+  deletes the config member V2 accepts but does not load — root-scoped by brace depth and under
+  the same step-local re-parse-and-revert guard. A `skills` shape the migration cannot rewrite
+  without destroying a declaration the satellite authored (for example one carrying `urls`) is
+  **refused**, left exactly as authored, and reported with a printed operator remedy. An entry
+  the target already carries is otherwise left exactly as authored (permissions, key order and
+  formatting stay as authored), **except** the locked-preset host's structural
+  `permission.task` allow-list, which is stamped from the seed — while a registry key the target
+  has **never authored** is **inserted** whole from the target's own synced seed (machinery
+  v41+), so a newly shipped agent arrives runnable instead of arriving as a file the runtime
+  never mounts. `BINDING-SKIP` means only that neither the target nor the seed could supply an
+  entry — still a loud failure in the target's own `check-parcel-prefix.ps1`.
 - **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §8 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
 - A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
   declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.

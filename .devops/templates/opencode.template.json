@@ -1,8 +1,12 @@
 {
   "_comment": [
-    "type: template | version: 10 | updated: 2026-09-20",
+    "type: template | version: 11 | updated: 2026-09-26",
     "SEED TEMPLATE — copy to <satellite root>/opencode.json and customize.",
-    "'instructions' and 'skills.paths' are layout-agnostic: keep verbatim.",
+    "'skills' is stated as the V2-native flat array; the 'instructions' member is dropped",
+    "because V2 accepts it but does not load its entries (AGENTS.md is discovered ambiently),",
+    "so dropping it costs nothing and the file stops reading as load-bearing where it is not.",
+    "The untouched 'agent' / 'prompt' / 'permission' keys remain V1-by-normalisation and are",
+    "deliberately left: V2 loads them by normalising, so the shipped file is mixed-dialect.",
     "The 'agent' block below ships the parcel/ptp agents pre-wired so a bootstrapped satellite",
     "gets a runnable parcel orchestrator in the opencode runtime. Prompt paths point at the",
     "VS Code agent files in .devops/agents/ (the single source of body text).",
@@ -13,10 +17,7 @@
     "Delete this _comment array once copied (JSON has no comments)."
   ],
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["AGENTS.md"],
-  "skills": {
-    "paths": [".devops/skills"]
-  },
+  "skills": [".devops/skills"],
   "default_agent": "parcel",
   "agent": {
     "parcel": {

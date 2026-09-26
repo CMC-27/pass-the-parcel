@@ -81,7 +81,13 @@ param(
     registry growth and retirement both reach an already-bootstrapped satellite. Any
     `model:` line in a target agent file's frontmatter is REMOVED, and any
     agent.<key>.model member in the target's opencode.json is REMOVED (the strip is
-    JSON-validated and reverted rather than left unparsable). An entry for a registry key
+    JSON-validated and reverted rather than left unparsable). The same in-place edit also
+    MIGRATES the target's `skills` key to the V2-native flat array (carrying the path entries
+    the satellite declared, verbatim) and DELETES the config member V2 accepts but does not
+    load - a member delete root-scoped by brace depth and run under the same step-local
+    re-parse-and-revert guard. A `skills` shape the migration cannot rewrite without
+    destroying a declaration the satellite authored (e.g. a `urls` member) is REFUSED, left
+    exactly as authored, and reported with a printed operator remedy. An entry for a registry key
     the target has NEVER authored is still INSERTED whole from the target's own synced seed
     (.devops/templates/opencode.template.json) - so a newly shipped agent arrives runnable
     instead of arriving as a file the runtime never mounts. A missing key therefore
@@ -103,8 +109,13 @@ param(
     The repo-specific surface is NOT copied: base-context.md, opencode.json, AGENTS.md and the
     wiki content itself embed the target's own layout, task lookup and permissions. base-context.md
     and opencode.json ARE edited in place, but only to reconcile the capability-class registry
-    rows and to REMOVE model bindings (registry row shape, agent frontmatter `model:` lines and
-    agent.<key>.model members) - never copied wholesale, never restructured. After the
+    rows, to REMOVE model bindings (registry row shape, agent frontmatter `model:` lines and
+    agent.<key>.model members), to MIGRATE the `skills` key to the V2-native flat array and to
+    DELETE the config member V2 accepts but does not load. Every one of those edits is
+    step-local: a candidate is re-parsed and DISCARDED if it would not load, and a `skills`
+    shape the migration cannot rewrite without destroying a declaration the satellite authored
+    is refused and reported with a printed remedy - the file's other formatting is always left
+    as authored, never copied wholesale and never re-serialised. After the
     portable surface is copied, the script regenerates each agent's PREFIX-LOCKED prefix from
     the TARGET's own .opencode/plans/base-context.md so the cache anchor always matches the
     local workspace.
@@ -514,6 +525,101 @@ if ($SelfTest) {
             $stSkillsAfter = (Get-ChildItem (Join-Path $tmp '.devops/skills') -Directory).Count
             if ($stSkillsAfter -ne $stSkillsBefore) { $fail += "T3-E1.04: the unknown-profile sync wrote to the target ($stSkillsBefore -> $stSkillsAfter skills)" }
             Set-FixtureProfile 'FULL'
+        }
+        # --- T1-E1.05 fixture: the opencode.json key-shape migration -------------------------
+        # Three plants. Each re-downgrades the target's OWN opencode.json first (the harness
+        # syncs above leave it V2-native) and asserts the pre-state it assumes, so no plant can
+        # pass vacuously. They run LAST in the family.
+        # (1) migration plant: an all-keys-present, task-already-stamped satellite whose ONLY
+        #     pending change is the key-shape migration - so the migration's own flag is the
+        #     only reason the write fires, and its own declared path must survive verbatim.
+        $oc15SeedPath = Join-Path $srcRoot '.devops/templates/opencode.template.json'
+        $oc15OcPath = Join-Path $tmp 'opencode.json'
+        $oc15SeedText = ([System.IO.File]::ReadAllText($oc15SeedPath)) -replace "`r`n", "`n"
+        $oc15Key = ($stSrcRegistry.Keys | Sort-Object)[-1]
+        $mpPlanted = $oc15SeedText.Replace('  "skills": [".devops/skills"],', '  "skills": { "paths": ["custom/skills", ".devops/skills"] },')
+        $mpPlanted = $mpPlanted.Replace('  "$schema":', '  "instructions": ["AGENTS.md"],' + "`n" + '  "$schema":')
+        if ($mpPlanted -notmatch '"instructions"\s*:') { $fail += "selftest T1-E1.05: migration plant carries no config member to delete" }
+        $mpPre = $null; try { $mpPre = $mpPlanted | ConvertFrom-Json } catch { $mpPre = $null }
+        if (-not $mpPre -or -not $mpPre.skills.paths) { $fail += "selftest T1-E1.05: migration plant pre-state invalid ('skills' is not the V1 object)" }
+        Write-Output "SELFTEST fixture T1-E1.05: migration plant planted (V1 skills object + the ignored config member)"
+        [System.IO.File]::WriteAllText($oc15OcPath, $mpPlanted, (New-Object System.Text.UTF8Encoding($false)))
+        $mpAgentM = [regex]::Match($mpPlanted, '"agent"\s*:\s*\{'); $mpAgentOpen = $mpPlanted.IndexOf('{', $mpAgentM.Index); $mpAgentClose = Find-MatchingBrace $mpPlanted $mpAgentOpen
+        $mpAgentBefore = $mpPlanted.Substring($mpAgentOpen, $mpAgentClose - $mpAgentOpen + 1)
+        $mpHash1 = (Get-FileHash $oc15OcPath -Algorithm SHA256).Hash
+        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E1.05: migration-plant sync failed (exit $LASTEXITCODE)" }
+        $mpAfter = [System.IO.File]::ReadAllText($oc15OcPath)
+        $mpJson = $null; try { $mpJson = $mpAfter | ConvertFrom-Json } catch { $mpJson = $null }
+        if (-not $mpJson) {
+            $fail += "selftest T1-E1.05: migration plant left opencode.json unparsable"
+        } else {
+            if (-not ($mpJson.skills -is [array])) { $fail += "selftest T1-E1.05: migration plant 'skills' is not the V2 flat array" }
+            elseif (($mpJson.skills -join ',') -ne 'custom/skills,.devops/skills') { $fail += "selftest T1-E1.05: migration plant did not preserve the declared path entries" }
+            if ($mpJson.PSObject.Properties['instructions']) { $fail += "selftest T1-E1.05: migration plant left the ignored config member in place" }
+            $mpAgentM2 = [regex]::Match($mpAfter, '"agent"\s*:\s*\{'); $mpAgentOpen2 = $mpAfter.IndexOf('{', $mpAgentM2.Index); $mpAgentClose2 = Find-MatchingBrace $mpAfter $mpAgentOpen2
+            if ($mpAgentBefore -ne $mpAfter.Substring($mpAgentOpen2, $mpAgentClose2 - $mpAgentOpen2 + 1)) { $fail += "selftest T1-E1.05: migration plant restructured the agent block" }
+            $mpHash2 = (Get-FileHash $oc15OcPath -Algorithm SHA256).Hash
+            if ($mpHash2 -eq $mpHash1) { $fail += "selftest T1-E1.05: the migration alone did not trigger the write (hash unchanged)" }
+            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "selftest T1-E1.05: migration-plant idempotence re-sync failed (exit $LASTEXITCODE)" }
+            if ((Get-FileHash $oc15OcPath -Algorithm SHA256).Hash -ne $mpHash2) { $fail += "selftest T1-E1.05: a second sync moved the migrated opencode.json (not idempotent)" }
+        }
+        # (2) unsafe-rewrite plant: the removed member is the LAST root member, so the line-level
+        #     delete would leave a trailing comma -> step-local revert. An omitted registry key
+        #     must still be inserted (step-locality), the file must still parse, and the strict
+        #     V2-only gate must be OBSERVED rejecting the surviving legacy object.
+        $urSeed = Get-Content -Raw $oc15SeedPath | ConvertFrom-Json
+        $urSeed.PSObject.Properties.Remove('_comment') | Out-Null
+        $urSeed.agent.PSObject.Properties.Remove($oc15Key) | Out-Null
+        $urSeed.skills = [pscustomobject]@{ paths = @('.devops/skills') }
+        $urBody = (($urSeed | ConvertTo-Json -Depth 10) -replace "`r`n", "`n").TrimEnd()
+        $urPlanted = $urBody.Substring(0, $urBody.Length - 1).TrimEnd() + ',' + "`n" + '  "instructions": ["AGENTS.md"]' + "`n}" + "`n"
+        if ($urPlanted -notmatch '(?s)"instructions"\s*:\s*\["AGENTS\.md"\]\s*\}\s*$') { $fail += "selftest T1-E1.05: unsafe plant pre-state invalid (the member is not the last root member)" }
+        if ($urPlanted -match ('"' + [regex]::Escape($oc15Key) + '"\s*:\s*\{')) { $fail += "selftest T1-E1.05: unsafe plant pre-state invalid (registry key '$oc15Key' was not omitted)" }
+        Write-Output "SELFTEST fixture T1-E1.05: unsafe-rewrite plant planted (member last, registry key '$oc15Key' omitted)"
+        [System.IO.File]::WriteAllText($oc15OcPath, $urPlanted, (New-Object System.Text.UTF8Encoding($false)))
+        $urSkM = [regex]::Match($urPlanted, '"skills"\s*:\s*\{'); $urSkOpen = $urPlanted.IndexOf('{', $urSkM.Index); $urSkClose = Find-MatchingBrace $urPlanted $urSkOpen
+        $urSkillsBefore = $urPlanted.Substring($urSkOpen, $urSkClose - $urSkOpen + 1)
+        $urInstrBefore = [regex]::Match($urPlanted, '(?m)^[ \t]*"instructions"\s*:.*$').Value
+        $urOut = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify 2>&1 | Out-String)
+        if ($urOut -notmatch 'would break the JSON - reverted') { $fail += "selftest T1-E1.05: unsafe plant did not print the revert line" }
+        $urAfter = [System.IO.File]::ReadAllText($oc15OcPath)
+        $urJson = $null; try { $urJson = $urAfter | ConvertFrom-Json } catch { $urJson = $null }
+        if (-not $urJson) { $fail += "selftest T1-E1.05: unsafe plant left opencode.json unparsable" }
+        $urSkM2 = [regex]::Match($urAfter, '"skills"\s*:\s*\{'); $urSkOpen2 = $urAfter.IndexOf('{', $urSkM2.Index); $urSkClose2 = Find-MatchingBrace $urAfter $urSkOpen2
+        if ($urSkillsBefore -ne $urAfter.Substring($urSkOpen2, $urSkClose2 - $urSkOpen2 + 1)) { $fail += "selftest T1-E1.05: unsafe plant rewrote the legacy 'skills' object (the revert was not step-local)" }
+        if ([regex]::Match($urAfter, '(?m)^[ \t]*"instructions"\s*:.*$').Value -ne $urInstrBefore) { $fail += "selftest T1-E1.05: unsafe plant deleted the member despite the revert" }
+        if ($urJson -and -not $urJson.agent.PSObject.Properties[$oc15Key]) { $fail += "selftest T1-E1.05: unsafe plant's omitted registry key was not inserted (reconciliation was not step-local)" }
+        $urV = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Verify 2>&1 | Out-String)
+        $urStruct = ($urV -split '=== Machinery gates ===')[0]
+        if ($urStruct -notmatch "\[FAIL\][^\n]*opencode\.json[^\n]*skills") { $fail += "selftest T1-E1.05: the strict gate did not FAIL the surviving legacy 'skills' object" }
+        if ($urStruct -match "\[PASS\][^\n]*opencode\.json") { $fail += "selftest T1-E1.05: the strict gate PASSed opencode.json while the legacy object survived" }
+        # (3) urls-refusal plant: the `skills` object also carries `urls`, so the shape rewrite is
+        #     REFUSED (left byte-identical) while the separate member delete still runs and the
+        #     omitted registry key is inserted - observed THROUGH a write, never silently.
+        $urlSeed = Get-Content -Raw $oc15SeedPath | ConvertFrom-Json
+        $urlSeed.PSObject.Properties.Remove('_comment') | Out-Null
+        $urlSeed.agent.PSObject.Properties.Remove($oc15Key) | Out-Null
+        $urlSeed.skills = [pscustomobject]@{ paths = @('.devops/skills'); urls = @('https://example.invalid') }
+        $urlRaw0 = ($urlSeed | ConvertTo-Json -Depth 10) -replace "`r`n", "`n"
+        $urlPlanted = $urlRaw0 -replace '(?s)("skills"\s*:\s*\{[^}]*\}\s*,)', ('$1' + "`n  " + '"instructions": ["AGENTS.md"],')
+        if ($urlPlanted -notmatch '"instructions"\s*:') { $fail += "selftest T1-E1.05: urls plant carries no config member to delete" }
+        if ($urlPlanted -match '(?s)"instructions"\s*:\s*\[[^\]]*\]\s*\}\s*$') { $fail += "selftest T1-E1.05: urls plant pre-state invalid (the member must not be last)" }
+        Write-Output "SELFTEST fixture T1-E1.05: urls-refusal plant planted (skills carries urls, registry key '$oc15Key' omitted)"
+        [System.IO.File]::WriteAllText($oc15OcPath, $urlPlanted, (New-Object System.Text.UTF8Encoding($false)))
+        $urlSkM = [regex]::Match($urlPlanted, '"skills"\s*:\s*\{'); $urlSkOpen = $urlPlanted.IndexOf('{', $urlSkM.Index); $urlSkClose = Find-MatchingBrace $urlPlanted $urlSkOpen
+        $urlSkillsBefore = $urlPlanted.Substring($urlSkOpen, $urlSkClose - $urlSkOpen + 1)
+        $urlOut = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify 2>&1 | Out-String)
+        $urlAfter = [System.IO.File]::ReadAllText($oc15OcPath)
+        $urlJson = $null; try { $urlJson = $urlAfter | ConvertFrom-Json } catch { $urlJson = $null }
+        if (-not $urlJson) { $fail += "selftest T1-E1.05: urls plant left opencode.json unparsable" }
+        $urlSkM2 = [regex]::Match($urlAfter, '"skills"\s*:\s*\{'); $urlSkOpen2 = $urlAfter.IndexOf('{', $urlSkM2.Index); $urlSkClose2 = Find-MatchingBrace $urlAfter $urlSkOpen2
+        if ($urlSkillsBefore -ne $urlAfter.Substring($urlSkOpen2, $urlSkClose2 - $urlSkOpen2 + 1)) { $fail += "selftest T1-E1.05: urls plant rewrote a 'skills' shape it must refuse" }
+        if ($urlOut -notmatch "'urls'") { $fail += "selftest T1-E1.05: urls plant printed no refusal line naming 'urls'" }
+        if ($urlJson) {
+            if ($urlJson.PSObject.Properties['instructions']) { $fail += "selftest T1-E1.05: urls plant did not delete the config member (a refusal must be shape-scoped)" }
+            if (-not $urlJson.agent.PSObject.Properties[$oc15Key]) { $fail += "selftest T1-E1.05: urls plant's omitted registry key was not inserted (no write fired)" }
         }
         if ($fail.Count -gt 0) {
             Write-Output "SELFTEST FAILED:"

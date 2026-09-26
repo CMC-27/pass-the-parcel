@@ -1,9 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "instructions": ["AGENTS.md"],
-  "skills": {
-    "paths": [".devops/skills"]
-  },
+  "skills": [".devops/skills"],
   "default_agent": "parcel",
   "agent": {
     "parcel": {

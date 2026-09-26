@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 17
-updated: 2026-09-20
+version: 18
+updated: 2026-09-26
 
 SEED TEMPLATE — copy to <satellite root>/AGENTS.md and customize.
 Nothing executes this file; it is authored once per workspace.
@@ -25,7 +25,7 @@ user interfaces.
 - **`.devops/backlog/`** — **Backlog.** Master queue `backlog-index.md` (Themes table + Triage Panel), theme registers `t{n}-<slug>-backlog.md`, and parked `<code>-<slug>-backlog.md` plans (`claim_status: QUEUED`). Commit via `@sprint-plan`; claim into `.devops/plans/`
 - **`.devops/backlog/SPRINTS.md`** — Sprint register (index of every sprint); created from `SPRINTS.template.md` when the cycle is adopted
 - **`.devops/logs/`** — Agent changelog, version history
-- **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills.paths`
+- **`.devops/skills/`** — All skills (SKILL.md per folder), loaded via `opencode.json` `skills` — the V2-native **flat array** (`[".devops/skills"]`)
 - **`.devops/agents/`** — VS Code custom agents: `parcel.agent.md` + `parcel-sprint.agent.md` (orchestrators; `parcel-sprint` is the locked batch host) + `wiki-writer.agent.md` (selectable; `wiki-writer` is also subagent-invocable), `ptp-*.subagent.md` + `wiki-verifier.subagent.md` (subagents; `ptp-parcel-fast` is the hidden per-plan fast runner, spawned only by `parcel-sprint`)
 - **`.wiki/rules/`** — Wiki governance layer
 - **`.devops/rules/`** — Dev governance layer
