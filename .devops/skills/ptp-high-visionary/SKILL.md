@@ -85,7 +85,7 @@ The plan file is read by a stateless Executor. Vagueness is a defect. The output
 * **Wiki Docs to Add/Edit** — new or updated docs the plan introduces.
 * **Standard Implementation Instructions** — describe what needs to happen in each file (e.g., "Add a new validation rule to the registration form that checks for minimum password length"). **No code snippets except exact string literals** — a regex, SQL migration, CLI command, config key, or error message the Executor must reproduce byte-for-byte. This exception list is exhaustive; anything else is described in prose.
 * **To-Do List** — atomic, ordered, independently executable steps.
-* **Test Verification Plan** — exact commands and named test cases.
+* **Test Verification Plan** — exact commands and named test cases. For large suites it may declare partitioned commands (sharded, affected-only, or run-once subsets — e.g. `npx vitest run --findRelated <changed files>`) plus the plan's cheap compile derivation (`tsc --noEmit`, or the project's equivalent), triggered by the existing complexity signals with no numeric threshold, per `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene; never derive test selection from `touches:`.
 * **Spaghetti Triage table** — flag complexity/coupling/cohesion smells (See-Name-Route, Do Not Fix; route to backlog at Wrap Up).
 * **Reuse Log** — explicit record of what existing assets were reused (per Simplicity Ladder rung 2).
 

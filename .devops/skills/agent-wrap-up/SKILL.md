@@ -64,7 +64,7 @@ Wrap-up normally closes **one** plan. The **batch scope** closes a sprint's whol
 4. Phase 9 verification evidence is present (commands + exit codes) **and** the acceptance-criteria table is populated;
 5. a commit with the exact literal `plan: <code>` exists on the trunk.
 
-Then run the repo gates **once for the batch** - tests / lint / build, `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py`, `wiki_claims.py coverage`, `wiki_claims.py check`. A red gate is a hard stop: it blocks the **whole** batch wrap-up, and a red tree is **never** auto-cleaned.
+Then run the repo gates **once for the batch** - tests / lint / build, `check-parcel-prefix.ps1`, `check-utf8-agents.ps1`, `wiki_lint.py`, `wiki_claims.py coverage`, `wiki_claims.py check`. Those once-per-batch repo gates are the consolidated full-suite pass; each plan's Phase 9 evidence keeps its own `Suite scope` record (canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene). A red gate is a hard stop: it blocks the **whole** batch wrap-up, and a red tree is **never** auto-cleaned.
 
 A plan failing **any** assertion is **carry-forward** — excluded from the batch, left exactly where it is, **never** marked complete. Report it with the failed assertion named. `ponytail:` the carry-forward report is prose, not a schema; upgrade path is a machine-readable per-plan verdict row if the batch ever needs to be driven programmatically.
 

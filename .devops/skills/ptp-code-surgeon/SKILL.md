@@ -39,7 +39,7 @@ This skill owns **Group D: Execution & Verification (Phases 8-9)** of the `pass-
 * If an error the plan's Phase 5 instructions do not account for (system error, missing dependency, syntax constraint) blocks execution, halt immediately, document the technical wall in the plan, and alert the user. Do not attempt to design an unapproved workaround.
 
 ### 5. Phase 9 QA Verification Protocol
-* **Run the Suites:** Re-run the exact commands from the plan's Phase 5 Test Verification Plan — compilation, lint, tests. **Pass = every command exits `0`.** Record the raw output in Phase 9.
+* **Run the Suites:** Re-run the exact commands from the plan's Phase 5 Test Verification Plan — compilation, lint, tests. **Pass = every command exits `0`.** Record the raw output in Phase 9. The declared scope may be targeted, sharded, or affected-only per `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene (Suite scope): run the declared commands as declared, record scope + exclusions in the evidence table's `Suite scope` column, and use the plan-declared cheap compile derivation per plan. An affected selection matching zero files is a pass with the scope recorded — never re-expand it into an undeclared full run. Failure cells name the failing command and its observed output in plain words, not just the exit code.
 * **Log the Proof:** Document the exact terminal outputs or test passes directly into Phase 9 of the parcel.
 * If a test fails, treat it as an operational barrier. Do not mark the gate as clear until the underlying code passes perfectly.
 

@@ -195,6 +195,8 @@ An `AUTO` gate clears **only on positive, presence-based evidence**. The test is
 
 Validation/gate commands are **one-shot, non-interactive, bounded**: a command that never returns (test-runner watch mode, a dev server, an interactive prompt) is the *failure to detect*, not a preference — and a suite expected to outlast the executing tool's default timeout must be invoked with an **explicit extended timeout**, or backgrounded and the result read once. The concrete one-shot invocations and how to derive them from a watch-shaped script live in `@test-and-deploy` § 2 (the teaching surface); every other gate surface cites this section. This applies to every path that runs gates: `@pass-the-parcel` manual runs, the `@sprint-run` batch path (`ptp-parcel-fast`), and pre-push validation.
 
+**Suite scope.** Per-plan Phase 9 runs the plan-declared scope — targeted, sharded, or affected-only commands, run-once only — and records that scope plus exclusions in the Phase 9 evidence table's `Suite scope` column; the full suite consolidates at the batch wrap-up + pre-push + sprint close trio, and Gate D reads scope alongside exit codes. Per-plan compile is the plan-declared cheap derivation (`tsc --noEmit`, or the project's equivalent cheap compile); the full build consolidates with the full suite. `touches:` is a write-collision guard and never sources test selection.
+
 ## Interrupted Run (resume contract — canonical)
 
 A per-plan runner may be cancelled **mid-Phase 9** (gate command killed by a timeout budget, its host, or its operator). The debris is named so it can be resumed:

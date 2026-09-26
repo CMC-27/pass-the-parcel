@@ -256,9 +256,11 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 - [ ] No functional gaps identified
 
 **Verification Evidence (required — the checkbox list alone is not evidence):**
-| # | Command | Expected | Observed | Exit |
-|---|---|---|---|---|
-| 1 | | | | |
+| # | Command | Expected | Observed | Exit | Suite scope |
+|---|---|---|---|---|---|
+| 1 | | | | | |
+
+Record the executed scope plus exclusions in the `Suite scope` column — Gate D reads scope alongside exit codes (canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene).
 
 ---
 
