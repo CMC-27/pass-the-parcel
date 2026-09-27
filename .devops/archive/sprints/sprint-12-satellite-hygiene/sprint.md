@@ -3,10 +3,10 @@ type: "sprint"
 sprint: 12
 name: "Satellite Hygiene"
 slug: "satellite-hygiene"
-status: "open"
+status: "closed"
 capacity_points: 8
 created: "2026-09-26"
-closed: ""
+closed: "2026-09-27"
 ---
 
 # Sprint 12: Satellite Hygiene
@@ -83,9 +83,9 @@ The § 4c triage flags for the committed set, plus the eligibility predicate's o
 - **MATURITY.md re-grade** — this sprint's completions are rows the next grade cites, not a trigger
 
 ## Definition of Done (sprint-level)
-- [ ] All committed parcel plans reach COMPLETE and are archived
-- [ ] Full test suite green, lint clean, build exit 0
-- [ ] Sprint closed via @sprint-close (retro appended to this file + spaghetti scan run)
+- [x] All committed parcel plans reach COMPLETE and are archived
+- [x] Full test suite green, lint clean, build exit 0
+- [x] Sprint closed via @sprint-close (retro appended to this file + spaghetti scan run)
 
 ## Risks / Unknowns
 - **⚠️ REALISED 2026-09-26 — `T1-E1.05` was stopped four times by write-set under-declaration.** `touches` went **4 → 10 → 11 → 13** across one batch claim and one manual `USER-MANAGED` + `MULTI` run, and **every stop was a scope failure, never a design failure** — the design survived 4 revision rounds and 3 independent audits and was verified by 16 of 17 Phase 9 commands. The last and worst was a coupling **already documented in this repo's own wiki** (`.wiki/core/18-knowledge-capture.md:50` names `AGENTS.md`, both claiming docs and the remedy) that the plan's Phase 2 read *around*. **Lesson for the pipeline, not just this sprint: when any claim-source file is in `touches`, Phase 2 must check every `source:` binding against the write set.** Carried to the retro.
@@ -98,25 +98,56 @@ The § 4c triage flags for the committed set, plus the eligibility predicate's o
 - **Reclaiming `T1-E1.05`** — it is claimable now, but a fresh claim **must re-run Phase 3 interactively** (the recorded Q&A is reference only), re-run the mode/topology selection (its Plan Settings block still carries the previous run's `USER-MANAGED`), and re-cut `touches` against the live queue. Its Plan Settings block will raise a `mode_conflicts` advisory on any `@sprint-run` batch, which is correct
 
 ## Retro
-*Appended by `@sprint-close` when the sprint closes. Left empty while the sprint is open.*
 
 ### Goal — Met?
-*Appended by `@sprint-close`.*
+*"Make the portable surface a satellite obeys tell one true story — the counter's ownership clause consistent everywhere, Phase 5/9 carrying targeted-suite declaration with the full suite consolidated per batch/push/sprint, and the OpenCode V2 config declaring only what V2 loads."*
+
+**Yes.** All three named outcomes landed and passed the owner's acceptance walk: the counter-ownership carve-out now travels on the portable surface (`T1-E2.09`), Phase 5 may declare partitioned suites and Phase 9 records the scope that ran (`T1-E3.21`), and `opencode.json` + its seed declare only what V2 loads (`T1-E1.05`). **3/3 plans, delivered.** Sprint 12 closed on the same day its last plan wrapped.
 
 ### What Shipped
-*Appended by `@sprint-close`.*
+| Code | Plan | Size | Effort accuracy | Notes |
+|------|------|------|-----------------|-------|
+| `T1-E1.05` | OpenCode V2 config drift in `opencode.json` | committed **S (1)** → actual **L (5)** | **5× under-estimate** — rescoped and re-run `USER-MANAGED` + `MULTI`; all four stops were scope, never design | 13-file sync-engine change (config + seed, a portable gate, a new migration duty, four prose mirrors, two wiki docs re-stamped); `machinery 76 → 77` |
+| `T1-E2.09` | Satellites are told to bump a counter they do not own | M (3) | M as estimated | Ownership clause travels with the instruction (5 surfaces + canon); rider repaired release row 77's missing CI trailer; `machinery 77 → 78` |
+| `T1-E3.21` | Phase 9 test execution has no batching pattern | S (1) | S as estimated (wording only, no code) | 8 declaration/execution/record surfaces; `Suite scope` evidence column added; `machinery 78 → 79` |
 
 ### Carry-Forward
-*Appended by `@sprint-close`.*
+**None — all 3 committed plans delivered and archived; the queue drained.** Recorded follow-ups (not committed work; each has a durable home):
+| Item | Why not done | New size | Next sprint? |
+|------|--------------|----------|--------------|
+| `T1-E2.10` — manual claim path has no enumerated pre-flight checklist | Parked during this sprint's wrap-up | S (1) | Y |
+| `T1-E3.22` — version-counter contract's two open seams | Parked during this sprint's wrap-up | S (1) | Y |
+| `T1-E2.08` **release B** — flip the counter to `1.0.73` | Deliberately staged after release A (dotted-shape migration) | S (1) | Y |
+| `process-lessons.md` **fold pass** — 31 dated entries vs ~25 target | Staging register over target; folding is close hygiene, deferred | S (1) | Y |
 
 ### Metrics: Before → After
-*Appended by `@sprint-close`.*
+- Hot spots (>CCN 15): **1 → 1** (the scanner itself; `CCN(h)` is a regex heuristic, ECMAScript-only, so it reads as a pointer, not a measurement)
+- Files >400 lines: **5 → 6** (`sync-architecture.ps1` **757 → 864** — now 64 lines past the >800 critical; new `scripts/lib/sync-bindings.ps1` **409** crossed the >400 warn; `sprint_eligible.py` 549, `wiki_claims.py` 484, `test_sprint_eligible.py` 473, `wiki_lint_checks.py` 423 unchanged)
+- Test count: **0 → 0** application tests (no `package.json` by design); machinery fixtures **67 → 67** (no new suite — `T1-E1.05` extended `sync-architecture.ps1 -SelfTest` with three plants instead)
+- Lint warnings: **0 → 0**
+- Capacity: budget **8** pts · committed **5** / delivered **9** → committed-vs-delivered **56%**; the shortfall is one plan (`T1-E1.05`) re-sized S → L
 
 ### Retro: Keep / Drop / Try
-*Appended by `@sprint-close`.*
+- **Keep** — the **same-day expansion ruling** on `T1-E3.21` (a field report reopened a closed question and the plan absorbed it without a re-plan); the **independent review depth** on `T1-E1.05` (4 revision rounds + 3 Phase 6 + 1 Phase 7 — the design survived intact because the stops were scope, not design); and the **per-plan wrap-up reading the live counter** (three increments, never consolidated).
+- **Drop** — **treating an early size estimate as a write-set fact**: `T1-E1.05` was committed `S (1)` and was a 13-file `L (5)`, and every one of its four Phase-8-era stops was under-declared `touches`. Also drop the **partial close**: the register row said `✅ CLOSED` and linked `#retro` while this file still read `status: open` with an empty Retro — the close ran its artifacts (business report, user-testing) but skipped the retro and the frontmatter stamp. **The close is atomic: artifacts + retro + stamp + register row in one pass.**
+- **Try** — a **`sync-architecture.ps1` split plan** (now 64 lines past critical); a **`process-lessons.md` fold pass**; and a **close-time self-check** that greps every archived sprint for `status: "open"` so a partial close fails loudly instead of leaving a register that over-claims.
 
 ### Lessons for the Wiki / Knowledge Capture
-*Appended by `@sprint-close`.*
+The sprint's biggest finding, from `T1-E1.05`: **when any claim-source file is in a plan's `touches`, Phase 2 must check every `source:` binding against the write set.** The coupling that caused the final stop was already documented in `.wiki/core/18-knowledge-capture.md` (it names `AGENTS.md`, both claiming docs and the remedy) and the plan read around it. Route: `.devops/rules/process-lessons.md` (machinery) — **promotion owed, not yet recorded**.
+
+Three machinery lessons did land this sprint in `.devops/rules/process-lessons.md`:
+1. **A Phase 3 option must carry label + cost/benefit + owning precedent on the first ask** (`T1-E3.21`) — a terse option set gets a literal pick the operator then declines to validate; the re-ask is pure overhead.
+2. **A probe that cannot fail is worse than no probe** (`T1-E2.09`) — a criterion asserting a gate must run *that gate's own logic*, and every new probe must be run against the unfixed tree and required to fail.
+3. **Never link a plan at a transient path** (`T1-E1.05`) — the claim/archive `git mv` breaks the link; link `.devops/archive/` or not at all.
+
+`process-lessons.md` stands at **31 dated entries** (measured at close) against its **~25 soft target** — the fold review is carried forward, not skipped.
+
+### User Acceptance Walk
+**3 tests · 3 passed · 0 failed · 0 blocked.** Every delivered outcome was confirmed in the owner's hands on the first pass. Because nothing failed or was blocked, **no theme-register rows are owed** — stated here rather than left silent. Source: [`user-testing.md`](./user-testing.md).
 
 ### New Refactoring Items (→ REFACTORING.md)
-*Appended by `@sprint-close`.*
+The register is **present** (the business report's earlier "register is absent" line was wrong — corrected in that file); its Kill List already carries this sprint's flags, added during `T1-E1.05`. The close scan was re-run across the machinery roots and confirms them (`src/` absent by design, logged as a clean skip):
+- **Promoted — `scripts/sync-architecture.ps1` `757 → 864`, 🔴 OPEN** — 64 lines past the >800 critical, from `T1-E1.05`'s sync-side migration, widened header contract and three `-SelfTest` plants. This is the register's **top-priority item**; the split precedent (`T1-E4.01` W6) is the standing fix.
+- **New — `scripts/lib/sync-bindings.ps1` `408 → 409`, 🔴 OPEN** — crossed the >400 warn as the migration landed inside `Update-TargetModelBindings`.
+- **Watch — `scripts/lib/sync-verify.ps1` 117, ⚪ WATCH** — cohesion, not size (`Invoke-StructuralVerify` mixes structural checks with gate orchestration); flagged by the parcel's Phase 6 and routed here rather than fixed in-scope.
+No file was decomposed this sprint, so the Completed Refactors table gains no row.

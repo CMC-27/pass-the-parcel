@@ -34,8 +34,8 @@ Three of three planned changes were delivered and archived. This workspace ships
 ## Open items for the owner
 
 - Nothing is outstanding from this sprint. The queue drained; no item carried forward.
-- The refactoring register is **absent** in this workspace, so the close-of-sprint code-quality flags have nowhere to be recorded. The scan ran clean; if you want a standing refactoring lane, adopt the template — otherwise no action is needed.
-- The process-lessons register is over its soft target (33 entries against a ~25 guideline). It is a staging area, not an archive; folding matured rules into their owning documents is the next close's housekeeping.
+- The close-of-sprint code-quality scan flagged two machinery files as larger than their size guideline — one past its critical threshold. Both are logged for a future cleanup pass; no action is needed from you.
+- The process-lessons register is over its soft target (31 entries against a ~25 guideline). It is a staging area, not an archive; folding matured rules into their owning documents is the next close's housekeeping.
 
 ## What's next
 
