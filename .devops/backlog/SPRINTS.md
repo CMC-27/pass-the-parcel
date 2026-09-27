@@ -3,12 +3,12 @@ type: "process"
 name: "Sprint Register"
 status: "active"
 description: "Index of all sprints. A sprint is a time-boxed container of parcel plans drawn from the triaged backlog, closed by a retrospective + spaghetti scan."
-last_sprint: "12"
+last_sprint: "13"
 ---
 
 # 🏃 Pass the Parcel — Sprint Register
 
-> **▶️ No active sprint.** Sprint 12 closed 2026-09-27 (3/3 delivered). `@sprint-plan` opens Sprint 13 from the backlog's triage panel.
+> **▶️ Sprint 13 active — V1 Hardening.** Sprint 12 closed 2026-09-27 (3/3 delivered). Queue + Delivery Model + predicate snapshot live in `.devops/sprints/sprint-13-v1-hardening/sprint.md`.
 # 🏃 Pass the Parcel — Sprint Register
 
 > **Note on numbering.** Sprints 1–7 were run informally and left no `sprint.md` records; this register begins the durable record. Sprint 8 is the first sprint recorded here, and its number continues the operator's running count (the parked `T1-E3.03` plan cites a "Sprint 7 operator ruling"). `.devops/sprints/` therefore holds `sprint-8-*` onward — the gap is historical, not a skipped number.
@@ -91,6 +91,7 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 | 10 | Owner Loop | Fix the Phase 9 gate hang, gate the claims drift check, and close the owner loop: parcel-feedback pathway, sprint-plan user stories, sprint-close user-manual testing, the business report template-side, and canonical product-owner framing. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-10-owner-loop/sprint.md) | [retro](../archive/sprints/sprint-10-owner-loop/sprint.md#retro) · [business report](../archive/sprints/sprint-10-owner-loop/business-report.md) · [user testing](../archive/sprints/sprint-10-owner-loop/user-testing.md) |
 | 11 | Machinery Streamline | Deliver the whole GRID-Link field-audit set: tiered versioning with ordering-aware transport, the MICRO small-change path, transportable CI gates, the stories + preset gates, the changelog index, the CORE profile, and honest wave data — one three-wave sprint. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-11-machinery-streamline/sprint.md) | [retro](../archive/sprints/sprint-11-machinery-streamline/sprint.md#retro) · [business report](../archive/sprints/sprint-11-machinery-streamline/business-report.md) · [user testing](../archive/sprints/sprint-11-machinery-streamline/user-testing.md) |
 | 12 | Satellite Hygiene | Make the portable surface honest about the machinery counter (the ownership carve-out cites one canonical home), give Phase 5 partitioned-suite declaration vocabulary, and convert the OpenCode V2 config to its native shape. Phase 5 and Phase 9 also gained targeted-suite scope recording with the full suite consolidated per batch/push/sprint. | ✅ CLOSED | [sprint.md](../archive/sprints/sprint-12-satellite-hygiene/sprint.md) | [retro](../archive/sprints/sprint-12-satellite-hygiene/sprint.md#retro) · [business report](../archive/sprints/sprint-12-satellite-hygiene/business-report.md) · [user testing](../archive/sprints/sprint-12-satellite-hygiene/user-testing.md) |
+| 13 | V1 Hardening | Close every review-surfaced gap and ship v1.1.0: the four unguarded invariants get checkers, the hot prose collapses to canon, the regrown sync engine splits, the wiki stands an honesty pass, a measured cost baseline is recorded, and the release lands with every gate green. | 🟢 ACTIVE | [sprint.md](../sprints/sprint-13-v1-hardening/sprint.md) | — |
 
 ---
 

@@ -99,6 +99,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
 | T1-E4.04 | Single-source the hot prose (the three highest-value rule fan-outs) | QUEUED | Register and collapse the next tier of rule fan-out the report does not yet see: **"Gate D always halts"** (the #1 safety invariant, ~10 authored homes, CW2/F7 precedent), the **Mode vocabulary**, and the **topology definitions** (which sit in the PREFIX-LOCKED per-run token floor). Name the canon, keep one operative line + cite everywhere else (`T1-E4.01` W2 pattern). | [plan](./t1-e4.04-hot-prose-single-sourcing-backlog.md) |
+| T1-E4.05 | Split the regrown sync engine | QUEUED | Re-apply the proven W6 split to the regrown surface: `sync-architecture.ps1` past critical (927 lines) + `sync-bindings.ps1` over warn (441). Kill List top-priority OPEN. | [plan](./t1-e4.05-sync-engine-split-backlog.md) |
 | — | — | *(the deferred halves live in the Triage Panel as `T1-E2.06` and in `MATURITY.md` Axis 7's Next lever)* | W3 (changelog length cap) and W4 (a deletion-first lifecycle hook) were deferred by operator decision; a recurring Axis 7 re-derivation job is the axis's own next lever | — |
 | — | `process-lessons.md` fold pass (next queue) | — | The register landed at **25** at the `T1-E3.23` wrap-up (31 → 25, six folded or deleted). The remaining candidates have no owning home that parcel edited — fold them at the next sprint close; `@sprint-close` § 5 already owns the trigger. | — |
 

@@ -31,7 +31,7 @@ description: "Close the gap between this repo's curated wiki and an OpenWiki-cla
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T2-E2.05 | Wiki V1 honesty pass | QUEUED | Ground the machinery-facing slots, mark app-facing docs honestly as `status: template` seeds, slim the placeholder indexes. The wiki half of V1. | [plan](./t2-e2.05-wiki-v1-honesty-pass-backlog.md) |
 
 ### Completed
 

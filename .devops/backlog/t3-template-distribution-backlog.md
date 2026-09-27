@@ -16,7 +16,7 @@ description: "Make the repo credible and self-explanatory as a public GitHub tem
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| — | — | — | *(empty — every T3-E1 item is delivered)* | — |
+| T3-E1.05 | v1.1.0 release + measurement baseline | QUEUED | Close `[Unreleased]` as v1.1.0 + tag; MATURITY re-grade; README/HOW-TO truth sweep; first measured cost baseline. Held last by `depends_on`. | [plan](./t3-e1.05-v110-release-baseline-backlog.md) |
 
 ### Completed
 
