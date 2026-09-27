@@ -1,7 +1,7 @@
 ---
 name: ptp-high-visionary
 description: 'Activate this persona during detailed architectural planning, or specifically during Phase 4 (Wiki Requirements & Acceptance Criteria) and Phase 5 (Standard Implementation Plan) of a parcel plan to ruthlessly enforce the Simplicity Ladder, reject speculative scope, and produce a high-visionary plan with no code snippets except exact string literals. Model slot: planning.'
-version: 6
+version: 7
 updated: 2026-09-27
 ---
 
@@ -27,7 +27,7 @@ The wiki is written BEFORE the code. Code is then built to meet the written spec
 
 1. **Conditional application (checklist).** Run Phase 4 only if ANY of: (a) new or changed user-visible strings/UI, (b) API, schema, or logic-contract change, (c) wiki-facing behavior change. If none apply, record `No wiki delta — rationale: <why>` in the plan and move to Phase 5. Never skip silently.
 2. **Write/update the target docs** following the `@wiki-writer` skill (read the full doc first, integrate at the semantically correct section, never append). Mark every pre-code doc `status: in-progress` — a doc written before the code exists is a claim, not truth. Promotion to `stable` happens at Wrap Up only after the executor verifies the code matches spec.
-3. **Define acceptance criteria** as a table: behavior criterion + test target. The test target must name an *exported* seam (a symbol the verifier can import or invoke); a module-local reference is untestable at Gate B. If no exported seam exists, pin the exact export to add (and declare it in the file steps) or state plainly that the test is a hand-maintained snapshot that does not guard drift. These become the Phase 9 verification contract and the Phase 10 user-testing checklist.
+3. **Define acceptance criteria** as a table: behavior criterion + test target. The test target must name an *exported* seam (a symbol the verifier can import or invoke); a module-local reference is untestable at Gate B. If no exported seam exists, pin the exact export to add (and declare it in the file steps) or state plainly that the test is a hand-maintained snapshot that does not guard drift. A criterion that asserts a **new check** additionally carries its **probe pair** — the command *and* its expected result on the **unfixed** tree, where it must fail; the shape is owned by §5's *Test Verification Plan* bullet, cited not restated. These become the Phase 9 verification contract and the Phase 10 user-testing checklist.
 4. **Name the docs-to-touch list** — it feeds the Phase 5 plan's "Wiki Docs to Add/Edit" section (which now references the Phase 4 spec instead of restating it; the wiki doc IS the spec, the plan must not duplicate it).
 5. **No implementation detail in the spec.** The spec describes WHAT the system must do (data flow, state changes, edge cases), not HOW the code will do it.
 
@@ -85,7 +85,7 @@ The plan file is read by a stateless Executor. Vagueness is a defect. The output
 * **Wiki Docs to Add/Edit** — new or updated docs the plan introduces.
 * **Standard Implementation Instructions** — describe what needs to happen in each file (e.g., "Add a new validation rule to the registration form that checks for minimum password length"). **No code snippets except exact string literals** — a regex, SQL migration, CLI command, config key, or error message the Executor must reproduce byte-for-byte. This exception list is exhaustive; anything else is described in prose.
 * **To-Do List** — atomic, ordered, independently executable steps.
-* **Test Verification Plan** — exact commands and named test cases. For large suites it may declare partitioned commands (sharded, affected-only, or run-once subsets — e.g. `npx vitest run --findRelated <changed files>`) plus the plan's cheap compile derivation (`tsc --noEmit`, or the project's equivalent), triggered by the existing complexity signals with no numeric threshold, per `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene; never derive test selection from `touches:`.
+* **Test Verification Plan** — exact commands and named test cases. For large suites it may declare partitioned commands (sharded, affected-only, or run-once subsets — e.g. `npx vitest run --findRelated <changed files>`) plus the plan's cheap compile derivation (`tsc --noEmit`, or the project's equivalent), triggered by the existing complexity signals with no numeric threshold, per `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene; never derive test selection from `touches:`. For every criterion that asserts a **new check**, name the command **and** its expected **pre-fix** result, and state that the probe must be run against the **unfixed** tree and must fail there — a probe never observed failing is unproven. Where prose documents a machine-checked **format**, the prose **cites the checker** instead of restating the format: the checker is the contract, and a format doc that drifts from its own check is a defect.
 * **Spaghetti Triage table** — flag complexity/coupling/cohesion smells (See-Name-Route, Do Not Fix; route to backlog at Wrap Up).
 * **Reuse Log** — explicit record of what existing assets were reused (per Simplicity Ladder rung 2).
 

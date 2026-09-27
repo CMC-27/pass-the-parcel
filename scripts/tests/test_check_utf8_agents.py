@@ -89,6 +89,34 @@ class Utf8GuardTests(unittest.TestCase):
                     code, out = self.run_guard()
                     self.assertEqual(code, 1, f"{name}/{position}: {out}")
 
+    # --- the head-anchored BOM/CRLF markers (T1-E3.23: a deliberate second class) ---
+    # Deliberately NOT entries in MARKERS: that loop asserts a marker ALSO fires
+    # mid-file, which the head-only rule forbids. Separate methods on purpose.
+
+    def test_bom_head_fires(self):
+        self.plant("bom.agent.md", bytes([0xEF, 0xBB, 0xBF]) + b"# t\nbody\n")
+        code, out = self.run_guard()
+        self.assertEqual(code, 1, out)
+        self.assertIn("MANGLED:", out)
+
+    def test_crlf_head_fires(self):
+        self.plant("crlf.agent.md", b"\r\n# t\nbody\n")
+        code, out = self.run_guard()
+        self.assertEqual(code, 1, out)
+        self.assertIn("MANGLED:", out)
+
+    def test_truncated_bom_head_passes(self):
+        # EF BB without BF is not a BOM - the head rule must not over-fire.
+        self.plant("trunc.agent.md", bytes([0xEF, 0xBB]) + b"body\n")
+        code, out = self.run_guard()
+        self.assertEqual(code, 0, out)
+
+    def test_midfile_bom_passes(self):
+        # A mid-file EF BB BF is a legitimate zero-width no-break space (the stated bound).
+        self.plant("mid.agent.md", b"# t\n" + bytes([0xEF, 0xBB, 0xBF]) + b"tail\n")
+        code, out = self.run_guard()
+        self.assertEqual(code, 0, out)
+
     # --- clean and legitimate content passes ------------------------------------
 
     def test_clean_file_exits_zero(self):

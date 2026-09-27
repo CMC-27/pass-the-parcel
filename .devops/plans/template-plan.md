@@ -35,7 +35,7 @@ stories: ["{As the owner, I want …, so …}"]   # drafted at @sprint-plan § 6
 > - Read **Plan Settings** above before acting; the topology there governs which gates apply. See `@pass-the-parcel` § Agent Topology.
 > - **`Agents: MICRO` collapses the scaffold** — Phases 2, 3, 4, 6, 7 and 8 render as `N/A — MICRO` sections each carrying the eligibility line, the micro plan renders in the Phase 5 marker section, and Gates A and C are recorded `N/A (MICRO)`. Canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane* — cite it, do not restate it.
 >
-> **🔒 CACHE-ANCHORED:** The **Plan Settings** block above is frozen config; the mutable State Dashboard + Gate Log live in the **last section** (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. Byte-stable prefix = LLM prefix-cache hits for every downstream agent re-read.
+> **🔒 CACHE-ANCHORED:** The **Plan Settings** block above is frozen config; the mutable State Dashboard + Gate Log live in the **last section** (`## 📍 State & Gates`). Gate transitions update ONLY those bottom rows — do NOT edit content above once written. The frozen block is byte-stable **between** gate transitions, which is what keeps the prefix cache warm for every downstream agent re-read; a revision round rewrites the phase content it owns, and the cache resumes from the rewrite.
 
 ---
 
@@ -147,6 +147,8 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 
 ### Implementation Instructions (no code snippets except exact string literals: regex, SQL migration, CLI command, config key, error message)
 
+> **Test Verification Plan record shape — probe pair + citation.** A command that asserts a **new check** names **both** its expected result *and* its expected **pre-fix** result on the **unfixed** tree: the probe must fail there, and a probe never observed failing is unproven. And where this plan's prose documents a machine-checked **format**, it **cites the checker** instead of restating the format — a format doc that drifts from its own check is a defect.
+
 ### Wiki Core References
 - `.wiki/core/[doc].md` -> [which blueprints derive from this doc]
 
@@ -159,8 +161,10 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 ---
 
 ## 6 Phase 6: Grumpy Architect Spec & Logic Audit
-**Skill Executed:** `ptp-grumpy-architect` (`SINGLE`: orchestrator inline)
+**Skill Executed:** `ptp-grumpy-architect` (**`MULTI`: independent reviewer in a separate context — canon: `.opencode/plans/base-context.md`** → `reviews/arch_review.md`; under `SINGLE` the orchestrator fills the self-review table below inline)
 
+> **`SINGLE` topology gate — the self-review block below renders ONLY under `Agents: SINGLE`.** Under `MULTI` there is no independent reviewer *inside* the block: the Phase 6/7 evidence is the review file (`reviews/arch_review.md`), and the block is inert boilerplate — it must never be read as `Gate C: N/A (SINGLE)` in a `MULTI` plan. This gate is stated here once; the topology lives in the frozen `Plan Settings` block at the top.
+>
 > **`SINGLE` topology:** no independent reviewer. The orchestrator fills the **self-review table** below — one row per acceptance criterion from Phase 4 — and records the `**Verdict:**` line. An empty table does **not** clear Gate B: `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract makes a row per criterion, with both cells filled, the positive evidence. A `SINGLE` run that cannot fill the rows records `REJECTED` and **halts** — it never starts an inline revision loop.
 
 **`SINGLE` self-review (evidence — one row per acceptance criterion):**
@@ -169,6 +173,12 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 | 1 | | |
 
 **Verdict:** `PASS` / `REJECTED`
+
+> **Record rules for the review phases (stated once here; Phase 7 cites them).**
+> - **Round collapse:** a superseded review round is replaced by **one tail-pointer line** naming the round and its outcome — the plan never carries two narratives for one finding.
+> - **The review file is the narrative home:** `reviews/*.md` holds the prose; the plan carries the finding, its disposition and the pointer — never a re-authored copy.
+> - **Every finding is dispositioned on the record:** actioned, or waived **with the reason**, as a disposition row. `ride` (non-blocking) is a **finding** label, never a third verdict.
+> - **The `SINGLE` self-review block is gated on `Plan Settings.Agents`:** it is evidence only under `SINGLE`; under `MULTI` the evidence is the review file and the block is inert (see the topology gate above).
 
 > **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite via `PHASE_5_REVISION`.
 >
@@ -196,9 +206,16 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 ---
 
 ## 7 Phase 7: Smooth Operator Product Review
-**Skill Executed:** `ptp-smooth-operator` (`SINGLE`: orchestrator inline)
+**Skill Executed:** `ptp-smooth-operator` (**`MULTI`: independent reviewer in a separate context — canon: `.opencode/plans/base-context.md`** → `reviews/product_review.md`; runs only after Phase 6 reports `PASS`. Under `SINGLE`: orchestrator inline)
 
 > **`SINGLE` topology:** no independent reviewer. Record **`N/A — SINGLE self-review`**; the self-review is presented at Gate B.
+
+> **Record rules:** the four rules under Phase 6's *Record rules for the review phases* apply here too — round collapse to one tail-pointer line, the review file as the narrative home, every finding dispositioned on the record, and the topology gate.
+
+**Finding dispositions (one row per finding — a waiver is a record, never a silence):**
+| # | Finding | Disposition |
+|---|---|---|
+| 1 | | `actioned` / `ride — actioned in Phase 8` / `waived — <reason>` |
 
 > **Rejection Rule:** If plan introduces unnecessary complexity or scope expansion, do not check boxes. Reject and force rewrite.
 
@@ -262,6 +279,8 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 
 Record the executed scope plus exclusions in the `Suite scope` column — Gate D reads scope alongside exit codes (canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene).
 
+> **Pre-fix evidence.** For each new check, the evidence names the probe's **pre-fix** result — observed on the unfixed tree, before the implementing edit — beside its post-fix pass. The pair is what proves the check *can* fail. And where this plan's prose documents a machine-checked **format**, it cites the checker rather than restating it.
+
 ---
 
 > **HALT POINT (Gate D — Implementation):** Implementation and verification complete. Present completed work to user. Do not proceed to user review until user signs off. Update the **State & Gates** section at the bottom of this file: Status -> `PHASE_9`, Active Persona -> `Executor`. Leave Gate D `OPEN` — the orchestrator records the user's verdict. On rollback: Status -> `PHASE_8_FAILED`.
@@ -318,7 +337,7 @@ Record the executed scope plus exclusions in the `Suite scope` column — Gate D
 
 ## 📍 State & Gates (CACHE-ANCHORED — update ONLY this section at gate transitions)
 
-> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — phase content above AND the frozen **Plan Settings** block at the top stay byte-stable to preserve LLM prefix-cache hits. Every "Update Status" instruction in the halt points above means "edit this section".
+> **Cache rule:** This is the **last section** in the file. Gate transitions mutate ONLY the rows below — the frozen **Plan Settings** block at the top and the phase content above are byte-stable **between** gate transitions; a revision round rewrites the phase content it owns, and the prefix cache resumes from the rewrite. Every "Update Status" instruction in the halt points above means "edit this section".
 >
 > **This section records state, never a handoff instruction** — a plan is never a baton between sessions. The orchestrator advances group to group in the session it started in; see `@pass-the-parcel` § Review Gates.
 

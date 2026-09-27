@@ -122,6 +122,12 @@ portable_files:
   # fixture test beside it (`scripts/tests/`) stays local — `validate.yml` is not a
   # portable file, so a satellite would ship a test nothing runs.
   - scripts/sprint_eligible.py
+  # The write-set derivation witness, executable. Both claim paths call it (the manual
+  # path via `parcel` + `pass-the-parcel`, the batch path via `sprint-run`) and the
+  # portable canon (`plan-lifecycle.md` § Claim Protocol step 2) cites it, so a satellite
+  # missing it would cite a checker it does not have. Its fixture stays local for the
+  # same reason as sprint_eligible's: `validate.yml` is not portable.
+  - scripts/write_set_check.py
   - scripts/rule_fanout.py
   - .github/workflows/wiki-refresh.yml
   # The satellite-shaped machinery gate: the invariant subset of validate.yml (prefix,

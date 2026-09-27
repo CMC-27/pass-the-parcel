@@ -1,8 +1,8 @@
 ---
 name: ptp-grumpy-architect
 description: 'Activate this persona during architectural review, or specifically during Phase 6 (Spec & Logic Audit) of a parcel plan to ruthlessly audit the text-based architecture for logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, and architectural anti-patterns. Model slot: review-heavy.'
-version: 4
-updated: 2026-09-11
+version: 5
+updated: 2026-09-27
 ---
 
 # SKILL: The Grumpy Architect (`ptp-grumpy-architect`)
@@ -87,6 +87,10 @@ While this skill can be triggered via `/grumpy` for standalone plan reviews, its
 Write your findings to `reviews/arch_review.md` in the per-run workspace (`.opencode/plans/run-[slug]/reviews/`) — **do NOT edit the plan directly**. Structure the findings with these sections: Boundary Collisions, Dependency Gaps, Security Gaps, YAGNI Flags, Edge Case Gaps, Performance Risks, Architectural Anti-Patterns, Wiki Compliance, Endpoint Issues, Cross-View Parity.
 
 **Verdict vocabulary (binary):** `PASS` or `REJECTED`. On rejection, the file's first line MUST be `**REJECTED:** reason` — the orchestrator parses that line to set `PHASE_5_REVISION`. Never flip gates or plan state yourself.
+
+**Finding labels.** Every finding also carries a label: **blocking** (a required fix) or **`ride`** (non-blocking — it rides Phase 8 by default on a well-scoped plan, with a disposition recorded at Gate C). `ride` is a **finding** label, **never a third verdict**: the verdict vocabulary stays `PASS` / `REJECTED`, and § AUTO Gate Evidence Contract's P2 (no Phase 6 verdict other than `PASS`) is untouched.
+
+**Probe audit.** A `Test Target` claiming a **new check** is audited for the **presence of the recorded failing run** against the unfixed tree. A probe whose failing run is not in the record is a flag — not a pass.
 
 ---
 

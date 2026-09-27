@@ -1,7 +1,7 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 14
+version: 15
 updated: 2026-09-27
 ---
 
@@ -38,6 +38,8 @@ Run in order; any failure halts the batch **before** the first claim.
 **Immediately before each claim**, re-apply the predicate against the **live** `.devops/plans/` — not once across the queue. That is what makes the batched-`PHASE_9` protection live rather than dead text.
 
 **Computed, not reasoned.** Run `python scripts/sprint_eligible.py` from the workspace root; its JSON is authoritative for this section — `queue`, `eligible`, `claim_order`, `parallel_groups`, `skipped` (per-plan `reasons`), `in_flight`, `orphans`, `already_phased`, and the advisory `complexity` (`{triage, signals, multi_worthy, blocks}` per queued plan, consumed by § 1 step 7). Exit `0` means computed; **any non-zero exit is a stop-the-line (§ 5)** — the host does not re-derive eligibility from these clauses, and a missing or partial output is never a partial run. The clauses below are the definition that script implements (canonical: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Write-Set Overlap Predicate*, plus § Claim Front-Matter) and the reference a human reads; when the two could disagree, the script's exit code decides.
+
+**A second, independent stop-the-line** sits beside the eligibility script's: `python scripts/write_set_check.py --plan <plan>` (the write-set derivation witness — `.devops/rules/plan-lifecycle.md` § Claim Protocol step 2) exits non-zero when the plan's declared `touches` omits a path the plan is forced to write. The fix is on the **plan**, never on the predicate: amend the declaration and re-run. A non-zero exit is a § 5 stop-the-line cause, and the **resume is this section's existing contract — no new state, nothing persisted**: the invocation ends, and the next one recomputes § 1/§ 2 from live state, with a plan killed mid-flight re-adopted per § 1 step 4 and `.devops/rules/plan-lifecycle.md` § Interrupted Run.
 
 A queued plan is **eligible** iff all three hold:
 

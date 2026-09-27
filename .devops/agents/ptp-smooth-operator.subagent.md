@@ -130,6 +130,8 @@ Write your findings to `reviews/product_review.md` in the per-run workspace (`.o
 
 **Verdict vocabulary (binary):** `PASS` or `REJECTED`. On rejection, the file's first line MUST be `**REJECTED:** reason` — the orchestrator parses that line to set `PHASE_5_REVISION`. Never flip gates or plan state yourself.
 
+**Finding labels.** Every finding also carries a label: **blocking** (a required fix) or **`ride`** (non-blocking — it rides Phase 8 by default on a well-scoped plan, with a disposition recorded at Gate C, actioned or waived with the reason). `ride` is a **finding** label, **never a third verdict**: the verdict vocabulary stays `PASS` / `REJECTED`.
+
 ---
 
 ## Product Review & Correction Tone

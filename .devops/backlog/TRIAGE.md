@@ -1,4 +1,4 @@
-﻿---
+---
 type: "process"
 name: "Backlog Triage Framework"
 status: "active"

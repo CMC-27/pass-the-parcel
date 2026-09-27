@@ -16,12 +16,21 @@
 #   CE 93 + C2|C3     CP437 double-encoded dash / emoji lead
 #   E2 89 A1 C6 92    CP437 double-encoded 4-byte emoji lead
 #   EF BF BD          U+FFFD replacement character
+#   EF BB BF @ head   UTF-8 BOM at offset zero — head-anchored only: a mid-file
+#                     EF BB BF is a legitimate zero-width no-break space and passes
+#   0D 0A @ head      CRLF at offset zero — .gitattributes pins eol=lf, so a head CRLF
+#                     means the file was written by a BOM/ANSI-emitting tool
+# The two @head markers are a DELIBERATE, STATED ADDITION (T1-E3.23): they are anchored
+# to offset zero because only at the head do they mean corruption, and the existing five
+# markers cannot see them — EF BB BF and 0D 0A match none of the five.
 # The CP437 pairs catch UTF-8 bytes misread through code page 437 — a second corruption
 # path the CP1252 markers alone missed.
 #
 # Mechanism: each file is decoded ONCE as Latin-1 (code page 28591 — 1 byte maps to 1
 # char), then the five sequences are matched with one compiled regex alternation built
-# from .NET `\u` escapes. That replaces the interpreted per-index byte loop with native
+# from .NET `\u` escapes, and a SECOND head-anchored alternation (`\A`) tests the two
+# `@head` markers over the same decoded string — still one decode and one read per file.
+# That replaces the interpreted per-index byte loop with native
 # search, and — the declared delta — it scans the WHOLE file: the old loop bound was
 # `$i -lt $bytes.Length - 2`, which never tested the final two bytes, so a file whose last
 # two bytes were C3 A2 passed silently. Fixing that is a deliberate, stated strengthening,
@@ -70,11 +79,19 @@ $markerRegex = [System.Text.RegularExpressions.Regex]::new(
     $markerPattern,
     [System.Text.RegularExpressions.RegexOptions]::Compiled
 )
+# Head-anchored markers: the BOM as its Latin-1 view (\u00EF\u00BB\u00BF == EF BB BF) and
+# the CRLF pair (\u000D\u000A == 0D 0A), each anchored to offset zero with \A. hex escapes
+# only, exactly like the five above — this file's own bytes never carry the sequence.
+$headPattern = '\A\u00EF\u00BB\u00BF|\A\u000D\u000A'
+$headRegex = [System.Text.RegularExpressions.Regex]::new(
+    $headPattern,
+    [System.Text.RegularExpressions.RegexOptions]::Compiled
+)
 
 $bad = @()
 foreach ($file in $targets) {
     $text = $latin1.GetString([System.IO.File]::ReadAllBytes($file))
-    if ($markerRegex.IsMatch($text)) {
+    if ($markerRegex.IsMatch($text) -or $headRegex.IsMatch($text)) {
         $bad += $file.Substring($root.Length + 1)
     }
 }

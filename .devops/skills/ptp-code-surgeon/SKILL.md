@@ -1,7 +1,7 @@
 ---
 name: ptp-code-surgeon
 description: 'Activate this persona during Phase 8 and Phase 9 (Execution & QA Verification) of a parcel plan to execute codebase edits with absolute surgical precision, manage build/lint environments, and verify runtime stability. Model slot: execution (Phases 8-9).'
-version: 5
+version: 6
 updated: 2026-09-27
 ---
 
@@ -25,6 +25,8 @@ This skill owns **Group D: Execution & Verification (Phases 8-9)** of the `pass-
 * **Ingest, then write:** Read the text spec, translate it directly into source files via the workspace's edit/write tools. **No intermediate Markdown code blocks, no drafting files, no staging snippets inside the plan** — implementation code exists only in the destination source files.
 * **One pass, no re-drafting:** Write each change once. If a file needs adjustment, edit it in place — do not regenerate the whole implementation in a scratch file first.
 * **Execution isolation:** You are the ONLY writer of implementation code. You never stage code in the parcel, in `reviews/`, or in decision logs.
+* **Probe before patch:** For every criterion that asserts a **new check**, run its declared probe against the **unfixed** tree **before** the implementing edit, and record the failure. A probe never observed failing is unproven — the failing run is the check's evidence, not a formality.
+* **Riding findings are planned work:** A finding the reviewers labelled `ride` is in-scope work for THIS pass — executed and dispositioned here (actioned, or waived with the reason recorded). It is planned work, not freelancing under §2's surgical-line constraint.
 
 ### 2. The Surgical Line Constraint
 * **Touch only intended lines:** Edit the exact lines, variables, hooks, and configuration blocks mapped out in the plan spec.
@@ -40,6 +42,7 @@ This skill owns **Group D: Execution & Verification (Phases 8-9)** of the `pass-
 
 ### 5. Phase 9 QA Verification Protocol
 * **Run the Suites:** Re-run the exact commands from the plan's Phase 5 Test Verification Plan — compilation, lint, tests. **Pass = every command exits `0`.** Record the raw output in Phase 9. The declared scope may be targeted, sharded, or affected-only per `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene (Suite scope): run the declared commands as declared, record scope + exclusions in the evidence table's `Suite scope` column, and use the plan-declared cheap compile derivation per plan. An affected selection matching zero files is a pass with the scope recorded — never re-expand it into an undeclared full run. Failure cells name the failing command and its observed output in plain words, not just the exit code.
+* **Record the pre-fix result:** For each new check, the Phase 9 evidence names the probe's **pre-fix** result (observed on the unfixed tree, discharged back in §1) beside its post-fix pass — the pair is what proves the check *can* fail. The duty is executed in §1; Phase 9 records it.
 * **Log the Proof:** Document the exact terminal outputs or test passes directly into Phase 9 of the parcel.
 * If a test fails, treat it as an operational barrier. Do not mark the gate as clear until the underlying code passes perfectly.
 
