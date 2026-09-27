@@ -31,7 +31,7 @@ description: "Close the gap between this repo's curated wiki and an OpenWiki-cla
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| _(none)_ | | | | |
+| T2-E2.04 | KC's machinery boundary contradicts its own Parcel Pipeline section | QUEUED | `.wiki/core/18-knowledge-capture.md:26` says machinery lessons land in `.devops/rules/process-lessons.md` and "never into `.wiki/`", while `:62-68` carries live machinery rules — the absolute is contradicted by the doc's own body. Parked (pre-existing) at the `T1-E3.23` wrap-up. | [plan](./t2-e2.04-kc-machinery-boundary-backlog.md) |
 
 ### Completed
 

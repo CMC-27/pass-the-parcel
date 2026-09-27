@@ -21,6 +21,9 @@ This index is the master queue of all proposed, deferred, or future work. It hol
 
 - 🟢 **LATER** · `T1-E3.22` — The manual claim path has no enumerated green baseline (`.devops/rules/plan-lifecycle.md:116` names the preflight; no surface defines it for the manual path, and the batch's two-script version misses ten of the workflow's twelve steps). Parked 2026-09-27 at the `T1-E2.09` wrap-up — observed cost: the trunk was red on `Machinery version discipline` and the claim proceeded anyway. [plan](./t1-e3.22-manual-claim-baseline-backlog.md)
 - 🟢 **LATER** · `T1-E2.10` — The counter contract's two seams (the level rule is saturated as written; the ownership invariant has no machine failure signal). Both readings are recorded; parked rather than fixed so they are not re-litigated. [plan](./t1-e2.10-counter-contract-seams-backlog.md)
+- 🟢 **LATER** · `T1-E5.03` — No quantitative read-cost lever remains on the plan record: `T1-E3.23` landed four structural record rules but dropped the scoped cell-length cap as unverifiable prose, so record-cell **size** is unmeasured. Parked at the `T1-E3.23` wrap-up (Phase 7 `P8`). [plan](./t1-e5.03-plan-record-size-lever-backlog.md)
+- 🟢 **LATER** · `T2-E2.04` — KC's machinery boundary contradicts its own Parcel Pipeline section: `18-knowledge-capture.md:26` says machinery lessons go to `process-lessons.md` and "never into `.wiki/`", while `:62-68` carries live machinery rules. Parked (**pre-existing**) at the `T1-E3.23` wrap-up. [plan](./t2-e2.04-kc-machinery-boundary-backlog.md)
+- ⚪ **PARKED** · maintenance — `process-lessons.md` **fold pass (next queue)**: the register landed at **25** at the `T1-E3.23` wrap-up (31 → 25); the remaining candidates fold at the next sprint close (`@sprint-close` § 5 owns the trigger). No plan file — a maintenance obligation, not a parcel.
 
 > Sprint 12 `satellite-hygiene` took the 2026-09-25 intake on 2026-09-26 (3 plans / 5 pts) and **closed 2026-09-27 with 3/3 delivered** — [sprint record](../archive/sprints/sprint-12-satellite-hygiene/sprint.md), [retro](../archive/sprints/sprint-12-satellite-hygiene/sprint.md#retro), [business report](../archive/sprints/sprint-12-satellite-hygiene/business-report.md), [user testing 3/3 pass](../archive/sprints/sprint-12-satellite-hygiene/user-testing.md). No active sprint; `@sprint-plan` opens Sprint 13. The two LATER rows above were parked by the `T1-E2.09` wrap-up.
 
@@ -32,8 +35,8 @@ Tiers: 🔴 NOW · 🟡 NEXT · 🟢 LATER · ⚪ PARKED · ❄️ DEFERRED. Ord
 
 | Theme | Name | Register |
 |-------|------|----------|
-| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E5 (latest: **T1-E3.22** The manual claim path has no enumerated green baseline) |
-| T2 | Wiki System & Knowledge Layer | [t2-wiki-system-backlog.md](./t2-wiki-system-backlog.md) |
+| T1 | Parcel Pipeline Machinery | [t1-parcel-pipeline-machinery-backlog.md](./t1-parcel-pipeline-machinery-backlog.md) — epics E1–E5 (latest: **T1-E5.03** No quantitative read-cost lever remains on the plan record) |
+| T2 | Wiki System & Knowledge Layer | [t2-wiki-system-backlog.md](./t2-wiki-system-backlog.md) — epics E1–E2 (latest: **T2-E2.04** KC's machinery boundary contradicts its own Parcel Pipeline section) |
 | T3 | Template Distribution & Onboarding | [t3-template-distribution-backlog.md](./t3-template-distribution-backlog.md) |
 
 A theme register (`t{n}-<slug>-backlog.md`, front-matter `type: theme`) is the stable home for that theme's epics and features, both open and completed. The register is created when a new theme is first needed.

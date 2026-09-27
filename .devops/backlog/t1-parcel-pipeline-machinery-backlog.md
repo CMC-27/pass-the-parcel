@@ -95,6 +95,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
 | — | — | *(the deferred halves live in the Triage Panel as `T1-E2.06` and in `MATURITY.md` Axis 7's Next lever)* | W3 (changelog length cap) and W4 (a deletion-first lifecycle hook) were deferred by operator decision; a recurring Axis 7 re-derivation job is the axis's own next lever | — |
+| — | `process-lessons.md` fold pass (next queue) | — | The register landed at **25** at the `T1-E3.23` wrap-up (31 → 25, six folded or deleted). The remaining candidates have no owning home that parcel edited — fold them at the next sprint close; `@sprint-close` § 5 already owns the trigger. | — |
 
 ### Completed
 
@@ -111,7 +112,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| — | — | — | *(empty — every E5 item is delivered)* | — |
+| T1-E5.03 | No quantitative read-cost lever remains on the plan record | QUEUED | `T1-E3.23` landed four structural record rules (duplication bounded) but dropped the scoped cell-length cap as unverifiable prose, leaving record-cell **size** unmeasured. Parked at the `T1-E3.23` wrap-up (its Phase 7 `P8`). | [plan](./t1-e5.03-plan-record-size-lever-backlog.md) |
 
 ### Completed
 
