@@ -97,8 +97,12 @@ param(
 
     -SelfTest runs an end-to-end smoke test against a throwaway temp target: materialises
     the full portable surface, asserts every manifest dir/skill/file landed with matching
-    content hashes and the target manifest version was stamped, then cleans up. Exit 0 =
-    engine healthy. Use after editing this script or the manifest (CI runs it on every push).
+    content hashes and the target manifest version was stamped, then cleans up. Every child
+    invocation it JUDGES goes through one process-level capture helper, so a non-zero child exit
+    is echoed as `SELFTEST child failed:` carrying the child command, its exit code, its stdout
+    and its stderr - never converted into a bare assertion about behaviour the harness never
+    observed. Exit 0 = engine healthy. Use after editing this script or the manifest (CI runs
+    it on every push).
 
     -Verify runs the verification stack against an already-materialised target WITHOUT
     copying anything: structural checks of the satellite-authored surface (AGENTS.md
@@ -112,7 +116,12 @@ param(
     rows, to REMOVE model bindings (registry row shape, agent frontmatter `model:` lines and
     agent.<key>.model members), to MIGRATE the `skills` key to the V2-native flat array and to
     DELETE the config member V2 accepts but does not load. Every one of those edits is
-    step-local: a candidate is re-parsed and DISCARDED if it would not load, and a `skills`
+    step-local: a candidate is accepted only when BOTH the host's parse and a host-monotone
+    shape scan accept it - a comma left dangling before a closing brace or bracket, or braces
+    or brackets that do not balance, is rejected identically on every host - and is DISCARDED
+    otherwise. The verdict therefore no longer depends on which host's parser runs, and a
+    candidate a strict consumer would refuse can no longer be shipped by a lenient one. A
+    `skills`
     shape the migration cannot rewrite without destroying a declaration the satellite authored
     is refused and reported with a printed remedy - the file's other formatting is always left
     as authored, never copied wholesale and never re-serialised. After the
@@ -165,6 +174,92 @@ if ($SelfTest) {
         # Accumulate fixture findings from the very start so the F8/F9 assertions below
         # survive into the final $fail check (the later `$fail = @()` is intentionally gone).
         $fail = @()
+
+        function Invoke-CapturedChild {
+            # Runs the engine as a child process and returns its exit code and BOTH streams,
+            # captured at the PROCESS level - a native command's stderr is not reliably
+            # catchable under $ErrorActionPreference = 'Stop' (process-lessons [2026-09-25]),
+            # which is why a bare `2>&1 | Out-String` is a false-pass hazard. On a non-zero
+            # exit the record also carries a `Diagnostic` block naming the child command, its
+            # exit code, its stdout and its stderr; unless the caller declared the failure with
+            # -AllowNonZero, that block is EMITTED and one $fail is appended - so no assertion
+            # about target behaviour is ever derived from a child the harness did not hear
+            # from (T1-E2.11, F3). Defined at the TOP of the body, not beside Assert-Mirror:
+            # the F8/F9 fixture below launches a child before Assert-Mirror is defined.
+            # ponytail: two temp files per judged invocation (~29 per run) - the file's own
+            # corrected single-fixture pattern, generalised; upgrade path is one temp dir per
+            # run, or named pipes.
+            param([string[]]$Arguments, [switch]$AllowNonZero)
+            $cccOut = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-child-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".out")
+            $cccErr = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-child-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".err")
+            $cccProc = Start-Process -FilePath $shellExe -ArgumentList $Arguments -NoNewWindow -Wait -PassThru -RedirectStandardOutput $cccOut -RedirectStandardError $cccErr
+            $cccSo = [System.IO.File]::ReadAllText($cccOut)
+            $cccSe = [System.IO.File]::ReadAllText($cccErr)
+            Remove-Item $cccOut, $cccErr -Force -ErrorAction SilentlyContinue
+            $cccCmd = ('& ' + $shellExe + ' ' + ($Arguments -join ' '))
+            $cccRec = @{ Command = $cccCmd; ExitCode = $cccProc.ExitCode; Stdout = $cccSo; Stderr = $cccSe; Combined = ($cccSo + "`n" + $cccSe) }
+            if ($cccProc.ExitCode -ne 0) {
+                $cccRec.Diagnostic = ("SELFTEST child failed: {0}`n  exit code: {1}`n  stdout: {2}`n  stderr: {3}" -f $cccCmd, $cccProc.ExitCode, $cccSo, $cccSe)
+                if (-not $AllowNonZero) {
+                    Write-Host $cccRec.Diagnostic
+                    $script:fail += "SELFTEST child failed: $cccCmd (exit $($cccProc.ExitCode)) - its stdout/stderr are captured above; no behaviour assertion was made"
+                }
+            }
+            return $cccRec
+        }
+
+        # --- F3 self-check: no direct child launch may sit outside Invoke-CapturedChild ------
+        # Written and RUN before the call-site migration: its failing run against the
+        # un-migrated body is the recorded pre-fix observation (C-R2-2), not a prediction.
+        # It reads this file's own text, locates the helper's definition span BY NAME with the
+        # reused Find-MatchingBrace, and fails if either launch literal occurs outside that
+        # span. It FAILS CLOSED: an unlocatable or unbalanced span is a failure, never a skip.
+        # The span is also BOUNDED - exactly one `function ` declaration inside it - because
+        # Find-MatchingBrace is a JSON-oriented matcher (double-quote/backslash aware only,
+        # blind to PowerShell single-quoted strings and `#` comments): an inflated-but-valid
+        # span would swallow the very launches this check exists to find and pass vacuously
+        # (C-R3-1). The needles are assembled from fragments so this text cannot self-match.
+        $scNeedleA = '& ' + '$shell' + 'Exe'
+        $scNeedleB = 'Start-' + 'Process'
+        $scText = [System.IO.File]::ReadAllText($PSCommandPath)
+        $scHm = [regex]::Match($scText, 'function\s+Invoke-CapturedChild\b')
+        $scHOpen = if ($scHm.Success) { $scText.IndexOf('{', $scHm.Index) } else { -1 }
+        $scHClose = if ($scHOpen -ge 0) { Find-MatchingBrace $scText $scHOpen } else { -1 }
+        if (-not $scHm.Success -or $scHOpen -lt 0 -or $scHClose -lt 0) {
+            $fail += "selftest F3: Invoke-CapturedChild's definition span is not locatable in $PSCommandPath - the self-check failed closed"
+        } else {
+            $scSpan = $scText.Substring($scHm.Index, $scHClose - $scHm.Index + 1)
+            $scOutside = $scText.Substring(0, $scHm.Index) + $scText.Substring($scHClose + 1)
+            $scFnCount = ([regex]::Matches($scSpan, '\bfunction\s')).Count
+            if ($scFnCount -ne 1) {
+                $fail += "selftest F3: the located Invoke-CapturedChild span is not exact (it holds $scFnCount function declarations) - the self-check failed closed"
+            } else {
+                if ($scOutside.Contains($scNeedleA)) { $fail += "selftest F3: a direct child launch ('$scNeedleA') sits outside Invoke-CapturedChild" }
+                if ($scOutside.Contains($scNeedleB)) { $fail += "selftest F3: a direct child launch ('$scNeedleB') sits outside Invoke-CapturedChild" }
+            }
+        }
+
+        # --- F3 fixture: a failed child is reported as a child failure, never as an assertion -
+        # Induces a deterministic child failure - the engine refuses a target that does not
+        # exist - and asserts the diagnostic the helper builds: the literal
+        # `SELFTEST child failed:` carrying the child command, its exit code, its stdout and
+        # its stderr. The induction is deliberate, so -AllowNonZero suppresses the finding the
+        # helper would otherwise raise; the asserted text is the same block the helper emits
+        # on an UNexpected failure.
+        $cdArgs = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', (Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-absent-" + [guid]::NewGuid().ToString('N').Substring(0, 8))), '-Check')
+        $cdRec = Invoke-CapturedChild -Arguments $cdArgs -AllowNonZero
+        if ($cdRec.ExitCode -eq 0) {
+            $fail += "selftest F3: a child pointed at a nonexistent target exited 0 - the induction is not a failure"
+        } else {
+            $cdDiag = [string]$cdRec.Diagnostic
+            if ($cdDiag -notmatch 'SELFTEST child failed:') { $fail += "selftest F3: the failed child produced no 'SELFTEST child failed:' diagnostic" }
+            if (-not $cdDiag.Contains($cdRec.Command)) { $fail += "selftest F3: the child diagnostic does not name the child command" }
+            if ($cdDiag -notmatch [regex]::Escape("exit code: $($cdRec.ExitCode)")) { $fail += "selftest F3: the child diagnostic does not carry the child's exit code" }
+            if ($cdDiag -notmatch 'stdout:') { $fail += "selftest F3: the child diagnostic carries no stdout field" }
+            if ($cdDiag -notmatch 'stderr:') { $fail += "selftest F3: the child diagnostic carries no stderr field" }
+            if ($cdRec.Stderr.Length -eq 0) { $fail += "selftest F3: the induced child failure wrote nothing to stderr - the capture is not wired" }
+            if (-not $cdDiag.Contains($cdRec.Stderr)) { $fail += "selftest F3: the child diagnostic does not carry the child's stderr" }
+        }
         # --- F8/F9 fixture: a satellite-shaped target BEFORE the first sync -----------------
         # F8: simulate a satellite bootstrapped before a registry key existed - plant the seed
         #     config minus one registry key, sync, then assert the sync inserts it whole.
@@ -188,8 +283,8 @@ if ($SelfTest) {
         } else {
             Write-Output "SELFTEST fixture: skipped (source Model Registry empty)"
         }
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
-        if ($LASTEXITCODE -ne 0) { throw "selftest: sync run failed (exit $LASTEXITCODE)" }
+        $stSync1 = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+        if ($stSync1.ExitCode -ne 0) { throw "selftest: sync run failed (exit $($stSync1.ExitCode))" }
         # --- F8 assertions: inserted key present with NO model, sibling untouched, idempotent
         if ($stPick) {
             $stOcPath = Join-Path $tmp 'opencode.json'
@@ -215,8 +310,8 @@ if ($SelfTest) {
                     if ($stKeepBefore -ne $stKeepAfter) { $fail += "selftest F8: existing entry '$stKeep' was restructured by sync" }
                 }
                 $stHash1 = (Get-FileHash $stOcPath -Algorithm SHA256).Hash
-                & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-                if ($LASTEXITCODE -ne 0) { throw "selftest F8: idempotence re-sync failed (exit $LASTEXITCODE)" }
+                $stSync2 = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+                if ($stSync2.ExitCode -ne 0) { throw "selftest F8: idempotence re-sync failed (exit $($stSync2.ExitCode))" }
                 $stHash2 = (Get-FileHash $stOcPath -Algorithm SHA256).Hash
                 if ($stHash1 -ne $stHash2) { $fail += "selftest F8: second sync changed opencode.json (insert is not idempotent)" }
             }
@@ -251,7 +346,7 @@ if ($SelfTest) {
             if (($sh -join '|') -ne ($th -join '|')) { $script:fail += "file set differs: $Rel" }
         }
         foreach ($d in $stDirs) { Assert-Mirror $d }
-        foreach ($s in $stSkills) { Assert-Mirror ".devops\skills\$s" }
+        foreach ($s in $stSkills) { Assert-Mirror ".devops/skills/$s" }
         foreach ($f in $stFiles) { Assert-Mirror $f }
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
         $nested = Get-ChildItem -Force $tmp -Recurse -Directory | Where-Object { $_.FullName.Replace('\','/') -match '/(\.wiki|\.devops)/\1|/skills/([^/]+)/\2' }
@@ -297,12 +392,13 @@ if ($SelfTest) {
             $stale = Join-Path $tmp $stPrune[0]
             New-Item -ItemType Directory -Force -Path (Split-Path $stale) | Out-Null
             Set-Content -Path $stale -Value "stale" -NoNewline
-            $stOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-            if ($LASTEXITCODE -eq 0) { $fail += "-Check reported IN SYNC with a prune file present (exit 0)" }
+            $stOutRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+            $stOut = $stOutRec.Combined
+            if ($stOutRec.ExitCode -eq 0) { $fail += "-Check reported IN SYNC with a prune file present (exit 0)" }
             if (-not ($stOut -match 'PRUNE')) { $fail += "-Check did not report a PRUNE verdict for $($stPrune[0])" }
             if ($stOut -match 'DRIFT') { $fail += "-Check reported DRIFT (not PRUNE) for a retired file inside a portable dir" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
-            if ($LASTEXITCODE -ne 0) { throw "selftest: prune re-sync failed (exit $LASTEXITCODE)" }
+            $stPruneSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($stPruneSync.ExitCode -ne 0) { throw "selftest: prune re-sync failed (exit $($stPruneSync.ExitCode))" }
             if (Test-Path $stale) { $fail += "prune failed: $($stPrune[0]) still present after re-sync" }
         }
         # Prune-DIRECTORY test: a retired skill folder is invisible to the derived portable
@@ -314,11 +410,12 @@ if ($SelfTest) {
             $staleDir = Join-Path $tmp $stPruneDirs[0]
             New-Item -ItemType Directory -Force -Path $staleDir | Out-Null
             Set-Content -Path (Join-Path $staleDir 'SKILL.md') -Value "stale" -NoNewline
-            $stOutDir = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-            if ($LASTEXITCODE -eq 0) { $fail += "-Check reported IN SYNC with a prune directory present (exit 0)" }
+            $stOutDirRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+            $stOutDir = $stOutDirRec.Combined
+            if ($stOutDirRec.ExitCode -eq 0) { $fail += "-Check reported IN SYNC with a prune directory present (exit 0)" }
             if (-not ($stOutDir -match 'PRUNE')) { $fail += "-Check did not report a PRUNE verdict for $($stPruneDirs[0])" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify
-            if ($LASTEXITCODE -ne 0) { throw "selftest: prune-dir re-sync failed (exit $LASTEXITCODE)" }
+            $stPruneDirSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($stPruneDirSync.ExitCode -ne 0) { throw "selftest: prune-dir re-sync failed (exit $($stPruneDirSync.ExitCode))" }
             if (Test-Path $staleDir) { $fail += "prune_dirs failed: $($stPruneDirs[0]) still present after re-sync" }
         }
         # --- T1-E2.07 fixture: retirement transport (registry prune + skill prune mask + structural task stamp)
@@ -360,13 +457,14 @@ if ($SelfTest) {
                 Write-Output "SELFTEST fixture: parcel-sprint task allow-list aged (wiki-writer removed)"
             }
         }
-        $stOutRt = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.07: -Check reported IN SYNC with retirement states planted (exit 0)" }
+        $stOutRtRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+        $stOutRt = $stOutRtRec.Combined
+        if ($stOutRtRec.ExitCode -eq 0) { $fail += "selftest T1-E2.07: -Check reported IN SYNC with retirement states planted (exit 0)" }
         if (-not ($stOutRt -match 'PRUNE')) { $fail += "selftest T1-E2.07: -Check did not report PRUNE for the stale skill-internal file" }
         if ($stOutRt -match 'DRIFT') { $fail += "selftest T1-E2.07: -Check reported DRIFT instead of PRUNE for a retired skill-internal file" }
         if (-not ($stOutRt -match 'skill\s+wiki-bootstrap\s+CURRENT')) { $fail += "selftest T1-E2.07: wiki-bootstrap skill did not report CURRENT beside its PRUNE" }
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E2.07: convergence re-sync failed (exit $LASTEXITCODE)" }
+        $stRtSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+        if ($stRtSync.ExitCode -ne 0) { throw "selftest T1-E2.07: convergence re-sync failed (exit $($stRtSync.ExitCode))" }
         if ([System.IO.File]::ReadAllText($rtBc) -match '\| parcel-fast \|') { $fail += "selftest T1-E2.07: orphan registry row survived the sync (F1 delete pass failed)" }
         if (Test-Path $rtStaleSkill) { $fail += "selftest T1-E2.07: stale skill-internal file survived the sync (F2 prune failed)" }
         $rtOcAfter = [System.IO.File]::ReadAllText($rtOcPath)
@@ -377,16 +475,16 @@ if ($SelfTest) {
         }
         try { $null = $rtOcAfter | ConvertFrom-Json } catch { $fail += "selftest T1-E2.07: target opencode.json invalid after structural stamp" }
         $rtHash1 = @((Get-FileHash $rtBc -Algorithm SHA256).Hash, (Get-FileHash $rtOcPath -Algorithm SHA256).Hash)
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E2.07: idempotence re-sync failed (exit $LASTEXITCODE)" }
+        $rtSync2 = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+        if ($rtSync2.ExitCode -ne 0) { throw "selftest T1-E2.07: idempotence re-sync failed (exit $($rtSync2.ExitCode))" }
         $rtHash2 = @((Get-FileHash $rtBc -Algorithm SHA256).Hash, (Get-FileHash $rtOcPath -Algorithm SHA256).Hash)
         if (($rtHash1 -join '|') -ne ($rtHash2 -join '|')) { $fail += "selftest T1-E2.07: second sync moved base-context.md or opencode.json (retirement transport not idempotent)" }
         # End-to-end -Check gate: immediately after a successful sync the target must
         # report IN SYNC (manifest stamped, prefix-locked agents excluded from the hash).
         # This guards both post-sync bookkeeping bugs: the phantom UPGRADE from an
         # unstamped manifest and the eternal agents DRIFT from the regenerated prefix.
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
-        if ($LASTEXITCODE -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
+        $stE2eCheck = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check')
+        if ($stE2eCheck.ExitCode -ne 0) { $fail += "-Check reported OUT OF SYNC immediately after a successful sync" }
         # --- T1-E2.08 fixture: the ordering-aware counter (behind / ahead / shape crossing) ---
         # Plant an AHEAD value in the target manifest and assert three things: -Check reports
         # AHEAD (never UPGRADE), -Check exits non-zero, and a SYNC halts BEFORE writing so the
@@ -399,22 +497,24 @@ if ($SelfTest) {
         $mvTgtPath = Join-Path $tmp '.devops/sync-manifest.yaml'
         [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvAhead"))
         Write-Output "SELFTEST fixture T1-E2.08: target counter planted AHEAD ($mvSrc -> $mvAhead)"
-        $mvOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a target-ahead counter (exit 0)" }
+        $mvOutRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+        $mvOut = $mvOutRec.Combined
+        if ($mvOutRec.ExitCode -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a target-ahead counter (exit 0)" }
         if (-not ($mvOut -match 'AHEAD')) { $fail += "selftest T1-E2.08: -Check did not report AHEAD for a target-ahead counter" }
         if ($mvOut -match 'meta\s+machinery-version\s+UPGRADE') { $fail += "selftest T1-E2.08: -Check mislabelled a target-ahead counter as UPGRADE" }
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: sync proceeded against a target-ahead counter (no halt)" }
+        $mvHalt = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify') -AllowNonZero
+        if ($mvHalt.ExitCode -eq 0) { $fail += "selftest T1-E2.08: sync proceeded against a target-ahead counter (no halt)" }
         $mvAfterAhead = [regex]::Match([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*(\d+(?:\.\d+)*)').Groups[1].Value
         if ($mvAfterAhead -ne $mvAhead) { $fail += "selftest T1-E2.08: sync rewound an ahead counter ($mvAhead -> $mvAfterAhead)" }
         [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvShape"))
         Write-Output "SELFTEST fixture T1-E2.08: target counter planted shape-crossed ($mvShape vs source $mvSrc)"
-        $mvOut2 = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-        if ($LASTEXITCODE -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a shape-crossed counter (exit 0)" }
+        $mvOut2Rec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+        $mvOut2 = $mvOut2Rec.Combined
+        if ($mvOut2Rec.ExitCode -eq 0) { $fail += "selftest T1-E2.08: -Check reported IN SYNC with a shape-crossed counter (exit 0)" }
         if (-not ($mvOut2 -match 'MIGRATION')) { $fail += "selftest T1-E2.08: -Check did not report MIGRATION for a shape-crossed counter" }
         [System.IO.File]::WriteAllText($mvTgtPath, [regex]::Replace([System.IO.File]::ReadAllText($mvTgtPath), '(?m)^machinery-version:\s*\d+(?:\.\d+)*', "machinery-version: $mvSrc"))
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
-        if ($LASTEXITCODE -ne 0) { $fail += "selftest T1-E2.08: -Check not IN SYNC after restoring the counter to the source value" }
+        $mvRestored = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check')
+        if ($mvRestored.ExitCode -ne 0) { $fail += "selftest T1-E2.08: -Check not IN SYNC after restoring the counter to the source value" }
         # Claims checker smoke: the ported script must execute in a satellite against
         # the synced .wiki/rules corpus and report clean (imports wiki_lint, same dir).
         if (Test-Path (Join-Path $tmp 'scripts/wiki_claims.py')) {
@@ -458,38 +558,41 @@ if ($SelfTest) {
             # them; the CORE set survives and -Check is then IN SYNC with no MISSING at all.
             Set-FixtureProfile 'CORE'
             Write-Output "SELFTEST fixture T3-E1.04: target profile set to CORE (full-only probe '$stProbe')"
-            $stCoreOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-            if ($LASTEXITCODE -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with tiered-out skills present (exit 0)" }
+            $stCoreOutRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+            $stCoreOut = $stCoreOutRec.Combined
+            if ($stCoreOutRec.ExitCode -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with tiered-out skills present (exit 0)" }
             if (-not ($stCoreOut -match 'PRUNE')) { $fail += "T3-E1.04: -Check did not report PRUNE for a present tiered-out skill" }
             if ($stCoreOut -match 'MISSING') { $fail += "T3-E1.04: -Check reported MISSING under a CORE profile" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: CORE sync failed (exit $LASTEXITCODE)" }
+            $stCoreSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($stCoreSync.ExitCode -ne 0) { throw "selftest T3-E1.04: CORE sync failed (exit $($stCoreSync.ExitCode))" }
             foreach ($slug in $stFullOnly) {
                 if (Test-Path (Join-Path $tmp ".devops/skills/$slug")) { $fail += "T3-E1.04: tiered-out skill '$slug' survived the CORE sync"; break }
             }
             foreach ($slug in $stCore) {
                 if (-not (Test-Path (Join-Path $tmp ".devops/skills/$slug"))) { $fail += "T3-E1.04: CORE skill '$slug' was pruned by the tier switch"; break }
             }
-            $stCoreCheck = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC for a settled CORE target" }
+            $stCoreCheckRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check')
+            $stCoreCheck = $stCoreCheckRec.Combined
+            if ($stCoreCheckRec.ExitCode -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC for a settled CORE target" }
             if ($stCoreCheck -match 'MISSING') { $fail += "T3-E1.04: an un-installed tiered-out skill was reported MISSING (it must not be compared at all)" }
             if ($stCoreCheck -match [regex]::Escape($stProbe)) { $fail += "T3-E1.04: -Check named the tiered-out skill '$stProbe'" }
             # (iv) a tiered-out skill PRESENT in a CORE target: PRUNE, then deleted by a sync.
             $stStaleSkill = Join-Path $tmp ".devops/skills/$stProbe"
             New-Item -ItemType Directory -Force -Path $stStaleSkill | Out-Null
             Set-Content -Path (Join-Path $stStaleSkill 'SKILL.md') -Value "stale" -NoNewline
-            $stPruneOut = @(& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check)
-            if ($LASTEXITCODE -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with a tiered-out skill present (exit 0)" }
+            $stPruneOutRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+            $stPruneOut = $stPruneOutRec.Combined
+            if ($stPruneOutRec.ExitCode -eq 0) { $fail += "T3-E1.04: -Check reported IN SYNC with a tiered-out skill present (exit 0)" }
             if (-not ($stPruneOut -match 'PRUNE')) { $fail += "T3-E1.04: -Check did not report PRUNE for a tiered-out skill present in a CORE target" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: tier prune re-sync failed (exit $LASTEXITCODE)" }
+            $stTierPruneSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($stTierPruneSync.ExitCode -ne 0) { throw "selftest T3-E1.04: tier prune re-sync failed (exit $($stTierPruneSync.ExitCode))" }
             if (Test-Path $stStaleSkill) { $fail += "T3-E1.04: the tiered-out skill survived the sync (tier prune failed)" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
-            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the tier prune" }
+            $stTierCheck = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check')
+            if ($stTierCheck.ExitCode -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the tier prune" }
             # (v) CORE -> FULL is purely additive: the tiered-out skill comes back, byte-identical.
             Set-FixtureProfile 'FULL'
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw "selftest T3-E1.04: FULL restore sync failed (exit $LASTEXITCODE)" }
+            $stFullSync = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($stFullSync.ExitCode -ne 0) { throw "selftest T3-E1.04: FULL restore sync failed (exit $($stFullSync.ExitCode))" }
             $stProbeFile = Join-Path $stStaleSkill 'SKILL.md'
             if (-not (Test-Path $stProbeFile)) {
                 $fail += "T3-E1.04: declaring FULL did not re-materialise the tiered-out skill (not additive)"
@@ -498,30 +601,24 @@ if ($SelfTest) {
                 $hTgt = (Get-FileHash $stProbeFile -Algorithm SHA256).Hash
                 if ($hSrc -ne $hTgt) { $fail += "T3-E1.04: the restored skill '$stProbe' differs from its source (restore is not a clean copy)" }
             }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Check | Out-Null
-            if ($LASTEXITCODE -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the FULL restore" }
+            $stFullCheck = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check')
+            if ($stFullCheck.ExitCode -ne 0) { $fail += "T3-E1.04: -Check not IN SYNC after the FULL restore" }
             # (vi) an unknown profile HALTS loudly, naming the value, and exits non-zero. The
-            # child's streams are redirected at the PROCESS level: a native command's stderr
-            # routed through PowerShell's error stream is not reliably catchable under
-            # $ErrorActionPreference = 'Stop', and this fixture must assert the halt, not
-            # swallow it.
+            # child's streams are captured at the PROCESS level by Invoke-CapturedChild: a
+            # native command's stderr routed through PowerShell's error stream is not reliably
+            # catchable under $ErrorActionPreference = 'Stop', and this fixture must assert the
+            # halt, not swallow it.
             Set-FixtureProfile 'BOGUS'
-            $stBogusOutFile = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".out")
-            $stBogusErrFile = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".err")
-            $stBogusProc = Start-Process -FilePath $shellExe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stBogusOutFile -RedirectStandardError $stBogusErrFile
-            $stBogusMsg = ([System.IO.File]::ReadAllText($stBogusOutFile) + "`n" + [System.IO.File]::ReadAllText($stBogusErrFile))
-            Remove-Item $stBogusOutFile, $stBogusErrFile -Force -ErrorAction SilentlyContinue
-            if ($stBogusProc.ExitCode -eq 0) { $fail += "T3-E1.04: -Check accepted an unknown profile value (exit 0)" }
+            $stBogusRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Check') -AllowNonZero
+            $stBogusMsg = $stBogusRec.Combined
+            if ($stBogusRec.ExitCode -eq 0) { $fail += "T3-E1.04: -Check accepted an unknown profile value (exit 0)" }
             if ($stBogusMsg -notmatch 'unknown profile') { $fail += "T3-E1.04: the unknown-profile halt did not carry the engine's message (got: $stBogusMsg)" }
             if ($stBogusMsg -notmatch 'BOGUS') { $fail += "T3-E1.04: the unknown-profile halt did not name the value" }
             # ...and the SYNC path halts too, before writing anything (the tier resolves ahead of
             # the copy loops), so a bad declaration can never half-install a surface.
             $stSkillsBefore = (Get-ChildItem (Join-Path $tmp '.devops/skills') -Directory).Count
-            $stBogusSyncOut = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".sout")
-            $stBogusSyncErr = Join-Path ([System.IO.Path]::GetTempPath()) ("ptp-t3e104-" + [guid]::NewGuid().ToString('N').Substring(0, 8) + ".serr")
-            $stBogusSync = Start-Process -FilePath $shellExe -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify') -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stBogusSyncOut -RedirectStandardError $stBogusSyncErr
-            Remove-Item $stBogusSyncOut, $stBogusSyncErr -Force -ErrorAction SilentlyContinue
-            if ($stBogusSync.ExitCode -eq 0) { $fail += "T3-E1.04: the sync path accepted an unknown profile value (exit 0)" }
+            $stBogusSyncRec = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify') -AllowNonZero
+            if ($stBogusSyncRec.ExitCode -eq 0) { $fail += "T3-E1.04: the sync path accepted an unknown profile value (exit 0)" }
             $stSkillsAfter = (Get-ChildItem (Join-Path $tmp '.devops/skills') -Directory).Count
             if ($stSkillsAfter -ne $stSkillsBefore) { $fail += "T3-E1.04: the unknown-profile sync wrote to the target ($stSkillsBefore -> $stSkillsAfter skills)" }
             Set-FixtureProfile 'FULL'
@@ -538,8 +635,16 @@ if ($SelfTest) {
         $oc15SeedText = ([System.IO.File]::ReadAllText($oc15SeedPath)) -replace "`r`n", "`n"
         $oc15Key = ($stSrcRegistry.Keys | Sort-Object)[-1]
         $mpPlanted = $oc15SeedText.Replace('  "skills": [".devops/skills"],', '  "skills": { "paths": ["custom/skills", ".devops/skills"] },')
-        $mpPlanted = $mpPlanted.Replace('  "$schema":', '  "instructions": ["AGENTS.md"],' + "`n" + '  "$schema":')
+        # The planted value carries the candidate-verdict scan's FALSE-POSITIVE control (C-R3-2):
+        # a comma immediately before a closing brace INSIDE a string literal, plus an escaped
+        # quote. A scan that is not string-aware flags the first; one that is quote-aware but not
+        # escape-aware ends the string early and flags the second. Both must read VALID, or the
+        # fix's "must never reject valid JSON" clause ships with no permanent owner. The anchor
+        # is THIS text, read BEFORE the sync child below: the member carrying it is the member
+        # the migration deletes, so an assertion read off the post-sync file would pass vacuously.
+        $mpPlanted = $mpPlanted.Replace('  "$schema":', '  "instructions": ["AGENTS.md", "a,}", "a\"b"],' + "`n" + '  "$schema":')
         if ($mpPlanted -notmatch '"instructions"\s*:') { $fail += "selftest T1-E1.05: migration plant carries no config member to delete" }
+        if (-not (Test-JsonShape $mpPlanted)) { $fail += "selftest T1-E1.05: the candidate-verdict scan rejected a VALID config (false positive on a comma/brace inside a string, or on an escaped quote)" }
         $mpPre = $null; try { $mpPre = $mpPlanted | ConvertFrom-Json } catch { $mpPre = $null }
         if (-not $mpPre -or -not $mpPre.skills.paths) { $fail += "selftest T1-E1.05: migration plant pre-state invalid ('skills' is not the V1 object)" }
         Write-Output "SELFTEST fixture T1-E1.05: migration plant planted (V1 skills object + the ignored config member)"
@@ -547,8 +652,8 @@ if ($SelfTest) {
         $mpAgentM = [regex]::Match($mpPlanted, '"agent"\s*:\s*\{'); $mpAgentOpen = $mpPlanted.IndexOf('{', $mpAgentM.Index); $mpAgentClose = Find-MatchingBrace $mpPlanted $mpAgentOpen
         $mpAgentBefore = $mpPlanted.Substring($mpAgentOpen, $mpAgentClose - $mpAgentOpen + 1)
         $mpHash1 = (Get-FileHash $oc15OcPath -Algorithm SHA256).Hash
-        & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "selftest T1-E1.05: migration-plant sync failed (exit $LASTEXITCODE)" }
+        $mpSync1 = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+        if ($mpSync1.ExitCode -ne 0) { throw "selftest T1-E1.05: migration-plant sync failed (exit $($mpSync1.ExitCode))" }
         $mpAfter = [System.IO.File]::ReadAllText($oc15OcPath)
         $mpJson = $null; try { $mpJson = $mpAfter | ConvertFrom-Json } catch { $mpJson = $null }
         if (-not $mpJson) {
@@ -561,8 +666,8 @@ if ($SelfTest) {
             if ($mpAgentBefore -ne $mpAfter.Substring($mpAgentOpen2, $mpAgentClose2 - $mpAgentOpen2 + 1)) { $fail += "selftest T1-E1.05: migration plant restructured the agent block" }
             $mpHash2 = (Get-FileHash $oc15OcPath -Algorithm SHA256).Hash
             if ($mpHash2 -eq $mpHash1) { $fail += "selftest T1-E1.05: the migration alone did not trigger the write (hash unchanged)" }
-            & $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify | Out-Null
-            if ($LASTEXITCODE -ne 0) { throw "selftest T1-E1.05: migration-plant idempotence re-sync failed (exit $LASTEXITCODE)" }
+            $mpSync2 = Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')
+            if ($mpSync2.ExitCode -ne 0) { throw "selftest T1-E1.05: migration-plant idempotence re-sync failed (exit $($mpSync2.ExitCode))" }
             if ((Get-FileHash $oc15OcPath -Algorithm SHA256).Hash -ne $mpHash2) { $fail += "selftest T1-E1.05: a second sync moved the migrated opencode.json (not idempotent)" }
         }
         # (2) unsafe-rewrite plant: the removed member is the LAST root member, so the line-level
@@ -582,7 +687,8 @@ if ($SelfTest) {
         $urSkM = [regex]::Match($urPlanted, '"skills"\s*:\s*\{'); $urSkOpen = $urPlanted.IndexOf('{', $urSkM.Index); $urSkClose = Find-MatchingBrace $urPlanted $urSkOpen
         $urSkillsBefore = $urPlanted.Substring($urSkOpen, $urSkClose - $urSkOpen + 1)
         $urInstrBefore = [regex]::Match($urPlanted, '(?m)^[ \t]*"instructions"\s*:.*$').Value
-        $urOut = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify 2>&1 | Out-String)
+        # Combined stdout+stderr, exactly as the old `2>&1 | Out-String` capture was (CONCERN-2).
+        $urOut = (Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')).Combined
         if ($urOut -notmatch 'would break the JSON - reverted') { $fail += "selftest T1-E1.05: unsafe plant did not print the revert line" }
         $urAfter = [System.IO.File]::ReadAllText($oc15OcPath)
         $urJson = $null; try { $urJson = $urAfter | ConvertFrom-Json } catch { $urJson = $null }
@@ -591,7 +697,9 @@ if ($SelfTest) {
         if ($urSkillsBefore -ne $urAfter.Substring($urSkOpen2, $urSkClose2 - $urSkOpen2 + 1)) { $fail += "selftest T1-E1.05: unsafe plant rewrote the legacy 'skills' object (the revert was not step-local)" }
         if ([regex]::Match($urAfter, '(?m)^[ \t]*"instructions"\s*:.*$').Value -ne $urInstrBefore) { $fail += "selftest T1-E1.05: unsafe plant deleted the member despite the revert" }
         if ($urJson -and -not $urJson.agent.PSObject.Properties[$oc15Key]) { $fail += "selftest T1-E1.05: unsafe plant's omitted registry key was not inserted (reconciliation was not step-local)" }
-        $urV = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -Verify 2>&1 | Out-String)
+        # `-Verify` exits non-zero here by design (the legacy object survives), so the failure
+        # is declared; the assertions below read the combined stream (CONCERN-2).
+        $urV = (Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-Verify') -AllowNonZero).Combined
         $urStruct = ($urV -split '=== Machinery gates ===')[0]
         if ($urStruct -notmatch "\[FAIL\][^\n]*opencode\.json[^\n]*skills") { $fail += "selftest T1-E1.05: the strict gate did not FAIL the surviving legacy 'skills' object" }
         if ($urStruct -match "\[PASS\][^\n]*opencode\.json") { $fail += "selftest T1-E1.05: the strict gate PASSed opencode.json while the legacy object survived" }
@@ -610,7 +718,8 @@ if ($SelfTest) {
         [System.IO.File]::WriteAllText($oc15OcPath, $urlPlanted, (New-Object System.Text.UTF8Encoding($false)))
         $urlSkM = [regex]::Match($urlPlanted, '"skills"\s*:\s*\{'); $urlSkOpen = $urlPlanted.IndexOf('{', $urlSkM.Index); $urlSkClose = Find-MatchingBrace $urlPlanted $urlSkOpen
         $urlSkillsBefore = $urlPlanted.Substring($urlSkOpen, $urlSkClose - $urlSkOpen + 1)
-        $urlOut = (& $shellExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Target $tmp -NoVerify 2>&1 | Out-String)
+        # Combined stdout+stderr, exactly as the old `2>&1 | Out-String` capture was (CONCERN-2).
+        $urlOut = (Invoke-CapturedChild -Arguments @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $PSCommandPath, '-Target', $tmp, '-NoVerify')).Combined
         $urlAfter = [System.IO.File]::ReadAllText($oc15OcPath)
         $urlJson = $null; try { $urlJson = $urlAfter | ConvertFrom-Json } catch { $urlJson = $null }
         if (-not $urlJson) { $fail += "selftest T1-E1.05: urls plant left opencode.json unparsable" }
@@ -773,7 +882,9 @@ foreach ($dir in $manifest['portable_dirs']) {
     if (-not (Test-Path $s)) { $skipped += "missing in source: $dir"; continue }
     $t = Join-Path $tgtRoot $dir
     if ($DryRun) {
-        $n = (Get-ChildItem $s -Recurse -File).Count
+        # -Force: Unix hides dot-prefixed entries from a bare Get-ChildItem, so the reported
+        # count would differ by host - the v0.3.17 precedent (make the walker host-monotone).
+        $n = (Get-ChildItem $s -Recurse -File -Force).Count
         Write-Output "DRYRUN would copy $dir ($n files)"
     } else {
         New-Item -ItemType Directory -Force -Path $t | Out-Null
@@ -789,7 +900,7 @@ foreach ($slug in $portableSkills) {
     if (-not (Test-Path $s)) { $skipped += "missing in source: skills/$slug"; continue }
     $t = Join-Path $tgtRoot ".devops/skills/$slug"
     if ($DryRun) {
-        $n = (Get-ChildItem $s -Recurse -File).Count
+        $n = (Get-ChildItem $s -Recurse -File -Force).Count
         Write-Output "DRYRUN would copy skill $slug ($n files)"
     } else {
         New-Item -ItemType Directory -Force -Path $t | Out-Null

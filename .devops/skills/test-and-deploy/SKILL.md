@@ -1,8 +1,8 @@
 ---
 name: test-and-deploy
 description: Make sure to use this skill whenever the user mentions running tests, executing npm tests, checking lint rules, linting, code formatting, git pushing, pushing to GitHub, or deploying commits to the remote repository. This skill ensures a secure pre-push pipeline by validating tests and linter output prior to any git push.
-version: 7
-updated: 2026-09-27
+version: 8
+updated: 2026-09-28
 ---
 
 # NPM Test, Lint, and GitHub Deployment Pipeline
@@ -70,4 +70,4 @@ Push the local verified commits to the active branch on the remote repository. *
 2. Ask the user: "Ready to push to GitHub?" and wait for their confirmation.
 3. Only after the user confirms, retrieve the active branch name using `git branch --show-current`.
 4. Push changes: `git push origin <branch-name>`.
-5. Confirm the push command prints success, and report the successful deployment to the user.
+5. Confirm the push command prints success, and report the successful deployment to the user. A successful push is **not** a green run: read the trunk's real CI result per `@agent-wrap-up` § Phase 7a item 4 — one home for that read, cited here, never restated — before calling the deployment done. A `CI red` verdict there is a hard stop.

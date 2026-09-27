@@ -35,13 +35,19 @@ function Invoke-StructuralVerify {
         Line 'FAIL' 'opencode.json missing at repo root (seed: .devops/templates/opencode.template.json)'; $fail++
     } else {
         try {
-            $cfg = Get-Content $ocPath -Raw | ConvertFrom-Json
+            $ocRaw = Get-Content $ocPath -Raw
+            $cfg = $ocRaw | ConvertFrom-Json
             $ocOk = $true
+            # The host parse alone is not the verdict: it accepts a shape the other host rejects,
+            # so a shape-broken config would read as valid on one host only. The host-monotone
+            # scan (Test-JsonShape, scripts/lib/sync-bindings.ps1) runs BEFORE the array
+            # assertion, and the same verdict the write-guard uses gates this one (T1-E2.11).
+            if (-not (Test-JsonShape $ocRaw)) { Line 'FAIL' "opencode.json is not valid JSON: a comma dangles before a closing brace/bracket, or the braces/brackets do not balance"; $fail++; $ocOk = $false }
             # V2-native: `skills` is a flat array of paths. Array-ness is asserted BEFORE the
             # membership test, because a bare -contains would accept the scalar
             # "skills": ".devops/skills" (PowerShell treats a string as a one-element collection).
             $skillsIsArray = ($cfg.skills -is [array]) -and ($cfg.skills.Count -gt 0)
-            if (-not ($skillsIsArray -and ($cfg.skills -contains '.devops/skills'))) { Line 'FAIL' "opencode.json 'skills' is not a V2 array of paths: run a sync, or rewrite the key as the flat array by hand; it must declare '.devops/skills'"; $fail++; $ocOk = $false }
+            if ($ocOk -and -not ($skillsIsArray -and ($cfg.skills -contains '.devops/skills'))) { Line 'FAIL' "opencode.json 'skills' is not a V2 array of paths: run a sync, or rewrite the key as the flat array by hand; it must declare '.devops/skills'"; $fail++; $ocOk = $false }
             if ($ocOk) { Line 'PASS' "opencode.json valid; 'skills' declares '.devops/skills' as a V2 array" }
         } catch {
             Line 'FAIL' "opencode.json is not valid JSON: $($_.Exception.Message)"; $fail++

@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 23
-updated: 2026-09-27
+version: 24
+updated: 2026-09-28
 ---
 
 # Agent Wrap-Up Skill
@@ -156,14 +156,27 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 2. **Route and Update**: Use the `@knowledge-capture` skill to route each entry to its home — **app-domain** → `.wiki/core/18-knowledge-capture.md`; **machinery/process/tooling** (parcel/sprint pipeline, dev toolchain, scripts, docs tooling) → `.devops/rules/process-lessons.md`. Do **not** put machinery lessons in KC; that is the one-way ratchet this routing exists to stop.
 3. **Consolidate (mandatory)**: Run `@knowledge-consolidation` in **tidy mode** (see its Modes table for scope). This is the step that keeps the log lean — skipping it makes KC growth one-way. Full audits are NOT part of wrap-up; they fire only on the consolidation skill's own triggers (KC above **25 entries**).
 
-### Phase 7a: Coverage Gate (Hard Stop — all three must exit 0)
-Run the mechanical gates. **Wrap-up is not complete until all three exit 0.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
+### Phase 7a: Coverage Gate (Hard Stop — all three scripts must exit 0; the trunk-CI read must not be red)
+Run the mechanical gates. **Wrap-up is not complete until all three scripts exit 0 and the trunk-CI read (item 4) is not red.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
 1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
 2. **Code-coverage gate**: `python scripts/wiki_claims.py coverage` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must carry wiki evidence: its domain index cites a real exported symbol (preferred), OR a wiki doc claims-binds its path, OR the retained filename/folder match. On gaps: add an index row citing a real exported symbol, add a `claims: source:` binding, or add to the gate's `ALLOWLIST` with an explicit reason. The subcommand's docstring is canonical. Never skip silently.
 3. **Grounded-claims drift gate**: `python scripts/wiki_claims.py check` — every doc's `claims:` hash re-verified against its source file; `STALE`/`MISSING`/`UNRESOLVED-SYMBOL` rows exit `1`. On failure: run `python scripts/wiki_claims.py update` to re-stamp, then re-run `check` — but never blind-stamp a real contradiction: if the source changed meaning (not just bytes), fix the wiki doc (or log the deviation) first, then re-stamp. *(This is the one home of the claims-drift gate — Phase 9 never runs it, so runners stay cheap and the wrap-up that reconciles the wiki is the same surface that repairs it.)*
 
 On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
+
+4. **Trunk-CI read — the remote, at close-out.** Items 1-3 run **locally**; this one reads the **remote**. Ask GitHub Actions — the remote the repository at `origin` points at — what it made of the trunk's current HEAD:
+
+   ```
+   gh run list --commit "$(git rev-parse HEAD)" --json workflowName,conclusion,headSha,databaseId,status
+   ```
+   and when a run is red, `gh run view <databaseId> --log-failed`. Read **every** run returned for that commit, never just the newest: one push often fires more than one workflow, and green means **every** run for the commit is `success` **and** its `headSha` equals `git rev-parse HEAD`. A run still in progress, a run for a different commit, and no run at all are each **not** green. The command is repository-scoped, so name no branch and no workflow file — a satellite whose trunk is not `main` reads its own run. Record **exactly one** verdict:
+
+   - `CI green — all <n> run(s) @ <headSha> succeeded` — all of them passed; done.
+   - `CI red — <workflowName> run <databaseId> @ <headSha>: <steps>` — **a hard stop**: wrap-up does not complete. In plain words: one named automated check (the workflow) failed at the named step inside it.
+   - `CI status unreadable — <reason>` — a reported limitation, **never** a pass. `gh` absent or unauthenticated is the usual reason: then open the repository's Actions page for the trunk HEAD and read the top run by eye, and record what you actually saw under one of the two verdicts above. Never write a green you did not see.
+
+   This is a close-out **read**, not a push cadence: a trunk never pushed lands on the third verdict and says so plainly. It does **not** decide whether a red trunk blocks a *claim*, and it does **not** rule on `gh workflow` / `act` scope — both are `T1-E3.22`'s (`.devops/backlog/t1-e3.22-manual-claim-baseline-backlog.md`), deliberately left to it.
 
 ### Phase 7b: State Stamps (Checklist — easy to forget, not gated)
 Mutations that keep downstream tooling honest. Do all three, then close out.
@@ -174,6 +187,6 @@ Mutations that keep downstream tooling honest. Do all three, then close out.
 ---
 
 ## Hard Stop
-**Coverage Gate is a hard stop**: Phase 7a must exit 0 on all three scripts before wrap-up is declared complete. A green lint with red coverage — or a green coverage with red claims — is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.
+**Coverage Gate is a hard stop**: Phase 7a must exit 0 on all three scripts — **and** the trunk-CI read must not be `CI red` — before wrap-up is declared complete. A green lint with red coverage — or a green coverage with red claims — is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.
 
 **Batch wrap-up is a hard stop too**: the § Batch Scope confirmation gate must pass for a plan before it is marked complete. A plan failing any assertion is carry-forward, never `COMPLETE`; a red repo gate blocks the whole batch wrap-up.

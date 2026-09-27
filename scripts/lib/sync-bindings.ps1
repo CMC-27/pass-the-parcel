@@ -44,6 +44,44 @@ function Find-MatchingBrace {
     return -1
 }
 
+function Test-JsonShape {
+    # Host-monotone verdict on the JSON-breaking shapes a LINE-LEVEL edit can produce:
+    # a comma whose next non-whitespace character OUTSIDE a string literal is '}' or ']',
+    # and unbalanced braces or brackets. Returns $true when the shape is acceptable.
+    # The second half of every write-guard's verdict: ConvertFrom-Json is the HOST's
+    # verdict, and the hosts disagree - PS 5.1 rejects a comma dangling before the closing
+    # brace that pwsh 7 accepts - so a guard that asks only the host silently does nothing
+    # on the lenient one and ships a config a strict consumer refuses. (T1-E2.11)
+    # ponytail: covers the shapes this engine's own edits can produce, not arbitrary JSON
+    # invalidity - the host parse stays the other half of the verdict, so a file broken some
+    # other way is judged by the host parser alone, exactly as before.
+    param([string]$Text)
+    $curly = 0; $square = 0; $inStr = $false; $esc = $false
+    for ($i = 0; $i -lt $Text.Length; $i++) {
+        $c = $Text[$i]
+        if ($inStr) {
+            if ($esc) { $esc = $false }
+            elseif ($c -eq '\') { $esc = $true }
+            elseif ($c -eq '"') { $inStr = $false }
+            continue
+        }
+        if ($c -eq '"') { $inStr = $true; continue }
+        if ($c -eq '{') { $curly++; continue }
+        if ($c -eq '}') { $curly--; if ($curly -lt 0) { return $false }; continue }
+        if ($c -eq '[') { $square++; continue }
+        if ($c -eq ']') { $square--; if ($square -lt 0) { return $false }; continue }
+        if ($c -eq ',') {
+            for ($j = $i + 1; $j -lt $Text.Length; $j++) {
+                $n = $Text[$j]
+                if ($n -eq ' ' -or $n -eq "`t" -or $n -eq "`r" -or $n -eq "`n") { continue }
+                if ($n -eq '}' -or $n -eq ']') { return $false }
+                break
+            }
+        }
+    }
+    return ($curly -eq 0 -and $square -eq 0)
+}
+
 function Get-SeedAgentEntry {
     # Reads the TARGET's own synced seed config and returns agent.<Key> as
     # @{ Body = '{...}'; Indent = '<leading whitespace of the entry line>' }.
@@ -245,7 +283,9 @@ function Update-TargetModelBindings {
                 $candidate = ($ocLines -join "`n")
                 $parses = $true
                 try { $null = $candidate | ConvertFrom-Json } catch { $parses = $false }
-                if ($parses) {
+                # Both verdicts, or the guard is host-dependent: Test-JsonShape rejects the
+                # dangling comma ConvertFrom-Json accepts on a lenient host (T1-E2.11).
+                if ($parses -and (Test-JsonShape $candidate)) {
                     $ocRaw = $candidate
                     $ocCount = $strippedLines
                 } else {
@@ -392,7 +432,9 @@ function Update-TargetModelBindings {
             if ($ocMigrateRaw -ne $ocRaw) {
                 $ocMigrateParses = $true
                 try { $null = $ocMigrateRaw | ConvertFrom-Json } catch { $ocMigrateParses = $false }
-                if ($ocMigrateParses) {
+                # Both verdicts (see the model strip above): the migration's own delete is what
+                # produces the dangling comma on this host's lenient parser (T1-E2.11).
+                if ($ocMigrateParses -and (Test-JsonShape $ocMigrateRaw)) {
                     $ocRaw = $ocMigrateRaw
                 } else {
                     $ocMigrated = 0

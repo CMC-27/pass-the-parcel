@@ -8,7 +8,7 @@ order — **manifest → bindings → prune → prefix → verify**.
 | Module | Owns |
 |---|---|
 | `sync-manifest.ps1` | `Read-Manifest`, the hashing helpers, the version bookkeeping helpers, and the `-Check` verdict emitters (`Add-Verdict`, `Compare-Item`) |
-| `sync-bindings.ps1` | The Model Registry force-propagation over the three binding surfaces |
+| `sync-bindings.ps1` | The Model Registry force-propagation over the three binding surfaces, and the write-guard's host-monotone candidate verdict (`Test-JsonShape`, beside `Find-MatchingBrace`) |
 | `sync-prune.ps1` | The prune plan — `PRUNE` verdict, `DRYRUN would prune`, the delete |
 | `sync-prefix.ps1` | PREFIX-LOCKED prefix regeneration / check-only, inside the target |
 | `sync-verify.ps1` | `Invoke-StructuralVerify`, `Invoke-VerificationGates` |

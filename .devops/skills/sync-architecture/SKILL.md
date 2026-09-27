@@ -1,8 +1,8 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 14
-updated: 2026-09-27
+version: 15
+updated: 2026-09-28
 ---
 
 # SKILL: Sync Architecture (`sync-architecture`)
@@ -53,6 +53,13 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
      declare `.devops/skills`), `base-context.md`, the wiki anchor
      (`.wiki/core/00-system-index.md`), or machinery a sync should have materialised.
      Fix the named item, then re-run.
+   - A shape-broken `opencode.json` gets its own `[FAIL]`, reading
+     `opencode.json is not valid JSON: …` and naming the defect — a comma left dangling before
+     a closing brace or bracket, or braces/brackets that do not balance. The same
+     host-monotone verdict the write-guard uses gates this check, so a config one host's parser
+     would accept is never reported valid on this one. The engine's own `-SelfTest` asserts the
+     row against a real config, and its child-failure output shape is stated once in
+     `scripts/sync-architecture.ps1`'s header contract — cite it, do not restate it.
    - `[WARN]` rows are advisory only (e.g. `.ptp-source` not yet recorded) and never fail
      the run.
    - Machinery gates run check-only (prefix check without `-Sync`, UTF-8, wiki lint).
