@@ -61,6 +61,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
 | T1-E3.22 | The manual claim path has no enumerated green baseline | QUEUED | `.devops/rules/plan-lifecycle.md:116` names *"the next claim's green-baseline preflight"*, but no surface defines one for the **manual** path — only the batch path does, and only as two scripts (`sprint-run/SKILL.md:18`), against a workflow that defines twelve steps. Observed 2026-09-27: `T1-E2.09` claimed on a four-gate local subset while the trunk was red on `Machinery version discipline`; it surfaced at Phase 6 round 3, after two rejections, and the plan's own AC6 depended on it. | [plan](./t1-e3.22-manual-claim-baseline-backlog.md) |
+| T1-E3.24 | Gate invocation frequency: a gate runs where its subject changes | QUEUED | The same invariant re-verifies at up to four layers (per-plan Phase 9 -> wrap-up -> pre-push -> CI) though the lower layers' diffs cannot have changed it — ~70-80 mandated local invocations per 5-plan batch, about a third guarding the change. Full-suite **green stamp**, machinery gates conditional on machinery diffs, lint once per plan, scoped probes; the canon lands in `plan-lifecycle.md` § Gate Invocation Hygiene. Operator-directed 2026-09-28. **Blocked** at filing (T1-E2.11 unwrapped); its wrap-up landed 2026-09-28 (`417352d`) so `depends_on` is satisfied and no overlap remains. | [plan](./t1-e3.24-gate-invocation-frequency-backlog.md) |
 
 ### Completed
 
