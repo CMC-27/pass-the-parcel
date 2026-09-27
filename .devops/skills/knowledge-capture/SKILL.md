@@ -1,8 +1,8 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 7
-updated: 2026-09-14
+version: 8
+updated: 2026-09-27
 ---
 
 # Knowledge Capture Skill
@@ -87,6 +87,7 @@ The log must be readable in minutes the moment an entry lands — consolidation 
 *   **Hard limits**: Pitfalls and Rules — max **3 lines** of body text. Decision Archive — max **10 lines**. Strip narrative at capture; deep rationale belongs in the plan's Completion Note / decision log, not here.
 *   **Append under an existing header**: before writing, grep the file's current headers (`^#`) — if the target section or `### [Theme]` already exists, append the entry under it. **Never emit a duplicate section or theme header.** Fix mojibake or stale placeholders you encounter on sight.
 *   **Cut superseded entries at capture**: if the new decision explicitly supersedes an existing entry, delete the old entry instead of striking it through — the deletion is visible in git history; no separate log. Contradictions resolve to the later decision.
+*   **Record the lineage of a reversal**: when a capture reverses a recorded decision, write **what each prior position was and why it changed**, not just the new position. The next reader must be able to see why *this* route differs from the one the earlier objection killed — the model-routing axis was decided three times (abstract slots → force-stamped registry → no bindings), and each reversal cost a plan that first had to rediscover the previous one. *(process-lessons, 2026-09-20)*
 *   **No wiki duplication, no pointers**: if the rule is already canonically documented in a wiki doc or `.devops/README.md`, **do not add an entry at all** — agents read the wiki before KC, so a pointer is dead weight. If the rule *should* be in the wiki but isn't, capture it normally and let consolidation promote it (which deletes the KC copy).
 
 ### 5. Entry Capture

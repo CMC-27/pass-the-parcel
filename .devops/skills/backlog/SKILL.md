@@ -1,8 +1,8 @@
 ---
 name: backlog
 description: Make sure to use this skill whenever the user asks to add a feature, function, upgrade, idea, or task to the backlog. Use it to analyze the request, gather necessary codebase context, and create a comprehensive entry in a t{n} theme register plus a separate parked plan file. This skill creates PARKED items only — it does NOT execute, commit to a sprint, or plan execution.
-version: 3
-updated: 2026-09-13
+version: 4
+updated: 2026-09-27
 ---
 
 # Backlog Management
@@ -105,3 +105,11 @@ For each backlog item, create:
 - If the item is urgent, place it in the Triage Panel at its tier (🔴/🟡/🟢/⚪/❄️); otherwise it lives only in the theme register.
 
 > **DO NOT** change `claim_status` or move files between directories. `@sprint-plan` commits a plan into a sprint queue; `@pass-the-parcel` claims it at execution time.
+
+## 5. Parked-Item Hygiene
+
+A parked bundle's members carry **stale premises** — a feature shipped *after* the item was filed may have fixed, re-wired or deleted the thing it describes (HARDEN-DEADCODE found 3 of 19 members already wrong at pickup: one already fixed, one false diagnosis, one artefact gone).
+
+- **Verify each member against source and schema at Phase 1**, before committing effort to it.
+- Record a superseded or mis-diagnosed member as a **finding with evidence** in the run's record — never a silent no-op.
+- A plan whose premise has **vanished entirely** is archived to `.devops/archive/` as resolved with a Completion Note — **never re-parked `QUEUED`**, which creates a phantom item a later `@sprint-plan` can pull and burn a parcel on. Sweep the stale "still parked" claims out of the registers in the same pass. *(process-lessons, 2026-09-13 / 2026-09-14)*

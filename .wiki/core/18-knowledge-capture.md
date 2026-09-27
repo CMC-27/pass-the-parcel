@@ -10,7 +10,7 @@ description: "Canonical log of core engineering decisions, tribal knowledge, and
 claims:
   - id: capture-via-skill
     source: .devops/skills/knowledge-capture/SKILL.md#Admission Gate
-    hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364
+    hash: sha256:d215ade546c1cdde847b0596ef698e415f0f6b589db32d3cf0b49b41cd224c00
   - id: prune-via-consolidation
     source: .devops/skills/knowledge-consolidation/SKILL.md#Tidy (default)
     hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
@@ -19,65 +19,29 @@ claims:
     hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
   - id: capture-two-destinations
     source: .devops/skills/knowledge-capture/SKILL.md#Destination Routing
-    hash: sha256:64a2dfec4a911c9eadaf8437bf17ef44f760371dc3bd741bee52d140ffffc364
+    hash: sha256:d215ade546c1cdde847b0596ef698e415f0f6b589db32d3cf0b49b41cd224c00
 ---
 # Knowledge Capture & Decision Log
 
 > Tribal knowledge only: edge cases with future practical use that **no other home can hold**. Agents read the wiki first — anything the wiki covers is deleted here, never pointed at. **Two homes:** app-domain knowledge lands here (KC); machinery, process and tooling lessons land in [`.devops/rules/process-lessons.md`](../../.devops/rules/process-lessons.md), because the wiki documents the app and can never absorb them. **Ceiling: 25 entries** (measured by entry count, not physical lines); entries ≤3 lines (Rules/Pitfalls), ≤10 lines (Archive, max 5). Capture via `knowledge-capture` (routes by subject); pruning via `knowledge-consolidation` (tidy after every plan).
 
-## Quick Reference — Top 10 Rules
+> **This template's KC is deliberately thin.** The template has no application domain, so almost every former entry either duplicated a canonical surface (`.devops/rules/plan-lifecycle.md`, `.devops/README.md`, `AGENTS.md`) or was machinery, which the two-homes rule routes to `.devops/rules/process-lessons.md`. What remains is the machinery lineage the register's terse format cannot hold (see *Decision Archive*). Full audit 2026-09-27.
+
+## Quick Reference — Top Rules
 | # | Rule | Theme | Pitfall? |
 |---|------|-------|----------|
-| 1 | Plan Settings (`Mode`/`Agents`) freeze at the TOP; mutable State & Gates sits at the BOTTOM; the phase content between them holds byte-stable between gate transitions, and a revision round rewrites its own | Parcel | ❌ |
-| 2 | SKILL.md is canonical; agents embed it verbatim — regenerate with `check-parcel-prefix.ps1 -Sync`, never hand-edit | Parcel | ❌ |
-| 3 | Machinery evolves in the farthest-evolved consumer; the template absorbs what survived production | Sync | ❌ |
-| 4 | Portable machinery carries no absolute paths or machine-specific config | Sync | ✅ |
-| 5 | Normalize CRLF→LF before hashing files across git boundaries on Windows | Sync | ✅ |
-| 6 | Versioning is one tiered counter (`major.minor.patch`); read its **live** value from `.devops/sync-manifest.yaml` — never restate the number in prose, it goes stale on the next bump. Portable skills are derived (all minus `excluded_skills:`), never declared | Sync | ❌ |
-| 7 | Never edit PREFIX-LOCKED surfaces directly — edit `base-context.md`, then run `check-parcel-prefix.ps1 -Sync`; no agent declares a model | Parcel | ✅ |
-| 8 | Phase 3 sends its whole decision surface in one questionnaire where the ask surface supports it; one call per question otherwise | Parcel | ❌ |
-| 9 | Measure a gate's actual cost before optimizing agent token spend around it | Process | ✅ |
-| 10 | KC entries land ≤3 lines at capture; superseded entries are cut, never struck through | Knowledge | ✅ |
+| 1 | One session owns the plan: the orchestrator drives it end-to-end, never asks the operator to open a new session and never writes a next-session note into a plan | Parcel | ✅ |
+| 2 | The plan file is the only execution source — the `v1.0 → v2.0_approved` versioned-snapshot pipeline is retired, never revivable | Parcel | ✅ |
 
 ## Pitfalls to Avoid
-_(Mistakes that cost time or broke things. Read these first when starting similar work.)_
-
-- **UTF-8 mojibake in machinery files**: corruption propagates through sync and silently degrades every agent that reads the file. *Do instead:* repair to clean UTF-8 (no BOM); never re-copy a corrupted file wholesale.
-- **Editing a truncated line**: `read_file` truncates long lines (~2000 chars); an edit that trusts the tail writes literal `[truncated]` text mid-file. *Do instead:* re-read or rewrite the whole entry; for giant-line appends, write a temp file and append via `[IO.File]::AppendAllText` with UTF8-no-BOM (PowerShell `Set-Content -Encoding UTF8` writes a BOM and breaks `wiki_lint.py` frontmatter checks).
-- **Publishing links into gitignored run workspaces**: `.opencode/plans/run-*/` is gitignored, so a wiki/example doc that links a review or decision log breaks for every clone. *Do instead:* quote the run artefact (e.g. a `**REJECTED:**` verdict line) inline and link only tracked paths (`.devops/archive/…`).
-- **Claims sourced from claim-carrying docs restamp late**: `scripts/wiki_claims.py update` stamps docs in walk order, so a claim whose `source` is another doc that also carries claims records the source's *pre-restamp* bytes and reports `STALE` right after one `update`. *Do instead:* source the claim from a non-claim file, or run `update` a second time.
-- **Auto-cataloguing ignores index column semantics**: `wiki_lint._fix_unindexed` (used by lint `--fix`) inserts `[name, description]` into the first two data columns, so on an index whose columns are not `Doc | Description` (e.g. integrations' `Doc | Service | Description`) the description lands under the wrong header. *Do instead:* add the row by hand for non-standard indexes.
-- **Editing a claim source invalidates other docs**: claims bind by whole-file sha256, so touching a widely-claimed file (`AGENTS.md` is claimed by 09 and 12) flips those docs to `STALE` even though they did not change — CI is the only signal. *Do instead:* after editing such a file, run `python scripts/wiki_claims.py update` before the coverage gate.
-- **A derived projection needs an insert path, not just a rewrite path**: a sync that rewrites only the keys a target already carries silently fails to propagate template-side *growth* — a new key never arrives and the target's own gate fails naming it. *Do instead:* when reconciling a projection, insert absent keys too, and test against a target that predates the new key. *(Still live after T1-E1.04 — the capability-class rows remain a reconciled projection; only the model columns were retired.)*
-
+_(None outstanding. Every recorded pitfall now has a canonical home: machinery/tooling ones in `.devops/rules/process-lessons.md`, portable-surface ones in `.devops/README.md` § Transportability.)_
 
 ## Rules & Constraints
-_(Stable rules derived from prior decisions. Grouped by theme.)_
-
-### Sync & Versioning
-- **Farthest-evolved consumer wins**: when template and satellite diverge, port the satellite's battle-tested machinery back; app-specific content stays in the consumer. *(2026-09-03)* No exception remains: agent models are now inherited from the CLI selection (see § Agents & Models), so the old model-binding carve-out has no subject.
-- **Post-sync bookkeeping self-heals**: sync stamps the target manifest's `machinery-version:` in place when the target is **behind**; a target *ahead* of the source now halts-and-reconciles instead of being silently rewound (ordering-aware `-Check`, `T1-E2.08`); `-Check` hashes only agent-unique content (frontmatter stripped), so per-repo prefix regeneration never reports phantom DRIFT. *(2026-09-06, revised 2026-09-25)*
-- **Transport completeness** (F8/F9, machinery v41): the sync must materialise every reference it ships *and* repair every derived surface it owns. A path named by the shared prefix or a shipped skill is portable — the canonical plan scaffold `.devops/plans/template-plan.md` joins `portable_files` because the prefix and five skills name it. A surface the template owns is repaired for keys the satellite has **never authored**: a registry key missing from the target's `opencode.json` `agent` block is inserted whole from the target's own synced seed, so a newly shipped agent arrives runnable — while an entry the satellite authored is never restructured. This supersedes the `ponytail:` ceiling recorded in `T1-E1.03`, which named exactly this upgrade path. *(2026-09-13)*
+_(Edge-case constraints with future practical use, not derivable from the wiki or the code.)_
 
 ### Parcel Pipeline
-- **Split plan config from state**: `Mode`/`Agents` are frozen in a **Plan Settings** block at the TOP; the State & Gates section sits last and holds only mutable state rows; everything between them holds byte-stable between gate transitions, and a revision round rewrites the phase content it owns, with the prefix cache resuming from the rewrite. *(2026-08-19, revised 2026-09-12, revised 2026-09-27)*
-- **Claim before execution**: a claim covers a declared `touches` file set — never two claims that overlap, and never a plan whose `depends_on` is **unsatisfied**. A dependency is satisfied when it is present in `.devops/archive/` (wrapped up) **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL` (executed through Phase 9, Gate D `OPEN`); any other state — still `QUEUED`, or `CLAIMED` below `PHASE_9` — is unmet. That is the dependency rule **only**: the `touches`-overlap check is a separate blocker a satisfied dependency does not clear. Claim commits the queue→plans `git mv` on the workspace trunk and runs in place — one claim at a time, no worktree, no plan branch; shared files (`sprint.md`, `backlog-index.md`, `agent-changelog.md`, `sync-manifest.yaml`) are trunk-only. A plan keeps its stable `T{theme}-E{epic}.{impl}` code through backlog → sprint queue → plans → archive. *(2026-09-13, revised 2026-09-16, revised 2026-09-18)*
-- **`@sprint-run` batch deviations**: a sprint's committed queue may be run unattended by the `parcel-sprint` host, which relaxes **three** rules and no more. **Batched Gate D** — each plan terminates at `PHASE_9` with Gate D `OPEN` and one human verdict covers the whole batch; deferred, never skipped. **Retirement is a separate, operator-invoked step** — the batch never archives a plan and never marks one `COMPLETE`; after the verdict one `@agent-wrap-up` **batch-scope** invocation asserts each plan's confirmation gate, runs the repo gates once, then sets `COMPLETE` and archives. **Single-context fast runner** — one plan's Phases 1→9 run in a single fresh per-plan context instead of per-group delegation; every other run keeps **per-group delegation**, with the orchestrator itself staying in one session throughout (see *One session owns the plan*). Every path runs in place — one claim at a time, no worktree, no plan branch. The host's eligibility verdict is authoritative on `scripts/sprint_eligible.py` and **halts** on script error — never a prose fallback. *(2026-09-13, revised 2026-09-16, revised 2026-09-18, revised 2026-09-20)*
-- **One session owns the plan**: the orchestrator drives a plan end-to-end in the session it was started in — between groups it spawns the next `ptp-*` subagent (`MULTI`) or plays the next persona **inline** (`SINGLE`), and stops only at a gate. It **never** asks the operator to open a new session and **never** writes a "next session" note into a plan; *Strict Context Isolation* names the **sub-agent's** cold context, not the operator's session. *(2026-09-20)*
-- **Single execution source**: the plan file is the only thing the code-surgeon reads — no versioned snapshots (the `v1.0 → v2.0_approved` pipeline is retired). *(2026-09-06)*
-- **One state machine, five mirrors**: the 4-gate model (A Scope / B Spec & Plan / C Peer Reviews / D Implementation) is stated identically in the orchestrator skill, base-context, parcel agent, template, and rules doc. *(2026-09-07)*
-
-### Agents & Models
-- **Inherited model routing — no agent declares a model** *(2026-09-20; supersedes *Registry-canonical model binding* 2026-09-13, which superseded *Dual-surface agent binding* 2026-09-06)*: no surface declares a model — not frontmatter, not `opencode.json` or its seed, not the registry (now capability classes only, two cells per row). Every agent runs on the **CLI-selected** model; the operator picks subagent models at run time — per gate (A/B/C/D) in `MULTI`, one per batch under `@sprint-run` — recorded in `Plan Settings.Models`.
-- *Do instead:* never reintroduce a `model:` binding. `check-parcel-prefix` asserts absence (`NOMODEL`) and `sync-architecture` strips rather than stamps. A runtime that cannot honour an override **halts** — VS Code accepts `runSubagent(model:)`, opencode does not. Full lineage: Decision Archive.
-- **Set-level agent versioning**: agents are versioned as a coordinated set via `machinery-version:` — no per-file `version:`; only skills carry per-file versions, because the sync drift checker reads those from `SKILL.md`. *(2026-09-04)*
-
-### Product & Process
-- **Measure, then optimize**: measure a gate's real cost/output before restructuring around an estimated token claim. *(2026-09-03)*
-
-### Knowledge System
-- **Consolidation closes the loop**: `agent-wrap-up` Phase 6 captures (**at most one entry per session**) AND runs `@knowledge-consolidation` (tidy mode). Capture is append-lean (≤3 lines); tidy prunes. Full audit fires only on its own triggers or when this file exceeds **25 entries** — measured by entry count, never by physical lines, since hard-wrapping inflates line count without adding a rule. *(2026-09-09, revised 2026-09-14)*
-- **Two promotion destinations** *(2026-09-14)*: app-domain rules promote to `.wiki/`; **machinery, process and tooling** rules — the parcel/sprint pipeline, dev toolchain, scripts, docs tooling — promote to [`.devops/rules/process-lessons.md`](../../.devops/rules/process-lessons.md) (consolidation Phase 6b) and are captured there directly. Without that second home KC is a one-way ratchet: a process lesson has nowhere to graduate to, so every sprint's machinery news piles up here forever.
+- **One session owns the plan** *(2026-09-20)*: the orchestrator drives a plan end-to-end in the session it was started in — between groups it spawns the next `ptp-*` subagent (`MULTI`) or plays the next persona **inline** (`SINGLE`), and stops only at a gate. *Strict Context Isolation* names the **sub-agent's** cold context, not the operator's session — so a "next session" request or a handoff note in a plan is always a defect, never a convention.
+- **Single execution source** *(2026-09-06)*: the plan file is the only thing the code-surgeon reads — the `v1.0 → v2.0_approved` snapshot pipeline is retired, and no replacement snapshot layer may be reintroduced.
 
 ## Decision Archive
 _(Only decisions whose full story prevents a specific repeat mistake. Most recent 5 max.)_
@@ -92,16 +56,16 @@ _(Only decisions whose full story prevents a specific repeat mistake. Most recen
 - **Action**: One schema (`format-version: 1`) with `.wiki/rules/**` brought under the linter; Grounded Claims (`claims: id/source#symbol/sha256(file)`) plus `scripts/wiki_claims.py` and a secret-free CI drift step; `@wiki-update` (diff → affected docs → stamp); native `@wiki-generate` with `@wiki-bootstrap` demoted to a verification pass (v2); OKF v0.2 export; static `docs/` visualizer. `machinery-version: 25`.
 - **Rationale**: Differentiation stays on governance; generation is borrowed (interop, never vendored). Two owner-only calls: adopting OKF field names verbatim *breaks* the link-hygiene contract (OKF requires only `type`), so OKF is a projection; and a CI job that writes docs needs a model secret + bot identity, so a template defaults to secret-free drift *detection*. Whole-file claim hashing over-flags deliberately — a false stale prompts a re-read, a missed drift ships a wrong wiki.
 
-> **Superseded in part (T1-E4.01, 2026-09-17).** The static `docs/` visualizer named in the Action line was retired: it had no consumer left, so the artefact and its generator both went. The `docs/` directory itself was then removed (2026-09-17) — its only remaining content was a note about the retired export, so the tombstone stopped paying for itself too. The schema, the claims layer, `@wiki-update` and the secret-free drift step all survive unchanged. The entry's own dates and facts are not rewritten — it truthfully records what shipped then.
+> **Superseded in part (T1-E4.01, 2026-09-17).** The static `docs/` visualizer named in the Action line was retired: it had no consumer left, so the artefact and its generator both went. The `docs/` directory itself was then removed (2026-09-17). The schema, the claims layer, `@wiki-update` and the secret-free drift step all survive unchanged. The entry's own dates and facts are not rewritten — it truthfully records what shipped then.
 
 ### Wiki Refresh Automation — OKF Ingest + Secret-Free Drift Issue *(2026-09-11)*
 - **Context**: OKF export was one-way (a satellite could not bring a bundle back), and CI reported claims drift but never surfaced it to a human without someone watching the build.
 - **Action**: `scripts/wiki_okf.py import` ingested an OKF v0.2 bundle as `in-progress` drafts (index-registered via the linter's canonical `_fix_unindexed`, skip-on-collision) — the bridge has since been retired, see the note below; `.github/workflows/wiki-refresh.yml` runs `wiki_claims.py check` weekly and raises/closes a `wiki-drift` issue. The docs-PR path was deliberately not built.
 - **Rationale**: The drift job stays secret-free to match the repo's no-secret portable-surface principle — a model-writing CI job needs a secret + bot identity a template should not require. Extends the 2026-09-11 self-maintenance decision (secret-free drift *detection* over model-authored *repair*).
 
+> **Superseded in part (T1-E4.01, 2026-09-17).** The OKF ingest bridge named in the Action line was retired — it had no consumer left, and `@wiki-generate` § *OpenWiki / OKF Interop* now documents the mapping as prose. The secret-free `wiki-refresh.yml` drift job named in the same line survives unchanged. Recorded, not rewritten.
+
 ### Model Routing Axis — Third Position: Delete the Binding, Never Relocate It *(2026-09-20)*
 - **Context**: The binding machinery had been relocated twice. `T1-E1.01` (2026-09-03) made concrete bindings satellite configuration; `T1-E1.03` (2026-09-13) reversed it to a registry-canonical table force-stamped into every satellite. Both kept the machinery — and the registry had flattened 11 rows to one identical model, so it encoded no routing information while costing three mirrored surfaces plus a validation pass.
 - **Action**: Deleted every binding — 11 frontmatter `model:` lines, 11 `opencode.json` values, and the registry's two model columns (now key + capability class, feeding a new run-time question asked per gate in `MULTI` and once per batch under `@sprint-run`). The guarding check was **inverted, not removed** (`@Managed Simplicity`: *a gate that goes is moved, not removed*) — it asserts absence and `sync-architecture` strips instead of stamping. Runtime asymmetry stated plainly: VS Code honours `runSubagent(model:)`, opencode cannot (#6651) and halts.
 - **Rationale**: `.01` failed on complexity because it *moved* the machinery; this route answers the objection by deleting it. Recorded with its full lineage so the axis is not re-litigated blind — the guarding question at each future attempt is *"does the registry buy routing value, or only ceremony?"*
-
-> **Superseded in part (T1-E4.01, 2026-09-17).** The OKF ingest bridge named in the Action line was retired — it had no consumer left, and `@wiki-generate` § *OpenWiki / OKF Interop* now documents the mapping as prose. The secret-free `wiki-refresh.yml` drift job named in the same line survives unchanged. Recorded, not rewritten.

@@ -6,7 +6,7 @@ tags: [wiki, rules, links, cross-referencing]
 status: stable
 format-version: 1
 owner: Wiki Owner
-last-reviewed: 2026-08-19
+last-reviewed: 2026-09-27
 related-to: [./naming.md, ./frontmatter.md, ./structure.md, ../../AGENTS.md]
 ---
 # Link Hygiene
@@ -53,6 +53,9 @@ When adding, renaming, moving or deleting a document:
 1. **Orphans are allowed only for templates and READMEs** — every content doc should have at least one inbound link.
 2. **No dead links** — a link to a missing target is a bug, not a TODO. If the target moved, register it; if it was deleted, remove the link.
 3. **Archive is historical** — never rewrite archived content after the fact; leave the record intact.
+4. **Never link a transient path.** A plan's physical location moves — sprint queue → `.devops/plans/` → `.devops/archive/` — so link it at its **permanent** home or not at all. When a plan moves, treat every document that referenced it as a dangling-link candidate: its `sprint.md` queue row, any `related-to` naming a sprint folder, and any audit that cited the sprint-queue path. `wiki_lint.py --quiet` is a **gating** CI step (no `continue-on-error`), so one stale link reddens a whole build. A link into a **gitignored** run workspace (`.opencode/plans/run-*/`) breaks for every clone — quote the run artefact inline instead. *(process-lessons, 2026-09-26)*
+5. **Anchor fragments bind to header text, not file names.** Retargeting a path (`05-design-system.md` → `09-design-system.md`) leaves `#5c-form-field-hygiene` pointing at a renamed slug. After any retarget, validate every anchor against the target's header slugs, or run `@wiki-lint`. *(process-lessons, 2026-07-26)*
+6. **Renumbering leaves stale agent paths.** A core-file renumbering renames files but not the doc paths inside `.devops/agents/*.md`, breaking subagent spawns. After any renumbering, grep the agent files for doc paths — and never retro-edit historical records in `.devops/logs/` or `.devops/archive/`. *(process-lessons, 2026-07-26)*
 4. **Every document is catalogued** — a new or moved doc must appear in its category index (`features-index.md`, `logic-index.md`, etc.), and every index entry must point at an existing file. The linter reports gaps as `[UNINDEXED]` / `[MISSING]` warnings; run `python scripts/wiki_lint.py --fix` to add or remove index rows automatically. An unlisted doc is invisible to agents routing from the hub.
 
 ---

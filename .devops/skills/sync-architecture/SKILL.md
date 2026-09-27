@@ -1,7 +1,7 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 13
+version: 14
 updated: 2026-09-27
 ---
 
@@ -146,6 +146,7 @@ do not hold it in conversation — draft it where the operator can carry it in o
 - **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §8 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
 - A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
   declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.
+- **CI gates travel as a self-contained workflow file, never `workflow_call`, a composite action, or "documented wiring."** The invariant gates (prefix integrity, UTF-8, wiki lint, coverage, claims drift) must run in every satellite, and a template cannot enforce anything through a **second repo** at runtime or a documented block. Ship them as a plain portable `.github/workflows/machinery-gates.yml` (the `wiki-refresh.yml` precedent) riding `portable_files` — no secret, no wiring step. Its header states the **invariant-everywhere / template-identity** split once, and the template's own superset cites that split instead of restating it. *(process-lessons, 2026-09-25)*
 - **Version discipline.** A skill's `version` MUST bump with any `SKILL.md` or reference change.
   Without the bump `-Check` reports `DRIFT` ("locally customized?") on stale machinery instead
   of `UPGRADE`, and operators learn to overwrite real local edits. After any machinery edit in the template repo itself, the wrap-up discipline bumps per-skill

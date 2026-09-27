@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 21
+version: 22
 updated: 2026-09-27
 ---
 
@@ -142,6 +142,7 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 1. **Orphan files / dead code**: if the session found orphan files, dead code, or ghost components, create a backlog plan at `.devops/backlog/{code}-{slug}-backlog.md` (`type: backlog`, `claim_status: QUEUED`) with affected file paths and a terse description, and add a row to the matching `t{n}-<slug>-backlog.md` theme register. Follow the `@backlog` skill.
 2. **Spaghetti Triage rows**: dispose each row — `escalate-monster` (flag for the user to invoke `spaghetti-monster` directly), `new-parcel` (one backlog plan per row, same format as step 1), `defer` (log to `.wiki/core/18-knowledge-capture.md` — a `.wiki/` write, Agent A's scope under the Delegation Model), `inline-minor` (confirm resolved in the execution trace).
 3. **Known issues / tech debt**: if any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
+4. **Invariants shipped without a check**: when the session added a contract surface (a front-matter row, an asserted predicate, a prose non-negotiable) with **no deterministic check** behind it, name the missing gate and park it as a backlog item **in this same wrap-up**. An unrecorded honour-system link is a silent decision; the parking turns it into a recorded one. *(process-lessons, 2026-09-23)*
 
 **5b — Reconcile the open backlog** (theme registers + `.devops/backlog/backlog-index.md`)
 1. **Read the registers**: always read the full index and the theme registers before deciding nothing applies — items may be worded differently than the task; match by intent, not exact name.
