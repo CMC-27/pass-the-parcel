@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 24
+version: 25
 updated: 2026-09-28
 ---
 
