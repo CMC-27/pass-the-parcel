@@ -279,7 +279,7 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 
 Record the executed scope plus exclusions in the `Suite scope` column — Gate D reads scope alongside exit codes (canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene).
 
-> **Pre-fix evidence.** For each new check, the evidence names the probe's **pre-fix** result — observed on the unfixed tree, before the implementing edit — beside its post-fix pass. The pair is what proves the check *can* fail. And where this plan's prose documents a machine-checked **format**, it cites the checker rather than restating it.
+> **Pre-fix evidence.** For each new check, the evidence names the probe's **pre-fix** result — observed on the unfixed tree, before the implementing edit — beside its post-fix pass (a `scoped probe` records its scope in the `Suite scope` cell of its evidence row). The pair is what proves the check *can* fail. And where this plan's prose documents a machine-checked **format**, it cites the checker rather than restating it.
 
 ---
 
