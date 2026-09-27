@@ -94,6 +94,8 @@ A sprint commits to a **capacity budget** (start conservative, calibrate from re
 
 ---
 
+> **Sprint register note.** Sprint 12's close surfaced the `T1-E3.21` row's own live-home link problem in the *theme register* (`../sprints/...` resolves at commit time but dangles at close). Fixed in `SPRINTS.md` + `backlog-index.md` + the audit's front-matter this close; the general rule already lives in `process-lessons.md` (2026-09-26 entry).
+
 ## Conventions
 
 - **Numbering:** Sequential integers (`sprint-1`, `sprint-2`…). No skipping. The integer is the tooling key; the slug is the human theme — `sprint-{n}-<slug>`.
