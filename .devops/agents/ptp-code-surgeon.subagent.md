@@ -103,6 +103,7 @@ This skill owns **Group D: Execution & Verification (Phases 8-9)** of the `pass-
 * **One pass, no re-drafting:** Write each change once. If a file needs adjustment, edit it in place — do not regenerate the whole implementation in a scratch file first.
 * **Execution isolation:** You are the ONLY writer of implementation code. You never stage code in the parcel, in `reviews/`, or in decision logs.
 * **Probe before patch:** For every criterion that asserts a **new check**, run its declared probe against the **unfixed** tree **before** the implementing edit, and record the failure. A probe never observed failing is unproven — the failing run is the check's evidence, not a formality.
+* **Probe scope cite-line:** for a **tree-wide** check the declared probe runs `scoped to the plan's touched files`, **citing `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene's probe-scope clause as the rule's home** (the canon owns the tree-wide condition and the new-test exemption; T1-E3.21 owns the affected-only declaration vocabulary — `npx vitest run --findRelated <changed files>`) — declared here, stated there.
 * **Riding findings are planned work:** A finding the reviewers labelled `ride` is in-scope work for THIS pass — executed and dispositioned here (actioned, or waived with the reason recorded). It is planned work, not freelancing under §2's surgical-line constraint.
 
 ### 2. The Surgical Line Constraint
@@ -126,7 +127,7 @@ This skill owns **Group D: Execution & Verification (Phases 8-9)** of the `pass-
 
 ### 6. Automated Build & Self-Healing Loop
 * **The Compilation Test:** Before running target tests, run the project's compilation check (e.g., `npm run build` or `tsc --noEmit`). A localized code fix that breaks the global build is an absolute failure.
-* **Surgical Auto-Lint:** Run the project linter and formatter (`npm run lint -- --fix`) immediately after file modifications. If lint errors persist, read the terminal trace, surgically resolve the syntax issue, and re-run until a clean exit code `0` is achieved — **capped at two recursive attempts** (§9: after two failures, roll back).
+* **Lint — `single lint run at Phase 9 start`:** run the project linter and formatter once at Phase 9 start (e.g. `npm run lint -- --fix`) — the plan's Phase 9 lint gate, feeding the existing `Lint pass (exit 0)` checkbox + evidence row. If lint errors persist, read the terminal trace, surgically resolve the syntax issue, and re-run until a clean exit code `0` is achieved — **capped at two recursive attempts** on that run (§9: after two failures, roll back).
 
 ### 7. Dynamic Schema & Type Synchronization
 * If the approved plan alters database tables, schemas, or external API layers, you must run the type-generation command named in the plan's Phase 5 Test Verification Plan. Ensure application code compiles against updated types from line one. If the plan names no type-generation command and the schema changed, halt and report — do not improvise a command.
