@@ -31,12 +31,13 @@ description: "Close the gap between this repo's curated wiki and an OpenWiki-cla
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| T2-E2.04 | KC's machinery boundary contradicts its own Parcel Pipeline section | QUEUED | `.wiki/core/18-knowledge-capture.md:26` says machinery lessons land in `.devops/rules/process-lessons.md` and "never into `.wiki/`", while `:62-68` carries live machinery rules — the absolute is contradicted by the doc's own body. Parked (pre-existing) at the `T1-E3.23` wrap-up. | [plan](./t2-e2.04-kc-machinery-boundary-backlog.md) |
+| _(none)_ | | | | |
 
 ### Completed
 
 | Code | Title | Resolved | Note | Archive |
 |------|-------|----------|------|---------|
+| T2-E2.04 | KC's machinery boundary contradicts its own Parcel Pipeline section | 2026-09-27 | Resolved by the knowledge-consolidation full audit, **direction 2**: the Parcel Pipeline rules moved to their canonical `.devops/` homes and KC carries none of them. KC 25 → 6 entries (9 duplicates deleted, 9 machinery lessons promoted, lineage kept); register landed at 21. | [plan](../archive/t2-e2.04-kc-machinery-boundary-backlog.md) |
 | T2-E2.03 | Knowledge Capture second destination + machinery register | 2026-09-14 | KC is routed by subject: app-domain → `.wiki/core/18-knowledge-capture.md`; machinery/process/tooling → the new `.devops/rules/process-lessons.md` register (`knowledge-capture` v7 §3 Destination Routing + `knowledge-consolidation` v8 Phase 6b `promote-machinery`). The size trigger moves from physical lines to a **25-entry ceiling**, since hard-wrapping inflated line counts without adding rules. `sprint-close` v4 reviews the register at close; KC's own scope note + Knowledge System rule reconciled and claims restamped (the `#hard 500-line ceiling` anchor was dead). machinery 43. | — (no plan file) |
 | T2-E2.01 | Wiki grounding hardening | 2026-09-11 | Rules-index completeness gate (`[UNCATALOGUED]`), grounded claims across core slots, `UNRESOLVED-SYMBOL` `#symbol` resolution, visualizer freshness mode, UTF-8 guard extended. | [plan](../archive/t2-e2.01-wiki-grounding-hardening-plan.md) |
 | T2-E2.02 | Wiki refresh automation | 2026-09-11 | `wiki_okf.py import` OKF v0.2 ingest; secret-free scheduled `wiki-refresh.yml` raises/closes a `wiki-drift` issue. | [plan](../archive/t2-e2.02-wiki-refresh-automation-plan.md) |

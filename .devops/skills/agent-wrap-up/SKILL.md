@@ -1,7 +1,7 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 22
+version: 23
 updated: 2026-09-27
 ---
 
@@ -143,6 +143,7 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 2. **Spaghetti Triage rows**: dispose each row — `escalate-monster` (flag for the user to invoke `spaghetti-monster` directly), `new-parcel` (one backlog plan per row, same format as step 1), `defer` (log to `.wiki/core/18-knowledge-capture.md` — a `.wiki/` write, Agent A's scope under the Delegation Model), `inline-minor` (confirm resolved in the execution trace).
 3. **Known issues / tech debt**: if any known limitations, workarounds, or debt were accepted during the session, create a backlog entry for each.
 4. **Invariants shipped without a check**: when the session added a contract surface (a front-matter row, an asserted predicate, a prose non-negotiable) with **no deterministic check** behind it, name the missing gate and park it as a backlog item **in this same wrap-up**. An unrecorded honour-system link is a silent decision; the parking turns it into a recorded one. *(process-lessons, 2026-09-23)*
+5. **Grep the backlog before parking a new discovery.** A "new" tension may already be held: the 2026-09-27 knowledge consolidation surfaced *"KC's machinery boundary contradicts its own body"* and nearly parked it afresh, but `T2-E2.04` had carried exactly that item since the `T1-E3.23` wrap-up. Check the theme registers and the parked files for the tension's vocabulary **first** — a hit means this session either **resolves** the existing item or appends a note to it, never makes a duplicate copy. *(process-lessons, 2026-09-27)*
 
 **5b — Reconcile the open backlog** (theme registers + `.devops/backlog/backlog-index.md`)
 1. **Read the registers**: always read the full index and the theme registers before deciding nothing applies — items may be worded differently than the task; match by intent, not exact name.
