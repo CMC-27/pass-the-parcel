@@ -113,9 +113,13 @@ portable_files:
   # engine, so every module travels with the entry script; -SelfTest asserts this mirror.
   - scripts/lib/sync-manifest.ps1
   - scripts/lib/sync-bindings.ps1
+  - scripts/lib/sync-migrate.ps1
+  - scripts/lib/sync-run.ps1
   - scripts/lib/sync-prune.ps1
   - scripts/lib/sync-prefix.ps1
   - scripts/lib/sync-verify.ps1
+  - scripts/lib/sync-selftest.ps1
+  - scripts/lib/sync-selftest-fixtures.ps1
   - scripts/spaghetti-monster-scan.cjs
   # The batch eligibility predicate, executable. `parcel-sprint` (portable) and the
   # `sprint-run` skill call it as their authority, so it must ride with them; the
