@@ -179,6 +179,10 @@ The plan's `stories:` front-matter row — drafted at `@sprint-plan` commit time
 > - **The review file is the narrative home:** `reviews/*.md` holds the prose; the plan carries the finding, its disposition and the pointer — never a re-authored copy.
 > - **Every finding is dispositioned on the record:** actioned, or waived **with the reason**, as a disposition row. `ride` (non-blocking) is a **finding** label, never a third verdict.
 > - **The `SINGLE` self-review block is gated on `Plan Settings.Agents`:** it is evidence only under `SINGLE`; under `MULTI` the evidence is the review file and the block is inert (see the topology gate above).
+>
+> **`ponytail:` ceiling on the record rules above — they bound duplication, not size** (recorded, not measured): a record cell that has grown unreadable is caught by **no check**; the reader at the gate is the only catcher. The numeric cell cap **stays declined** (`T1-E3.23`, *Bounded Rules* #4) — a cap with no checker is unverifiable prose, and a checker over a plan record is **machinery for a document**.
+>
+> **The ceiling's evidence and upgrade path.** Measured 2026-09-29 over `.devops/archive/*-plan.md`: the only record above a 1 KB cell is the **pre-rule** `t1-e1.05` plan — a **3,090-char criterion cell** and a 4,464-char line — whose bulk is verbatim prior-run duplication, the very shape the round-collapse and narrative-home rules above now forbid; records written since land under ~700-char cells. Upgrade path, **named and not built**: a **report-only** **cell-size report** over the plan records, at the `scripts/rule_fanout.py` precedent (prints, always exits `0`, never wired into `.github/workflows/validate.yml`) — it needs its own script and fixture, so it is a separate decision, never invented here.
 
 > **Rejection Rule:** If plan does not make the app faster, safer, or easier to modify, do not check boxes. Reject and force rewrite via `PHASE_5_REVISION`.
 >
