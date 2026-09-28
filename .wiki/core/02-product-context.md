@@ -2,13 +2,16 @@
 title: "Product Requirements & Context"
 type: "core"
 name: "Product Context"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Executive summary, user personas, core hierarchy, and success metrics for the application."
 ---
 # Product Requirements & Context
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 **Application:** [APP_NAME]
 

@@ -2,13 +2,16 @@
 title: "Validation Standards"
 type: "core"
 name: "Validation Standards"
-status: "in-progress"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Core validation engine specification, data integrity tiers, and finalization guardrails."
 ---
 # Validation Standards
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 This document defines the validation tiers and data integrity rules governing the application.
 

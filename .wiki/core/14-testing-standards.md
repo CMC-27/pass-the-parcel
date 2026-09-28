@@ -10,7 +10,7 @@ description: "Gateway to the testing documentation subtree. Defines test pattern
 claims:
   - id: testing-subtree-registered
     source: .wiki/testing/testing-index.md#Testing Index
-    hash: sha256:ba3542b4f854dba99a12c9c41a33913555ac1a3cac338cad8c630d9696b41575
+    hash: sha256:74d0a4afb706f0dd53ebc0569768dacf58e83597f3c3e4092957df13d3f51574
 ---
 # Testing Standards
 

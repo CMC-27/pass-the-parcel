@@ -8,6 +8,8 @@ description: "Hub for all test architecture documentation."
 
 # Testing Index
 
+> **Template seed** — this index catalogues the testing docs, but the suite they describe belongs to a satellite: this repo carries no application source to test. Populate rows from a satellite's real suite; do not invent rows. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
+
 This index catalogs all testing standards and conventions for the project.
 
 ---

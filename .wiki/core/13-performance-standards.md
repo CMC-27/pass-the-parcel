@@ -2,13 +2,16 @@
 title: "⚡ Performance Standards"
 type: "core"
 name: "Performance Standards"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Architectural guardrails for maintaining a 95+ Lighthouse Performance Score, passing Core Web Vitals, and ensuring a frictionless user experience."
 ---
 # Performance Standards
+
+> **Template seed (mixed)** — the guardrails below are the portable pattern; bracketed values and scaffold prose are placeholders a satellite fills in. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 This document establishes the architectural guardrails for maintaining a **95+ Lighthouse Performance Score** and ensuring a snappy, responsive user experience. We optimize for **Core Web Vitals**: LCP, INP, and CLS.
 

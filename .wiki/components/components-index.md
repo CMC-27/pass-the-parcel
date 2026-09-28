@@ -17,9 +17,7 @@ This index catalogs all reusable UI components. Each component has a dedicated d
 ### Base UI Components
 | Doc | Description |
 |---|---|
-| `ui-button.md` | Button variants and interaction states |
-| `ui-modal.md` | Modal dialog patterns |
-| `ui-error-boundary.md` | Error boundary component |
+| _(one row per base UI component)_ | |
 
 ### Layout Wrappers
 | Doc | Description |

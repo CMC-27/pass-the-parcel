@@ -2,13 +2,16 @@
 title: "Application Shell Architecture"
 type: "core"
 name: "App Structure Shell"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "The outermost application shell — router, layout wrappers, context mounting, and navigation architecture."
 ---
 # Application Shell
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 **Path:** `src/[App].jsx`
 

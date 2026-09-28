@@ -2,13 +2,16 @@
 title: "AI Integration & Agentic Workflows"
 type: "core"
 name: "AI Features & Pipelines"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Documents the in-app AI capabilities, model integrations, prompt architectures, and human-in-the-loop patterns."
 ---
 # AI Integration & Agentic Workflows
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 **AI Engine:** [AI Provider & Model]
 

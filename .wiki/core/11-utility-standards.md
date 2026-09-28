@@ -2,13 +2,16 @@
 title: "🧮 Utility Standards"
 type: "core"
 name: "Utility Standards"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Architectural guardrails for deterministic mathematical calculations, floating-point safety, rounding precision, and data formatting."
 ---
 # Utility Standards
+
+> **Template seed (mixed)** — the guardrails below are the portable pattern; bracketed values and scaffold prose are placeholders a satellite fills in. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 This document establishes the strict mathematical, rounding, and data formatting standards applied across all modules. Because JavaScript natively uses IEEE 754 double-precision floats, explicit guardrails are required to prevent compounding rounding errors.
 

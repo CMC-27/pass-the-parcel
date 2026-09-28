@@ -16,8 +16,6 @@ This index catalogs all utility functions, custom hooks, and core logic. Utiliti
 
 | Doc | Description |
 |---|---|
-| `util-config.md` | Application configuration |
-| `util-error-logger.md` | Error logging service |
 | _(one row per shared utility)_ | |
 
 ## Custom Hooks
@@ -30,7 +28,7 @@ This index catalogs all utility functions, custom hooks, and core logic. Utiliti
 
 | Doc | Description |
 |---|---|
-| `schemas-zod.md` | Zod validation schema definitions (or your validator of choice) |
+| _(one row per validation schema)_ | |
 
 ---
 

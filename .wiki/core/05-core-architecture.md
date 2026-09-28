@@ -2,13 +2,16 @@
 title: "Core Architecture Concepts"
 type: "core"
 name: "Core Architecture Concepts"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Key architectural decisions, core engines, technical guardrails, and data management strategies."
 ---
 # Core Architecture Concepts
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 **Application:** [APP_NAME]
 

@@ -2,13 +2,16 @@
 title: "📖 Glossary of Terms"
 type: "core"
 name: "Glossary of Terms"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "A definitive reference for business logic terms, technical hierarchy, UI concepts, and domain abbreviations."
 ---
 # Glossary of Terms
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 This document defines the terminology used across the application, database, and documentation. It ensures that users and AI agents maintain a consistent understanding of business and functional concepts.
 

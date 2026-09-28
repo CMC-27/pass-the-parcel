@@ -2,13 +2,16 @@
 title: "🌟 Vision & North Star"
 type: "core"
 name: "Vision & North Star"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "The high-level strategic vision, guiding principles, and North Star for the application."
 ---
 # Vision & North Star
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 ## The Vision
 **[APP_NAME]** is [one-paragraph description of what the application is, who it serves, and what transformation it enables — describe the problem space, the domain, and the product's role in that ecosystem].

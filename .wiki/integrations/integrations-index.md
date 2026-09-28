@@ -8,6 +8,8 @@ description: "Catalog of external service and API integrations."
 
 # Integrations Index
 
+> **Template seed** — this index catalogues a satellite's integrations; the single row below is the worked example shipped with the template, not a live integration of this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
+
 This index catalogs all external service integrations used by the application.
 
 ---

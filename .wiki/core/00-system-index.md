@@ -17,29 +17,31 @@ This document is the **hub** in a hub-and-spoke architecture (see [14 Hub & Spok
 
 ## Quick Reference - Core Docs
 
-| Slot | Doc | Theme | Description | Last Verified |
-|---|---|---|---|---|
-| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index | 2026-09-11 |
-| 01 | Vision & North Star | Strategy | Strategic vision, North Star metric, anti-goals | — |
-| 02 | Product Context | Strategy | User personas, use cases, data hierarchy, roadmap | — |
-| 03 | Glossary of Terms | Strategy | Domain terms, data hierarchy, abbreviations | — |
-| 04 | State & Context | Architecture | State management, context shapes, data flow | — |
-| 05 | Core Architecture | Architecture | Architecture decisions, guardrails, core patterns | — |
-| 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming | — |
-| 07 | App Structure | Architecture | Application shell, router, context providers | — |
-| 08 | User Journey | Workflow | End-to-end workflow, user roles, phases | — |
-| 09 | Design System | Design | Color tokens, typography, components, interaction states | 2026-09-13 |
-| 10 | Validation Standards | Standards | Field/entity validation, data integrity rules | — |
-| 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol | — |
-| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | 2026-09-13 |
-| 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization | — |
-| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | 2026-09-11 |
-| 15 | AI Features | Features | AI workflows, model integration, prompt architecture | — |
-| 16 | External Integrations | Features | Third-party API integrations, import/export mappings | — |
-| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | 2026-09-17 |
-| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | 2026-09-27 |
+| Slot | Doc | Theme | Description | Status | Last Verified |
+|---|---|---|---|---|---|
+| 00 | System Index | Hub | The hub - master gateway, architecture flow, doc index | `stable` | 2026-09-28 |
+| 01 | Vision & North Star | Strategy | Strategic vision, North Star metric, anti-goals | `template` | — |
+| 02 | Product Context | Strategy | User personas, use cases, data hierarchy, roadmap | `template` | — |
+| 03 | Glossary of Terms | Strategy | Domain terms, data hierarchy, abbreviations | `template` | — |
+| 04 | State & Context | Architecture | State management, context shapes, data flow | `template` | — |
+| 05 | Core Architecture | Architecture | Architecture decisions, guardrails, core patterns | `template` | — |
+| 06 | Directory Structure | Architecture | Source tree, folder purposes, file naming | `template` | — |
+| 07 | App Structure | Architecture | Application shell, router, context providers | `template` | — |
+| 08 | User Journey | Workflow | End-to-end workflow, user roles, phases | `template` | — |
+| 09 | Design System | Design | Color tokens, typography, components, interaction states | `template` | 2026-09-13 |
+| 10 | Validation Standards | Standards | Field/entity validation, data integrity rules | `template` | — |
+| 11 | Utility Standards | Standards | Rounding rules, formatting, decimal protocol | `template` | — |
+| 12 | Security Standards | Standards | Security perimeter, RLS, auth, dependency mgmt | `stable` | 2026-09-28 |
+| 13 | Performance Standards | Standards | Bundle budgets, lazy-loading, render optimization | `template` | — |
+| 14 | Testing Standards | Standards | Test patterns, mocking, performance budgets | `in-progress` | 2026-09-28 |
+| 15 | AI Features | Features | AI workflows, model integration, prompt architecture | `template` | — |
+| 16 | External Integrations | Features | Third-party API integrations, import/export mappings | `template` | — |
+| 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | `stable` | 2026-09-28 |
+| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | `stable` | 2026-09-28 |
 
-> `Last Verified`: date the doc was last verified against reality by wrap-up or an assessment pass. `—` = never verified under this workflow.
+> `Status`: the slot's own front-matter status — `stable` = verified template machinery, `template` = a seed a satellite fills in, `in-progress` = drafting. A `template` slot's prose describes the pattern, not an artefact in this repo (see [AGENTS.md](../../AGENTS.md) § Design & Scope Notes).
+>
+> `Last Verified`: date the doc was last verified against reality by wrap-up or an assessment pass. `—` = never verified under this workflow. An app-facing `template` slot normally reads `—` because this repo has no application to verify it against — the label, not the date, is the honest signal there.
 >
 > A doc may also carry **Grounded Claims** — `claims:` frontmatter binding a material fact to its source file and a content hash. `python scripts/wiki_claims.py check` reports stale claims when that source changes. See [claims.md](../rules/claims.md).
 

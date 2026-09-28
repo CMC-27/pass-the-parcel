@@ -2,8 +2,9 @@
 title: "Design System: Architectural Precision & Technical Blueprint Clarity"
 type: "core"
 name: "Design System"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "The single source of truth for visual design decisions: tokens, typography, components, and interaction states."
@@ -13,6 +14,8 @@ claims:
     hash: sha256:d3b98c6619af582186bda102c2bf1d0ecc4ff44e206aea47138afc15f58425c0
 ---
 # Design System
+
+> **Template seed (mixed)** — the guardrails below are the portable pattern; bracketed values and scaffold prose are placeholders a satellite fills in. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 ## 1. Overview & Creative North Star
 **Creative North Star: "[Design Metaphor]"**

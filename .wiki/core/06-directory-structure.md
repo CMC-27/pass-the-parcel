@@ -2,13 +2,16 @@
 title: "Physical Directory Structure"
 type: "core"
 name: "Directory Structure"
-status: "stable"
+status: "template"
 format-version: 1
+last-reviewed: 2026-09-28
 dependencies: []
 db_relations: []
 description: "Physical source directory layout, mapping folders to their functional purpose."
 ---
 # Physical Directory Structure
+
+> **Template seed** — this slot documents the pattern a satellite fills in; it describes no artefact in this repo. See [AGENTS.md](../../AGENTS.md) § Design & Scope Notes.
 
 This document provides a fast mental model of the physical `/src` codebase to help locate implementation assets without running recursive terminal searches.
 
