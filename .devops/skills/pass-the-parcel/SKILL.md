@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports three topologies — `MICRO` (collapsed small-change record), `SINGLE` (fast plan) and `MULTI` (comprehensive plan) — chosen by task complexity.
-version: 28
-updated: 2026-09-27
+version: 29
+updated: 2026-09-28
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -213,7 +213,7 @@ Work enters the pipeline from a sprint queue. Do not start a plan that is neithe
 
 1. Locate the plan in the active sprint folder `.devops/sprints/sprint-{n}-<slug>/<code>-<slug>-plan.md` (`claim_status: QUEUED`). If the item is still parked at `.devops/backlog/<code>-<slug>-backlog.md`, it is **not committed** — run `@sprint-plan` first.
 2. **Check eligibility:** `depends_on` **satisfied** (per `.devops/rules/plan-lifecycle.md` § Claim Front-Matter: every dependency present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) and no `touches` overlap with any plan in `.devops/plans/`. The overlap clause is independent — a satisfied dependency does not clear it. If either fails, STOP and report the blocker. **Then derive the declared write set:** run `python scripts/write_set_check.py --plan <plan>` — it expands `touches` under the three coupling rules (prefix-cascade, embed-cascade, claim-source) and reports any forced path the declaration omits. `exit 1` is a **stop-the-line on both claim paths**: amend the declaration and re-run; never reason the closure out from prose. Canon: `.devops/rules/plan-lifecycle.md` § Claim Protocol step 2.
-3. **Claim on the trunk:** fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint folder to `.devops/plans/<code>-<slug>-plan.md`; commit `claim: <code>`.
+3. **Claim on the trunk — from a green baseline:** run the green-baseline preflight first (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Green Baseline*): the workspace's gate workflow, step-for-step — a red step means the claim is not taken. Then fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint folder to `.devops/plans/<code>-<slug>-plan.md`; commit `claim: <code>`.
 4. **Run in place:** no isolation step — no `git worktree`, no plan branch. All work lands on the trunk, one claim at a time.
 5. Update the **State & Gates** section (bottom of the plan) per the [Lifecycle table](#plan-state-lifecycle-canonical-reference):
    - **Status** → `PHASE_1`

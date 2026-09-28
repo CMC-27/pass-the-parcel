@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 15
-updated: 2026-09-27
+version: 16
+updated: 2026-09-28
 ---
 
 # Sprint Run — Batch Queue Runner
@@ -15,7 +15,7 @@ Run in order; any failure halts the batch **before** the first claim.
 
 1. **Resolve the ACTIVE sprint** from `.devops/backlog/SPRINTS.md`, mirroring `@sprint-status` § 1 (locate the row with status `🟢 ACTIVE`). No ACTIVE row → halt and suggest `@sprint-plan`. More than one ACTIVE row → flag the one-active-sprint violation and ask which is real.
 2. **Clean trunk.** Require an empty `git status --porcelain`. A dirty tree is **never** auto-cleaned.
-3. **Green baseline.** Require `check-parcel-prefix.ps1` and `check-utf8-agents.ps1` to both exit `0`.
+3. **Green baseline.** Run the green-baseline preflight — the workspace's gate workflow, executed step-for-step — and require every step to exit `0`; a red step halts the batch here. Canonical: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Green Baseline* (the enumeration is the workflow file; cited, never re-listed here).
 4. **Reconcile orphans.** A plan that is `CLAIMED` in `.devops/plans/`, is in the ACTIVE sprint's queue set, and has **never reached `PHASE_9`** is an *orphan* (claimed, then the spawn died). Re-adopt it — resume its per-plan chain from its recorded `Status` — rather than excluding it forever just because it is no longer `QUEUED`.
 5. **Offer a resume after a dirty HALT.** A prior HALT can leave the tree dirty, which would otherwise brick every later run. Surface the dirty set, then require the user to either commit/stash it or explicitly abandon the orphan's claim (`git mv` back to the queue + `claim_status: QUEUED`) before continuing.
 6. **Dependency preflight.** Two mechanical checks over the still-unresolved queue set (the `QUEUED` plans plus any unarchived dependency they name):
@@ -84,7 +84,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 
 - Preflight: no ACTIVE sprint in `.devops/backlog/SPRINTS.md`.
 - Preflight: non-empty `git status --porcelain` and no accepted resume path.
-- Preflight: red baseline (`check-parcel-prefix.ps1` or `check-utf8-agents.ps1` exit ≠ `0`).
+- Preflight: red baseline — a step of the gate workflow exits ≠ `0` (canonical: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Green Baseline*).
 - Per plan: a Phase 3.5 `Unresolvable:` entry.
 - Per plan: an `AUTO` gate whose outputs exist but fail the canonical **AUTO Gate Evidence Contract** (`.devops/rules/plan-lifecycle.md`) — a gate-critical section carrying a line-leading unchecked box or a bare `TBD`/`TODO`/`FIXME`, a Phase 4 acceptance-criteria table with no criterion + `Test Target` row, or a Phase 6 self-review with no acceptance-criterion row. **An unproven gate is not clearable.**
 - Per claim: `scripts/sprint_eligible.py` exits non-zero (no or multiple ACTIVE sprint rows, an unparsable plan file, a failed shared-reader import). The host halts and reports the stderr cause — it never reasons the predicate out from prose on the failed path.

@@ -3,7 +3,7 @@ title: Plan Lifecycle
 tags: [dev, rules, plans, parcel, lifecycle, concurrency]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-16
+last-reviewed: 2026-09-28
 related-to: [./README.md, ../skills/pass-the-parcel/SKILL.md, ../skills/sprint-plan/SKILL.md]
 ---
 
@@ -97,11 +97,28 @@ A **claim** is the right to execute one plan against the working tree. Only one 
 
 1. **Select.** From the active sprint queue, take the next item whose `depends_on` is **satisfied** (per § Claim Front-Matter: every dependency present in `.devops/archive/` **or** present in `.devops/plans/` with `claim_status: GATE_D_USER_APPROVAL`) and which has **no `touches` overlap** with any plan already in `.devops/plans/`. The `@sprint-run` batch path re-evaluates this predicate immediately before **each** claim against the live `.devops/plans/` (never once across the queue) and **iterates to a fixpoint** — each pass claims at most one plan, then re-applies the predicate to the remaining queued set until nothing is eligible (`.devops/skills/sprint-run/SKILL.md` § 2).
 2. **Derive the declared write set — the *Write-Set Derivation Witness*.** Before the claim commits, run `python scripts/write_set_check.py --plan <plan>` (manual path) or let the batch's per-claim pass run it (`@sprint-run` § 2). It answers **one** question — *does the declared `touches` name every file this plan must write?* — by expanding the declared set under three coupling rules and reporting any forced write the declaration omits: **prefix-cascade** (a declared base-context source forces the whole PREFIX-LOCKED agent set, discovered from the tree — the same set `check-parcel-prefix.ps1 -Sync` rewrites), **embed-cascade** (a declared `.devops/skills/<slug>/SKILL.md` forces `.devops/agents/<slug>.subagent.md` when that agent file exists), and **claim-source** (a declared path that is a `claims:` source under `.wiki/**` forces every doc declaring it, because claims bind by whole-file sha256). A declared directory or glob entry satisfies a required path through the overlap rules below. It **cites** § *Write-Set Overlap Predicate* as the **different** predicate it must never be conflated with — that one asks whether two plans collide; this one asks whether a plan's own declaration is complete. `exit 1` is a **stop-the-line on both claim paths**: amend the declaration and re-run; never reason the closure out from prose. A `touches` amendment made at claim time is a **protocol deviation, not bookkeeping** — re-verify the set against the plan's body *and* against the live canonical-home convention the moment the claim is taken, and record the amendment as the deviation it is.
-3. **Claim on trunk.** Fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint queue into `.devops/plans/`; commit `claim: <code>` on the workspace trunk. Confirm the commit carries the plan's **content**, not only the rename — `git mv` stages the rename while working-tree edits stay unstaged, so a bare commit records a content-empty claim with the front-matter living only in the working tree. `git add` the plan file explicitly and check `git show --stat HEAD`; amend when the stat is rename-only.
+3. **Claim on trunk — from a green baseline.** First run the green-baseline preflight (§ *Green Baseline*): a red step means the claim is not taken. Then fill `claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`; `git mv` the plan from the sprint queue into `.devops/plans/`; commit `claim: <code>` on the workspace trunk. Confirm the commit carries the plan's **content**, not only the rename — `git mv` stages the rename while working-tree edits stay unstaged, so a bare commit records a content-empty claim with the front-matter living only in the working tree. `git add` the plan file explicitly and check `git show --stat HEAD`; amend when the stat is rename-only.
 4. **No isolation step.** All work runs in place on the trunk — no `git worktree add`, no `plan/<code>-<slug>` branch.
 5. **Execute.** Run the pipeline on the trunk, in place.
 6. **Complete.** Set `claim_status: COMPLETE`; `git mv` the plan to `.devops/archive/` (root); commit. **`@sprint-run` batched Gate D exception:** the plan terminates at `PHASE_9` with `claim_status: GATE_D_USER_APPROVAL` and Gate D `OPEN`, and archives per plan only after the single consolidated human verdict plus the follow-up batch wrap-up (§ Deviations).
 7. **Shared files stay on trunk.** `sprint.md`, `backlog-index.md`, `agent-changelog.md`, `.devops/sync-manifest.yaml`, and `.devops/logs/version-history.md` are edited directly on the working tree at claim/close time — never from unclaimed work. (`ponytail:` ceiling — the changelog is written by the trunk, not a branch; upgrade path is per-plan changelog fragments.)
+
+### Green Baseline (canonical — cite it, never restate it)
+
+> **Stated once here; cited everywhere.** Step 3 above, `@sprint-run` § 1 step 3 and its § 5 halt list, `@pass-the-parcel` § Claim & Pick-up Flow step 3, the `parcel-sprint` host's hard-halt list and `HOW-TO.md` all cite this section. None of them re-lists it.
+
+A claim starts from a **green baseline**: **the gate workflow this workspace runs, executed step-for-step**. Four rules, and nothing else:
+
+- **The enumeration is the workflow file.** This section deliberately lists no steps: a list here would be a second copy that drifts from the thing CI actually runs. Which workflow applies is decided by the **split rule stated once in `.github/workflows/machinery-gates.yml`'s header** (invariant-everywhere vs template-identity) and cited here, never restated — the template runs `.github/workflows/validate.yml`, a satellite runs `.github/workflows/machinery-gates.yml`.
+- **A subset is never the definition.** `check-parcel-prefix.ps1` + `check-utf8-agents.ps1` are two of the invariant steps, and a trunk red on any *other* step is red all the same — the `machinery-version` discipline check is the observed instance (`T1-E2.09`, surfaced at Phase 6 round 3).
+- **Where it runs — once per path.** Manual path: before step 3 above commits the claim. Batch path: `@sprint-run` § 1 preflight, before the first claim. One rule, one moment per path.
+- **A red step means the claim is not taken.** Report the failing step with its verbatim failure, fix the trunk, re-run the baseline. The manual path does not commit the claim; the batch path halts before its first claim. A red trunk is never claimed over, and never "recorded and accepted" — the claim protocol gives **one** answer, so the two paths cannot drift into each other's reading.
+
+**Run shape and exclusions.** One-shot, non-interactive, bounded (§ *Gate Invocation Hygiene*). A step whose host is unavailable in this workspace is **recorded as an exclusion**, never a silent skip — the *# Host coverage* clause is part of the evidence. A workspace carrying **no gate workflow** cannot enumerate a baseline: that is reported **`un-enumerated`**, which is never green, and the claim records it as an exclusion.
+
+**Not a new gate.** No new lifecycle state, no new registration, no new script: this runs a check of an invariant the workflow already asserts, at the moment the claim needs it. The gate set (A-D; `MICRO`'s `A`/`C` `N/A` subset) and § *Deviations*' count are unchanged.
+
+`ponytail:` ceiling — the rule is prose and nothing verifies the steps were actually run: presence proves the instruction, never the act. Upgrade path: a single `check-baseline` entry point that reads the workflow's own steps and runs them (declined under Managed Simplicity — it would need its own copy of the list, i.e. the third dialect, and a `scripts/` surface the plan that introduced this section did not declare). **Moment split:** this governs the **claim and preflight** moments only; close-out and push-time runs are § *Gate Invocation Hygiene*'s, and the two "green" vocabularies stay disjoint.
 
 ### Counter Ownership (`machinery-version`)
 
@@ -243,4 +260,4 @@ The batch path's eligibility predicate (**every `depends_on` satisfied per § Cl
 
 ---
 
-*Last reviewed 2026-09-24. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-28. Changes to these rules require human sign-off.*

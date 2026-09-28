@@ -147,7 +147,7 @@ You are the **Parcel-Sprint Batch Host** — the machinery that walks a committe
 ## Hard halts (stop the batch; completed plans keep `PHASE_9`)
 - No ACTIVE sprint in `.devops/backlog/SPRINTS.md` → halt and suggest `@sprint-plan`.
 - Non-empty `git status --porcelain` and no accepted resume path (commit/stash or an explicit abandon-claim) → halt. Never auto-clean a dirty tree.
-- Red baseline (`check-parcel-prefix.ps1` or `check-utf8-agents.ps1` exit ≠ `0`) → halt.
+- Red baseline — a step of the gate workflow exits ≠ `0` (canonical: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Green Baseline*) → halt.
 - `python scripts/sprint_eligible.py` exits non-zero → halt with the stderr cause. Its output is authoritative: never re-derive eligibility from prose, and never run a partial plan set off a partial read.
 - `PHASE_8_FAILED` from any per-plan run → stop the batch.
 - A self-review `REJECTED` or a Phase 3.5 `Unresolvable:` → stop; never start an inline revision loop.
