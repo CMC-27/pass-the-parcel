@@ -8,6 +8,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 > **Track mapping.** Two versions move independently: the **product** line (this file) and the **machinery** line (`machinery-version` in `.devops/sync-manifest.yaml`). Product **v1.0.0** shipped on machinery-version **26**. Machinery releases continue after it, so the "Earlier releases" list below includes machinery versions newer than v1.0.0.
 
+## [Machinery major — 86] — 2026-09-28
+
+> **Why this appears here.** `machinery-version` bumps normally live only in [`.devops/logs/version-history.md`](.devops/logs/version-history.md). This entry exists because release **86** is graded **Major** — an **operator-contract change** — whose ceremony is a full machinery row **plus** this human-facing note. The tag step is **routed to `T3-E1.05`**, the plan that owns the sprint's release ceremony: the counter is still an integer, so release B's dotted flip has not happened and a major tag has no correct name yet.
+>
+> **Scope.** The Sprint 13 "V1 Hardening" batch waves — `T1-E2.13`, `T1-E4.05`, `T1-E3.22`, `T2-E2.05`. Earlier minors and patches of this sprint remain in the machinery log, which is what that log is for.
+
+### Changed
+- **The manual claim path now has an enumerated green baseline.** `.devops/rules/plan-lifecycle.md` named *"the next claim's green-baseline preflight"* while the workflow enumerated twelve steps and only the **batch** path had anything behind it — so a plan could be claimed against a red trunk and nobody would notice until review round three. Three surfaces reconciled to one dialect, and a **third** live copy of the divergent dialect collapsed inside the batch host's own agent file.
+- **The template wiki stops presenting app-facing seed text as curated truth.** Fourteen core slots move to `status: template`, the hub gains a `Status` column and a legend, and four section indexes are trimmed. A cold agent can now tell curated fact from seed scaffolding instead of assuming both are true.
+
+### Fixed
+- **A comment line inside a `touches` block-list silently truncated it.** The write-set witness returned **success** on a truncated declaration, and the eligibility predicate saw zero reserved surfaces where three existed — classifying a serial plan as parallel. One widened predicate, three fixtures, each observed failing before the fix.
+- **The sync engine regrew past its critical threshold again.** `scripts/sync-architecture.ps1` **975 → 314** and `scripts/lib/sync-bindings.ps1` **450 → 371**, split into four `scripts/lib/` modules and proven byte-identical across four CLI modes plus a 133-file satellite tree.
+
+### Migration note — satellites
+**A mandatory pull milestone.** Two reasons, and they are the two reasons this release is major rather than routine: the **claim baseline** changes what a manual claim is required to verify, and the **batch host agent file** changed directly (not via a prefix regenerate). A satellite that does not pull keeps the old divergent dialect and the unenumerated claim path.
+
 ## [Unreleased] — 2026-09-17
 
 ### Added
