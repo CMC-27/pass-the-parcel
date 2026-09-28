@@ -1,8 +1,8 @@
 ---
 name: agent-wrap-up
 description: Orchestrates the final project state synchronization, including changelog updates, feature documentation, and cross-reference validation.
-version: 25
-updated: 2026-09-28
+version: 26
+updated: 2026-09-29
 ---
 
 # Agent Wrap-Up Skill
