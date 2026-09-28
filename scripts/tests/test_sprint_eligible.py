@@ -118,6 +118,37 @@ class Tree:
     def claimed_plan(self, code: str, claim="CLAIMED", status="PHASE_3", **kw):
         return self.plan(self.plans_dir, code, claim=claim, status=status, **kw)
 
+    def block_plan(self, code: str, touches_lines, depends_lines,
+                   claim="QUEUED", status="QUEUED"):
+        """A plan whose `touches` / `depends_on` are YAML BLOCK-lists (T1-E2.13).
+
+        `*_lines` are the exact list lines, so a case can plant a comment inside
+        either list. Both fields are read through the shared `list_field`.
+        """
+        body = "\n".join([
+            "---",
+            f"code: {code}",
+            f"sprint: {SPRINT}",
+            f"claim_status: {claim}",
+            "owner: fixture",
+            'claimed_at: "2026-09-16"',
+            'last_touch: "2026-09-16"',
+            "touches:",
+            *touches_lines,
+            "depends_on:",
+            *depends_lines,
+            "---",
+            f"# {code}",
+            "",
+            "| Metric | Value |",
+            "|---|---|",
+            f"| **Status** | `{status}` |",
+            "",
+        ])
+        path = self.sprint_dir / f"{code.lower()}-fixture-plan.md"
+        path.write_text(body, encoding="utf-8")
+        return path
+
 
 def run(root, *args, cwd=None):
     return subprocess.run(
@@ -166,6 +197,36 @@ class SprintEligibleTestCase(unittest.TestCase):
         self._tmp.cleanup()
 
     # FILL:tests
+
+    # --- T1-E2.13: a legal YAML comment inside a block-list is not end-of-list ------
+
+    def test_comment_inside_block_list_does_not_truncate_touches_or_depends_on(self):
+        """A comment between items must not be read as end-of-list.
+
+        Pre-fix `list_field` broke at the comment, so the reserved surface declared
+        after it was invisible - the plan was classified `parallel` rather than
+        `serial`, and the lane predicate that keeps two writers off a shared surface
+        was blind - and the second `depends_on` code vanished from the unmet set.
+        """
+        self.tree.block_plan(
+            "T1-E1.01",
+            touches_lines=[
+                "  - scripts/foo.py",
+                "  # AMENDED at claim: the reserved surface below is real",
+                "  - .devops/sync-manifest.yaml",
+            ],
+            depends_lines=[
+                "  - T1-E1.98",
+                "  # AMENDED at claim: a second, genuine dependency",
+                "  - T1-E1.99",
+            ],
+        )
+        out = payload(run(self.root))
+        self.assertEqual(out["lanes"]["T1-E1.01"], "serial")
+        reasons = skipped(out, "T1-E1.01")
+        self.assertIn("unmet depends_on: T1-E1.98", reasons)
+        self.assertIn("unmet depends_on: T1-E1.99", reasons)
+
     def test_dependency_chain_is_claimed_in_queue_order(self):
         self.tree.queued("T1-E1.01")
         self.tree.queued("T1-E1.02", depends=["T1-E1.01"])

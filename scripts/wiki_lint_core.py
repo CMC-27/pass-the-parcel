@@ -80,6 +80,9 @@ def list_field(block: str | None, key: str) -> list[str]:
     """Extract a flow-list (`key: [a, b]`) or simple block-list (`key:` + `- a`).
 
     Flat scalar reader only — no nested YAML support (see plan ponytail ceiling).
+    A full-line YAML comment inside a block-list is skipped, never a terminator:
+    a comment is legal at any indentation, so it can never mean "the list ended".
+    Only a line that is neither an item, blank nor a comment ends the list.
     """
     if not block:
         return []
@@ -100,7 +103,7 @@ def list_field(block: str | None, key: str) -> list[str]:
                 sub = re.match(r"^\s+-\s*(.+)$", nxt)
                 if sub:
                     tokens.append(sub.group(1).strip().strip("\"'"))
-                elif not nxt.strip():
+                elif not nxt.strip() or nxt.lstrip().startswith("#"):
                     continue
                 else:
                     break

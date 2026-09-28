@@ -79,6 +79,32 @@ class Tree:
         path.write_text("\n".join(lines), encoding="utf-8")
         return path
 
+    def block_plan(self, block_lines, name="block-fixture-plan.md"):
+        """A plan whose `touches` is a YAML BLOCK-list (the T1-E2.13 shape).
+
+        `block_lines` are the exact list lines, so a case can plant a comment inside
+        the list. Nothing else changes: the declared set is read by the same
+        `list_field` the flow-list form goes through.
+        """
+        lines = [
+            "---",
+            "code: T1-E9.98",
+            "sprint: none",
+            "claim_status: QUEUED",
+            "owner: fixture",
+            'claimed_at: "2026-09-27"',
+            'last_touch: "2026-09-27"',
+            "touches:",
+            *block_lines,
+            "depends_on: []",
+            "---",
+            "# Fixture plan",
+            "",
+        ]
+        path = self.plans / name
+        path.write_text("\n".join(lines), encoding="utf-8")
+        return path
+
 
 def run(plan, root):
     return subprocess.run(
@@ -171,6 +197,47 @@ class WriteSetCheckTests(unittest.TestCase):
 
     def test_claim_source_forces_declaring_docs(self):
         plan = self.tree.plan(touches=[CLAIM_SOURCE])
+        result = run(plan, self.root)
+        self.assertEqual(result.returncode, 1, result.stdout)
+        for doc in WIKI_DOCS:
+            self.assertIn(doc, result.stderr)
+        self.assertIn("claim-source", result.stderr)
+
+    # --- T1-E2.13: a legal YAML comment inside a block-list is not end-of-list ------
+
+    def test_comment_inside_block_list_keeps_every_declared_path(self):
+        """A fully-declared plan whose own amendment rationale sits INSIDE the list
+        must pass.
+
+        Pre-fix this was a false RED on a complete declaration: the comment truncated
+        the read, so `scripts/thing.py` never entered the declared set, the
+        claim-source rule could not see it, and the two docs it forces were reported
+        missing by a witness whose whole job is to be *right* about the write set.
+        """
+        plan = self.tree.block_plan([
+            "  - scripts/thing.py",
+            "  # AMENDED at claim: the claim-source rule forces the two docs below",
+            "  - .wiki/core/doc-a.md",
+            "  - .wiki/core/doc-b.md",
+        ])
+        result = run(plan, self.root)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(payload(result)["missing"], [])
+
+    def test_comment_inside_block_list_cannot_hide_a_forced_write(self):
+        """The dangerous direction: a forcing entry declared AFTER a comment must not
+        be invisible.
+
+        Pre-fix the witness exited `0` on this declaration - a false GREEN on the one
+        check that is supposed to stop a wrong `touches` before work starts: every doc
+        the claim-source rule forces was absent from the declaration, and the reader
+        never looked past the comment to find the entry that forces them.
+        """
+        plan = self.tree.block_plan([
+            "  - scripts/tests/",
+            "  # AMENDED at claim: the reader fix forces the claim sources below",
+            "  - scripts/thing.py",
+        ])
         result = run(plan, self.root)
         self.assertEqual(result.returncode, 1, result.stdout)
         for doc in WIKI_DOCS:
