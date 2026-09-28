@@ -3,7 +3,7 @@ title: Surface Budget
 tags: [dev, rules, simplicity, budget, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-17
+last-reviewed: 2026-09-29
 related-to: [managed-simplicity.md, plan-lifecycle.md, agents-and-skills.md]
 ---
 
@@ -57,11 +57,18 @@ rules:
   - context-isolated :: context-isolated :: .opencode/plans/base-context.md :: .devops/rules/process-lessons.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | HOW-TO.md | README.md
   - Chunked Write Discipline :: Chunked Write Discipline :: AGENTS.md :: .devops/skills/sprint-plan/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md
   - counter-ownership :: a satellite never bumps it :: .devops/rules/plan-lifecycle.md :: .devops/rules/agents-and-skills.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/sync-architecture/SKILL.md | .devops/templates/SPRINTS.template.md | HOW-TO.md
+  - gate-d-human-halt :: Gate D always halts for the human :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel.agent.md | .devops/plans/template-plan.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | HOW-TO.md | README.md
+  - mode-vocabulary :: every gate halts for the user :: .devops/rules/plan-lifecycle.md :: .devops/plans/template-plan.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | HOW-TO.md
+  - agent-topology :: topology axis :: .devops/rules/plan-lifecycle.md :: .devops/plans/template-plan.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | HOW-TO.md | README.md
 agreement:
   - PHASE_9 :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
   - GATE_D_USER_APPROVAL :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
   - MULTI :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
   - SINGLE :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
+  - MICRO :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/plans/template-plan.md
+  - Gate D always halts for the human :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/templates/base-context.template.md
+  - every gate halts for the user :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/templates/base-context.template.md
+  - topology axis :: .opencode/plans/base-context.md | .devops/rules/plan-lifecycle.md | .devops/templates/base-context.template.md
 <!-- SURFACE-BUDGET:END -->
 
 ## Usage
@@ -75,4 +82,4 @@ Report-only. It prints a loud one-line notice and exits `0` when the block is ab
 
 ---
 
-*Last reviewed 2026-09-17. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-29. Changes to these rules require human sign-off.*

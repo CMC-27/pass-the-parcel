@@ -40,14 +40,14 @@ flowchart LR
     E -->|Gate D: Implementation| D([Done])
 ```
 
-The plan moves through ten phases in six groups. Groups A and B **plan**, Group C **reviews** (independently), Group D **executes and verifies**, Groups E and F handle **user review and wrap-up**. Gates A–D are hard stops: an unapproved plan never reaches execution. A `SINGLE` topology collapses the pipeline to one agent playing the personas inline for low-risk changes.
+The plan moves through ten phases in six groups. Groups A and B **plan**, Group C **reviews** (independently), Group D **executes and verifies**, Groups E and F handle **user review and wrap-up**. Gates A–D are hard stops: an unapproved plan never reaches execution. A `SINGLE` topology collapses the pipeline to one agent playing the personas inline for low-risk changes; the **topology axis** also offers `MULTI` (independent reviewers) and `MICRO` (a collapsed small-change record). Canonical: `.devops/rules/plan-lifecycle.md`.
 
 ## What you get
 
 | | Capability | Detail |
 |---|---|---|
 | 🧭 | **Stateless 10-phase pipeline** | Phases, gates, and lifecycle states are defined once and enforced across the skills and agents. |
-| 🛑 | **Four hard gates** | A Scope → B Spec & Plan → C Peer Reviews → D Implementation. `AUTO` mode auto-clears A–C; **Gate D always waits for a human**. |
+| 🛑 | **Four hard gates** | A Scope → B Spec & Plan → C Peer Reviews → D Implementation. `AUTO` mode auto-clears A–C; **Gate D always halts for the human** ([canonical](.devops/rules/plan-lifecycle.md)). |
 | 📚 | **Agent-first wiki** | Governance rules, a deterministic linter, and grounded claims keep the knowledge base honest as the code changes. |
 | 🔒 | **Deterministic CI gates** | Prefix integrity, UTF-8, wiki lint, coverage, and claims drift on every push — in this template **and in every satellite**, because the gate workflow travels with the portable surface. The template additionally self-tests its sync engine. |
 | 🚚 | **Portable machinery** | Skills, agents, rules, and scripts sync into any satellite workspace with per-item `CURRENT`/`UPGRADE`/`AHEAD`/`MIGRATION`/`DRIFT` verdicts — ordering-aware, so a pull never silently rewinds a satellite's counter. A satellite also declares its own **skill tier** — `FULL` (the default: the whole library) or `CORE` (the 18 measured pipeline-carrying skills) — and `CORE`→`FULL` is purely additive. |

@@ -1,8 +1,8 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports three topologies — `MICRO` (collapsed small-change record), `SINGLE` (fast plan) and `MULTI` (comprehensive plan) — chosen by task complexity.
-version: 29
-updated: 2026-09-28
+version: 30
+updated: 2026-09-29
 ---
 
 # SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
@@ -68,7 +68,7 @@ Two fields locate a plan: its **physical location** (parked / sprint queue / act
 
 ## Agent Topology (SINGLE vs MULTI — fast plan vs comprehensive plan)
 
-Pass-the-parcel runs in **one of three topologies**, chosen by **task complexity** at plan start — unless the orchestrator runs a **locked preset** that fixes it (see § Orchestrator Presets). Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED`/`AUTO`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file. `MICRO` is the lightest of the three and is **manual-path only** — its definition, bounds and gate set are canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
+Pass-the-parcel runs in **one of three topologies**, chosen by **task complexity** at plan start — unless the orchestrator runs a **locked preset** that fixes it (see § Orchestrator Presets). Topology is the **second axis**, orthogonal to `Mode` (`USER-MANAGED` — every gate halts for the user; `AUTO` — auto-clears Gates A-C **only** on positive evidence; canonical: `.devops/rules/plan-lifecycle.md`). Both axes are recorded in the plan's **Plan Settings** block at the **TOP** of the plan file. `MICRO` is the lightest of the three and is **manual-path only** — its definition, bounds and gate set are canonical in `.devops/rules/plan-lifecycle.md` § *Micro Lane*.
 
 | | `MULTI` (default) — **comprehensive plan** | `SINGLE` — **fast plan** | `MICRO` — **collapsed small-change record** |
 |---|---|---|---|
