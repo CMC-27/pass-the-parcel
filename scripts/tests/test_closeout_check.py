@@ -148,6 +148,25 @@ class CloseoutCheckTest(unittest.TestCase):
         code, out, _ = self.run_case(UNREADABLE_BARE, detached=True)
         self.assertNotIn("Traceback", out)
 
+    # Bold wrapper (`**CI verdict:** …`) is the template scaffold's spelling.
+    def test_bold_wrapped_verdict_line_is_read(self):
+        head = build_tree(self.root, pushed=True)
+        (self.root / "record.md").write_text(
+            f"**CI verdict:** CI green \u2014 all 16 run(s) @ {head} succeeded\n",
+            encoding="utf-8",
+        )
+        proc = subprocess.run(
+            [
+                sys.executable, str(SCRIPT),
+                "--root", str(self.root),
+                "--record", str(self.root / "record.md"),
+                "--remote-ref", "origin/main",
+            ],
+            capture_output=True, text=True,
+        )
+        out = (proc.stdout + proc.stderr).strip()
+        self.assertEqual(proc.returncode, 0, out)
+
     # A record with no verdict line at all is a failure.
     def test_missing_verdict_line_fails(self):
         build_tree(self.root, pushed=True)

@@ -29,7 +29,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-VERDICT_PREFIX = "CI verdict:"
+VERDICT_LABEL = "**CI verdict:**"
+RE_VERDICT_LINE = re.compile(r"^\**\s*CI verdict:\s*(?P<value>.+?)\s*\**\s*$")
 DASH = "\u2014"
 
 RE_GREEN = re.compile(r"^CI green " + DASH + r" all (\d+) run\(s\) @ ([0-9a-f]{7,40}) succeeded$")
@@ -53,12 +54,16 @@ def ok(reason: str) -> int:
 
 
 def read_verdict_line(text: str) -> str | None:
-    """Return the value of the last `CI verdict:` line, or None."""
+    """Return the value of the last `CI verdict:` line, or None.
+
+    Tolerates the markdown bold wrapper the template scaffold uses
+    (`**CI verdict:** <value>`), on either side of the value.
+    """
     found = None
     for raw in text.splitlines():
-        line = raw.strip()
-        if line.startswith(VERDICT_PREFIX):
-            found = line[len(VERDICT_PREFIX):].strip()
+        m = RE_VERDICT_LINE.match(raw.strip())
+        if m:
+            found = m.group("value").strip().strip("*").strip()
     return found
 
 
@@ -131,7 +136,7 @@ def check(record: Path, root: Path, remote_ref: str | None) -> int:
 
     value = read_verdict_line(record.read_text(encoding="utf-8"))
     if value is None:
-        return fail(f"no `{VERDICT_PREFIX}` line in {record}")
+        return fail(f"no `CI verdict:` line in {record}")
 
     verdict = parse_verdict(value)
     if verdict is None:
