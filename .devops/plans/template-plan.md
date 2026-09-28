@@ -329,6 +329,8 @@ Record the executed scope plus exclusions in the `Suite scope` column — Gate D
 
 **Wiki Updates:** [List wiki docs updated]
 
+**CI verdict:** [the close-out read of item 4 of `@agent-wrap-up` § Phase 7a, recorded **verbatim** in one of its three verdict literals — the literals' home is that section, and `scripts/closeout_check.py` is their checker; never paraphrase the line]
+
 **Plan Archiving:** Plan archived to `.devops/archive/{code}-{slug}-plan.md` (via `git mv`, no stub)
 
 **Backlog Review:** [Backlog items reviewed / updated]

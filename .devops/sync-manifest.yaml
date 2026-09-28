@@ -128,6 +128,12 @@ portable_files:
   # missing it would cite a checker it does not have. Its fixture stays local for the
   # same reason as sprint_eligible's: `validate.yml` is not portable.
   - scripts/write_set_check.py
+  # The close-out read's witness, executable. `@agent-wrap-up` section Phase 7a item 4
+  # invokes it against the wrapped plan's own Completion Note, and that skill is portable,
+  # so a satellite missing it would cite a checker it does not have. Offline by
+  # construction - local git state only, no `gh`, no network (T1-E2.11 Q5). Its fixture
+  # stays local for the same reason as its neighbours: `validate.yml` is not portable.
+  - scripts/closeout_check.py
   - scripts/rule_fanout.py
   - .github/workflows/wiki-refresh.yml
   # The satellite-shaped machinery gate: the invariant subset of validate.yml (prefix,

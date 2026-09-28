@@ -159,7 +159,7 @@ Item detail lives in the `t{n}-<slug>-backlog.md` theme registers; `backlog-inde
 3. **Consolidate (mandatory)**: Run `@knowledge-consolidation` in **tidy mode** (see its Modes table for scope). This is the step that keeps the log lean — skipping it makes KC growth one-way. Full audits are NOT part of wrap-up; they fire only on the consolidation skill's own triggers (KC above **25 entries**).
 
 ### Phase 7a: Coverage Gate (Hard Stop — all three scripts must exit 0; the trunk-CI read must not be red)
-Run the mechanical gates. **Wrap-up is not complete until all three scripts exit 0 and the trunk-CI read (item 4) is not red.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
+Run the mechanical gates. **Wrap-up is not complete until all three scripts exit 0, the trunk-CI read (item 4) is not red, and item 4's checker exits `0`.** The gates are cheap (measured <1s each, tiny output) — run them inline in the main context; do NOT delegate them. Use `--quiet` on the lint gate for clean runs.
 
 1. **Doc-graph lint**: `python scripts/wiki_lint.py --quiet` — structure anchors, body links, frontmatter fields/status, frontmatter `related-to`/`dependencies` links, hub→spoke coverage, index cataloguing (`[UNINDEXED]`/`[MISSING]`), hub reachability, orphans, encoding. (Omit `--quiet` when diagnosing failures.)
 2. **Code-coverage gate**: `python scripts/wiki_claims.py coverage` — every non-test file in `src/utils`, `src/hooks`, `src/components`, `src/views` must carry wiki evidence: its domain index cites a real exported symbol (preferred), OR a wiki doc claims-binds its path, OR the retained filename/folder match. On gaps: add an index row citing a real exported symbol, add a `claims: source:` binding, or add to the gate's `ALLOWLIST` with an explicit reason. The subcommand's docstring is canonical. Never skip silently.
@@ -180,6 +180,10 @@ On a failure, fix and re-run. **Do not proceed to 7b on a red gate.**
 
    This is a close-out **read**, not a push cadence: a trunk never pushed lands on the third verdict and says so plainly. It does **not** decide whether a red trunk blocks a *claim*, and it does **not** rule on `gh workflow` / `act` scope — both are `T1-E3.22`'s (`.devops/backlog/t1-e3.22-manual-claim-baseline-backlog.md`), deliberately left to it.
 
+   **The no-push rule.** *A trunk that has not been pushed has not been verified.* A trunk never pushed is the **ordinary** state here — this read runs at close-out, before the push that `@test-and-deploy` § 5 owns — so an unpushed trunk is **not** a failure of this step: record the third verdict with `not pushed` as its reason (`CI status unreadable — not pushed @ <sha>`) and move on. `not pushed` is a **reason** under the third verdict, never a fourth verdict, and this rule never authorises a push — § 5's *never push automatically* stands exactly as written.
+
+   **Then check the record.** Close this item by running `python scripts/closeout_check.py --record <this plan>`. It reads the plan's `## Completion Note (Wrap Up)` verdict line — that field's shape is owned by `.devops/plans/template-plan.md`, and this script is its checker — and exits `0` only when the line is one of the three literals above, a coloured verdict names a sha equal to `HEAD` that the remote-tracking ref can back, and an `unreadable` verdict carries a non-empty reason. The thing it exists to stop is an **unbacked colour claim**: a green the remote cannot back is worse than an honest `unreadable`. A red verdict is **not** a checker failure — this step validates the record's shape, never the colour, because a red trunk is this section's hard stop, not the checker's.
+
 ### Phase 7b: State Stamps (Checklist — easy to forget, not gated)
 Mutations that keep downstream tooling honest. Do all three, then close out.
 1. **Stamp freshness**: update the `Last Verified` date in the `.wiki/core/00-system-index.md` Quick Reference for every core doc touched this session.
@@ -189,6 +193,6 @@ Mutations that keep downstream tooling honest. Do all three, then close out.
 ---
 
 ## Hard Stop
-**Coverage Gate is a hard stop**: Phase 7a must exit 0 on all three scripts — **and** the trunk-CI read must not be `CI red` — before wrap-up is declared complete. A green lint with red coverage — or a green coverage with red claims — is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.
+**Coverage Gate is a hard stop**: Phase 7a must exit 0 on all three scripts — **and** the trunk-CI read must not be `CI red` **and** item 4's checker must exit `0` — before wrap-up is declared complete. A green lint with red coverage — or a green coverage with red claims — is a failed wrap-up. No placeholders — finish every phase you did not explicitly skip.
 
 **Batch wrap-up is a hard stop too**: the § Batch Scope confirmation gate must pass for a plan before it is marked complete. A plan failing any assertion is carry-forward, never `COMPLETE`; a red repo gate blocks the whole batch wrap-up.

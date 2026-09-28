@@ -81,6 +81,9 @@ jobs:
       - name: Write-set derivation witness (fixture tests, temp trees only)
         run: python scripts/tests/test_write_set_check.py
 
+      - name: Close-out read witness (fixture tests, temp trees only)
+        run: python scripts/tests/test_closeout_check.py
+
       - name: Encoding guard fixtures (temp trees only)
         # Drives the real scripts/check-utf8-agents.ps1 over planted marker/legit byte
         # payloads; skips itself where no PowerShell host exists. Guards a GATE, so it
