@@ -16,7 +16,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
-| *(none open)* | — | — | — | — |
+| T1-E1.06 | No `ptp-*` subagent is reachable on the opencode surface | `QUEUED` | `MULTI` (the default topology) cannot spawn Group A/B/C there, and by the same construction the `@sprint-run` batch runner likely cannot spawn `ptp-parcel-fast` — a config the repo owns grants the permission the runtime refuses. | [t1-e1.06-opencode-subagent-surface-backlog.md](./t1-e1.06-opencode-subagent-surface-backlog.md) |
 
 ### Completed
 
