@@ -1,8 +1,8 @@
 ---
 name: spaghetti-monster
 description: Make sure to use this skill whenever the user mentions "spaghetti", "spaghetti-monster", "god object", "find tangled code", "scan for complexity", "refactor opportunities", "codebase audit", "what needs refactoring", or asks to detect, untangle, or audit high-entropy, highly coupled, non-cohesive code. The monster is a Hunter — it scans the codebase, quantifies the spaghetti, and packages each high-value target into a backlog parcel plan with Phase 1 and Phase 2 pre-populated, ready for the user to pick up Phase 3 (user clarification) in a new conversation. It does NOT execute refactors from this skill — that work happens later via pass-the-parcel execution, with the monster optionally re-invoked as a Group D sub-skill.
-version: 4
-updated: 2026-09-29
+version: 5
+updated: 2026-09-30
 ---
 
 # Spaghetti Monster — The Hunter
@@ -99,7 +99,7 @@ Execute in order. **Stage 1 is non-negotiable.** A kill list without a real anal
 | # | File | Lines | Peak M | CBO | Domain? | Top Offender(s) |
 |---|---|---|---|---|---|---|
 
-4. **Idempotency check:** for each kill-list target, search `.devops/logs/agent-changelog.md` for refactor entries on the same file in the last 90 days. If found, surface the prior entry; the user decides whether to create a new plan.
+4. **Idempotency check:** for each kill-list target, search `.devops/logs/agent-changelog.md` and, for anything older, its pre-index narrative record `.devops/archive/agent-changelog-history.md`, for refactor entries on the same file in the last 90 days. If found, surface the prior entry; the user decides whether to create a new plan.
 5. **Duplication check:** flag pairs of files that share > 50% of import paths AND have functions with overlapping names. Use `git diff --stat <fileA> <fileB>` to confirm. Cross-file duplicates are likely one extraction, not N flattenings — the kill list should recommend the single extraction target.
 6. **Hook classification:** for each target, mark which Extension Hooks (A/B/C/D) apply. This becomes the hook requirements in Phase 2 of each plan.
 7. **Halt at Gate A.** Present the kill list to the user. The user selects which targets become backlog parcel plans. Without this gate, the monster creates plans indiscriminately.
