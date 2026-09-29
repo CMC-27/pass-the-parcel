@@ -3,7 +3,7 @@ type: "process"
 name: "Code Quality & Refactoring Register"
 status: "active"
 description: "Living audit of code complexity, coupling, and test health. Process-driven — items enter here from end-of-cycle checks, not roadmap planning."
-last_scan: "2026-09-25"
+last_scan: "2026-09-29"
 ---
 # 🔧 Pass the Parcel — Code Quality & Refactoring Register
 
@@ -107,19 +107,47 @@ rank | source                                   | lines | imp | fn | CCN(h) | te
 
 Touched, already flagged, counts refreshed: `scripts/sprint_eligible.py` **463 → 549** (T1-E3.20's `mode_conflicts`, T1-E5.01's MICRO vocabulary) and `scripts/tests/test_sprint_eligible.py` **410 → 473** (fixtures **29 → 34**). Untouched this sprint: `spaghetti-monster-scan.cjs` (261 — identical to sprint 10's scan), `wiki_claims.py` (484), `wiki_lint_checks.py` (423), `check-parcel-prefix.ps1` (359).
 
+### Machinery scan — 2026-09-29 (sprint 13 close, all roots)
+
+```
+node scripts/spaghetti-monster-scan.cjs
+no src/ tree in this workspace — skipping (nothing to scan there)
+=== TOP 40 SOURCE+TEST RISK (unified kill list) ===
+roots: src/ (app) + scripts/, .devops/skills/, .devops/agents/, .devops/templates/ (machinery)
+non-ECMAScript rows (`imp`/`fn`/`CCN` shown as `-`) are ranked on line count only.
+
+rank | source                                   | lines | imp | fn | CCN(h) | test      | risk
+   1 | scripts\spaghetti-monster-scan.cjs       |   261 |   2 |   8 |     81 | (no test) | 51.0
+   2 | scripts\sprint_eligible.py               |   549 |   - |   - |      - | (no test) |  5.0
+   3 | scripts\tests\test_sprint_eligible.py    |   534 |   - |   - |      - | (no test) |  4.7
+   4 | scripts\wiki_claims.py                   |   484 |   - |   - |      - | (no test) |  3.7
+   5 | scripts\wiki_lint_checks.py              |   423 |   - |   - |      - | (no test) |  2.5
+   6 | scripts\tests\test_closeout_check.py     |   417 |   - |   - |      - | (no test) |  2.3
+   7 | scripts\closeout_check.py                |   393 |   - |   - |      - | (no test) |  1.9
+   8 | scripts\lib\sync-bindings.ps1            |   372 |   - |   - |      - | (no test) |  1.4
+   9 | scripts\check-parcel-prefix.ps1          |   359 |   - |   - |      - | (no test) |  1.2
+```
+
+**Baseline for this scan is the sprint's own first claim (`f4816bc`, the parent of `f42ff14`), scanned in a throwaway worktree — not the previous register block.** Sprint 12 closed without appending one, so the 2026-09-25 block above would have measured the wrong window. Before → after over the sprint: **files >400 lines 6 → 5**; hot spots (`CCN(h)` >15) **1 → 1** (the scanner itself, regex-inflated as always); the two Kill List rows the sprint was opened to close both fell out of the top ranks — `scripts/sync-architecture.ps1` **975 → 314** and `scripts/lib/sync-bindings.ps1` **451 → 372**.
+
+**One new Kill List row: `scripts/tests/test_closeout_check.py` — 417 lines, 🔴 OPEN.** *Flagged at close of sprint 13 by `T1-E2.12`* — the new close-out checker's fixture suite crossed the >400 warn on the day it was born (27 tests over throwaway git trees), and `scripts/closeout_check.py` sits 7 lines behind it at **393**. Both are test/product pairs that grew together again this sprint with `T1-E3.25`'s `--stamp` fixtures. Test, not product, so WATCH would be defensible; the line is the line.
+
+Touched, already flagged, counts refreshed: `scripts/tests/test_sprint_eligible.py` **473 → 534** (fixtures **34 → 35**, the `T1-E2.13` comment-in-block-list case). Untouched this sprint: `spaghetti-monster-scan.cjs` (261), `sprint_eligible.py` (549), `wiki_claims.py` (484), `wiki_lint_checks.py` (423), `check-parcel-prefix.ps1` (359).
+
 ### Kill List (ranked by risk × effort)
 
 | File | Lines | CCN(h) | Imports | Status | Plan | Flagged by |
 |------|-------|--------|---------|--------|------|-----------|
 | `scripts/sync-architecture.ps1` | 995 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 (`T1-E3.06` G3) — >800 critical: 2.5× the line threshold. Now **497** lines (485 at W6; +12 when W8.1 added the `prune_dirs` capability); the engine moved to five dot-sourced `scripts/lib/` modules |
-| `scripts/spaghetti-monster-scan.cjs` | 254 | 79 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless |
+| `scripts/spaghetti-monster-scan.cjs` | 261 | 81 | 2 | 🔴 OPEN | — | First machinery scan, 2026-09-16 — CCN(h) inflated by regex literals; the file is branch-dense regardless. Steady at **261** since sprint 10 |
 | `.devops/skills/app-vision-north-star/SKILL.md` | 634 | — | — | ✅ RESOLVED | `T1-E4.01` W8.1 | Retired — product/strategy authoring with no operational home; the skill folder is gone |
 | `scripts/wiki_lint.py` | 486 | — | — | ✅ RESOLVED | `T1-E4.01` W6 | First machinery scan, 2026-09-16 — >400 warn. Now **60** lines; readers/primitives in `wiki_lint_core.py`, checks in `wiki_lint_checks.py` |
 | `scripts/check-parcel-prefix.ps1` | 370 | — | — | ⚪ WATCH | — | Pre-existing (`T1-E2.02`, ruled won't-fix 2026-09-19); under the 400-line threshold, tracked for branch-count trend only |
 | `scripts/wiki_claims.py` | 484 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — crossed >400 warn (coverage subcommand growth); was WATCH |
 | `scripts/sprint_eligible.py` | 549 | — | — | 🔴 OPEN | — | Sprint 9 close, 2026-09-18 — new file above warn (predicate + lanes + complexity); 463 → **549** by sprint 11 close (+T1-E3.20 `mode_conflicts`, +T1-E5.01 MICRO) |
 | `scripts/wiki_lint_checks.py` | 423 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — split product above warn; trend only |
-| `scripts/tests/test_sprint_eligible.py` | 473 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — fixture growth 18→29; 410 → **473** (fixtures **29 → 34**) by sprint 11 close; test, not product |
+| `scripts/tests/test_sprint_eligible.py` | 534 | — | — | ⚪ WATCH | — | Sprint 9 close, 2026-09-18 — fixture growth 18→29; 410 → **473** by sprint 11 close (fixtures **29 → 34**); **473 → 534** by sprint 13 close (fixtures **34 → 35**, the `T1-E2.13` comment-in-block-list case); test, not product |
+| `scripts/tests/test_closeout_check.py` | 417 | — | — | 🔴 OPEN | — | **Sprint 13 close, 2026-09-29 — flagged at close of sprint 13 by `T1-E2.12`.** New this sprint and over the >400 warn on arrival (27 fixtures); its sibling `scripts/closeout_check.py` is 7 lines behind at **393**, and `T1-E3.25` grew both |
 | `scripts/sync-architecture.ps1` | 975 | — | — | ✅ RESOLVED | `T1-E4.05` | Sprint 11 close, 2026-09-25 — regrew **561 → 757**. **Sprint 12 (`T1-E1.05`), 2026-09-26 — 757 → 863**: the sync-side migration, the widened header contract and the three `-SelfTest` plants. **`T1-E2.11`, 2026-09-28 — 863 → 975 (+112)**: `Invoke-CapturedChild` and the 29-launch migration, the `Test-JsonShape` control, the F3 self-check assertion and the child-diagnostics fixture. It peaked **175 lines past the >800 critical** — the register's top-priority item. **Closed 2026-09-28 by `T1-E4.05`: 975 → 314**, W6 re-applied (the harness, its fixtures, the `T1-E1.05` migration and the profile-aware run path each to their own `scripts/lib/` module), behaviour proven against pre-split goldens across four CLI modes plus a byte-compared 133-file satellite tree |
 | `scripts/lib/sync-bindings.ps1` | 408 | — | — | ✅ RESOLVED | `T1-E4.05` | Sprint 12 (`T1-E1.05`), 2026-09-26 — crossed the >400 warn as the sync-side migration landed inside `Update-TargetModelBindings`. **Closed 2026-09-28 by `T1-E4.05`: 450 → 371** (the migration half extracted to `scripts/lib/sync-migrate.ps1`, 116) |
 | `scripts/lib/sync-verify.ps1` | 117 | — | — | ⚪ WATCH | — | Sprint 12 (`T1-E1.05`), 2026-09-26 — **cohesion, not size** (117 lines, under every threshold): `Invoke-StructuralVerify` mixes structural checks with gate orchestration. Flagged by the parcel's Phase 6 and routed here rather than fixed in-scope |
@@ -149,13 +177,15 @@ Touched, already flagged, counts refreshed: `scripts/sprint_eligible.py` **463 �
 
 | Metric | Value | Last Checked |
 |--------|-------|-------------|
-| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-25 |
-| Total tests | 0 | 2026-09-25 |
-| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-25 |
-| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-25 |
-| Lint warnings | 0 | 2026-09-25 |
+| Total test files | 0 — no application test suite (no `package.json` in this template repo) | 2026-09-29 |
+| Total tests | 0 | 2026-09-29 |
+| Full suite pass rate | n/a — see the deterministic gate set below | 2026-09-29 |
+| Lint errors | 0 (`python scripts/wiki_lint.py --quiet`) | 2026-09-29 |
+| Lint warnings | 0 | 2026-09-29 |
 
-Gate set at sprint 11 close, all exit `0`: `wiki_lint.py --quiet` · `wiki_claims.py check` (0 stale) · `wiki_claims.py coverage` (no `src/` tree — nothing to cover) · `check-parcel-prefix.ps1` (PASS ×9, NOMODEL ×11, seed ok) · `check-utf8-agents.ps1` (ALL CLEAN, 182 files) · `sync-architecture.ps1 -SelfTest` (5 dirs, 34 skills, 19 files) · four fixture suites OK — `test_sprint_eligible` **34** (was 29), `test_check_utf8_agents` 10, `test_wiki_claims_coverage`, `test_rule_fanout` 18 · `rule_fanout.py` **0 unauthorised ×8**.
+Gate set at sprint 13 close, all exit `0`: `wiki_lint.py --quiet` · `wiki_claims.py check` (0 stale) · `wiki_claims.py coverage` (no `src/` tree — nothing to cover) · `check-parcel-prefix.ps1` (PASS ×9, NOMODEL ×11, seed ok — **see the note below**) · `check-utf8-agents.ps1` (ALL CLEAN, **185** files) · `sync-architecture.ps1 -SelfTest` (5 dirs, **35** skills, 25 files) · **six** fixture suites, **113** tests — `test_sprint_eligible` **35**, `test_closeout_check` **27**, `test_write_set_check` **14**, `test_check_utf8_agents` **14**, `test_rule_fanout` **18**, `test_wiki_claims_coverage` **5** · JSON + YAML frontmatter parse · `rule_fanout.py` **12 registered rules**.
+
+> **Two figures are measured at different moments, and the difference is load-bearing.** The green run above was taken earlier in the close. A **concurrent, out-of-scope session** then landed the rule-11 wording change and re-inlined only 2 of the 9 locked agents, so `check-parcel-prefix.ps1` reads **7 prefix-drift failures** and `rule_fanout.py`'s derived-region strip stops early (every agent file re-counts as a site). Both are that session's to repair (`-Sync`), and the operator routed them to the wrap-up + `@test-and-deploy`. The **fan-out fix owned by this close** — registering `.devops/skills/user-testing/SKILL.md` as a `claim_status` allowed-surface — was verified in an isolated worktree at HEAD: `claim_status` unauthorised **7 → 6**, the residue being exactly the prefix-drift set.
 
 The workspace's executable contract is its **deterministic gate set**, not a unit-test suite: `scripts/check-parcel-prefix.ps1`, `scripts/check-utf8-agents.ps1`, `scripts/wiki_lint.py`, `scripts/wiki_claims.py check`, `scripts/sync-architecture.ps1 -SelfTest` (all wired into `.github/workflows/validate.yml`). A red gate is this register's **CI signal** trigger.
 
@@ -176,7 +206,7 @@ The workspace's executable contract is its **deterministic gate set**, not a uni
 
 | Item | Status | Note |
 |------|--------|------|
-| Machinery fixture tests | 🟡 PARTIAL | **Closed for four scripts** by T1-E4.01: `scripts/tests/test_sprint_eligible.py` (29 tests), `test_rule_fanout.py` (13), `test_check_utf8_agents.py` (10), `test_wiki_claims_coverage.py` — all stdlib `unittest`, driving the real CLI over temp trees. Still open for `scripts/sync-architecture.ps1` beyond `-SelfTest`, `scripts/wiki_lint.py` and `scripts/check-parcel-prefix.ps1`. |
+| Machinery fixture tests | 🟡 PARTIAL | **Closed for six scripts.** Four by `T1-E4.01` (`test_sprint_eligible.py` **35**, `test_rule_fanout.py` **18**, `test_check_utf8_agents.py` **14**, `test_wiki_claims_coverage.py` **5**), two more this sprint (`test_write_set_check.py` **14** via `T1-E3.23`, `test_closeout_check.py` **27** via `T1-E2.12` + `T1-E3.25`) — all stdlib `unittest`, driving the real CLI over temp trees. Still open for `scripts/sync-architecture.ps1` beyond `-SelfTest`, `scripts/wiki_lint.py` and `scripts/check-parcel-prefix.ps1`. | 2026-09-29 |
 
 ---
 

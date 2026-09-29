@@ -3,10 +3,10 @@ type: "sprint"
 sprint: 13
 name: "V1 Hardening"
 slug: "v1-hardening"
-status: "open"
+status: "closed"
 capacity_points: 30
 created: "2026-09-28"
-closed: ""
+closed: "2026-09-29"
 ---
 
 # Sprint 13: V1 Hardening
@@ -120,32 +120,52 @@ The § 4c triage flags for the committed set, plus the eligibility predicate's o
 *Appended by `@sprint-close` when the sprint closes. Left empty while the sprint is open.*
 
 ### Goal — Met?
-{Restate the goal. Yes / Partially / No, with one-line why.}
+**Yes.** All nine committed plans shipped and archived; `v1.1.0` closed as a release (`CHANGELOG` retires `[Unreleased]`, `MATURITY` re-graded with the first hand-read cost baseline); every invariant on the review's list is checker-backed; the Kill List's top-priority row closed. Two edges stay open and are recorded rather than waved through — see *Open at Close*.
 
 ### What Shipped
 | Code | Plan | Size | Effort accuracy | Notes |
 |------|------|------|-----------------|-------|
-| — | — | — | — | — |
+| T1-E2.12 | The close-out CI read gets a checker; the no-push window gets a home | M (3) | M → M (no resize ruling) | Offline by construction — no `gh`, no network; pre-fix probe observed failing |
+| T1-E2.13 | A comment line inside a `touches` block-list no longer truncates it | M (3) | M → M (no resize ruling) | One predicate widened; 3 fixture cases; declared write set proved a superset |
+| T1-E3.22 | The manual claim path gets an enumerated green baseline | M (3) | M → M (no resize ruling) | Definition sites 3 → 0, citing surfaces 0 → 5; mid-run `touches` amendment recorded |
+| T1-E3.25 | The green-stamp invariant gets its checker | S (1) | S → S (no resize ruling) | `--stamp` assertion + classifier; 27/27 fixtures with pre-fix probes |
+| T1-E4.04 | The three highest un-registered fan-outs single-sourced | L (5) | L → L (no resize ruling) | 9 → 12 registered rules, 0 unauthorised, 8 agreement rows `AGREE`; prefix 121 → 118 lines |
+| T1-E4.05 | The regrown sync engine splits below threshold | L (5) | L → L (no resize ruling) | `sync-architecture.ps1` 975 → 314, `sync-bindings.ps1` 451 → 372; four CLI modes + a 133-file tree proven against pre-split goldens |
+| T1-E5.03 | The plan record's read-cost lever becomes a recorded ceiling | S (1) | S → S (no resize ruling) | Numeric cap declined on the record; `rule_fanout` before/after diff empty |
+| T2-E2.05 | Wiki V1 honesty pass | M (3) | M → M (no resize ruling) | 14 core slots to `status: template`, hub `Status` column, three indexes deliberately untouched |
+| T3-E1.05 | `v1.1.0` release + measured cost baseline | M (3) | M → M (no resize ruling) | One revision round at Gate C; Phase 9 21/21; the tag left to the operator |
 
 ### Carry-Forward
 | Code | Why not done | New size | Next sprint? |
 |------|--------------|----------|--------------|
-| — | — | — | — |
+| — | **None.** 9 of 9 delivered at their committed sizes; no resize ruling was recorded this sprint, and the 3-pt buffer was never touched. | — | — |
+
+### Open at Close (not carry-forward — no committed plan is unfinished)
+| Open item | State | Owner / next step |
+|---|---|---|
+| `v1.1.0` tag + GitHub Release | `CHANGELOG` closed, `MATURITY` re-graded, all gates green locally — but the trunk is ahead of `origin/main`, so the release commit is unpushed and CI-unverified. `T3-E1.05` reserved the tag for the operator *behind a green release-commit pass*. | Operator, after `@test-and-deploy` |
+| Push-time green-stamp gate reads red | `closeout_check.py --stamp` needs the last changelog-editing commit recorded as a `Green stamp:` in a plan. **Three plan-less sessions landed changelog lines in this window** (skills review, `@user-testing`, spawn contract) and have no Completion Note to record into. *Operator ruling 2026-09-29: record the stamp anyway* — an explicit override of the canon's *"never re-record the stamp to match"*, recorded here so it is never mistaken for the rule working. The ruling relieves this close; it does **not** fix the missing plan-less home. | Recorded in `.devops/archive/planless-session-stamps.md`; the gap goes to the wrap-up + `@test-and-deploy` |
+| Prefix drift + 2 stale wiki claims | A concurrent, out-of-scope session landed the rule-11 wording change and re-inlined only 2 of the 9 locked agents: `check-parcel-prefix.ps1` reads **7 drift failures**, and the `AGENTS.md` claim-source edit leaves 2 wiki rows `STALE`. **Out of sprint scope** — measured, not owned here. | That session's wrap-up + `@test-and-deploy` (operator ruling) |
 
 ### Metrics: Before → After
-- Hot spots (>CCN 15): {X} → {Y}
-- Files >400 lines: {X} → {Y}
-- Test count: {X} → {Y}
-- Lint warnings: {X} → {Y}
-- Capacity: committed {pts} / delivered {pts} = {accuracy %}
+- Hot spots (>CCN 15): **1 → 1** (the scanner itself — regex-inflated, as always)
+- Files >400 lines: **6 → 5**
+- Test count: **83 → 113** fixture tests across 6 suites (`test_closeout_check` is new at 27)
+- Lint warnings: **0 → 0**
+- Capacity: committed **27** / delivered **27** = **100%** (budget 30, buffer 3 untouched)
 
 ### Retro: Keep / Drop / Try
-- **Keep** (worked, do again): {…}
-- **Drop** (hurt, stop): {…}
-- **Try** (next sprint experiment): {…}
+- **Keep** — the live eligibility predicate as the only wave plan: five `@sprint-run` waves, zero hand-derived wave counts, and a zero-eligible fixpoint that read as the normal terminal state instead of a surprise. Keep the probe contract too — every new check was observed failing on the un-fixed tree before it passed, and it is the reason this close can trust the numbers.
+- **Drop** — plan-less sessions landing changelog entries. They have nowhere to record a green stamp, so they leave the push gate red for everyone who follows: three in one window. Also drop shipping a skill without re-running the report-only fan-out check — `@user-testing` arrived with one unauthorised site, exactly what the 2026-09-27 lesson warns about, and nobody read the column.
+- **Try** — treat `rule_fanout.py` as a reflex at *every* session close, plan or not; and make *"edit `base-context.md` → run `-Sync` in the same session"* a hard sequencing rule rather than a follow-up, so a concurrent editor cannot leave seven agents drifted behind a red prefix gate.
 
 ### Lessons for the Wiki / Knowledge Capture
-{Any durable insight worth promoting via @knowledge-capture. Reference KC numbers if recorded.}
+- **No new KC entry.** The existing `process-lessons.md` entry *"[2026-09-27] A report-only instrument has no reader unless the run makes one — re-run it on your own diff"* predicted this sprint precisely: the `@user-testing` skill shipped an unauthorised `claim_status` site, and the skills review never re-ran the report. Registered here as confirmation, not as new knowledge.
+- **New candidate, deliberately not added as a 26th register entry** — the staging register sits at its ~25 cap and §8's fold runs first: *a plan-less session that edits the changelog cannot satisfy `recorded == located`.* The Green stamp contract has only a plan branch, while `@agent-wrap-up` already recognises a plan-less branch for skip declarations. Either the checker learns a plan-less record, or plan-less sessions are barred from the changelog. Routed to the wrap-up + `@test-and-deploy` per the operator ruling above.
+- No walk verdict changed a wiki claim; `wiki_claims.py check` stayed **0 stale** across the close.
 
 ### New Refactoring Items (→ REFACTORING.md)
-{List files flagged by the close-of-sprint scan. Confirm they were added to the Kill List.}
+Register **present**, so promotion ran normally rather than being parked in this section. One new Kill List row: **`scripts/tests/test_closeout_check.py` — 417 lines, 🔴 OPEN**, *flagged at close of sprint 13 by `T1-E2.12`* (born over the >400 warn; its sibling `scripts/closeout_check.py` sits 7 lines behind at 393). Counts refreshed: `test_sprint_eligible.py` **473 → 534**. Two rows closed by this sprint's own work — `sync-architecture.ps1` **975 → 314** and `sync-bindings.ps1` **451 → 372**, both by `T1-E4.05`, already carried in Completed Refactors. `last_scan` moved to 2026-09-29 with its baseline taken at the sprint's own first claim (`f4816bc`) in a throwaway worktree, because sprint 12 closed without appending a scan block and the 2026-09-25 block would have measured the wrong window.
+
+### User-Acceptance Walk
+**9 of 9 walked · 9 pass · 0 fail · 0 blocked** — sheet: [`user-testing.md`](user-testing.md). Grouped into seven outcomes, each presented by the story it traces to. Tests 1-3 were walked by the operator one at a time through the question tool; the operator then instructed the agent to carry out the rest, so **tests 4-9 are agent-executed verification, not a second pair of eyes** — recorded in the sheet's execution note rather than glossed. **Nothing failed, so no theme-register disposition was owed** (§ 8's rule: record explicitly either way). What the walk actually proved, beyond the mechanics: the green-stamp gate *halted* on a real drift while we watched, and went green only after the ruling's record landed — enforcement, not prose.
