@@ -114,6 +114,7 @@ graph TD
 | `@backlog` | Product | Create and manage backlog items |
 | `@build-roadmap` | Product | Create a product roadmap with themes and epics |
 | `@true-or-false` | Product | Validate requirements against codebase reality |
+| `@user-testing` | Product | Walk the operator through manual user tests one-by-one; record a test sheet that drives fixes or stands as acceptance evidence |
 | `@knowledge-capture` | Knowledge | Record tribal knowledge and decisions |
 | `@skill-creator` | Knowledge | Create and iterate on new agent skills |
 | `@sync-architecture` | Machinery | Pull template machinery updates into a satellite workspace; report satellite feedback upstream (parcel feedback outbox) |
