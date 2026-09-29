@@ -37,7 +37,7 @@ This document is the **hub** in a hub-and-spoke architecture (see [14 Hub & Spok
 | 15 | AI Features | Features | AI workflows, model integration, prompt architecture | `template` | — |
 | 16 | External Integrations | Features | Third-party API integrations, import/export mappings | `template` | — |
 | 17 | Docs Blueprint | Meta | Documentation standards, naming, folder taxonomy | `stable` | 2026-09-28 |
-| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | `stable` | 2026-09-28 |
+| 18 | Knowledge Capture | Meta | Architectural decisions, tribal knowledge, decision log | `stable` | 2026-09-29 |
 
 > `Status`: the slot's own front-matter status — `stable` = verified template machinery, `template` = a seed a satellite fills in, `in-progress` = drafting. A `template` slot's prose describes the pattern, not an artefact in this repo (see [AGENTS.md](../../AGENTS.md) § Design & Scope Notes).
 >

@@ -99,6 +99,7 @@ description: "The stateless multi-agent parcel pipeline: model/config integrity,
 
 | Code | Title | Status | Description | Plan |
 |------|-------|--------|-------------|------|
+| T1-E4.06 | A stranded `allowed-surface` declaration in the surface-budget registry | QUEUED | `context-isolated`'s allowed surface `.devops/rules/process-lessons.md` fails the pointer test (`[no-signature]`), so every `rule_fanout.py` run prints a standing `unlinked-allowed-surface` advisory — most likely stranded by the 2026-09-27 fold pass. Report-only impact (`unauthorised` stays 0); the fix is a signed-off rule edit, direction open. Found at the 2026-09-29 skills-review wrap-up. | [plan](./t1-e4.06-surface-budget-stranded-allowed-surface-backlog.md) |
 | — | — | *(the deferred halves live in the Triage Panel as `T1-E2.06` and in `MATURITY.md` Axis 7's Next lever)* | W3 (changelog length cap) and W4 (a deletion-first lifecycle hook) were deferred by operator decision; a recurring Axis 7 re-derivation job is the axis's own next lever | — |
 | — | `process-lessons.md` fold pass (next queue) | — | The register landed at **25** at the `T1-E3.23` wrap-up (31 → 25, six folded or deleted). The remaining candidates have no owning home that parcel edited — fold them at the next sprint close; `@sprint-close` § 5 already owns the trigger. | — |
 

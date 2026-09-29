@@ -10,16 +10,16 @@ description: "Canonical log of core engineering decisions, tribal knowledge, and
 claims:
   - id: capture-via-skill
     source: .devops/skills/knowledge-capture/SKILL.md#Admission Gate
-    hash: sha256:d215ade546c1cdde847b0596ef698e415f0f6b589db32d3cf0b49b41cd224c00
+    hash: sha256:0027f070a18d83933410de419bb587ed72d0eb509c8682585534a820110a4db8
   - id: prune-via-consolidation
     source: .devops/skills/knowledge-consolidation/SKILL.md#Tidy (default)
-    hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
+    hash: sha256:d389abf81214eaae67e6e0d3c974f1c4312b7a48726a5fe412af0082e9260eb5
   - id: knowledge-capture-entry-ceiling
     source: .devops/skills/knowledge-consolidation/SKILL.md#Hard limits
-    hash: sha256:c2269f424c92847fb5bcaf94253be2aca55ba60465b69c4cc9629c359fe5543a
+    hash: sha256:d389abf81214eaae67e6e0d3c974f1c4312b7a48726a5fe412af0082e9260eb5
   - id: capture-two-destinations
     source: .devops/skills/knowledge-capture/SKILL.md#Destination Routing
-    hash: sha256:d215ade546c1cdde847b0596ef698e415f0f6b589db32d3cf0b49b41cd224c00
+    hash: sha256:0027f070a18d83933410de419bb587ed72d0eb509c8682585534a820110a4db8
 ---
 # Knowledge Capture & Decision Log
 
