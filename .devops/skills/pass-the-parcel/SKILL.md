@@ -1,7 +1,7 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports three topologies — `MICRO` (collapsed small-change record), `SINGLE` (fast plan) and `MULTI` (comprehensive plan) — chosen by task complexity.
-version: 31
+version: 32
 updated: 2026-09-29
 ---
 
@@ -153,6 +153,17 @@ No agent declares a model. Every agent runs on **the model selected in the CLI /
 
 **Plan trace:** Every phase in the parcel template records the executed skill and model in its `Skill Executed` field for auditability.
 
+### Spawn Contract (every `task` prompt — pointers, never status prose)
+
+The orchestrator holds the volatile context; the sub-agent re-derives everything else from the plan. Every spawn of a `ptp-*` sub-agent — and the batch host's `ptp-parcel-fast` — carries exactly this payload:
+
+1. **Plan path** — `.devops/plans/<code>-<slug>-plan.md`, the one plan this run owns.
+2. **Expected entry Status** — the bottom State & Gates value the sub-agent must confirm before working (e.g. `PHASE_3` for Group B, `PHASE_5` for the Group C reviewers, `PHASE_7` + Gate C `APPROVED` for Group D). A mismatch halts and reports — never executes on an unexpected state.
+3. **Run-workspace path** — `.opencode/plans/run-[slug]/reviews/`, Group C only: where `arch_review.md` / `product_review.md` are written and Phase 7 re-reads the Phase 6 file.
+4. **Model** — the gate's value from the frozen `Plan Settings.Models` row, passed at spawn time only on runtimes that support it (§ Model routing; `@model-routing` §3).
+5. **Wiki-first line** — the AGENTS.md rule 6 directive: read `.wiki/` before searching the codebase.
+
+The cache-anchored **State & Gates** section at the bottom of the plan is the only status carrier: the prompt hands over pointers, and the sub-agent reads state from the file they point at — the plan template's own rule (*records state, never a handoff instruction*) applied to prompts. Enforcement is each sub-agent's entry self-check (its Steps confirm the expected Status and halt on mismatch), so the contract is deliberately check-free — a spawn prompt is ephemeral and never lands on disk to lint. **Batch path:** `@sprint-run` § 3 step 2 already satisfies items 1 and 4 (`ptp-parcel-fast` receives the plan path + the batch model); items 2-3 fold into the runner's entry checks and per-plan chain.
 
 ### Batch Runner (`@sprint-run`)
 
@@ -196,11 +207,13 @@ To prevent context inflation and ensure complete control over design and executi
 
 ## Linguistic Rules (Token Compression)
 
-To maximize token-savings during interaction and within the plan updates, agents must adhere to strict **Linguistic Token Compression**:
+To maximize token-savings in the **plan file** and agent-to-agent surfaces, agents must adhere to strict **Linguistic Token Compression**:
 * **Terse Communication:** Drop pleasantries ("sure", "happy to help"), articles ("a", "an", "the"), fillers ("just", "actually"), and hedging.
 * **Fragments & Arrows:** Write in fragments and use arrows for causality (`X -> Y`). Keep sentences short.
 * **Abbreviate:** Use standard shorthand (e.g., `impl`, `spec`, `req`, `fn`, `test`, `auth`, `DB`).
 * **Brevity first:** Only include exact, necessary code blocks or errors. Let the plan file speak for itself.
+
+**Register split — owner-facing surfaces are exempt.** Compression governs the plan file and agent-to-agent text only. Anything addressed to the product owner — gate presentations, Phase 3 questions, reports — follows the owner register instead (`.wiki/rules/language/communication-rules.md` § User-facing conversation): plain words, outcomes first, one decision per ask; the compression above still applies *within* the plan's own records of those artifacts.
 
 ---
 

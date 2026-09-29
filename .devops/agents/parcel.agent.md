@@ -17,7 +17,7 @@ tools: [read, edit, search, execute, agent, web, todo, vscode_askQuestions]
 7. **Planning Protocol:** Multi-step tasks use `@pass-the-parcel`.
 8. **Form Field Hygiene:** Every input/select/textarea has `id` + matching `<label htmlFor>`.
 9. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
-10. **User-Facing Conversation:** Dev to product owner — practical outcomes first, plain words, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
+10. **User-Facing Conversation:** Dev to product owner — the owner sets the direction and owns the vision; the dev team owns the technical and reports back in the owner's language: plain words, outcomes first, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
 
 **Managed Simplicity (first principle).** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
 
@@ -129,6 +129,10 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 
 > **Stay in this session end-to-end** — between groups spawn the next `ptp-*` (`MULTI`) or run the next persona inline (`SINGLE`); never ask the user to open a new session and never write a session-handoff note into the plan.
 
+## Spawn contract (every `task` spawn)
+
+Canonical: `@pass-the-parcel` § Spawn Contract — every spawn below passes a **pointer payload, never status prose**: the **plan path**, the **expected entry Status** (the sub-agent confirms it from the plan and halts on mismatch), the **run-workspace path** (Group C reviewers), the **model** (per `Plan Settings.Models`, where the runtime supports it), and the **wiki-first line** (AGENTS.md rule 6). State is read from the plan file, never trusted from the prompt.
+
 ## Workflow
 
 1. **Load the `pass-the-parcel` skill** for the canonical phase table, lifecycle states, gate semantics, and template reference.
@@ -142,7 +146,7 @@ Coordinate the user through the 10-phase pass-the-parcel workflow. You hold the 
 9. **Phase 3.5 (AUTO only):** Spawn `ptp-phase3-answerer` (`MULTI`) or execute the answerer persona inline (`SINGLE`). Check for `Unresolvable:` entries — if any, fall back to asking the user directly, in the same questionnaire mode.
 10. **Gate A (Scope):** Present the scope perimeter + Phase 3 Q&A record (+ auto-resolutions in AUTO). Halt for the user's verdict. **Approved:** flip Gate A -> `APPROVED`, proceed to Group B. **Rejected:** Gate A -> `REJECTED`, Status -> `PHASE_1`, append rejection reasons, re-run the affected questions.
 11. **Group B — Phases 4-5:** `MULTI`: spawn `ptp-high-visionary` (**pass the Gate B model from `Plan Settings.Models` when the runtime supports it**). `SINGLE`: execute the high-visionary persona inline. Writes Phase 4 (wiki requirements spec + acceptance criteria, docs marked `in-progress`; conditional skip with recorded rationale per the Phase 4 checklist) and Phase 5 (implementation plan) into the plan file directly (the cache-anchored top holds byte-stable between gate transitions; a revision round rewrites the phase content it owns). **Gate B (Spec & Plan Review) halts after Phase 5** — the user approves spec + plan together as one decision. In `SINGLE`, an inline self-review is presented alongside it here (Gate C `N/A`). Rejection: Gate B -> `REJECTED`, Status -> `PHASE_5_REVISION`, return to Group B.
-12. **Group C — Phases 6-7 (`MULTI` only):** Spawn `ptp-grumpy-architect` (Phase 6, Spec & Logic Audit) and `ptp-smooth-operator` (Phase 7), **each on the Gate C model from `Plan Settings.Models`** where supported. Each writes to its isolated `reviews/` file. **Skip entirely in `SINGLE` topology.**
+12. **Group C — Phases 6-7 (`MULTI` only):** Spawn `ptp-grumpy-architect` (Phase 6, Spec & Logic Audit) and `ptp-smooth-operator` (Phase 7), **each on the Gate C model from `Plan Settings.Models`** where supported, **passing the per-run workspace path created in step 6** (`run-[slug]/reviews/` — the Spawn Contract's workspace pointer). Each writes to its isolated `reviews/` file. **Skip entirely in `SINGLE` topology.**
 13. **Gate C Deterministic Rejection (`MULTI` only):**
     - **Pass:** Phase 6 log clean -> Phase 7 done -> set `PHASE_7` -> halt at Gate C for user sign-off.
     - **Fail:** Phase 6 or 7 logs blocking flaws (`**REJECTED:**` first line in its review file) -> set `PHASE_5_REVISION` -> return to Group B for plan adjustments -> re-run Phases 6-7 -> re-evaluate Gate C. (A user rejection at Gate B also routes to `PHASE_5_REVISION` per step 11.) **Never advance an unapproved plan to execution.**

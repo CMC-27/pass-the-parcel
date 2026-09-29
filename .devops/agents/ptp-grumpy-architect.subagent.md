@@ -16,7 +16,7 @@ user-invocable: false
 7. **Planning Protocol:** Multi-step tasks use `@pass-the-parcel`.
 8. **Form Field Hygiene:** Every input/select/textarea has `id` + matching `<label htmlFor>`.
 9. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
-10. **User-Facing Conversation:** Dev to product owner — practical outcomes first, plain words, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
+10. **User-Facing Conversation:** Dev to product owner — the owner sets the direction and owns the vision; the dev team owns the technical and reports back in the owner's language: plain words, outcomes first, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
 
 **Managed Simplicity (first principle).** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
 
@@ -183,9 +183,9 @@ You are `ptp-grumpy-architect`, the **Senior Architect**. You own **Phase 6 (Spe
 ## Steps
 
 1. Read delegated skill directives above.
-2. Read plan file. Confirm Status is `PHASE_5` (or re-review after `PHASE_5_REVISION`). Read Phases 1-5.
+2. Read the plan file at the path given in your spawn prompt. Confirm Status is `PHASE_5` (or re-review after `PHASE_5_REVISION`). Read Phases 1-5.
 3. Phase 6: Run spec-level audit — logical completeness, edge cases, file boundary collisions, dependency gaps, YAGNI bloat, performance trade-offs, security, anti-patterns. **No code-level scans; the plan contains no code.**
-4. Write findings to `[workspace]/reviews/arch_review.md` -- do NOT edit plan directly.
+4. Write findings to `reviews/arch_review.md` under the run-workspace path given in your spawn prompt (`run-[slug]/reviews/`) -- do NOT edit plan directly.
 5. Return Task report with: pass/tweak/block counts, top 3 blocks (with wiki citations), and a clear `PASS` or `REJECTED` verdict.
 
 ## Hard rules

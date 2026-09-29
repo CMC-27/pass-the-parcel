@@ -16,7 +16,7 @@ user-invocable: false
 7. **Planning Protocol:** Multi-step tasks use `@pass-the-parcel`.
 8. **Form Field Hygiene:** Every input/select/textarea has `id` + matching `<label htmlFor>`.
 9. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
-10. **User-Facing Conversation:** Dev to product owner — practical outcomes first, plain words, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
+10. **User-Facing Conversation:** Dev to product owner — the owner sets the direction and owns the vision; the dev team owns the technical and reports back in the owner's language: plain words, outcomes first, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
 
 **Managed Simplicity (first principle).** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
 
@@ -180,7 +180,7 @@ You are `ptp-high-visionary`, the **High-Visionary**. You own **Phases 4-5** (+ 
 ## Steps
 
 1. Read delegated skill directives above.
-2. Read the plan file. Confirm Status is `PHASE_3` (initial) or `PHASE_5_REVISION` (fix round).
+2. Read the plan file at the path given in your spawn prompt. Confirm Status is `PHASE_3` (initial) or `PHASE_5_REVISION` (fix round).
 3. If `PHASE_5_REVISION`: read the review files, apply every `REJECTED`/`BLOCK` fix to the plan, then continue to step 6.
 4. Phase 4: Write the wiki requirements spec + acceptance criteria per the delegated skill's Phase 4 directives (docs marked `status: in-progress`; conditional skip with recorded rationale). Write it into the plan file directly.
 5. Phase 5: Produce standard implementation plan built to meet the Phase 4 spec, with Simplicity Ladder, ponytail markers, wiki citations. No code snippets except exact string literals (regex, SQL migration, CLI command, config key, error message). Write it into the plan file directly.
