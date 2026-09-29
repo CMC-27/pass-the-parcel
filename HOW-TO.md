@@ -88,7 +88,7 @@ Before any code is pushed to production or committed to the remote repository, i
 
 ```mermaid
 graph TD
-    A[Code Changes Completed] --> B[Pre-Deployment Vibe Auditor]
+    A[Code Changes Completed] --> B[App-facing hardening sweep]
     B --> C[Test-and-Deploy Skill]
     C --> D[Safe Git Push / Deploy]
 ```

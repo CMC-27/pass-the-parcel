@@ -13,6 +13,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 > **Why this appears here.** `machinery-version` bumps normally live only in [`.devops/logs/version-history.md`](.devops/logs/version-history.md). This entry exists because release **86** is graded **Major** — an **operator-contract change** — whose ceremony is a full machinery row **plus** this human-facing note. The tag step is **routed to `T3-E1.05`**, the plan that owns the sprint's release ceremony: the counter is still an integer, so release B's dotted flip has not happened and a major tag has no correct name yet.
 >
 > **Scope.** The Sprint 13 "V1 Hardening" batch waves — `T1-E2.13`, `T1-E4.05`, `T1-E3.22`, `T2-E2.05`. Earlier minors and patches of this sprint remain in the machinery log, which is what that log is for.
+>
+> **Tag disposition (2026-09-29).** The product tag `v1.1.0` tags the release commit; this major's correctly-named tag is carried as a deferred obligation to Release B, discharged when the dotted flip supplies a name (Q3(b)).
 
 ### Changed
 - **The manual claim path now has an enumerated green baseline.** `.devops/rules/plan-lifecycle.md` named *"the next claim's green-baseline preflight"* while the workflow enumerated twelve steps and only the **batch** path had anything behind it — so a plan could be claimed against a red trunk and nobody would notice until review round three. Three surfaces reconciled to one dialect, and a **third** live copy of the divergent dialect collapsed inside the batch host's own agent file.
@@ -25,11 +27,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Migration note — satellites
 **A mandatory pull milestone.** Two reasons, and they are the two reasons this release is major rather than routine: the **claim baseline** changes what a manual claim is required to verify, and the **batch host agent file** changed directly (not via a prefix regenerate). A satellite that does not pull keeps the old divergent dialect and the unenumerated claim path.
 
-## [Unreleased] — 2026-09-17
+## [Unreleased]
+
+## [v1.1.0] — 2026-09-29
 
 ### Added
 - **Managed Simplicity** adopted as the template's first principle (`.devops/rules/managed-simplicity.md`), carried by a compact form plus a link into `AGENTS.md`, its seed and the shared prefix.
 - **Surface-budget report** — `.devops/rules/surface-budget.md` (the machine-readable rule registry) plus `scripts/rule_fanout.py` (report-only, always exits 0, never a CI gate): per registered rule, how many machinery surfaces restate it and how many do so without naming its canonical home.
+- **`MICRO` topology, the `CORE` skill tier, and tiered machinery versioning** — a third, collapsed small-change lane for manual-path micro changes, a `profile: CORE` choice so a satellite carries only the pipeline skills it uses, and an ordering-aware `major.minor.patch` counter whose verdicts never silently rewind a satellite's number (machinery rows 75, 73).
+- **Travelling gates** — the invariant CI gate subset ships to satellites as `.github/workflows/machinery-gates.yml`, so every pull runs the same checks on push (machinery row 74).
+- **Phase 9 suite-scope discipline** — a run may declare targeted/affected-only test scope, recorded beside exit codes in the evidence table (machinery row 79).
 
 ### Changed
 - Rule fan-out trimmed: the five most-copied rules (`claim_status`, `GATE_D_USER_APPROVAL`, `auto-clear`, `context-isolated`, `Chunked Write Discipline`) each have one canonical home, and every legitimate surface now cites it instead of restating it.
@@ -37,6 +44,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - The encoding guard is roughly **32× faster** (18.4 s → 0.57 s at template scale) and no longer blind to a marker at end-of-file. `.devops/archive/**` left the recurring scan; `-All` reproduces the whole-tree scan on demand, unscheduled.
 - **The wiki coverage gate moved, never died**: `python scripts/wiki_claims.py coverage` replaces the standalone script and keeps its hard-stop contract.
 - `@test-and-deploy` § 2b absorbs the app-facing hardening sweep from the retired vibe-auditor.
+- **Counter discipline travels with the instruction** — the `machinery-version` ownership carve-out (a satellite never bumps it) is stated once in the portable canon and cited on every surface that mentions it (machinery row 78).
+- **Gate-invocation hygiene and the green stamp** — every gate runs one-shot, non-interactive and bounded at one invocation moment per subject, with a recorded post-pass stamp that `scripts/closeout_check.py --stamp` asserts (machinery rows 83, 87).
 
 ### Removed
 - Four skills retired: `wiki-assessment`, `caveman`, `app-vision-north-star`, `pre-deployment-vibe-auditor` — the vibe-auditor's unique checks were folded into `@test-and-deploy` first.
