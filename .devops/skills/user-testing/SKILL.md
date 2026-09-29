@@ -237,7 +237,7 @@ All three record in an independent `.md`, all three ask one question at a time a
 
 ### Relationship to sprint-close
 
-`@sprint-close` § 5 scopes this walk to a completed sprint: plans scoped to `claim_status: COMPLETE` only, the queue built from executed plans' acceptance criteria + Phase 10 tweak notes grouped per outcome/theme, the sheet named `user-testing.md` in the sprint folder, and failures routed to the theme registers by its § 8. When the caller is sprint-close, **its scope rules win** on queue building and disposition venue; this skill owns the walk loop and the sheet discipline (cited by sprint-close since its v16).
+`@sprint-close` § 5 scopes this walk to a completed sprint: plans scoped to `claim_status: COMPLETE` only (values and semantics: `.devops/rules/plan-lifecycle.md` § Claim Front-Matter — the canonical home), the queue built from executed plans' acceptance criteria + Phase 10 tweak notes grouped per outcome/theme, the sheet named `user-testing.md` in the sprint folder, and failures routed to the theme registers by its § 8. When the caller is sprint-close, **its scope rules win** on queue building and disposition venue; this skill owns the walk loop and the sheet discipline (cited by sprint-close since its v16).
 
 ---
 
