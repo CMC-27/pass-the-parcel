@@ -1,11 +1,11 @@
 ---
 name: knowledge-capture
 description: Automates the recording of user decisions, feedback, and tribal knowledge to ensure project consistency and long-term learning across all development tasks.
-version: 8
-updated: 2026-09-27
+version: 9
+updated: 2026-09-29
 ---
 
-# Knowledge Capture Skill
+# Knowledge Capture
 
 ## Goal
 Capture and persist key architectural or procedural decisions in a centralized log file.

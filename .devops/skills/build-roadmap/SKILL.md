@@ -1,8 +1,8 @@
 ---
 name: build-roadmap
 description: Make sure to use this skill whenever the user mentions building a product roadmap, creating a roadmap, defining themes or epics, /build-roadmap, planning strategic phases, or wants to map out the future of a product at a high level above the backlog. Use it to create or update a product-roadmap.md file and optionally scaffold aligned epics and implementation plans.
-version: 3
-updated: 2026-09-17
+version: 4
+updated: 2026-09-29
 ---
 
 # Build Roadmap — Product Roadmap Builder
@@ -15,7 +15,7 @@ The project operates on a three-tier planning hierarchy:
 |---|---|---|---|
 | **L1 — Theme** | `product-roadmap.md` | T1, T2, T3… | `.devops/backlog/` (master doc) |
 | **L2 — Epic** | `product-roadmap.md` (sections) | T{n}-E1, T{n}-E2… | `.devops/backlog/` (master doc) |
-| **L3 — Impl Plan** | `T{n}-E{n}.{impl}-{slug}-plan.md` | .01, .02, .03… | `.devops/plans/` |
+| **L3 — Impl Plan** | `T{n}-E{n}.{impl}-{slug}-plan.md` | .01, .02, .03… | `.devops/backlog/` (parked) → `.devops/plans/` (claimed) |
 
 A **Theme** is the strategic container (e.g. "Master Data Management"). An **Epic** is a large body of work within a theme (e.g. "Material Import & Integrity"). An **Implementation Plan** is a single executable deliverable (the parcel plan).
 

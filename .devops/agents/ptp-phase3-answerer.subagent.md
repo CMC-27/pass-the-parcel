@@ -79,7 +79,7 @@ user-invocable: false
 ## Delegated Skill: ptp-phase3-answerer
 
 <!-- EMBED:START:ptp-phase3-answerer -->
-# SKILL: Phase 3 Answerer (`ptp-phase3-answerer`)
+# Phase 3 Answerer (`ptp-phase3-answerer`)
 
 ## Activation & Role Mapping
 This skill owns **Phase 3.5** of the `pass-the-parcel` pipeline — an AUTO-mode-only sub-phase. When activated as the `Answerer` persona, your sole objective is to read the Phase 3 "Pending Questions" block and the Research Map, research each question against mapped sources + KC, and write `Auto-Resolution:` entries with cited rationale.

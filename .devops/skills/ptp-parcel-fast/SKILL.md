@@ -1,11 +1,11 @@
 ---
 name: ptp-parcel-fast
 description: 'Activate this skill to run ONE committed parcel plan end-to-end under the locked AUTO + SINGLE preset — Phases 1-9 in a single run per plan, Gates A/B auto-cleared, Gate C N/A, terminating at PHASE_9 with Gate D OPEN. Invoked only by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent); never user-selectable.'
-version: 9
-updated: 2026-09-23
+version: 10
+updated: 2026-09-29
 ---
 
-# SKILL: Per-Plan Fast Runner (`ptp-parcel-fast`)
+# Per-Plan Fast Runner (`ptp-parcel-fast`)
 
 > **Boundary:** This skill owns exactly **one** plan's Phases 1-9. It is spawned by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent) with a single plan path. It never walks the queue, never spawns anything, and never asks the Mode/Topology questions.
 

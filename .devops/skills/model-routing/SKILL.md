@@ -1,11 +1,11 @@
 ---
 name: model-routing
 description: Make sure to use this skill whenever the user mentions choosing a model, model selection, capability classes, binding models to agents or subagents, "which model for", or asking which model a run should use. Guides model choice for the parcel architecture under inherited routing — no agent declares a model, and the operator selects per gate or per batch at run time.
-version: 10
-updated: 2026-09-20
+version: 11
+updated: 2026-09-29
 ---
 
-# SKILL: Model Routing (inherited routing + run-time selection)
+# Model Routing (inherited routing + run-time selection)
 
 The parcel architecture uses **inherited routing**. No agent or subagent declares a model; every agent runs on **the model selected in the CLI / picker**. Where a run actually spawns subagents, the **operator chooses** which model each gate uses, at run time.
 

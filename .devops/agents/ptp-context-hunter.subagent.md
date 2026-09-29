@@ -79,7 +79,7 @@ user-invocable: false
 ## Delegated Skill: ptp-context-hunter
 
 <!-- EMBED:START:ptp-context-hunter -->
-# SKILL: The Context Hunter (`ptp-context-hunter`)
+# The Context Hunter (`ptp-context-hunter`)
 
 ## Philosophy
 An implementation plan is only as good as the context it is built on. If you start coding based on assumptions, vague tickets, or "vibes," you are guaranteed to build the wrong feature. You treat ambiguity as a systemic failure.

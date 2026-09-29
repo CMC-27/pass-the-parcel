@@ -1,14 +1,12 @@
 ---
-type: "skill"
 name: "wiki-update"
-status: "stable"
 description: "Refreshes only the wiki docs a code change actually touched. Use after a commit/merge, before wrapping up, when a claims check reports drift, or when asked to sync the wiki with recent changes. Maps git diff since the last verified sha to affected docs via their grounded claims and links, revises those, and stamps last-verified. Incremental — never a full-wiki rewrite."
 references: "scripts/wiki_claims.py — affected/update modes. .wiki/rules/claims.md — claim shape and drift semantics. .github/workflows/wiki-refresh.yml — scheduled drift-issue job."
-version: 2
-updated: 2026-09-11
+version: 3
+updated: 2026-09-29
 ---
 
-# wiki-update
+# Wiki Update
 
 Keep the wiki current without rewriting it. Map a diff to the docs it invalidates, fix only those, stamp them.
 

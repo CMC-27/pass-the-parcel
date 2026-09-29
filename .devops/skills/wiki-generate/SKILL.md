@@ -1,14 +1,12 @@
 ---
-type: "skill"
 name: "wiki-generate"
-status: "stable"
 description: "Drafts wiki structure from the codebase: hub/spoke index rows, doc skeletons, and a linked catalog. Use when bootstrapping docs for new code, refreshing index rows after new files land, or ingesting an OpenWiki/OKF bundle. Drafts only — the wiki-bootstrap verification pass confirms accuracy before docs go stable. Native generation for structure; OpenWiki interop for prose."
 references: "references/ - optional per-domain scaffolds."
-version: 3
-updated: 2026-09-17
+version: 4
+updated: 2026-09-29
 ---
 
-# wiki-generate
+# Wiki Generate
 
 Generate wiki structure from reality, then hand it to `@wiki-bootstrap` to verify.
 

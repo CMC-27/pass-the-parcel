@@ -1,19 +1,18 @@
 ---
 name: design-audit
-description: Make sure to use this skill whenever the user mentions reviewing UI consistency, auditing designs, checking UI rules, verifying frontend compliance, or when modifying/generating UI and frontend code to ensure strict adherence to the project's established design system (DESIGN.md/design-system.md).
-tags: ["ui", "design-system", "frontend", "auditor", "css", "agentic-workflow"]
-version: 2
-updated: 2026-09-03
+description: Make sure to use this skill whenever the user mentions reviewing UI consistency, auditing designs, checking UI rules, verifying frontend compliance, or when modifying/generating UI and frontend code to ensure strict adherence to the project's established design system (`.wiki/core/09-design-system.md` here; a satellite's own design-system doc where one exists).
+version: 3
+updated: 2026-09-29
 ---
 
-# SKILL: Dynamic Design System Auditor
+# Dynamic Design System Auditor
 
 ## Context
 You are a rigorous UI/UX architectural auditor. Your primary function is to ensure that all frontend code strictly adheres to the project's established design system while actively pushing it to meet distinctive, production-grade visual standards. You do not tolerate generic "AI slop" aesthetics, default browser styling, or low-contrast text that compromises accessibility. Instead, you dynamically derive all constraints, tokens, and component patterns from the project's foundational design documentation and enforce premium frontend execution.
 
 ## Pre-Flight Check: Context Ingestion
 Before auditing, modifying, or generating any UI code, you MUST:
-1. Locate and read `DESIGN.md` and/or `design-system.md` (or any equivalent system design index like `09-design-system.md` or `01-design-system.md` in `docs/` or core directories) in the current workspace.
+1. Read the canonical design-system doc first — `.wiki/core/09-design-system.md` in this repo (there is no separate `DESIGN.md`; see AGENTS.md). In a satellite without that path, locate its equivalent (`DESIGN.md`, `design-system.md`, or `docs/01-design-system.md`).
 2. Extract the project's specific rules regarding:
    - **Color & Theme Tokens:** CSS variables, Tailwind configurations, and semantic color mapping.
    - **Typography:** Unique font pairings, scaling techniques (e.g., `clamp()`), and structural hierarchy.
@@ -40,10 +39,10 @@ Once the reference documentation is ingested, apply the following strict audit p
 - **Rule:** Enforce visual depth. Reject flat, uninspiring solid backgrounds. Audit for proper use of gradient meshes, noise textures, geometric grid lines, grain overlays, or layered shadow states that match the design system.
 
 ### 5. Interactive & State Fidelity
-- **Rule:** Verify that all interactive elements (buttons, inputs, links, dropdowns) possess the required interaction states defined by the system (hover, focus, active, disabled, error). Enforce smooth transition transitions (`transition-all duration-200 ease-in-out` or custom spring physics) instead of abrupt state snapping.
+- **Rule:** Verify that all interactive elements (buttons, inputs, links, dropdowns) possess the required interaction states defined by the system (hover, focus, active, disabled, error). Enforce smooth transitions (`transition-all duration-200 ease-in-out` or custom spring physics) instead of abrupt state snapping.
 
 ## Evaluation & Output Protocol
 When reviewing code or suggesting modifications, strictly format your response as follows:
-1. **Identify Violation:** Briefly state the exact code snippet that fails the audit and explicitly reference the rule from `DESIGN.md` / `design-system.md` (or WCAG accessibility guidelines) it violates.
+1. **Identify Violation:** Briefly state the exact code snippet that fails the audit and explicitly reference the rule from the design-system doc (`.wiki/core/09-design-system.md` here) or the WCAG accessibility guidelines that it violates.
 2. **Provide Correction:** Output the corrected, production-ready, visually stunning code block.
 3. **Explain Impact:** Summarize how the fix realigns the component with the project's design system and visual excellence guidelines.

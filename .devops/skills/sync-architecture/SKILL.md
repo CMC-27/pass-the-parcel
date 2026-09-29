@@ -1,11 +1,11 @@
 ---
 name: sync-architecture
 description: "Use when the user mentions syncing architecture, pulling template updates, updating parcel machinery, 'sync tools', 'pull latest skills/agents', or wants this workspace's .devops machinery refreshed from the template repo. Runs scripts/pull-architecture.ps1 against the current workspace root and reports drift."
-version: 15
-updated: 2026-09-28
+version: 16
+updated: 2026-09-29
 ---
 
-# SKILL: Sync Architecture (`sync-architecture`)
+# Sync Architecture (`sync-architecture`)
 
 Refresh this satellite workspace's transportable machinery (skills, agents, rules, templates,
 scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapper over
@@ -70,7 +70,7 @@ scripts, `.vscode`) from the template repo recorded in `.ptp-source`. Thin wrapp
    `AGENTS.md`, `opencode.json`, `.opencode/plans/base-context.md` — then
    `scripts\check-parcel-prefix.ps1 -Sync` once parcel agents exist.
 
-## 5. Report parcel feedback upstream
+## Workflow Step 5 — Report Parcel Feedback Upstream
 
 The reverse direction of the sync: when a satellite agent spots an issue or improvement
 meant for the **template** repo mid-session (a machinery defect, a skill gap, a doc drift),
@@ -111,7 +111,7 @@ do not hold it in conversation — draft it where the operator can carry it in o
    and the Triage Panel via `@backlog`, then delete the outbox item. "Reviewed" = triaged
    to a tier (🔴/🟡/🟢/⚪) or committed to a sprint by `@sprint-plan`.
 
-### Rules
+### Feedback rules (step 5)
 
 - **No secrets/credentials in feedback items** — the portable surface is secret-free; a
   drafted item travels through operator hands and must carry findings and evidence only.
@@ -130,26 +130,14 @@ do not hold it in conversation — draft it where the operator can carry it in o
   and runs the verification gates (prefix, UTF-8, wiki lint). Report gate failures verbatim —
   never suppress them with `-NoVerify` unless the user insists.
 - **Registry propagation, model stripping & config key-shape migration.** A sync reconciles the
-  target's `base-context.md` registry rows, **inserts** rows the target is missing (machinery
-  v40+), and **prunes** rows for keys the source retired (machinery T1-E2.07+) — rows only,
-  prose untouched — so a template-side Model Registry retirement reaches an
-  already-bootstrapped satellite with no manual edit instead of leaving its prefix check red.
-  It **removes** every `model` binding it finds and never stamps one (T1-E1.04): any `model:`
-  line in a target agent file's frontmatter and any `agent.<key>.model` member in the target's
-  `opencode.json` is deleted — the strip is JSON-validated and **reverted** rather than left
-  unparsable. The same in-place `opencode.json` edit also **migrates** the `skills` key to the
-  V2-native **flat array**, carrying the path entries the satellite declared verbatim, and
-  deletes the config member V2 accepts but does not load — root-scoped by brace depth and under
-  the same step-local re-parse-and-revert guard. A `skills` shape the migration cannot rewrite
-  without destroying a declaration the satellite authored (for example one carrying `urls`) is
-  **refused**, left exactly as authored, and reported with a printed operator remedy. An entry
-  the target already carries is otherwise left exactly as authored (permissions, key order and
-  formatting stay as authored), **except** the locked-preset host's structural
-  `permission.task` allow-list, which is stamped from the seed — while a registry key the target
-  has **never authored** is **inserted** whole from the target's own synced seed (machinery
-  v41+), so a newly shipped agent arrives runnable instead of arriving as a file the runtime
-  never mounts. `BINDING-SKIP` means only that neither the target nor the seed could supply an
-  entry — still a loud failure in the target's own `check-parcel-prefix.ps1`.
+  target's `base-context.md` registry capability-class rows (inserts rows the target lacks, prunes
+  rows for retired keys — rows only, prose untouched), **removes every `model` binding it finds and
+  never stamps one** (T1-E1.04), and migrates the target's `skills` key to the V2-native flat array
+  — every write JSON-validated and reverted rather than shipped unparsable, and a shape it cannot
+  rewrite safely is refused with a printed operator remedy. One exception is structural, not a
+  model: the locked-preset host's `permission.task` allow-list is still stamped from the seed
+  (see the step-4 comment in `scripts/lib/sync-bindings.ps1`). Full semantics live in
+  `.devops/rules/agents-and-skills.md` § Sync Protocol — cited here, never restated.
 - **Pull semantics are merge-by-name, not mirror and not additive.** The engine copies portable surfaces with `Copy-Item $s\* $t -Recurse -Force`: a file present in **both** repos is **replaced wholesale** (target-side edits to a portable file are lost — this is why the fold review in `@sprint-close` §8 is template-side), while a file present in the **target only** survives untouched (satellite-only residue is never pruned — "sync" can leave local files behind). Neither "mirror" nor "additive" predicts both; read every pull verdict with this model.
 - A retired file inside a portable skill reports `PRUNE`, never a parent-skill `DRIFT`:
   declare it in `prune_files` like any other retirement — the parent-dir mask covers skills.

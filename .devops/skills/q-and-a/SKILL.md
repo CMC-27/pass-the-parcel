@@ -1,8 +1,8 @@
 ---
 name: q-and-a
 description: Make sure to use this skill whenever the user mentions "Q&A", "gather requirements", "ask me questions", "requirements discovery", "interview me", or wants a new concept, template, pattern or process defined via a dedicated <slug>-QA.md log, one question at a time with the interactive question tool. Use it for Gate A discovery, when a new concept/template/pattern needs to be defined, or when you need to capture exactly what the SME needs before authoring. Companion to true-or-false (Q&A gathers, True/False confirms).
-version: 4
-updated: 2026-09-20
+version: 5
+updated: 2026-09-29
 ---
 
 # Q&A — Requirements Gathering
@@ -145,16 +145,7 @@ When the final "have we got all context" question is answered `A. We are good`:
 
 ## Relationship to True or False
 
-| Dimension | Q&A (this skill) | True or False |
-|---|---|---|
-| **Purpose** | **Gather** requirements for a new concept/template | **Confirm** existing knowledge matches intent |
-| **Timing** | Before authoring (Phase 3 discovery / Gate A) | After authoring or before approval |
-| **Questions** | "What should it be? Pick A/B/C or tell me" | "Does this doc match reality? True/False/Skip/Other" |
-| **Artifact** | `<slug>-QA.md` → synthesis → parcel plan | `<slug>-plan.md` change items |
-| **Ending** | Synthesis + re-baselined plan + v2 template for Gate A | Verification Summary + change plan for parcel execution |
-| **Style** | Many detailed options, collaborative | Plain SME question + Knowledge Proof (file/lines) |
-
-Both record in an independent `.md`, both have many questions, both produce a clear, actionable parcel plan. Use Q&A first, then True/False to validate the result.
+**Q&A gathers; True or False confirms.** Use Q&A first, then [true-or-false](../true-or-false/SKILL.md) to validate the result — its § Relationship to Q&A holds the full side-by-side comparison (purpose, timing, questions, artifact, persistence, ending). Both record in an independent `.md`, both persist every answer JIT, and both produce a clear, actionable parcel plan.
 
 ---
 
@@ -178,10 +169,11 @@ Both record in an independent `.md`, both have many questions, both produce a cl
 
 ---
 
-> **Related:** [True or False](../true-or-false/SKILL.md) | [Pass-the-Parcel](../pass-the-parcel/SKILL.md) | [Wiki Writer](../wiki-writer/SKILL.md) | [Plan template](../../plans/template-plan.md) | [Wiki Lint](../wiki-lint/SKILL.md) | [AI Rules](../../../.wiki/rules/language/ai-rules.md)
-
 ## See Also
 
-- [True or False](../true-or-false/SKILL.md) — confirming knowledge matches intent
+- [True or False](../true-or-false/SKILL.md) — confirming knowledge matches intent (companion skill)
 - [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — executing the plan this discovery produces
 - [Wiki Writer](../wiki-writer/SKILL.md) — writing the docs this discovery specifies
+- [Plan template](../../plans/template-plan.md) — the scaffold this skill re-baselines into
+- [Wiki Lint](../wiki-lint/SKILL.md) — structural link/frontmatter health
+- [AI Rules](../../../.wiki/rules/language/ai-rules.md) — evidence ladder and no-fabrication guardrails

@@ -1,14 +1,12 @@
 ---
-type: "core"
 name: "wiki-bootstrap"
-status: "stable"
 description: "Verification pass over the wiki: walks each of the 19 core docs one by one, asking 5-8 targeted questions per doc to confirm the content against reality. Use after @wiki-generate drafts docs, when re-bootstrapping a stale doc, or when a wiki needs to be proven correct rather than authored. The wiki is the brain of the app — AI agents rely on it to make the right coding decisions."
 references: "references/0X-*.md — 19 scaffold templates (one per core doc). references/qa-0X-*.md — 18 question sets (slot 14 is handled by the testing subtree) that drive the verification Q&A."
-version: 4
-updated: 2026-09-17
+version: 5
+updated: 2026-09-29
 ---
 
-# wiki-bootstrap
+# Wiki Bootstrap
 
 > **Role (v2): the verification pass.** `@wiki-generate` now drafts structure, index rows, and doc skeletons. This skill's job is to **prove** a doc correct — question by question, against reality — and to fill a gap only where verification finds one. Author-by-interview still applies when no draft exists (cold start, empty slot).
 
@@ -120,31 +118,31 @@ flowchart TD
 
 ---
 
-## 6. Question Set Reference Table
+## 6. Slot Reference (Question Set + Purpose)
 
-When you reach slot `0X`, open this file to read its question set:
+When you reach slot `0X`, open its question set to read the 5–8 questions; the Purpose column is the one-line job of that slot. Full slot definitions live in the Q&A files and the scaffold templates (§ 7).
 
-| Slot | Doc | Theme | Question Set |
-| :--- | :--- | :--- | :--- |
-| 00 | System Index (The Hub) | Hub | `references/qa-00-system-index.md` |
-| 01 | Vision & North Star | Strategy | `references/qa-01-vision-north-star.md` |
-| 02 | Product Context | Strategy | `references/qa-02-product-context.md` |
-| 03 | Glossary of Terms | Strategy | `references/qa-03-glossary-of-terms.md` |
-| 04 | State & Context | Architecture | `references/qa-04-state-context.md` |
-| 05 | Core Architecture | Architecture | `references/qa-05-core-architecture.md` |
-| 06 | Directory Structure | Architecture | `references/qa-06-directory-structure.md` |
-| 07 | App Structure | Architecture | `references/qa-07-app-structure.md` |
-| 08 | User Journey | Workflow | `references/qa-08-user-journey.md` |
-| 09 | Design System | Design | `references/qa-09-design-system.md` |
-| 10 | Validation Standards | Standards | `references/qa-10-validation-standards.md` |
-| 11 | Utility Standards | Standards | `references/qa-11-utility-standards.md` |
-| 12 | Security Standards | Standards | `references/qa-12-security-standards.md` |
-| 13 | Performance Standards | Standards | `references/qa-13-performance-standards.md` |
-| 14 | *(Testing Standards handled by testing/* subtree)* | — | — |
-| 15 | AI Features | Features | `references/qa-15-ai-features.md` |
-| 16 | External Integrations | Features | `references/qa-16-external-integrations.md` |
-| 17 | Docs Blueprint | Meta | `references/qa-17-docs-blueprint.md` |
-| 18 | Knowledge Capture | Meta | `references/qa-18-knowledge-capture.md` |
+| Slot | Doc | Theme | Purpose | Question Set |
+| :--- | :--- | :--- | :--- | :--- |
+| 00 | System Index (The Hub) | Hub | Master hub with data-flow diagram and links to all indices. | `references/qa-00-system-index.md` |
+| 01 | Vision & North Star | Strategy | Vision statement, north star metric, magic moment. | `references/qa-01-vision-north-star.md` |
+| 02 | Product Context | Strategy | Personas, core use cases, roadmap summary, glossary link. | `references/qa-02-product-context.md` |
+| 03 | Glossary of Terms | Strategy | Domain terminology, abbreviations, data hierarchy definitions. | `references/qa-03-glossary-of-terms.md` |
+| 04 | State & Context | Architecture | Provider tree, context shapes, hook APIs, persistence. | `references/qa-04-state-context.md` |
+| 05 | Core Architecture | Architecture | Data lifecycle, engines, derivations, guardrails. | `references/qa-05-core-architecture.md` |
+| 06 | Directory Structure | Architecture | Root layout, `src/` tree, naming rules. | `references/qa-06-directory-structure.md` |
+| 07 | App Structure | Architecture | Entry point, router, layout wrappers, nav architecture. | `references/qa-07-app-structure.md` |
+| 08 | User Journey | Workflow | Onboarding path, primary happy path, secondary flows, error recovery. | `references/qa-08-user-journey.md` |
+| 09 | Design System | Design | Color tokens, typography, spacing, form styles, interactive states. | `references/qa-09-design-system.md` |
+| 10 | Validation Standards | Standards | Validation tiers, error classification, error dashboard UX. | `references/qa-10-validation-standards.md` |
+| 11 | Utility Standards | Standards | Rounding, formatters, ID generation, visual micro-patterns. | `references/qa-11-utility-standards.md` |
+| 12 | Security Standards | Standards | Security boundaries, RLS, secret management, rate limits. | `references/qa-12-security-standards.md` |
+| 13 | Performance Standards | Standards | Bundle architecture, lazy-loading, performance budgets. | `references/qa-13-performance-standards.md` |
+| 14 | *(Testing Standards handled by testing/* subtree)* | Standards | Test patterns, mocking, performance budgets, PR checklist. | — |
+| 15 | AI Features | Features | In-app AI features, prompts, response schemas, fallbacks. | `references/qa-15-ai-features.md` |
+| 16 | External Integrations | Features | Integration endpoints, field mappings, auth, export/import. | `references/qa-16-external-integrations.md` |
+| 17 | Docs Blueprint | Meta | Concise pointer to the `wiki-bootstrap` skill itself. | `references/qa-17-docs-blueprint.md` |
+| 18 | Knowledge Capture | Meta | Decision log: date, context, decision, rationale, impact. | `references/qa-18-knowledge-capture.md` |
 
 Each Q&A file follows this shape:
 
@@ -161,35 +159,7 @@ The 19 scaffold files at `references/0X-name.md` (one per slot) contain the corr
 
 ---
 
-## 8. Foundation Checklist (One-Liner Per Slot)
-
-For full slot definitions, see the Q&A files above and the scaffold templates. One-line purpose per slot:
-
-| Slot | Theme | Purpose |
-| :--- | :--- | :--- |
-| 00 | Hub | Master hub with data-flow diagram and links to all indices. |
-| 01 | Strategy | Vision statement, north star metric, magic moment. |
-| 02 | Strategy | Personas, core use cases, roadmap summary, glossary link. |
-| 03 | Strategy | Domain terminology, abbreviations, data hierarchy definitions. |
-| 04 | Architecture | Provider tree, context shapes, hook APIs, persistence. |
-| 05 | Architecture | Data lifecycle, engines, derivations, guardrails. |
-| 06 | Architecture | Root layout, `src/` tree, naming rules. |
-| 07 | Architecture | Entry point, router, layout wrappers, nav architecture. |
-| 08 | Workflow | Onboarding path, primary happy path, secondary flows, error recovery. |
-| 09 | Design | Color tokens, typography, spacing, form styles, interactive states. |
-| 10 | Standards | Validation tiers, error classification, error dashboard UX. |
-| 11 | Standards | Rounding, formatters, ID generation, visual micro-patterns. |
-| 12 | Standards | Security boundaries, RLS, secret management, rate limits. |
-| 13 | Standards | Bundle architecture, lazy-loading, performance budgets. |
-| 14 | Standards | Test patterns, mocking, performance budgets, PR checklist. |
-| 15 | Features | In-app AI features, prompts, response schemas, fallbacks. |
-| 16 | Features | Integration endpoints, field mappings, auth, export/import. |
-| 17 | Meta | Concise pointer to the `wiki-bootstrap` skill itself. |
-| 18 | Meta | Decision log: date, context, decision, rationale, impact. |
-
----
-
-## 9. When to Use This Skill
+## 8. When to Use This Skill
 
 - **Verifying docs drafted by `@wiki-generate`** (the primary path).
 - **Setting up a brand-new project's wiki** (cold start — no draft exists, so author by interview).

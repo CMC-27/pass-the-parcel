@@ -79,7 +79,7 @@ user-invocable: false
 ## Delegated Skill: ptp-parcel-fast
 
 <!-- EMBED:START:ptp-parcel-fast -->
-# SKILL: Per-Plan Fast Runner (`ptp-parcel-fast`)
+# Per-Plan Fast Runner (`ptp-parcel-fast`)
 
 > **Boundary:** This skill owns exactly **one** plan's Phases 1-9. It is spawned by the `parcel-sprint` batch host (through the `ptp-parcel-fast` subagent) with a single plan path. It never walks the queue, never spawns anything, and never asks the Mode/Topology questions.
 

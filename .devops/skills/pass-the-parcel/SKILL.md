@@ -1,11 +1,11 @@
 ---
 name: pass-the-parcel
 description: Make sure to use this skill whenever the user mentions "pass the parcel", "parcel mode", "/parcel", "token saving planning", "multi-agent planning", "multi-agent mode", "single agent", "single-agent mode", "fast plan", "comprehensive plan", "stateless execution", "clear context", "independent reviewer", or wants to run a highly token-efficient, robust design-and-execution pipeline where state is passed entirely within a .md plan in .devops/plans/. Supports three topologies — `MICRO` (collapsed small-change record), `SINGLE` (fast plan) and `MULTI` (comprehensive plan) — chosen by task complexity.
-version: 30
+version: 31
 updated: 2026-09-29
 ---
 
-# SKILL: Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
+# Pass-the-Parcel (Low-Token Self-Contained Agent Orchestration)
 
 Execute highly complex multi-agent engineering workflows with minimal token usage by maintaining the entire system state, goals, reviews, and execution checklists in a self-contained markdown "parcel" file at `.devops/plans/[plan-name].md`. Each sub-agent run operates stateless, reading the plan, executing its specific role, editing the plan, and immediately exiting without carrying conversation history.
 
@@ -190,7 +190,7 @@ To prevent context inflation and ensure complete control over design and executi
    - **Riding findings (non-blocking reviews):** a finding a reviewer labelled non-blocking (`ride` — a **finding** label, **never a third verdict**) rides **Phase 8 by default** on a well-scoped plan: it is neither a revision round nor a silence. **Every riding finding carries a recorded disposition** — actioned in Phase 8, or waived with the reason. The label lives in the reviewers' Findings Output Contracts (`ptp-grumpy-architect`, `ptp-smooth-operator`), the action in `ptp-code-surgeon` § 1, and the recorded row shape in `template-plan.md` Phases 6/7. This is **not** a `@sprint-run` deviation: `.devops/rules/plan-lifecycle.md` § Deviations lists exactly three, and a halt never enlarges that list.
    - **Gate D (Implementation):** Stop after completing **Phases 8-9** (Execution & QA verification). Present the verification results and file changes. Wait for user testing and sign-off. **On rollback:** Status → `PHASE_8_FAILED`; the orchestrator routes retry / revision / user decision.
    - **AUTO mode:** the orchestrator auto-clears Gates A-C **only** on positive, presence-based evidence — the canonical contract is `.devops/rules/plan-lifecycle.md` § AUTO Gate Evidence Contract (cited, never restated here). An unproven gate is a **stop-the-line**, never a `REJECTED` verdict and never a silent skip. **Gate D always requires the human.**
-   - **Topology:** In `SINGLE` topology, Group C (Phases 6-7) is replaced by an inline self-review checkpoint logged in the Phase 6 section, and Gates B+C merge into a single plan-approval at Gate B (Gate C recorded `N/A`). In `MICRO`, Gates A and C are recorded `N/A (MICRO)`, Phases 2-8 render as marked `N/A — MICRO` markers carrying the eligibility line, and Gate B carries the eligibility assertion plus the micro plan — canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane*. Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
+   - **Topology:** the gate set varies by topology — `SINGLE` records Gate C `N/A`, `MICRO` records Gates A and C `N/A (MICRO)`. The per-topology renderings are stated once in § Agent Topology → *Per-topology phase flow*; this section adds only the invariant: Gate D still halts for the human (`AUTO` auto-clears Gates A-C). See § Agent Topology.
 
 ---
 
@@ -206,7 +206,7 @@ To maximize token-savings during interaction and within the plan updates, agents
 
 ## Execution Steps
 
-> **Topology dispatch:** The steps below describe `MULTI` (sub-agent delegation). In `SINGLE`, the orchestrator plays each group's persona inline instead of spawning the sub-agent — the phases, gates, and halt points are otherwise identical, except that Group C is skipped and Gates B+C merge into one approval (§ Agent Topology). In `MICRO`, the same inline dispatch applies with the collapsed rendering (`N/A — MICRO` markers) and Gates A and C `N/A (MICRO)` — canonical: `.devops/rules/plan-lifecycle.md` § *Micro Lane*. If a **locked preset** fixes `SINGLE`, that dispatch is mandatory (the runtime `task: deny` enforces it).
+> **Topology dispatch:** the steps below describe `MULTI` (sub-agent delegation). `SINGLE` plays each group's persona inline instead of spawning the sub-agent, and `MICRO` applies the same inline dispatch with the collapsed rendering — phases, gates and halt points are otherwise identical, per § Agent Topology → *Per-topology phase flow*. Where a **locked preset** fixes `SINGLE`, that dispatch is mandatory (the runtime `task: deny` enforces it).
 
 ### Claim & Pick-up Flow (Pre-Phase 1)
 Work enters the pipeline from a sprint queue. Do not start a plan that is neither committed to a sprint nor claimed.

@@ -1,11 +1,11 @@
 ---
 name: wiki-query
 description: "Use when asking a question about the codebase, looking up a concept, or synthesizing an answer from the wiki + ref/ docs. Triggers: 'what do I know about X', 'look up Y', 'find in wiki', 'search docs', 'wiki says'. Read-only — defers writing to knowledge-capture."
-version: 1
-updated: 2026-09-03
+version: 2
+updated: 2026-09-29
 ---
 
-# Wiki Query Skill
+# Wiki Query
 
 ## Goal
 Answer questions by synthesising the contents of `.wiki/` (including `ref/`). Cite every claim with `[Title](path)` so the user can verify. Never write to disk. If the answer should be persisted, point the user to the `knowledge-capture` skill.

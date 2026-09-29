@@ -1,8 +1,8 @@
 ---
 name: true-or-false
 description: Make sure to use this skill whenever the user mentions "true or false", "validate the wiki", "does the knowledge base match", "is this accurate", "step-by-step validation", "check against reality", or wants to validate knowledge-base/process docs against human intent one step at a time with a dual SME (plain language) + Knowledge Curator (document proof) lens. Use it to eliminate AI-fabricated or unsourced content, surface stale, wrong or dead knowledge, validate a workflow or journey step-by-step, or check a process document against live practice.
-version: 6
-updated: 2026-09-20
+version: 7
+updated: 2026-09-29
 ---
 
 # True or False — Knowledge Base Alignment Workflow
@@ -138,21 +138,7 @@ For each Q:
 
 ### Step 1 — Present and invoke `question` tool
 
-First print the step header and metadata as text, then use the interactive question tool to prompt the user (`question` in opencode; the ask-questions tool in VS Code Copilot):
-
-**Printed text:**
-```
-### Step [X] / [Estimated Total]: [Step Title]
-* **Current Scope:** `[Journey]` -> `[Active Segment]`
-
-**SME Question:**
-[Ask what *should* happen from a business or domain perspective. Use plain language — no file paths, no technical wiki jargon. Frame it like: "When an estimator does X, they get Y, right?" or "The process should handle Z this way — is that correct?"]
-
-**Knowledge Proof:**
-* **File:** `path/to/document.md` (Heading / Lines X-Y)
-> CRITICAL: Extract and print the exact live passage being
-> referenced to prevent lazy line-number hallucinations.
-```
+Print the Q[X] card from the log verbatim as step text — header, Current Scope, SME Question, Knowledge Proof — then prompt the user with the interactive question tool (`question` in opencode; the ask-questions tool in VS Code Copilot). Two rules for the printed card: the SME Question stays in plain language (no file paths, no wiki jargon — "When an estimator does X, they get Y, right?"), and the Knowledge Proof quotes the **exact live passage** — that quote is what prevents lazy line-number hallucinations.
 
 **Then invoke the `question` tool with:**
 * **Question:** "Does the behaviour described above match your expectations?"
@@ -167,7 +153,9 @@ Set `multiple: false` (single selection). Custom free-text is always allowed.
 
 #### Example (Core Estimating Workflow)
 
-**Printed text:**
+Printed card:
+
+```text
 ### Step 3 / 12: Estimator Assigned and Brief Issued
 * **Current Scope:** `Inquiry → Submitted estimate` -> `Intake and go/no-go`
 
@@ -179,15 +167,9 @@ Once the go/no-go decision is "Go", the estimator is assigned and a formal brief
 > Assign the estimating team and issue the brief — confirm the lead estimator, QS, technical input, required outputs, due dates and delivery level.
 
 The workflow map also shows `C -->|Go| D[Assign estimator and issue brief]`.
+```
 
-**Then call `question` with:**
-* **Question:** "Does the behaviour described above match your expectations?"
-* **Header:** "Step 3 Response"
-* **Options:**
-  * **True** — Yes, this is correct as-is.
-  * **False** — No, this is wrong.
-  * **Skip Branch** — This step/segment is irrelevant or deprecated.
-  * **Other** — Clarification or nuance needed.
+The `question` call for this step carries Header "Step 3 Response" and the four options listed above.
 
 ### Step 2 — Persist immediately
 
@@ -322,19 +304,11 @@ Both record in an independent `.md`, both have many questions, both produce a cl
 
 ---
 
-## Related
-
-- [Q&A](../q-and-a/SKILL.md) — requirements gathering with same live-.md JIT pattern (companion skill)
-- [Wiki Lint](../wiki-lint/SKILL.md) — structural link/frontmatter health
-- [Wiki Bootstrap](../wiki-bootstrap/SKILL.md) — document-level verification pass and authority review
-- [AI Rules](../../../.wiki/rules/language/ai-rules.md) — evidence ladder and no-fabrication guardrails
-- [Plan template](../../../.devops/plans/template-plan.md) and [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — change execution
-- [Agent Wrap-Up](../agent-wrap-up/SKILL.md) — end-of-run summary
-
 ## See Also
 
-- [Q&A](../q-and-a/SKILL.md) — gathering requirements before this confirmation step
+- [Q&A](../q-and-a/SKILL.md) — requirements gathering with the same live-.md JIT pattern; run it before this confirmation step (companion skill)
 - [Wiki Bootstrap](../wiki-bootstrap/SKILL.md) — document-level verification pass and authority review
 - [Wiki Lint](../wiki-lint/SKILL.md) — structural link/frontmatter health
-- [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — executing the changes this validation identifies
+- [Plan template](../../../.devops/plans/template-plan.md) and [Pass-the-Parcel](../pass-the-parcel/SKILL.md) — executing the changes this validation identifies
 - [AI Rules](../../../.wiki/rules/language/ai-rules.md) — evidence ladder and no-fabrication guardrails
+- [Agent Wrap-Up](../agent-wrap-up/SKILL.md) — end-of-run summary

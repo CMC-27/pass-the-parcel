@@ -1,11 +1,11 @@
 ---
 name: wiki-lint
 description: "Use when checking wiki health, detecting broken links, validating frontmatter, finding orphan pages, or auditing index drift and hub reachability. Triggers: 'lint wiki', 'check wiki', 'wiki health', 'broken links', 'index drift', 'frontmatter check'. Soft report only — never blocks deploy."
-version: 5
-updated: 2026-09-17
+version: 6
+updated: 2026-09-29
 ---
 
-# Wiki Lint Skill
+# Wiki Lint
 
 ## Goal
 Detect structural decay in `.wiki/` by running the deterministic linter, `scripts/wiki_lint.py`, and reporting its findings. The script is the canonical implementation of every check below; this skill owns the invocation and the judgement calls the script cannot make. Run results go to stdout only — there is no persistent lint log; git history is the record.
@@ -50,11 +50,11 @@ Findings print to stdout as deterministic lines with HARD/WARN/INFO counts deriv
 ### 4. Error handling
 The script never throws mid-run: unreadable files are skipped with an INFO line, an empty wiki exits 0, and `--fix` writes only after the whole scan succeeds.
 
+### 5. Rule fan-out (report-only, never a gate)
+`python scripts/rule_fanout.py` prints the **surface-budget report**: per registered rule, the raw count of machinery surfaces that restate it and the count that does so **without** naming its canonical home. It is the maintenance instrument of `.devops/rules/managed-simplicity.md`, the registry lives in `.devops/rules/surface-budget.md`, and it **always exits 0** — it is never wired into `validate.yml`. Surface its table when a rule change is contemplated or after retiring one; a rising count is the signal to cite instead of restate.
+
 ## Usage Guidelines
 - **Proactive**: run at the end of any work that touched wiki docs (per `agent-wrap-up`); `wiki-writer` Step 8 requires it after every substantive edit.
 - **First-thing**: run on a fresh wiki to establish a baseline.
 - **Drift detection**: run weekly to catch gradual decay (renamed files leaving dead links, new docs never indexed).
 - **Deferred checks** (not implemented, add here if built): index size budget (>400 lines); blueprint spoke-list sync (`17-docs-blueprint.md`); hop-count reporting (>2 hops from hub); `See Also` section coverage; `ref/` index coverage (no `ref/` directory content exists yet).
-
-### 5. Rule fan-out (report-only, never a gate)
-`python scripts/rule_fanout.py` prints the **surface-budget report**: per registered rule, the raw count of machinery surfaces that restate it and the count that does so **without** naming its canonical home. It is the maintenance instrument of `.devops/rules/managed-simplicity.md`, the registry lives in `.devops/rules/surface-budget.md`, and it **always exits 0** — it is never wired into `validate.yml`. Surface its table when a rule change is contemplated or after retiring one; a rising count is the signal to cite instead of restate.

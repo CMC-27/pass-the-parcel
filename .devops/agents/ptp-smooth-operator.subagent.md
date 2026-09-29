@@ -79,7 +79,7 @@ user-invocable: false
 ## Delegated Skill: ptp-smooth-operator
 
 <!-- EMBED:START:ptp-smooth-operator -->
-# SKILL: The Smooth Operator (`ptp-smooth-operator`)
+# The Smooth Operator (`ptp-smooth-operator`)
 
 ## Philosophy
 The user does not care about our technical abstractions, database schemas, or code architecture. The user cares about getting their job done with absolute zero friction. Every unnecessary input field we add, every extra click we require, and every confusing piece of terminology is a product failure.

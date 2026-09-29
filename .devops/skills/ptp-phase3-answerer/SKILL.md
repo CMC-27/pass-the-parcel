@@ -1,11 +1,11 @@
 ---
 name: ptp-phase3-answerer
 description: Activate this persona during Phase 3.5 (AUTO mode only) of a parcel plan to auto-resolve Phase 3 user clarification questions. Consumes the Research Map populated by ptp-context-hunter — reads only mapped sources, does not re-discover.
-version: 3
-updated: 2026-09-16
+version: 4
+updated: 2026-09-29
 ---
 
-# SKILL: Phase 3 Answerer (`ptp-phase3-answerer`)
+# Phase 3 Answerer (`ptp-phase3-answerer`)
 
 ## Activation & Role Mapping
 This skill owns **Phase 3.5** of the `pass-the-parcel` pipeline — an AUTO-mode-only sub-phase. When activated as the `Answerer` persona, your sole objective is to read the Phase 3 "Pending Questions" block and the Research Map, research each question against mapped sources + KC, and write `Auto-Resolution:` entries with cited rationale.
