@@ -1,4 +1,4 @@
-# Sprint 13 (V1 Hardening): Business Report
+# Sprint 13 (V1 Hardening): Sprint Report
 
 ## What this sprint set out to do
 
@@ -41,4 +41,4 @@ The owner's own acceptance walk covered **9 outcomes: 9 passed, 0 failed, 0 bloc
 
 ## What's next
 
-The sprint record and its retrospective are archived at [sprint.md](../archive/sprints/sprint-13-v1-hardening/sprint.md); the acceptance sheet sits beside it at [user-testing.md](../archive/sprints/sprint-13-v1-hardening/user-testing.md). Run `@sprint-plan` when you are ready to open the next cycle — the capacity figure to carry forward is **100%**, so the next plan's budget can be set with some confidence.
+The sprint record and its retrospective are archived at [sprint.md](sprint.md); the acceptance sheet sits beside it at [user-testing.md](user-testing.md). Run `@sprint-plan` when you are ready to open the next cycle — the capacity figure to carry forward is **100%**, so the next plan's budget can be set with some confidence.
