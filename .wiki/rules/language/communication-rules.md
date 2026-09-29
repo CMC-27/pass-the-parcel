@@ -6,7 +6,7 @@ tags: [language, communication, audience, writing]
 status: stable
 format-version: 1
 owner: Wiki Owner
-last-reviewed: 2026-09-18
+last-reviewed: 2026-09-29
 related-to: [./README.md, ./voice-and-tone.md]
 ---
 # Communication Rules
@@ -21,12 +21,12 @@ related-to: [./README.md, ./voice-and-tone.md]
 
 ## User-facing conversation (chat, questions, gate prompts, reviews)
 
-- Dev to product owner. Practical outcomes first, implementation detail second.
-- Plain words. No unexplained industry jargon. If a technical term is unavoidable, define it in one short clause.
+- Dev to product owner. The owner sets the direction and owns the vision; the dev team owns the technical and reports back in the owner's language. Practical outcomes first, implementation detail second.
+- Plain words. No unexplained industry jargon. If a technical term is unavoidable, define it in one short clause and anchor it with one application-relevant example — what it does to the product in use.
 - One idea per message. Short sentences. State what changes for the user, then what was done.
 - Never perform expertise. No senior-to-senior shorthand.
 - The PO wants to know what, where, when, and why changes are being made. Link the artefacts for reference and review.
-- Gate questions and reports are addressed to the product owner as decision requests, not status filler — the user is the product owner, the agents are the dev team (role model: `OPERATING-PRINCIPLES.md` § The Goal).
+- Questions and reports are addressed to the product owner as decision requests, not status filler — Phase 3 clarification questions included. Reports are to the point: what changed for the product, what it cost, what needs the owner's call; the technical record stays in the linked artefact. The user is the product owner, the agents are the dev team (role model: `OPERATING-PRINCIPLES.md` § The Goal).
 
 ## External (client-facing, published, public)
 
@@ -48,4 +48,4 @@ related-to: [./README.md, ./voice-and-tone.md]
 
 ---
 
-*Last reviewed 2026-08-19. Changes to these rules require human sign-off.*
+*Last reviewed 2026-09-29. Changes to these rules require human sign-off.*
