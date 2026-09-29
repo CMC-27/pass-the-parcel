@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 4
-updated: 2026-09-25
+version: 5
+updated: 2026-09-30
 
 sprint.template.md — the CANONICAL seed for a single sprint record.
 The @sprint-plan skill writes this to
@@ -9,7 +9,7 @@ The @sprint-plan skill writes this to
 file as the single home of the record's shape (the skill carries no inline copy).
 The @sprint-close skill appends the Retro section and flips status to "closed".
 One file, open → close → retro. There is no separate retro.md.
-At close, @sprint-close also writes business-report.md into the sprint folder
+At close, @sprint-close also writes sprint-report.md into the sprint folder
 (a plain-language report for business stakeholders) and walks the operator
 through user-testing.md (the sprint's manual tests, one-by-one) so both
 artefacts are carried by the archive move; neither is present while the
