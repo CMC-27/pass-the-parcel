@@ -3,7 +3,7 @@ title: Process & Tooling Lessons
 tags: [dev, rules, process, lessons, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-27
+last-reviewed: 2026-09-29
 related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-capture/SKILL.md, ../skills/knowledge-consolidation/SKILL.md]
 ---
 
@@ -47,7 +47,8 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, ../skills/knowledge-captur
 - **[2026-09-09] Long lines are truncated on read** — `read_file` truncates at ~2000 chars with a `[truncated]` marker, so editing a line you only saw truncated writes the marker into the file. *Do instead:* append to giant-line files via a temp file + `[IO.File]::AppendAllText($target, $entry, (New-Object System.Text.UTF8Encoding($false)))`; recover with `git checkout -- <file>`.
 - **[2026-09-12] Claims sourced from claim-carrying docs restamp late** — `scripts/wiki_claims.py update` stamps docs in walk order, so a claim whose `source` is another doc that also carries claims records the source's *pre-restamp* bytes and reports `STALE` right after one `update`. *Do instead:* source the claim from a non-claim file, or run `update` a second time.
 - **[2026-09-12] Auto-cataloguing ignores index column semantics** — `wiki_lint._fix_unindexed` (used by lint `--fix`) inserts `[name, description]` into the first two data columns, so on an index whose columns are not `Doc | Description` (e.g. an index using `Doc | Service | Description`) the description lands under the wrong header. *Do instead:* add the row by hand for non-standard indexes.
-- **[2026-09-11] Editing a claim source invalidates other docs** — claims bind by whole-file sha256, so touching a widely-claimed file (`AGENTS.md` is claimed by two wiki docs) flips those docs to `STALE` even though they did not change; CI is the only signal. *Do instead:* after editing such a file, run `python scripts/wiki_claims.py update` before the coverage gate.
+- **[2026-09-11] Editing a claim source invalidates other docs** - claims bind by whole-file sha256, so touching a widely-claimed file (`AGENTS.md` is claimed by two wiki docs) flips those docs to `STALE` even though they did not change; CI is the only signal. *Do instead:* after editing such a file, run `python scripts/wiki_claims.py update` before the coverage gate.
+- **[2026-09-29] A concurrent session in the same worktree can reverse a tool-confirmed edit** - this session twice read a file whose on-disk state contradicted a write the tool had just confirmed (the co-running session's own `edit`/`-Sync` writes interleaved; one edit surfaced again inside the other session's commit snapshot). *Do instead:* in a session with concurrent activity, re-verify every load-bearing edit **on disk** immediately after the write - grep the exact new phrase plus `git diff --name-only` - before any dependent step; a tool's success report covers its call, never the file's last state. *(owner-register sharpening + spawn-contract wrap-ups, both sessions 2026-09-29)*
 
 ---
 
