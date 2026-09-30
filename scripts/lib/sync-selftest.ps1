@@ -203,6 +203,34 @@ function Invoke-EngineSelfTest {
         foreach ($d in $stDirs) { Assert-Mirror $d }
         foreach ($s in $stSkills) { Assert-Mirror ".devops/skills/$s" }
         foreach ($f in $stFiles) { Assert-Mirror $f }
+        # --- F10 assertion: every scripts/ path cited by the copied surface must reach the
+        # target. An undeclared script is invisible to -Check (nothing compares it), so it is
+        # only discovered when a satellite runs the command that cites it (the T1-E3.26
+        # sprint_dashboard.py miss). Exemptions: scripts/tests/** (the fixture suites stay
+        # template-local - validate.yml is not portable) and paths already declared retired
+        # in prune_files (they are deliberately absent from the target).
+        $refExempt = @('scripts/tests/') + @($stPrune | ForEach-Object { $_.Replace('\','/') })
+        $refRoots = @($stDirs) + @($stFiles) + @($stSkills | ForEach-Object { ".devops/skills/$_" })
+        foreach ($rel in $refRoots) {
+            $refPath = Join-Path $srcRoot $rel
+            if (-not (Test-Path $refPath)) { continue }
+            $refFiles = @($refPath)
+            if ((Get-Item $refPath -Force).PSIsContainer) {
+                $refFiles = @(Get-ChildItem -Force -Recurse -File $refPath | ForEach-Object { $_.FullName })
+            }
+            foreach ($refFile in $refFiles) {
+                $refText = [System.IO.File]::ReadAllText($refFile)
+                foreach ($m in [regex]::Matches($refText, 'scripts[/\\][A-Za-z0-9_.\-/\\]+\.(?:ps1|py|cjs|js|mjs|sh)\b')) {
+                    $cited = $m.Value.Replace('\','/')
+                    $exempt = $false
+                    foreach ($x in $refExempt) { if ($cited.StartsWith($x)) { $exempt = $true; break } }
+                    if ($exempt) { continue }
+                    if (-not (Test-Path (Join-Path $tmp $cited))) {
+                        $script:fail += "selftest F10: '$cited' is cited by $rel but never reaches the target"
+                    }
+                }
+            }
+        }
         # Guard the historical Copy-Item nesting defect: no doubled directory names.
         $nested = Get-ChildItem -Force $tmp -Recurse -Directory | Where-Object { $_.FullName.Replace('\','/') -match '/(\.wiki|\.devops)/\1|/skills/([^/]+)/\2' }
         if ($nested) { $script:fail += "nested-copy defect: $($nested.FullName -join ', ')" }

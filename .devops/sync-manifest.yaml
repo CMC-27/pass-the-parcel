@@ -47,7 +47,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 98
+machinery-version: 99
 
 # Skill tiering (T3-E1.04). A satellite declares how much of the skill library it carries;
 # the sync respects it. This is DATA, not prose - the engine reads these two keys, and no
@@ -126,6 +126,14 @@ portable_files:
   # fixture test beside it (`scripts/tests/`) stays local — `validate.yml` is not a
   # portable file, so a satellite would ship a test nothing runs.
   - scripts/sprint_eligible.py
+  # The sprint queue dashboard, executable. `parcel-sprint` and the `sprint-run` /
+  # `sprint-status` skills call it, and the portable `.devops/rules/queue-dashboard.md`
+  # names it as the machine home, so it must ride with them; its fixture suite
+  # (`scripts/tests/test_sprint_dashboard.py`) stays local for the same reason as its
+  # neighbours: `validate.yml` is not portable, so a satellite would ship a test
+  # nothing runs. -SelfTest's F10 assertion pins every cited scripts/ path to the
+  # target, which is how the T1-E3.26 miss (machinery 96) was closed.
+  - scripts/sprint_dashboard.py
   # The write-set derivation witness, executable. Both claim paths call it (the manual
   # path via `parcel` + `pass-the-parcel`, the batch path via `sprint-run`) and the
   # portable canon (`plan-lifecycle.md` § Claim Protocol step 2) cites it, so a satellite

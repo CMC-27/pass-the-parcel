@@ -153,6 +153,8 @@ Record the source once — `scripts\pull-architecture.ps1 -Source <path-or-git-u
 
 `-Check` exits `1` (`OUT OF SYNC`) when any of `UPGRADE`/`DRIFT`/`MISSING`/`SOURCE-ABSENT`/`PRUNE`/`AHEAD`/`MIGRATION` is present; a retired file reports `PRUNE`, not a parent-directory `DRIFT`.
 
+A pull copies `.devops/templates/**` but never the files a satellite authored from those seeds. After a sync, the satellite agent reviews the seeds it changed against their authored copies — `@sync-architecture` step 2b; a changed `AGENTS.template.md` rule, for example, lands in that workspace's `AGENTS.md`. The engine-reconciled regions (registry rows, model strips, the `skills` key) are excepted.
+
 ### Versioning
 Each skill carries an integer `version:` + `updated:` date in its frontmatter; `.devops/sync-manifest.yaml` carries one `machinery-version:` covering agents/rules/scripts/templates as a coordinated set — it is **template-owned and sync-stamped: a satellite never bumps it**. In the **template repo only**, `@agent-wrap-up` owns the bump discipline: modify a portable file → bump its version (and `machinery-version` for non-skill surfaces) → satellites see `UPGRADE`, not `DRIFT`. A satellite-side bump is inert and is the `commonest cause` of an `AHEAD` halt — the next pull stamps the source value back over it, so reconcile by hand-writing the source value (`.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*). In a **batch**, that discipline collapses to **one** `machinery-version:` increment for the whole batch, taken by the follow-up batch wrap-up from the value live at that moment — nested inside a batch, the per-plan path would have N writers reading one stale base.
 

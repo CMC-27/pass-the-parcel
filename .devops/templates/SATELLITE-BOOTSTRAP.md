@@ -1,7 +1,7 @@
 <!--
 type: template
-version: 17
-updated: 2026-09-26
+version: 18
+updated: 2026-10-01
 
 SATELLITE-BOOTSTRAP — one-time checklist to turn any workspace into a parcel blueprint
 satellite of the template repo. After step 4, ongoing updates are pulls, not bootstraps.
@@ -46,6 +46,11 @@ Copy and customize (the sync never overwrites these):
 | `sprint.template.md` | *(no copy)* | reference seed for the single `sprint.md`; `@sprint-plan` writes it into `.devops/sprints/sprint-{n}-<slug>/` |
 | `TRIAGE.template.md` | `.devops/backlog/TRIAGE.md` | triage framework — process doc, edit only if your tiers differ |
 | `REFACTORING.template.md` | `.devops/backlog/REFACTORING.md` | code-quality register — scan tables populate via `@spaghetti-monster` / `@sprint-close` |
+
+> **These seeds change across releases.** A sync copies the seeds but never the files you
+> authored from them. After any later sync, review the seeds it changed against your authored
+> copies — the `@sync-architecture` skill's step 2b carries the procedure, and the
+> engine-reconciled regions (registry rows, model strips, the `skills` key) are excepted.
 
 > The three backlog seeds (`SPRINTS` / `TRIAGE` / `REFACTORING`) are optional but recommended — they wire up the agile cycle that the `@sprint-*` skills drive. A satellite without them still gets the parcel pipeline; it just plans work ad-hoc instead of in sprints.
 >
