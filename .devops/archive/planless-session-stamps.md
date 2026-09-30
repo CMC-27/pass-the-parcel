@@ -3,7 +3,7 @@ type: "record"
 name: "Plan-less Session Green Stamp"
 status: "active"
 owner: Operator
-recorded: "2026-09-29"
+recorded: "2026-10-01"
 related-to: [../rules/plan-lifecycle.md, ../skills/test-and-deploy/SKILL.md, ../skills/agent-wrap-up/SKILL.md]
 ---
 
@@ -19,7 +19,9 @@ related-to: [../rules/plan-lifecycle.md, ../skills/test-and-deploy/SKILL.md, ../
 
 ## Record
 
-**Green stamp:** `a2bedbd` — the changelog locator at the moment of the ruling (`git log --format=%h -1 -- .devops/logs/agent-changelog.md`), a plan-less wrap-up commit.
+**Green stamp:** `8203dba` — the changelog locator at the release-99 close (`git log --format=%h -1 -- .devops/logs/agent-changelog.md`), a plan-less wrap-up commit. Supersedes `a2bedbd`, the 2026-09-29 ruling's locator, which the changelog later moved past.
+
+**CI verdict:** CI status unreadable — not pushed @ 8203dba
 
 **Plan-less changelog commits in this window** (each left `recorded == located` violated, because none has a Completion Note to record into):
 
@@ -28,6 +30,8 @@ related-to: [../rules/plan-lifecycle.md, ../skills/test-and-deploy/SKILL.md, ../
 | `f7d4578` / `ba42217` | Skills review — re-outline & rebalance across `.devops/skills/` | none |
 | `2cb23db` / `821c20a` | New `@user-testing` skill | none |
 | `d2166b5` / `c7e489f`, `ebe76b4`, `a2bedbd` | Spawn contract + register close-outs | none |
+| `09e3763` | Product-owner wording wrap-up (row 97) | none |
+| `8203dba` | Sprint dashboard transport + seed review (rows 98–99) | none |
 
 **Known limitation of this record, stated so it is never trusted silently:** the stamp goes stale the moment *any* session lands another `.devops/logs/agent-changelog.md` commit. It relieves the gate at close-time; it does not close the defect.
 
