@@ -10,7 +10,7 @@ description: "Core security boundary definitions, data isolation, role-based acc
 claims:
   - id: agents-read-operating-rules
     source: AGENTS.md#Core Development Rules
-    hash: sha256:325658ccc2a0c9b77dae7d1a4a81e04eca6d92627cdd173f91bed56f436cf606
+    hash: sha256:eb3b62801d5666f58181e11677d0fda0293035a16325f03f9d6be4c6aa7d96c9
   - id: env-vars-excluded-from-git
     source: .gitignore#.env
     hash: sha256:5ac7f6640c04da066f021c3f8bdc2f9d901ee1b93d0bdd22243a937908f627d3
