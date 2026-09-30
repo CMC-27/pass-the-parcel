@@ -27,6 +27,7 @@ related-to: [../../.wiki/rules/README.md, ../../.wiki/rules/language/README.md, 
 | [managed-simplicity.md](managed-simplicity.md) | The template's first principle, and the two instruments that enforce it — the Simplicity Ladder (plan time) and the surface-budget report (maintenance) |
 | [surface-budget.md](surface-budget.md) | The machine-readable canon registry the fan-out report reads — walk roots, one row per rule, its canonical home and its allowed citation surfaces |
 | [plan-lifecycle.md](plan-lifecycle.md) | Parcel plan lifecycle — backlog → sprint queue → plans → archive, gates, claim protocol (in-place) |
+| [queue-dashboard.md](queue-dashboard.md) | The sprint queue dashboard — the one plain-language view printed at every batch transition; a render-only view, never a decision source. *(Surface-budget note: deliberately not registered there — a presentation mandate, not a gate.)* |
 | [process-lessons.md](process-lessons.md) | Staging register of machinery / process / tooling lessons with no home in `.wiki/` — the exit door for Knowledge Capture |
 
 ## Core Principles

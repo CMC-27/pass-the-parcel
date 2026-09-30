@@ -1,8 +1,8 @@
 ---
 name: sprint-run
 description: 'Make sure to use this skill whenever the user says "@sprint-run", "run the sprint", "batch the sprint queue", "run all the sprint plans", or wants the committed sprint queue executed unattended. Walks the ACTIVE sprint queue, computes the eligible set per claim, claims each eligible plan on the trunk, spawns one ptp-parcel-fast per plan (locked AUTO + SINGLE, one runner per plan), and emits one consolidated Gate D report. Stops the line on any hard failure. Distinct from @sprint-plan (opens a sprint) and @sprint-close (retires it).'
-version: 16
-updated: 2026-09-28
+version: 17
+updated: 2026-09-30
 ---
 
 # Sprint Run — Batch Queue Runner
@@ -21,7 +21,7 @@ Run in order; any failure halts the batch **before** the first claim.
 6. **Dependency preflight.** Two mechanical checks over the still-unresolved queue set (the `QUEUED` plans plus any unarchived dependency they name):
    - **Cycle check.** Build the `depends_on` graph over that set. A cycle leaves *every* member permanently ineligible — it is a **queue defect**, not a transient block: terminate with the cycle members named and record it in the report's skip table. Never enter a loop, never reorder.
    - **Resolution forecast.** Run `python scripts/sprint_eligible.py` — § 2's authority, never a hand-derivation — and present its `claim_order` plus its terminal skip set with each skip's `reasons`. A forecast, not a contract: the predicate is re-evaluated per claim, so the executed set may differ. A non-zero exit is the § 5 stop-the-line, never a prose recomputation.
-7. **Present the informed run preview**, then take **one** yes/no:
+7. **Present the informed run preview** — **`python scripts/sprint_dashboard.py` printed first** (the dashboard is the opening of every owner-facing surface this skill emits; the queue rows below it name exactly what the run will do), then take **one** yes/no:
    - eligible plans, each with `code` + `title`;
    - the skip list, each entry with its reason;
    - the orphan re-adoption list, if any (surfaced for confirmation — the heuristic cannot tell a dead-batch orphan from a live concurrent claim);
@@ -67,12 +67,12 @@ Anything failing 1-3 is **skipped with its reason recorded**; a skip never halts
 
 ## 3. Per plan (serial)
 
-Narrate one line before each spawn: `plan k/N: <code> claimed → running`. Then:
+**Every transition prints the dashboard** (`python scripts/sprint_dashboard.py` — the operator's view of where the run is; the plan's per-plan narration line lives inside it, `plan k/N: <code> claimed → running` — a long serial run must never read as hung). Then:
 
 1. `git mv` the plan into `.devops/plans/`, fill the claim front-matter (`claim_status: CLAIMED`, `owner`, `claimed_at`, `last_touch`), and commit with the exact literal `claim: <code>` on the trunk. All work runs in place — no worktree, no plan branch, one claim at a time.
 2. Spawn **one** `ptp-parcel-fast` for that plan path, **passing the batch model chosen at § 1 step 7** (where the runtime supports spawn-time model selection; where it does not and a concrete override was requested, § 5's stop-the-line applies). The spawned runner writes the plan's `## ⚙️ Plan Settings` block at claim time as its **first** action (frozen `Mode=AUTO` + `Agents=SINGLE` + the handed-down `Models` value); the host never authors it. On return, the plan sits at `PHASE_9` + `claim_status: GATE_D_USER_APPROVAL`. **The runner never touches `machinery-version`** — the counter has one writer per batch (§ 6 and `.devops/rules/plan-lifecycle.md` § Claim Protocol → *Counter Ownership*), and N runners bumping from one shared base is the collision that rule exists to remove. The runner **does** still re-inline the prefix (`-Sync`) when its plan edits a reserved prefix surface, because a red `check-parcel-prefix.ps1` would fail the next claim's green baseline; the host owns that **invariant** — see § 1 step 3 — not the repair.
 3. **Re-apply § 2 to the remaining `QUEUED` set before the next claim** — that is the fixpoint loop, and it is what lets a dependent follow its dependency inside one batch. A `SKIP` continues the batch; a `HALT` stops it (§ 5).
-4. **Deferred plans (the MULTI-worthy yield).** If the operator deferred a flagged plan at § 1 step 7, that plan is a **hole in the line**. Keep claiming and running in `claim_order` as normal, but **never claim past the hole**: on reaching the deferred plan's position, halt and emit the partial report (§ 6) with a `DEFERRED-MANUAL` row carrying the plan's code, the topology it needs (`MULTI`), its `blocks` from the script's `complexity` output, and the resume path. Nothing is persisted — the next invocation recomputes the fork from live state, which is the resume contract. Full semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
+4. **Deferred plans (the MULTI-worthy yield).** If the operator deferred a flagged plan at § 1 step 7, that plan is a **hole in the line**. Keep claiming and running in `claim_order` as normal, but **never claim past the hole**: on reaching the deferred plan's position, **print the dashboard with the `your move` card** — the plan's code, the resume path ("run it in a new session via `@pass-the-parcel`; when its wrap-up archives it, re-invoke `@sprint-run` — the queue resumes from the next slot"), and the stranded dependents (the deferred plan's `blocks` from the script's `complexity` output) — then halt and emit the partial report (§ 6) with a `DEFERRED-MANUAL` row carrying the same fields. When the operator returns, the fresh run's dashboard shows that plan's row done and the you-are-here marker advanced. Nothing is persisted — the next invocation recomputes the fork from live state, which is the resume contract. Full semantics: `.devops/rules/plan-lifecycle.md` § Claim Protocol → *MULTI-worthy Yield*.
 
 ## 4. Terminal state
 
@@ -99,7 +99,7 @@ Halt the batch immediately and report; already-completed plans keep their termin
 
 ## 6. Consolidated report (directed)
 
-When the eligible set is drained, write one report at `.opencode/plans/run-sprint-{n}/sprint_run_report.md`:
+When the eligible set is drained, write one report at `.opencode/plans/run-sprint-{n}/sprint_run_report.md` — **its opening block is the dashboard** (`python scripts/sprint_dashboard.py` verbatim; the record rows follow as the report's body):
 
 - one row per run plan carrying **code + title**, terminal Status, touched files, Phase 9 verification evidence, and the plan's **lane** (`serial` / `parallel`); each per-plan row carries the Phase 9 evidence's `Suite scope` value, with the full suite consolidated at the follow-up batch wrap-up gates (canonical: `.devops/rules/plan-lifecycle.md` § Gate Invocation Hygiene).
 - a **Skipped / deferred** table — every non-run plan with its reason (unmet `depends_on` — still `QUEUED` or in-flight `CLAIMED`; `touches` overlap; pre-existing `PHASE_9`; dependency cycle; claim-time queue-pairwise overlap), plus a **`DEFERRED-MANUAL`** row for any plan the operator deferred at § 1 step 7 — its code, the topology it needs (`MULTI`), the dependents it strands (the `blocks` closure from the script's `complexity` output), and the resume path;
@@ -108,5 +108,7 @@ When the eligible set is drained, write one report at `.opencode/plans/run-sprin
 On `HALT`, **emit the partial report immediately** — completed plans at `PHASE_9`, the stop point, the cause, the resume path — instead of waiting for the queue to drain. Echo the **complete body** in chat: the report path is gitignored/ephemeral and cannot be linked from tracked docs.
 
 ## 7. Named exception
+
+**Cadence:** the dashboard is printed at every transition — after the § 1 preview's yes/no, before and after each spawn, at every halt (with the `your move` card on a deferral), and at the drain. One shape, recomputed from live state each time; the report (§ 6) carries it as its opening block.
 
 This batch loop runs each spawned `ptp-parcel-fast` through one plan's Phases 1→9 in a single run, and every claim runs in place on the trunk (no worktree, no plan branch, one claim at a time). Gate D is **batched** — deferred to one consolidated human verdict, never skipped; each executed plan carries `claim_status: GATE_D_USER_APPROVAL` until that verdict plus the follow-up wrap-up (§ 6 — batch-scoped or per-plan) retires it to `COMPLETE`. The loop itself never archives and never marks a plan complete. See `.devops/rules/plan-lifecycle.md` § Deviations.

@@ -1,11 +1,11 @@
 ---
 name: sprint-status
 description: Make sure to use this skill whenever the user asks "where are we", "sprint status", "how's the sprint going", "what's left in this sprint", "are we on track", /sprint-status, or wants a readout of the current sprint's progress. Reads the active sprint.md, the sprint queue, the active claims in .devops/plans/, and the archive, then produces a burn-up snapshot, flags at-risk or stale claims, and recommends what to work on next. This skill READS state — it writes no files and changes nothing.
-version: 4
-updated: 2026-09-17
+version: 5
+updated: 2026-09-30
 ---
 
-# Sprint Status — Read-Only Burn-Up
+# Sprint Status — Read-Only Status Readout
 
 > **Boundary:** Pure reporting. Writes nothing. If the user wants to change scope, that's `@sprint-plan` (new sprint) or editing the active `sprint.md` directly with their agreement. This skill only answers "where are we right now."
 
@@ -31,25 +31,25 @@ For each committed code, find its actual state by checking, in order:
 
 Cross-reference recent `.devops/logs/agent-changelog.md` entries to confirm completions match reality. The archive is the machine signal for COMPLETE; `sprint.md`'s own status column is the human record — if they disagree, the archive wins and the sprint record needs updating.
 
-## 4. Produce the Burn-Up Readout
+## 4. Produce the Dashboard Readout
 
-Present as a compact report:
+**The machine shape lives in the script; this section is the operator-facing example, cited to it.** Run `python scripts/sprint_dashboard.py` — its plain-text output IS the readout (one format, two entry points: the batch host prints the same shape at every transition, `@sprint-run` § 3; this skill prints it on demand). The pins (exact top-level keys, row fields, state tokens, rail ladders, degrade kinds) are owned by the script + the fixture suite (`scripts/tests/test_sprint_dashboard.py`) — this example is never edited ahead of them:
 
 ```
-Sprint {n}: {Name}   Goal: {one line}
-Capacity: {delivered}/{committed} pts ({%})   Plans: {done}/{total}
-
-| Code | Plan | Size | State | Owner | Last touch | Note |
-|------|------|------|-------|-------|------------|------|
-| T.. | ... | M | ✅ DONE | — | — | archived {date} |
-| T.. | ... | M | 🟠 AWAITING GATE D | {owner} | {date} | `GATE_D_USER_APPROVAL` at `PHASE_9` — verdict + wrap-up pending |
-| T.. | ... | L | 🔄 CLAIMED | {owner} | {date} | PHASE 8 executing |
-| T.. | ... | S | 🟡 QUEUED | — | — | claimable |
-| T.. | ... | S | ⬜ BLOCKED | — | — | depends on {code} |
-
-On track? {yes / at risk / behind} — {reason}
-Recommended next: {the highest-priority claimable plan, with why}
+Sprint 14 — Queue Dashboard                                open
+ ▶ sprint start — current
+ ☐ user testing — pending
+ ☐ sprint close — pending
+ ✅ complete  T1-E3.20  preset overrule check
+ ✅ complete  T1-E3.22  manual claim baseline
+ ▶ running — batch  T1-E3.26  sprint queue dashboard
+   ⟵ you are here (running — batch)
+ ⏸ waiting on your call  T1-E1.06  subagent surface
+ ⬜ queued — batch  T1-E5.03  plan-record lever
+note: T1-E3.26 wrap-up done, archive move pending        (appears only when true)
 ```
+
+**Kept alongside the shape (ride R6 — adoption never silently drops these):** Capacity / Plans / Points lines and the "On track?" read stay as the report's closing block, reading from `sprint.md`'s Capacity section as before. § 3's five-state machine maps onto the dashboard's badges 1:1: `COMPLETE` → `✅ complete`, awaiting the Gate D verdict → `⏳ awaiting gate D`, `CLAIMED` → `▶ running`, `QUEUED` (and its claimable subset) → `⬜ queued — batch`, blocked → `🚧 blocked — <the predicate's reason>` (from `compute()`'s `skipped` — § 5's Blocked-queue note renders from the same data), MISSING → `❔ missing`. One mapping home: this § 4; § 3's vocabulary points here, never re-rendered.
 
 ## 5. Flag Risk
 
