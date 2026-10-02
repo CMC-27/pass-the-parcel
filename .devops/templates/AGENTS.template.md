@@ -38,7 +38,7 @@ intelligence hub first.
 ## Managed Simplicity
 <!-- MACHINERY: keep verbatim -->
 
-> **Managed Simplicity.** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
+> **Managed Simplicity.** Every rule, skill, script and register is a purchase: climb the Simplicity Ladder before adding one, measure what exists with the surface-budget report, and retire what has stopped paying for itself — a drift gate is moved, never deleted. See `.devops/rules/managed-simplicity.md`.
 
 ---
 

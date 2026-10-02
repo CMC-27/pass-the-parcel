@@ -3,7 +3,7 @@ title: Surface Budget
 tags: [dev, rules, simplicity, budget, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-29
+last-reviewed: 2026-10-02
 related-to: [managed-simplicity.md, plan-lifecycle.md, agents-and-skills.md]
 ---
 
@@ -48,7 +48,7 @@ walk-roots:
   - .opencode/plans/base-context.md
   - .devops/plans/template-plan.md
 rules:
-  - managed-simplicity :: We do one thing, we do it well, and we do it fast :: .devops/rules/managed-simplicity.md :: AGENTS.md | .devops/templates/AGENTS.template.md | .opencode/plans/base-context.md | .devops/templates/base-context.template.md
+  - managed-simplicity :: is a purchase: climb the Simplicity Ladder before adding one :: .devops/rules/managed-simplicity.md :: AGENTS.md | .devops/templates/AGENTS.template.md | .opencode/plans/base-context.md | .devops/templates/base-context.template.md
   - operating-principles :: reviewed, executed, verified change :: OPERATING-PRINCIPLES.md :: README.md | AGENTS.md
   - cache-first :: Cache-first :: OPERATING-PRINCIPLES.md :: README.md | AGENTS.md
   - claim_status :: claim_status :: .devops/rules/plan-lifecycle.md :: .devops/agents/parcel.agent.md | .devops/agents/ptp-parcel-fast.subagent.md | .devops/plans/template-plan.md | .devops/skills/agent-wrap-up/SKILL.md | .devops/skills/backlog/SKILL.md | .devops/skills/build-roadmap/SKILL.md | .devops/skills/pass-the-parcel/SKILL.md | .devops/skills/ptp-parcel-fast/SKILL.md | .devops/skills/spaghetti-monster/SKILL.md | .devops/skills/sprint-close/SKILL.md | .devops/skills/sprint-plan/SKILL.md | .devops/skills/sprint-run/SKILL.md | .devops/skills/sprint-status/SKILL.md | .devops/skills/sync-architecture/SKILL.md | .devops/skills/user-testing/SKILL.md | .devops/templates/AGENTS.template.md | .devops/templates/SPRINTS.template.md | .devops/templates/base-context.template.md | .opencode/plans/base-context.md | AGENTS.md | HOW-TO.md
@@ -82,4 +82,4 @@ Report-only. It prints a loud one-line notice and exits `0` when the block is ab
 
 ---
 
-*Last reviewed 2026-09-29. Changes to these rules require human sign-off.*
+*Last reviewed 2026-10-02. Changes to these rules require human sign-off.*

@@ -47,7 +47,7 @@
 # Verification is hardcoded in scripts/sync-architecture.ps1 (prefix regen, utf8, wiki_lint)
 # — there is no verify_commands key; the script is the single source of truth.
 
-machinery-version: 99
+machinery-version: 100
 
 # Skill tiering (T3-E1.04). A satellite declares how much of the skill library it carries;
 # the sync respects it. This is DATA, not prose - the engine reads these two keys, and no

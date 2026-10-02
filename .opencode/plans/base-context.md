@@ -13,7 +13,7 @@
 9. **Chunked Write Discipline:** Never materialise a large file in one `write`/`edit` — the editor stalls on big payloads ("Preparing write…"). Write a skeleton (frontmatter + headings + a unique placeholder per section) small, then fill each section with its own small `edit` replacing that placeholder; cap each call at ~60–100 lines. `write` overwrites, never appends — on a stall, `read` what landed and continue; never re-send the whole payload.
 10. **User-Facing Conversation:** Dev to product owner — the owner sets the direction and owns the vision; the dev team owns the technical and reports back in the owner's language: plain words, outcomes first, no unexplained jargon. See `.wiki/rules/language/communication-rules.md` § User-facing conversation.
 
-**Managed Simplicity (first principle).** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
+**Managed Simplicity (first principle).** Every rule, skill, script and register is a purchase: climb the Simplicity Ladder before adding one, measure what exists with the surface-budget report, and retire what has stopped paying for itself — a drift gate is moved, never deleted. See `.devops/rules/managed-simplicity.md`.
 
 **Role model.** The user/operator is the **product owner** (holds Gate D and every verdict); the agent fleet is the **dev team**. Statement of record: `OPERATING-PRINCIPLES.md` § The Goal.
 

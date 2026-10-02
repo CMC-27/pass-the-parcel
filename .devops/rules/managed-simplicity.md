@@ -3,7 +3,7 @@ title: Managed Simplicity
 tags: [dev, rules, principle, simplicity, machinery]
 status: approved
 owner: Wiki Owner
-last-reviewed: 2026-09-17
+last-reviewed: 2026-10-02
 related-to: [plan-lifecycle.md, agents-and-skills.md, process-lessons.md, ../skills/ptp-high-visionary/SKILL.md]
 ---
 
@@ -15,13 +15,13 @@ related-to: [plan-lifecycle.md, agents-and-skills.md, process-lessons.md, ../ski
 
 > ### Managed Simplicity
 >
-> **We do one thing, we do it well, and we do it fast.**
+> **Every rule, skill, script and register is a purchase: climb the Simplicity Ladder before adding one, measure what exists with the surface-budget report, and retire what has stopped paying for itself.**
 >
-> Simplicity is not the absence of structure; it is structure that earns its cost. One canonical home per rule. One deterministic check per invariant. Nothing that has stopped paying for itself. Robustness comes from those checks, not from defensive machinery — when an edge case appears we remove it or accept it out loud, never engineer around it.
+> The payment is in outcomes: agent context that stays cheap and honest, less bloat, less drift. Simplicity is not the absence of structure — it is structure that earns its cost.
 >
-> Depth is bought for outcomes. The wiki and the pipeline exist to keep an agent's context cheap and honest, cut bloat, and hold drift down — never for their own sake. A surface that stops doing that is retired.
+> The standards each purchase must meet: one canonical home per rule — cite it, never restate it. One deterministic check per invariant — robustness comes from those checks, not from defensive machinery. When an edge case appears, remove it or accept it out loud, never engineer around it.
 >
-> **Two instruments enforce this:** the **Simplicity Ladder** before anything is added (plan time), and the **surface-budget report** after it exists (maintenance).
+> **Two instruments enforce this:** the **Simplicity Ladder** before anything is added (plan time), and the **surface-budget report** after it exists (maintenance). Both are detailed in § The Two Instruments.
 
 ## Why the maintenance instrument was missing
 
@@ -52,12 +52,12 @@ The report is **report-only**: it always exits `0` and is never added to `.githu
 | `AGENTS.md` + `.devops/templates/AGENTS.template.md` | compact MACHINERY block citing the canon | ✅ via the seed |
 | `.opencode/plans/base-context.md` + `.devops/templates/base-context.template.md` (prefix) | one operative line citing the canon | ✅ via re-sync into the 9 locked agents |
 
-The compact form carried by all four pointer surfaces, byte-for-byte:
+The compact form carried by all four pointer surfaces — the label differs per surface pair (`Managed Simplicity.` in the AGENTS pair, `Managed Simplicity (first principle).` in the base-context pair), the body after it is byte-identical:
 
-> **Managed Simplicity.** We do one thing, we do it well, and we do it fast. Structure must earn its cost: one canonical home per rule, one deterministic check per invariant, no surface that has stopped paying for itself. We do not build machinery for edge cases — we remove or accept them. Depth (the wiki, the pipeline) is bought for outcomes. See `.devops/rules/managed-simplicity.md`.
+> **Managed Simplicity.** Every rule, skill, script and register is a purchase: climb the Simplicity Ladder before adding one, measure what exists with the surface-budget report, and retire what has stopped paying for itself — a drift gate is moved, never deleted. See `.devops/rules/managed-simplicity.md`.
 
 The premise is also **row 1 of the surface-budget registry** (`.devops/rules/surface-budget.md`), with its canonical home set to this file — the axis's own rule book obeys the axis.
 
 ---
 
-*Last reviewed 2026-09-17. Changes to these rules require human sign-off.*
+*Last reviewed 2026-10-02. Changes to these rules require human sign-off.*
