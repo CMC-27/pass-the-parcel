@@ -13,7 +13,7 @@ claims:
     hash: sha256:41604cf24f3a987101443951ff0dc64488992bf2bb7553b529e12fe4e4007b3c
   - id: claims-drift-gate
     source: scripts/wiki_claims.py#cmd_check
-    hash: sha256:90d7fa2d9961ae8fc1cf8d61a51032c0a17906bf292037430ed51baad7a0df80
+    hash: sha256:5b109a78ff4f60422f23515b6adbcc32883b17cc0934ea3506d4a907a71131cd
   - id: hub-spoke-enforced
     source: scripts/wiki_lint.py#category_indexes
     hash: sha256:41604cf24f3a987101443951ff0dc64488992bf2bb7553b529e12fe4e4007b3c
