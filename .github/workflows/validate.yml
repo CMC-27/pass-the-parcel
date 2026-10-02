@@ -94,6 +94,11 @@ jobs:
       - name: Coverage gate fixtures (temp trees only)
         run: python scripts/tests/test_wiki_claims_coverage.py
 
+      - name: Claims digest host-stability fixtures (temp trees only)
+        # The digest must be identical on a CRLF working tree and an LF checkout
+        # of the same blob — raw-byte hashing made the claims gate host-dependent.
+        run: python scripts/tests/test_wiki_claims_digest.py
+
       - name: Machinery version discipline (manifest vs version-history)
         run: |
           python - <<'EOF'

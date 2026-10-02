@@ -2,7 +2,8 @@
 """wiki_claims.py — Grounded Claims checker for the wiki knowledge base.
 
 A claim binds a material fact in a wiki doc to the source file that makes it
-true, plus a sha256 of that file's bytes. When the source changes, the claim is
+true, plus a sha256 of that file's content with newlines normalised, so the
+pin is host-independent. When the source changes, the claim is
 reported stale — the wiki reports its own drift instead of silently rotting.
 `check` also resolves the `#symbol` fragment against its source file: a claim
 that names a symbol the source does not contain is a false fact, reported as
@@ -111,7 +112,23 @@ def read_bytes(path: Path) -> bytes:
 
 
 def digest(path: Path) -> str:
-    return hashlib.sha256(read_bytes(path)).hexdigest()
+    """sha256 of the file's *content*, identical on every checkout of a blob.
+
+    Newlines are folded to `\n` before hashing, so a pin recorded on a CRLF
+    working tree matches CI's LF checkout of the same bytes. Raw-byte hashing
+    made the drift gate host-dependent: a satellite whose working tree still
+    carried CRLF was red in CI and green locally on the same commit, every
+    push, while a genuine drift and a newline accident looked alike. A file
+    that is not valid UTF-8 has no newline convention to fold and is hashed
+    raw, so a binary source still pins byte-for-byte.
+    """
+    raw = read_bytes(path)
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return hashlib.sha256(raw).hexdigest()
+    normalised = text.replace("\r\n", "\n").replace("\r", "\n")
+    return hashlib.sha256(normalised.encode("utf-8")).hexdigest()
 
 
 # Identifier-shaped symbols (function/class/constant names) must match on a word

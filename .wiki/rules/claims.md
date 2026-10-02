@@ -11,7 +11,7 @@ related-to: [./frontmatter.md, ./link-hygiene.md, ../../scripts/wiki_claims.py]
 claims:
   - id: claims-parser-owner
     source: scripts/wiki_claims.py#claims
-    hash: sha256:90d7fa2d9961ae8fc1cf8d61a51032c0a17906bf292037430ed51baad7a0df80
+    hash: sha256:5b109a78ff4f60422f23515b6adbcc32883b17cc0934ea3506d4a907a71131cd
 ---
 
 # Grounded Claims
@@ -33,13 +33,13 @@ claims:
 |---|---|
 | `id` | Slug, unique within the doc. Names the proposition, not the file |
 | `source` | Repo-relative POSIX path, plus `#symbol` naming the function, class, constant, or section that carries the fact |
-| `hash` | `sha256:` prefix + hex digest of the **whole source file's bytes** |
+| `hash` | `sha256:` prefix + hex digest of the **whole source file's content, newlines normalised to `\n`** |
 
 A claim whose `source` carries no `#symbol` is legal — it binds the fact to the whole file. When a `#symbol` **is** present, `check` resolves it against the named source file (see [Drift Semantics](#drift-semantics)).
 
 ## Hash Definition
 
-The digest is `sha256` of the entire source file. Any edit to that file marks every claim pointing at it stale.
+The digest is `sha256` of the entire source file, read as UTF-8 with `\r\n` and `\r` folded to `\n` first. Any edit to that file marks every claim pointing at it stale. The normalisation is not an editorial choice: it is what makes a pin recorded on one checkout match every other checkout of the same blob, so the gate reports drift rather than the host's line endings. A non-UTF-8 (binary) source is hashed raw.
 
 > **Ceiling (`ponytail:`)** — whole-file hashing over-flags: a claim about `main()` goes stale when an unrelated helper changes. This is deliberate. A false stale is a safe prompt to re-read; a missed drift is a wrong wiki. Upgrade path: hash a symbol-extracted region instead of the whole file.
 
